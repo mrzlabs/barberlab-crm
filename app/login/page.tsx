@@ -8,7 +8,7 @@ export default function LoginPage({
 }) {
   return (
     <main className="surface-grid grid min-h-dvh place-items-center p-3 sm:p-5">
-      <section className="grid w-full max-w-6xl overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/72 shadow-2xl shadow-violet-950/30 backdrop-blur-2xl lg:grid-cols-[1.08fr_0.92fr]">
+      <section className="grid w-full max-w-6xl overflow-hidden rounded-[2rem] border border-white/80 bg-white/88 shadow-2xl shadow-slate-950/12 backdrop-blur-2xl lg:grid-cols-[1.08fr_0.92fr]">
         <div className="relative hidden min-h-[620px] bg-slate-950 p-8 text-white lg:block">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(34,211,238,0.34),transparent_24rem),radial-gradient(circle_at_80%_70%,rgba(124,58,237,0.28),transparent_20rem)]" />
           <div className="relative flex h-full flex-col justify-between">
@@ -39,7 +39,7 @@ export default function LoginPage({
           </div>
         </div>
 
-        <div className="bg-white/96 p-6 text-slate-950 sm:p-10 lg:bg-white/92">
+        <div className="bg-white/95 p-6 text-slate-950 sm:p-10">
           <div className="lg:hidden">
             <div className="grid size-12 place-items-center rounded-2xl bg-slate-950 text-sm font-black text-cyan-300">BL</div>
             <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-primary">BarberLab CRM</p>

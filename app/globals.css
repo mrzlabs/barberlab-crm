@@ -22,7 +22,7 @@ html {
 
 body {
   margin: 0;
-  background: #030712;
+  background: #f4f7fb;
   color: hsl(var(--foreground));
   font-family: var(--font-outfit), "Plus Jakarta Sans", Inter, sans-serif;
   text-rendering: geometricPrecision;
@@ -45,9 +45,9 @@ a {
 
 .surface-grid {
   background:
-    radial-gradient(circle at 14% 18%, rgba(34, 211, 238, 0.18), transparent 20rem),
-    radial-gradient(circle at 86% 74%, rgba(124, 58, 237, 0.24), transparent 24rem),
-    linear-gradient(135deg, #020617 0%, #08111f 42%, #12071f 100%);
+    radial-gradient(circle at 14% 18%, rgba(34, 211, 238, 0.14), transparent 20rem),
+    radial-gradient(circle at 86% 74%, rgba(124, 58, 237, 0.16), transparent 24rem),
+    linear-gradient(135deg, #eef7fb 0%, #f7f4ff 46%, #f9fbff 100%);
 }
 
 .surface-grid::before {

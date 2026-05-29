@@ -101,3 +101,14 @@ export const negocioUpdateSchema = negocioSchema.omit({
 }).extend({
   id: z.string().uuid(),
 });
+
+export const negocioUserSchema = z.object({
+  negocioId: z.string().uuid(),
+  rol: z.enum(["admin", "empleado", "cliente"]),
+  nombre: z.string().min(2).max(120),
+  telefono: z.string().min(7).max(30),
+  email: z.string().email(),
+  password: z.string().min(8).max(72),
+  especialidad: z.enum(["barberia", "peluqueria", "spa_unas", "tatuajes"]).optional().or(z.literal("")),
+  comisionPct: z.coerce.number().min(0).max(100).optional(),
+});

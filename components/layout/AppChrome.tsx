@@ -332,23 +332,10 @@ const helpTopics: Record<UserRole, HelpTopic[]> = {
 // ─── Alerts ──────────────────────────────────────────────────────────────────
 
 const alerts: Record<UserRole, { label: string; tone: string; href: string; detail: string }[]> = {
-  super_admin: [
-    { label: "Negocios activos", tone: "bg-cyan-50 text-cyan-700", href: "/super-admin/negocios", detail: "Revisar clientes SaaS" },
-    { label: "Suscripciones", tone: "bg-violet-50 text-violet-700", href: "/super-admin/negocios", detail: "Validar planes y estado" },
-  ],
-  admin: [
-    { label: "2 citas próximas", tone: "bg-cyan-50 text-cyan-700", href: "/admin/agenda", detail: "Revisar agenda y aprobaciones" },
-    { label: "1 insumo bajo mínimo", tone: "bg-amber-50 text-amber-700", href: "/admin/inventario", detail: "Revisar stock y reposición" },
-    { label: "3 turnos pendientes", tone: "bg-violet-50 text-violet-700", href: "/admin/turnos", detail: "Cerrar caja e insumos" },
-  ],
-  empleado: [
-    { label: "Cita por aceptar", tone: "bg-violet-50 text-violet-700", href: "/empleado/mi-agenda", detail: "Validar cliente y horario" },
-    { label: "Turno por cerrar", tone: "bg-cyan-50 text-cyan-700", href: "/empleado/cerrar-turno", detail: "Registrar pago final" },
-  ],
-  cliente: [
-    { label: "Reserva pendiente", tone: "bg-cyan-50 text-cyan-700", href: "/cliente/mis-citas", detail: "Revisar estado de cita" },
-    { label: "Productos disponibles", tone: "bg-emerald-50 text-emerald-700", href: "/cliente/reservar", detail: "Ver recomendados" },
-  ],
+  super_admin: [],
+  admin: [],
+  empleado: [],
+  cliente: [],
 };
 
 // ─── SpiralCanvas ────────────────────────────────────────────────────────────
@@ -645,7 +632,7 @@ export function AppChrome({
 
   return (
     <div
-      className="crm-shell min-h-dvh overflow-x-hidden text-slate-100"
+      className="crm-shell min-h-dvh overflow-x-hidden text-slate-950"
       style={{
         ["--brand-primary" as string]: brand?.colorPrimario || "#111827",
         ["--brand-secondary" as string]: brand?.colorSecundario || "#22d3ee",
@@ -656,8 +643,8 @@ export function AppChrome({
 
       {/* ── Background ──────────────────────────────────────────── */}
       <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-[linear-gradient(155deg,#020617_0%,#07111f_42%,#13071f_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_45%_at_8%_2%,rgba(34,211,238,.13),transparent),radial-gradient(ellipse_50%_40%_at_92%_5%,rgba(124,58,237,.18),transparent),radial-gradient(ellipse_55%_45%_at_50%_98%,rgba(20,184,166,.10),transparent)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(155deg,#eef7fb_0%,#f7f4ff_46%,#fbfdff_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_45%_at_8%_2%,rgba(34,211,238,.12),transparent),radial-gradient(ellipse_50%_40%_at_92%_5%,rgba(124,58,237,.14),transparent),radial-gradient(ellipse_55%_45%_at_50%_98%,rgba(20,184,166,.09),transparent)]" />
         {/* espirales Archimedeas girando lentamente */}
         <SpiralCanvas className="absolute inset-0 h-full w-full" />
         {/* puntos neurales + líneas encima */}
@@ -677,20 +664,20 @@ export function AppChrome({
       )}
 
       {/* ── Sidebar ─────────────────────────────────────────────── */}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex flex-col border-r border-white/10 bg-slate-950/78 shadow-2xl shadow-black/40 backdrop-blur-[28px] transition-all duration-300 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(19rem,86vw)] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-40 flex flex-col border-r border-slate-900/10 bg-white/78 shadow-2xl shadow-slate-950/12 backdrop-blur-[28px] transition-all duration-300 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(19rem,86vw)] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}>
         {/* header */}
-        <div className="flex items-center justify-between gap-3 border-b border-white/10 p-4">
+        <div className="flex items-center justify-between gap-3 border-b border-slate-900/10 p-4">
           <div className="flex min-w-0 items-center gap-3">
             <LogoMark brand={brand} />
             <div className={open ? "block" : "hidden"}>
               <p className="text-[11px] font-black uppercase tracking-[0.22em]" style={{ color: brand?.colorAcento || "#6d28d9" }}>{brand?.plan ? `Plan ${brand.plan}` : "BarberLab"}</p>
-              <h1 className="truncate text-sm font-black text-white">{title}</h1>
+              <h1 className="truncate text-sm font-black text-slate-950">{title}</h1>
             </div>
           </div>
-          <button className="hidden rounded-xl border border-white/10 bg-white/10 p-2 text-slate-200 hover:bg-white/15 hover:text-cyan-200 backdrop-blur-sm lg:grid" onClick={() => setOpen((v) => !v)} type="button" aria-label="Contraer menú">
+          <button className="hidden rounded-xl border border-slate-900/10 bg-white/70 p-2 text-slate-600 hover:bg-white hover:text-violet-700 backdrop-blur-sm lg:grid" onClick={() => setOpen((v) => !v)} type="button" aria-label="Contraer menú">
             {open ? <ChevronLeft className="size-4" /> : <ChevronRight className="size-4" />}
           </button>
-          <button className="rounded-xl border border-white/10 bg-white/10 p-2 text-slate-200 lg:hidden" onClick={() => setMobileOpen(false)} type="button" aria-label="Cerrar menú">
+          <button className="rounded-xl border border-slate-900/10 bg-white/70 p-2 text-slate-600 lg:hidden" onClick={() => setMobileOpen(false)} type="button" aria-label="Cerrar menú">
             <X className="size-4" />
           </button>
         </div>
@@ -698,15 +685,15 @@ export function AppChrome({
         {/* nav body */}
         <div className="flex-1 overflow-y-auto p-3">
           <div className={`mb-4 flex flex-wrap gap-2 ${open ? "justify-start" : "justify-center"}`}>
-            <span className="rounded-full border border-cyan-300/15 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-cyan-100">
+            <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-violet-700">
               {open ? role : role.slice(0, 1)}
             </span>
           </div>
 
           {open && (
-            <label className="mb-3 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/8 px-3 py-2.5 text-sm font-semibold text-slate-300 backdrop-blur-sm focus-within:border-cyan-300/50 focus-within:bg-white/12">
+            <label className="mb-3 flex items-center gap-2 rounded-2xl border border-slate-900/10 bg-white/70 px-3 py-2.5 text-sm font-semibold text-slate-500 backdrop-blur-sm focus-within:border-cyan-300/50 focus-within:bg-white">
               <Search className="size-4 shrink-0" />
-              <input className="w-full bg-transparent outline-none placeholder:text-slate-500" placeholder="Buscar módulo" />
+              <input className="w-full bg-transparent outline-none placeholder:text-slate-400" placeholder="Buscar módulo" />
             </label>
           )}
 
@@ -717,7 +704,7 @@ export function AppChrome({
               const shapeClass = style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-xl" : "rounded-[14px]";
               return (
                 <Link
-                  className={`group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:text-white ${open ? "justify-start" : "justify-center"}`}
+                  className={`group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-600 transition hover:bg-white/80 hover:text-slate-950 ${open ? "justify-start" : "justify-center"}`}
                   href={item.href}
                   key={item.href}
                   onClick={() => setMobileOpen(false)}
@@ -732,7 +719,7 @@ export function AppChrome({
           </nav>
 
           {/* alerts panel in sidebar */}
-          {open && !alertsHidden && (
+          {open && !alertsHidden && profileAlerts.length > 0 && (
             <section className="mt-5 rounded-3xl border border-violet-100 bg-white/80 p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-600">Alarmas</p>
@@ -753,7 +740,7 @@ export function AppChrome({
               </div>
             </section>
           )}
-          {open && alertsHidden && (
+          {open && alertsHidden && profileAlerts.length > 0 && (
             <button className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-violet-200 px-3 py-3 text-xs font-bold text-violet-600 hover:bg-violet-50" onClick={() => setAlertsHidden(false)} type="button">
               <Bell className="size-4" /> Mostrar alarmas
             </button>
@@ -764,21 +751,21 @@ export function AppChrome({
       {/* ── Main area ───────────────────────────────────────────── */}
       <div className={`min-h-dvh pb-14 transition-[padding] duration-300 ${open ? "lg:pl-[19rem]" : "lg:pl-[5.2rem]"}`}>
         {/* topbar */}
-        <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/72 px-4 py-3 backdrop-blur-[28px]">
+        <header className="sticky top-0 z-20 border-b border-slate-900/10 bg-white/72 px-4 py-3 backdrop-blur-[28px]">
           <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <button className="rounded-2xl border border-white/10 bg-white/10 p-3 text-cyan-100 lg:hidden" onClick={() => setMobileOpen(true)} type="button" aria-label="Abrir menú">
+              <button className="rounded-2xl border border-slate-900/10 bg-white p-3 text-slate-700 lg:hidden" onClick={() => setMobileOpen(true)} type="button" aria-label="Abrir menú">
                 <Menu className="size-4" />
               </button>
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-300">MRZLABS / CRM</p>
-                <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">{title}</h2>
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-700">MRZLABS / CRM</p>
+                <h2 className="text-xl font-black tracking-tight text-slate-950 sm:text-2xl">{title}</h2>
               </div>
             </div>
             <div className="relative hidden items-center gap-2 md:flex">
-              <button className="relative grid size-10 place-items-center rounded-2xl border border-white/10 bg-white/10 text-slate-200 shadow-sm hover:border-cyan-300/40 hover:text-cyan-100" onClick={() => setAlertsOpen((v) => !v)} type="button" aria-label="Ver alarmas">
+              <button className="relative grid size-10 place-items-center rounded-2xl border border-slate-900/10 bg-white text-slate-600 shadow-sm hover:border-cyan-300/40 hover:text-cyan-700" onClick={() => setAlertsOpen((v) => !v)} type="button" aria-label="Ver alarmas">
                 <Bell className="size-4.5" />
-                {!alertsHidden && <span className="absolute right-2 top-2 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,.9)]" />}
+                {!alertsHidden && profileAlerts.length > 0 && <span className="absolute right-2 top-2 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,.9)]" />}
               </button>
               <button className="rounded-2xl bg-cyan-300 px-4 py-2.5 text-sm font-black text-slate-950 shadow-lg shadow-cyan-950/20 hover:bg-cyan-200 transition" onClick={() => setBotOpen(true)} type="button">
                 Ayuda
@@ -799,6 +786,7 @@ export function AppChrome({
                       </Link>
                     ))}
                     {alertsHidden && <p className="rounded-xl border border-dashed border-slate-200 p-4 text-center text-xs font-bold text-slate-400">Alarmas ocultas</p>}
+                    {!alertsHidden && profileAlerts.length === 0 && <p className="rounded-xl border border-dashed border-slate-200 p-4 text-center text-xs font-bold text-slate-400">Sin alarmas activas</p>}
                   </div>
                 </div>
               )}

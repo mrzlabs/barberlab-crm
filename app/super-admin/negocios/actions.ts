@@ -4,9 +4,9 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
-import { negocios, usuarios } from "@/lib/db/schema";
+import { clientes, empleados, negocios, usuarios } from "@/lib/db/schema";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
-import { negocioSchema, negocioUpdateSchema } from "@/lib/validations/admin";
+import { negocioSchema, negocioUpdateSchema, negocioUserSchema } from "@/lib/validations/admin";
 
 export async function createNegocio(formData: FormData) {
   await requireRole(["super_admin"]);
@@ -82,4 +82,66 @@ export async function updateNegocio(formData: FormData) {
 
   revalidatePath("/super-admin/negocios");
   revalidatePath(`/super-admin/negocios/${payload.id}`);
+}
+
+export async function createNegocioUser(formData: FormData) {
+  await requireRole(["super_admin"]);
+  const payload = negocioUserSchema.parse(Object.fromEntries(formData));
+  const db = getDb();
+  const supabase = createSupabaseAdminClient();
+  const email = payload.email.trim().toLowerCase();
+
+  if (payload.rol === "empleado" && !payload.especialidad) {
+    throw new Error("Especialidad requerida para empleado");
+  }
+
+  const { data, error } = await supabase.auth.admin.createUser({
+    email,
+    password: payload.password,
+    email_confirm: true,
+    app_metadata: { rol: payload.rol, role: payload.rol, negocio_id: payload.negocioId },
+    user_metadata: {
+      rol: payload.rol,
+      negocio_id: payload.negocioId,
+      nombre: payload.nombre.trim(),
+      telefono: payload.telefono.trim(),
+    },
+  });
+
+  if (error || !data.user) {
+    throw new Error(error?.message || "No se pudo crear el usuario");
+  }
+
+  await db.insert(usuarios).values({
+    id: data.user.id,
+    negocioId: payload.negocioId,
+    email,
+    rol: payload.rol,
+    nombre: payload.nombre.trim(),
+    telefono: payload.telefono.trim(),
+    activo: true,
+  });
+
+  if (payload.rol === "empleado") {
+    await db.insert(empleados).values({
+      negocioId: payload.negocioId,
+      usuarioId: data.user.id,
+      especialidad: payload.especialidad as "barberia" | "peluqueria" | "spa_unas" | "tatuajes",
+      comisionPct: String(payload.comisionPct ?? 0),
+      activo: true,
+    });
+  }
+
+  if (payload.rol === "cliente") {
+    await db.insert(clientes).values({
+      negocioId: payload.negocioId,
+      usuarioId: data.user.id,
+      nombre: payload.nombre.trim(),
+      telefono: payload.telefono.trim(),
+      email,
+    });
+  }
+
+  revalidatePath("/super-admin/negocios");
+  revalidatePath(`/super-admin/negocios/${payload.negocioId}`);
 }

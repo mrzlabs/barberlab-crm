@@ -23,9 +23,24 @@ function Kpi({ label, value, detail }: { label: string; value: string; detail: s
   );
 }
 
+function level(value: number, max: number) {
+  if (!max) return "bg-slate-100 text-slate-400";
+  const ratio = value / max;
+  if (ratio >= 0.76) return "bg-cyan-500 text-white";
+  if (ratio >= 0.46) return "bg-violet-500 text-white";
+  if (ratio >= 0.18) return "bg-amber-300 text-slate-950";
+  return "bg-slate-100 text-slate-500";
+}
+
 export default async function AdminReportesPage({ searchParams }: PageProps) {
   const range = parseRange(searchParams);
   const reportes = await getReportes(range);
+  const maxService = Math.max(...reportes.byService.map((item) => item.ingresos), 0);
+  const maxEmployee = Math.max(...reportes.byEmployee.map((item) => item.ingresos + item.propinas), 0);
+  const topService = reportes.byService[0];
+  const topEmployee = reportes.byEmployee[0];
+  const mainPayment = reportes.byPayment[0];
+  const hasData = reportes.kpis.turnos > 0;
 
   return (
     <div className="space-y-6">
@@ -61,6 +76,86 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
         <Kpi label="Margen bruto" value={fmtMoney(reportes.kpis.margenBruto)} detail={`${fmtMoney(reportes.kpis.costoInsumo)} costo insumo`} />
         <Kpi label="Ticket promedio" value={fmtMoney(reportes.kpis.ticket)} detail={`${fmtMoney(reportes.kpis.propinas)} propinas`} />
         <Kpi label="No asistencia" value={pct(reportes.kpis.tasaNoAsistencia)} detail={`${fmtMoney(reportes.kpis.gastos)} gastos periodo`} />
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        <article className="rounded-2xl border bg-white p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-700">Tendencia comercial</p>
+          <h3 className="mt-2 text-xl font-black">Servicio lider</h3>
+          {topService ? (
+            <>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{topService.servicio} concentra la mayor produccion del periodo.</p>
+              <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100">
+                <div className="h-full rounded-full bg-cyan-400" style={{ width: `${Math.max(8, (topService.ingresos / maxService) * 100)}%` }} />
+              </div>
+              <strong className="mt-3 block text-2xl">{fmtMoney(topService.ingresos)}</strong>
+            </>
+          ) : <p className="mt-3 text-sm text-slate-500">Sin turnos cerrados en el periodo.</p>}
+        </article>
+
+        <article className="rounded-2xl border bg-white p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-700">Talento operativo</p>
+          <h3 className="mt-2 text-xl font-black">Especialista lider</h3>
+          {topEmployee ? (
+            <>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{topEmployee.empleado} marca la mayor produccion del periodo.</p>
+              <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100">
+                <div className="h-full rounded-full bg-violet-500" style={{ width: `${Math.max(8, ((topEmployee.ingresos + topEmployee.propinas) / maxEmployee) * 100)}%` }} />
+              </div>
+              <strong className="mt-3 block text-2xl">{fmtMoney(topEmployee.ingresos + topEmployee.propinas)}</strong>
+            </>
+          ) : <p className="mt-3 text-sm text-slate-500">Sin produccion por empleado en el periodo.</p>}
+        </article>
+
+        <article className="rounded-2xl border bg-white p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-700">Caja</p>
+          <h3 className="mt-2 text-xl font-black">Metodo dominante</h3>
+          {mainPayment ? (
+            <>
+              <p className="mt-2 text-sm leading-6 text-slate-600">El metodo con mayor entrada permite ajustar conciliacion y arqueo.</p>
+              <strong className="mt-4 block text-2xl capitalize">{mainPayment.metodoPago}</strong>
+              <p className="mt-1 text-sm text-slate-500">{fmtMoney(mainPayment.ingresos)} en {mainPayment.turnos} turnos</p>
+            </>
+          ) : <p className="mt-3 text-sm text-slate-500">Sin pagos en el periodo.</p>}
+        </article>
+      </section>
+
+      <section className="rounded-2xl border bg-white shadow-sm">
+        <div className="border-b p-5">
+          <h3 className="text-xl font-black">Mapa de calor operativo</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Lectura visual para decidir precios, equipo, agenda e inventario.</p>
+        </div>
+        {hasData ? (
+          <div className="grid gap-6 p-5 xl:grid-cols-2">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Servicios por ingreso</p>
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {reportes.byService.map((item) => (
+                  <div className={`rounded-2xl p-4 ${level(item.ingresos, maxService)}`} key={`${item.servicio}-heat`}>
+                    <strong className="block text-sm">{item.servicio}</strong>
+                    <span className="mt-2 block text-xs opacity-80">{fmtMoney(item.ingresos)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Empleados por produccion</p>
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {reportes.byEmployee.map((item) => {
+                  const total = item.ingresos + item.propinas;
+                  return (
+                    <div className={`rounded-2xl p-4 ${level(total, maxEmployee)}`} key={`${item.empleado}-heat`}>
+                      <strong className="block text-sm">{item.empleado}</strong>
+                      <span className="mt-2 block text-xs opacity-80">{fmtMoney(total)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p className="p-6 text-sm text-muted-foreground">Sin datos suficientes para mapa de calor.</p>
+        )}
       </section>
 
       <section className="grid gap-6 xl:grid-cols-2">

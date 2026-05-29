@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { updateNegocio } from "../actions";
+import { createNegocioUser, updateNegocio } from "../actions";
 import { getNegocioById, getNegocioStats } from "@/lib/super-admin/queries";
 
 export const dynamic = "force-dynamic";
@@ -48,7 +48,22 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1fr_360px]">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {[
+          ["Crear usuarios", "Administra administradores, empleados y clientes para esta barberia sin mezclar datos."],
+          ["Suspender tienda", "Cambia el estado a suspendido cuando exista mora, retiro temporal o revision comercial."],
+          ["Personalizar marca", "Ajusta logo, colores y fuente para que el CRM parezca propio del comercio."],
+          ["Escalar plan", "Starter, Pro o Enterprise segun volumen, soporte y nivel de aislamiento."],
+        ].map(([title, body]) => (
+          <article className="glass-panel rounded-[1.4rem] p-5" key={title}>
+            <div className="mac-dots" />
+            <h3 className="mt-5 text-lg font-black text-slate-950">{title}</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1fr_390px]">
         <form action={updateNegocio} className="glass-panel rounded-[2rem] p-5">
           <input name="id" type="hidden" value={negocio.id} />
           <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Personalizacion</p>
@@ -138,6 +153,60 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
             Cada negocio opera con su propio `negocio_id`. El modo dedicado queda reservado para clientes enterprise con base separada.
           </div>
         </aside>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[430px_1fr]">
+        <form action={createNegocioUser} className="glass-panel rounded-[2rem] p-5">
+          <input name="negocioId" type="hidden" value={negocio.id} />
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Usuarios del negocio</p>
+          <h3 className="mt-1 text-2xl font-black">Crear acceso</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Crea usuarios dentro de esta barberia. El rol define su vista, permisos y datos visibles.
+          </p>
+          <div className="mt-5 grid gap-3">
+            <select className={input} name="rol" defaultValue="empleado">
+              <option value="admin">Admin negocio</option>
+              <option value="empleado">Empleado</option>
+              <option value="cliente">Cliente</option>
+            </select>
+            <input className={input} name="nombre" placeholder="Nombre completo" required />
+            <input className={input} name="telefono" placeholder="Telefono" required />
+            <input className={input} name="email" placeholder="Email" required type="email" />
+            <input className={input} name="password" placeholder="Password inicial" required type="password" />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <select className={input} name="especialidad" defaultValue="barberia">
+                <option value="barberia">Barberia</option>
+                <option value="peluqueria">Peluqueria</option>
+                <option value="spa_unas">Spa de unas</option>
+                <option value="tatuajes">Tatuajes</option>
+              </select>
+              <input className={input} name="comisionPct" placeholder="Comision %" type="number" min="0" max="100" step="0.01" defaultValue="0" />
+            </div>
+            <button className="rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white" type="submit">
+              Crear usuario
+            </button>
+          </div>
+        </form>
+
+        <section className="glass-panel rounded-[2rem] p-5">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">Operación MRZLABS</p>
+          <h3 className="mt-1 text-2xl font-black">Flujo comercial por barberia</h3>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {[
+              ["Onboarding", "Crear negocio, cargar marca, crear admin y validar acceso."],
+              ["Equipo", "Crear empleados con especialidad, comision y agenda propia."],
+              ["Clientes", "Crear clientes manuales o con acceso para reservas."],
+              ["Retiro", "Suspender o cancelar tienda sin borrar historial operativo."],
+              ["Mercado LATAM", "Soportar monedas, planes y operaciones por pais desde el modelo SaaS."],
+              ["Decision", "Cruzar agenda, caja, inventario, no asistencia y rentabilidad."],
+            ].map(([title, body]) => (
+              <article className="rounded-2xl border bg-white/80 p-4" key={title}>
+                <strong className="block text-sm">{title}</strong>
+                <p className="mt-1 text-sm leading-6 text-slate-600">{body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
       </section>
     </div>
   );

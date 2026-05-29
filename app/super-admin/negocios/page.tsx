@@ -9,6 +9,8 @@ const input = "w-full rounded-xl border bg-white/80 px-3 py-2 text-sm outline-no
 export default async function NegociosPage() {
   const negocios = await getNegocios();
   const activos = negocios.filter((negocio) => negocio.estado === "activo").length;
+  const suspendidos = negocios.filter((negocio) => negocio.estado === "suspendido").length;
+  const dedicados = negocios.filter((negocio) => negocio.modoAislamiento === "dedicado").length;
   const mrrBase = negocios.reduce((sum, negocio) => {
     if (negocio.estado !== "activo") return sum;
     if (negocio.plan === "enterprise") return sum + 450000;
@@ -43,6 +45,20 @@ export default async function NegociosPage() {
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">MRR base</p>
           <strong className="mt-2 block break-words text-3xl font-black">${mrrBase.toLocaleString("es-CO")}</strong>
         </article>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {[
+          ["Mercado LATAM", `${negocios.length} negocios preparados para operar por pais, moneda y plan.`],
+          ["Tiendas suspendidas", `${suspendidos} requieren revision comercial, pago o retiro controlado.`],
+          ["Aislamiento dedicado", `${dedicados} clientes con perfil enterprise o datos separados.`],
+          ["Acciones MRZLABS", "Crear usuarios, personalizar marca, cambiar plan y retirar tienda desde cada negocio."],
+        ].map(([title, body]) => (
+          <article className="glass-panel rounded-[1.4rem] p-5" key={title}>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-700">{title}</p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
+          </article>
+        ))}
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[430px_1fr]">
