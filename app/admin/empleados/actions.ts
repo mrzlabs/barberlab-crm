@@ -1,11 +1,11 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/session";
 import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
 import { empleados, usuarios } from "@/lib/db/schema";
+import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { empleadoAdminSchema } from "@/lib/validations/catalog";
 
 export async function createEmpleado(formData: FormData) {
@@ -19,7 +19,24 @@ export async function createEmpleado(formData: FormData) {
     ...Object.fromEntries(formData),
     activo: formData.get("activo") === "on",
   });
-  const userId = randomUUID();
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase.auth.admin.createUser({
+    email: payload.email.trim().toLowerCase(),
+    password: payload.password,
+    email_confirm: true,
+    app_metadata: { rol: "empleado", role: "empleado" },
+    user_metadata: {
+      rol: "empleado",
+      nombre: payload.nombre.trim(),
+      telefono: payload.telefono.trim(),
+    },
+  });
+
+  if (error || !data.user) {
+    throw new Error(error?.message || "No se pudo crear el usuario Auth del empleado");
+  }
+
+  const userId = data.user.id;
 
   await getDb().transaction(async (tx) => {
     await tx.insert(usuarios).values({

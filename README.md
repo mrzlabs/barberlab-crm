@@ -46,13 +46,15 @@ supabase db push
 
 4. Crear usuario Auth admin:
 
-```text
-email: admin@egosbarberia.com
-rol claim: admin
+```bash
+BARBERLAB_ADMIN_EMAIL=admin@egosbarberia.com \
+BARBERLAB_ADMIN_PASSWORD='cambia-esta-clave' \
+BARBERLAB_ADMIN_NOMBRE="Admin Ego's" \
+BARBERLAB_ADMIN_TELEFONO=3503803010 \
+npm run admin:create
 ```
 
-5. Reemplazar en `supabase/seed.sql` el UUID `00000000-0000-0000-0000-000000000001` por el `auth.users.id` real del admin.
-6. Ejecutar seed:
+5. Ejecutar seed:
 
 ```bash
 supabase db seed
@@ -123,6 +125,7 @@ En demo:
 - Login usa cookie local.
 - Dashboard, agenda, turnos, gastos, inventario, servicios, empleados, clientes y reportes usan datos simulados.
 - Las acciones de servicios, empleados y clientes no escriben en base de datos.
+- Credenciales visibles en login.
 
 ## Produccion
 
@@ -142,3 +145,28 @@ En produccion:
 - RLS aplica en Postgres.
 - Server Actions escriben en Supabase.
 - Vercel debe tener todas las variables reales configuradas.
+- El admin crea empleados con usuario Auth, claim `rol=empleado` y perfil interno.
+- El admin puede crear clientes manuales o clientes con acceso Auth, claim `rol=cliente`.
+- Los servicios, gastos, inventario, turnos, agenda y reportes usan datos reales.
+
+## Usuarios produccion
+
+Admin inicial:
+
+```bash
+npm run admin:create
+```
+
+Empleado:
+
+- Crear desde `/admin/empleados`.
+- El formulario pide password inicial.
+- Se crea usuario Supabase Auth.
+- Se crea fila en `usuarios`.
+- Se crea fila en `empleados`.
+
+Cliente:
+
+- Crear desde `/admin/clientes`.
+- Si se marca `Crear acceso cliente`, se crea usuario Supabase Auth y fila `usuarios`.
+- Si no se marca, queda como cliente manual para agenda y turnos.

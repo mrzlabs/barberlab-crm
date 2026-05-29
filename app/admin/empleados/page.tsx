@@ -16,6 +16,7 @@ export default async function AdminEmpleadosPage() {
         <div className="mt-5 grid gap-4">
           <label className="text-xs font-bold uppercase text-muted-foreground">Nombre<input className={input} name="nombre" required /></label>
           <label className="text-xs font-bold uppercase text-muted-foreground">Email<input className={input} name="email" required type="email" /></label>
+          <label className="text-xs font-bold uppercase text-muted-foreground">Password inicial<input className={input} name="password" required minLength={8} type="password" placeholder="Minimo 8 caracteres" /></label>
           <label className="text-xs font-bold uppercase text-muted-foreground">Telefono<input className={input} name="telefono" required /></label>
           <label className="text-xs font-bold uppercase text-muted-foreground">Especialidad<select className={input} name="especialidad"><option value="barberia">Barberia</option><option value="peluqueria">Peluqueria</option><option value="spa_unas">Spa de unas</option><option value="tatuajes">Tatuajes</option></select></label>
           <label className="text-xs font-bold uppercase text-muted-foreground">Comision %<input className={input} name="comisionPct" required type="number" defaultValue="40" /></label>

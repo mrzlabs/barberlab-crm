@@ -22,6 +22,9 @@ export function getRoleFromClaims(claims: Record<string, unknown> | null | undef
   const direct = claims?.rol;
   if (isRole(direct)) return direct;
 
+  const role = claims?.role;
+  if (isRole(role)) return role;
+
   const metadata = claims?.user_metadata;
   if (metadata && typeof metadata === "object" && "rol" in metadata) {
     const nested = (metadata as { rol?: unknown }).rol;

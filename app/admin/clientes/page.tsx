@@ -17,6 +17,8 @@ export default async function AdminClientesPage() {
           <label className="text-xs font-bold uppercase text-muted-foreground">Nombre<input className={input} name="nombre" required /></label>
           <label className="text-xs font-bold uppercase text-muted-foreground">Telefono<input className={input} name="telefono" required /></label>
           <label className="text-xs font-bold uppercase text-muted-foreground">Email<input className={input} name="email" type="email" /></label>
+          <label className="text-xs font-bold uppercase text-muted-foreground">Password si crea cuenta<input className={input} name="password" minLength={8} type="password" /></label>
+          <label className="flex items-center gap-2 text-sm font-semibold"><input name="crearCuenta" type="checkbox" />Crear acceso cliente</label>
           <label className="text-xs font-bold uppercase text-muted-foreground">Notas<textarea className={input} name="notas" rows={4} /></label>
           <button className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white" type="submit">Guardar cliente</button>
         </div>
