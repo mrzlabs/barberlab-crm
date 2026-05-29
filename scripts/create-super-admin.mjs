@@ -33,10 +33,7 @@ const password = process.env.BARBERLAB_SUPER_ADMIN_PASSWORD;
 const nombre = process.env.BARBERLAB_SUPER_ADMIN_NOMBRE || "Super Admin BarberLab";
 const telefono = process.env.BARBERLAB_SUPER_ADMIN_TELEFONO || "3503803010";
 
-const { data, error } = await supabase.auth.admin.createUser({
-  email,
-  password,
-  email_confirm: true,
+const metadata = {
   app_metadata: {
     rol: "admin",
     role: "admin",
@@ -49,7 +46,39 @@ const { data, error } = await supabase.auth.admin.createUser({
     nombre,
     telefono,
   },
+};
+
+let { data, error } = await supabase.auth.admin.createUser({
+  email,
+  password,
+  email_confirm: true,
+  ...metadata,
 });
+
+if (error?.message?.includes("already been registered")) {
+  const { data: usersData, error: listError } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  if (listError) {
+    console.error(listError.message);
+    process.exit(1);
+  }
+
+  const existing = usersData.users.find((user) => user.email?.toLowerCase() === email);
+  if (!existing) {
+    console.error("Usuario existente no encontrado en Auth");
+    process.exit(1);
+  }
+
+  const update = await supabase.auth.admin.updateUserById(existing.id, {
+    password,
+    ...metadata,
+  });
+  if (update.error) {
+    console.error(update.error.message);
+    process.exit(1);
+  }
+  data = { user: update.data.user };
+  error = null;
+}
 
 if (error) {
   console.error(error.message);
