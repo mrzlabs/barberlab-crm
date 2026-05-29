@@ -328,6 +328,74 @@ const alerts: Record<UserRole, { label: string; tone: string; href: string; deta
   ],
 };
 
+// ─── SpiralCanvas ────────────────────────────────────────────────────────────
+
+function SpiralCanvas({ className }: { className?: string }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const cv = ref.current;
+    if (!cv) return;
+    const ctx = cv.getContext("2d");
+    if (!ctx) return;
+
+    let W = 0, H = 0;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    const fit = () => {
+      const rect = cv.parentElement!.getBoundingClientRect();
+      W = rect.width; H = rect.height;
+      cv.width = W * dpr; cv.height = H * dpr;
+      cv.style.width = `${W}px`; cv.style.height = `${H}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(cv.parentElement!);
+
+    const defs = [
+      { fx: 0.10, fy: 0.20, fr: 0.30, turns: 4.5, spd:  0.00016, col: "109,40,217", a: 0.07 },
+      { fx: 0.90, fy: 0.78, fr: 0.32, turns: 5.0, spd: -0.00013, col: "109,40,217", a: 0.06 },
+      { fx: 0.52, fy: 0.06, fr: 0.24, turns: 3.5, spd:  0.00020, col: "34,211,238", a: 0.05 },
+      { fx: 0.18, fy: 0.88, fr: 0.28, turns: 4.0, spd: -0.00015, col: "109,40,217", a: 0.055 },
+      { fx: 0.84, fy: 0.14, fr: 0.26, turns: 3.5, spd:  0.00018, col: "34,211,238", a: 0.042 },
+      { fx: 0.50, fy: 0.52, fr: 0.20, turns: 3.0, spd: -0.00010, col: "109,40,217", a: 0.035 },
+    ];
+    const rots = defs.map(() => Math.random() * Math.PI * 2);
+    const STEPS = 260;
+    let raf = 0;
+
+    const tick = () => {
+      ctx.clearRect(0, 0, W, H);
+      const min = Math.min(W, H);
+      for (let s = 0; s < defs.length; s++) {
+        const d = defs[s];
+        rots[s] += d.spd;
+        const cx = d.fx * W, cy = d.fy * H, maxR = d.fr * min;
+        ctx.beginPath();
+        for (let i = 0; i <= STEPS; i++) {
+          const t = i / STEPS;
+          const angle = t * d.turns * Math.PI * 2 + rots[s];
+          const r = t * maxR;
+          const x = cx + r * Math.cos(angle);
+          const y = cy + r * Math.sin(angle);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = `rgba(${d.col},${d.a})`;
+        ctx.lineWidth = 1.3;
+        ctx.lineCap = "round";
+        ctx.stroke();
+      }
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+  }, []);
+
+  return <canvas ref={ref} className={className} aria-hidden="true" />;
+}
+
 // ─── NeuralCanvas ─────────────────────────────────────────────────────────────
 
 type Particle = { x: number; y: number; vx: number; vy: number; baseR: number; pulse: number };
@@ -478,18 +546,18 @@ function NeuralCanvas({
 
 function BotIcon() {
   return (
-    <span className="relative flex h-12 w-10 items-end justify-center" aria-hidden="true">
+    <span className="relative flex h-9 w-8 items-end justify-center" aria-hidden="true">
       {/* antenna */}
-      <span className="absolute left-1/2 top-0 h-3 w-px -translate-x-1/2 rounded-full bg-violet-300" />
-      <span className="absolute left-1/2 top-0 size-2.5 -translate-x-1/2 -translate-y-[55%] rounded-full bg-violet-400 shadow-[0_0_14px_4px_rgba(167,139,250,.85)]" />
+      <span className="absolute left-1/2 top-0 h-2 w-px -translate-x-1/2 rounded-full bg-violet-300" />
+      <span className="absolute left-1/2 top-0 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-400 shadow-[0_0_10px_3px_rgba(167,139,250,.85)]" />
       {/* head */}
-      <span className="absolute left-0 top-3 h-7 w-10 rounded-[14px] border border-violet-300/60 bg-slate-950 shadow-[0_0_22px_rgba(124,58,237,.55),inset_0_1px_0_rgba(255,255,255,.06)]">
-        <span className="absolute left-2 top-[10px] size-1.5 rounded-full bg-cyan-300 shadow-[0_0_10px_rgba(103,232,249,.95)]" />
-        <span className="absolute right-2 top-[10px] size-1.5 rounded-full bg-cyan-300 shadow-[0_0_10px_rgba(103,232,249,.95)]" />
-        <span className="absolute bottom-1.5 left-1/2 h-px w-4 -translate-x-1/2 rounded-full bg-cyan-300/70" />
+      <span className="absolute left-0 top-2.5 h-[22px] w-8 rounded-xl border border-violet-300/60 bg-slate-950 shadow-[0_0_16px_rgba(124,58,237,.55)]">
+        <span className="absolute left-1.5 top-[7px] size-1 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,.95)]" />
+        <span className="absolute right-1.5 top-[7px] size-1 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,.95)]" />
+        <span className="absolute bottom-1 left-1/2 h-px w-3 -translate-x-1/2 rounded-full bg-cyan-300/70" />
       </span>
       {/* body */}
-      <span className="absolute bottom-0 left-1/2 h-[18px] w-7 -translate-x-1/2 rounded-b-xl rounded-t-md border border-violet-300/40 bg-violet-950/80" />
+      <span className="absolute bottom-0 left-1/2 h-3.5 w-5 -translate-x-1/2 rounded-b-lg rounded-t-sm border border-violet-300/40 bg-violet-950/80" />
     </span>
   );
 }
@@ -549,13 +617,13 @@ export function AppChrome({
 
       {/* ── Background ──────────────────────────────────────────── */}
       <div className="fixed inset-0 -z-10">
-        {/* base lavanda */}
-        <div className="absolute inset-0 bg-[linear-gradient(160deg,#faf9ff_0%,#f4f0ff_38%,#eef6ff_72%,#fafffe_100%)]" />
-        {/* rayas diagonales barbershop — casi imperceptibles */}
-        <div className="absolute inset-0 opacity-100 [background-image:repeating-linear-gradient(-55deg,transparent_0px,transparent_28px,rgba(109,40,217,.028)_28px,rgba(109,40,217,.028)_30px),repeating-linear-gradient(35deg,transparent_0px,transparent_48px,rgba(109,40,217,.018)_48px,rgba(109,40,217,.018)_50px)]" />
-        {/* halos corp */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_8%_2%,rgba(124,58,237,.08),transparent),radial-gradient(ellipse_55%_45%_at_92%_5%,rgba(34,211,238,.06),transparent),radial-gradient(ellipse_60%_50%_at_50%_98%,rgba(109,40,217,.06),transparent)]" />
-        {/* neural canvas — más denso */}
+        {/* base lavanda muy suave */}
+        <div className="absolute inset-0 bg-[linear-gradient(160deg,#fbfaff_0%,#f5f1ff_38%,#eef6ff_72%,#fafffd_100%)]" />
+        {/* halos corp difusos */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_45%_at_8%_2%,rgba(124,58,237,.07),transparent),radial-gradient(ellipse_50%_40%_at_92%_5%,rgba(34,211,238,.055),transparent),radial-gradient(ellipse_55%_45%_at_50%_98%,rgba(109,40,217,.055),transparent)]" />
+        {/* espirales Archimedeas girando lentamente */}
+        <SpiralCanvas className="absolute inset-0 h-full w-full" />
+        {/* puntos neurales + líneas encima */}
         <NeuralCanvas
           className="absolute inset-0 h-full w-full"
           density={130}
@@ -822,16 +890,23 @@ export function AppChrome({
           lineColor="167,139,250"
           glowColor="192,132,252"
         />
-        <div className="relative flex h-full items-center justify-center gap-6">
+        <div className="relative flex h-full items-center justify-between px-4 sm:px-6">
+          {/* copyright izquierda */}
+          <span className="text-[10px] font-semibold tracking-wide text-violet-400/50">
+            © {new Date().getFullYear()} MRZLABS · Todos los derechos reservados
+          </span>
+          {/* centro — solo sm+ */}
+          <span className="absolute left-1/2 -translate-x-1/2 hidden sm:block text-[10px] font-bold uppercase tracking-[0.18em] text-violet-400/40">
+            BarberLab CRM
+          </span>
+          {/* built by botón derecha */}
           <button
-            className="rounded-full border border-violet-400/30 bg-violet-950/70 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-violet-200 transition hover:bg-violet-900/80"
+            className="rounded-full border border-violet-400/25 bg-violet-950/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-violet-300/80 transition hover:bg-violet-900/70"
             onClick={() => setAboutOpen((v) => !v)}
             type="button"
           >
             Built by MRZLABS
           </button>
-          <span className="h-3 w-px bg-violet-400/30" />
-          <span className="text-[10px] font-black uppercase tracking-[0.16em] text-violet-400/60">BarberLab CRM</span>
         </div>
       </div>
 
@@ -841,13 +916,12 @@ export function AppChrome({
         style={{ bottom: "3.75rem" }}
       >
         <button
-          className="bot-pulse relative grid size-14 place-items-center rounded-full border border-violet-400/50 bg-slate-950 shadow-2xl shadow-violet-950/50 hover:scale-110 transition-transform"
+          className="bot-pulse relative grid size-10 place-items-center rounded-full border border-violet-400/50 bg-slate-950 shadow-xl shadow-violet-950/50 hover:scale-110 transition-transform"
           onClick={() => setBotOpen((v) => !v)}
           type="button"
           aria-label="Abrir ayuda BarberLab"
         >
           <BotIcon />
-          {/* pulse ring */}
           <span className="absolute inset-0 rounded-full border border-violet-400/30 animate-[ping_2.4s_ease-out_infinite]" />
         </button>
       </div>
