@@ -131,34 +131,40 @@ Estado: implementado.
 
 ### Fase B. Productos e inventario comercial
 
-Estado: pendiente.
+Estado: implementado base.
 
-- Conectar productos visibles para cliente con tabla `inventario`.
-- Crear vista de productos disponibles.
-- Permitir solicitud manual de producto por WhatsApp.
-- Descontar stock por venta manual.
-- Separar inventario interno de insumos y productos para venta.
+- Productos visibles para cliente conectados con tabla `inventario`.
+- Campos comerciales agregados: `precio_venta`, `visible_cliente`.
+- Vista cliente muestra productos con stock y precio.
+- Solicitud manual por WhatsApp desde vista cliente.
+- Admin puede registrar salida de inventario como venta manual desde Kardex.
+- Separacion operativa por categoria y visibilidad.
 
 ### Fase C. Aprobacion comercial de citas
 
-Estado: parcial.
+Estado: implementado base.
 
 - Cliente puede reservar.
 - Admin y empleado pueden confirmar o cancelar.
-- Falta vista de estado mas clara para cliente.
-- Falta historial de cambios por cita.
+- Cliente ve estado claro de la cita.
+- Cliente ve historial de movimientos.
+- Historial tecnico en tabla `cita_historial`.
+- Admin, empleado y cliente registran historial al crear, confirmar, cancelar, reprogramar o cerrar turno.
 
 ### Fase D. Seguridad y despliegue
 
-Estado: pendiente antes de produccion real.
+Estado: implementado en base y pendiente en infraestructura.
 
-- Revisar politicas RLS con usuarios reales.
-- Rotar claves expuestas durante configuracion.
-- Configurar variables en Vercel.
-- Configurar dominio.
-- Ejecutar pruebas mobile, tablet y desktop.
-- Ejecutar pruebas por rol.
-- Validar datos reales del comercio piloto.
+- Migracion incremental para historial de citas.
+- RLS para `cita_historial`.
+- RLS de inventario ajustado para productos visibles a cliente.
+- Hardening de actualizaciones de cita por empleado y cliente.
+- Pendiente externo: rotar claves expuestas durante configuracion.
+- Pendiente externo: configurar variables en Vercel.
+- Pendiente externo: configurar dominio.
+- Pendiente externo: ejecutar pruebas mobile, tablet y desktop.
+- Pendiente externo: ejecutar pruebas por rol con usuarios reales.
+- Pendiente externo: validar datos reales del comercio piloto.
 
 ### Fase E. Comercializacion
 
@@ -170,6 +176,50 @@ Estado: pendiente.
 - Definir politica de datos.
 - Definir terminos de uso.
 - Crear presentacion comercial sin entregar codigo.
+
+## Despliegue produccion
+
+Antes de desplegar:
+
+1. Rotar claves Supabase expuestas durante configuracion.
+2. Ejecutar migraciones pendientes en Supabase:
+
+```bash
+supabase db push
+```
+
+3. Configurar variables en Vercel:
+
+```env
+BARBERLAB_DEMO_MODE=false
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+DATABASE_URL=
+NEXT_PUBLIC_APP_URL=
+```
+
+4. Crear super admin:
+
+```bash
+npm run super-admin:create
+```
+
+5. Probar roles:
+
+- Admin: dashboard, agenda, turnos, inventario, empleados, clientes, reportes.
+- Empleado: mi agenda, confirmar cita, cancelar cita, no asistencia, cerrar turno.
+- Cliente: reservar, mis citas, cancelar, reprogramar, ver historial, ver productos.
+
+6. Validar flujo completo:
+
+- Crear producto visible al cliente.
+- Crear horario de empleado.
+- Crear cita desde cliente.
+- Confirmar cita desde admin o empleado.
+- Cerrar turno.
+- Revisar historial de cita.
+- Revisar descuento de inventario.
 
 ## Fase 1
 

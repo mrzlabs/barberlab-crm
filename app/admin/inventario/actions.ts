@@ -13,6 +13,7 @@ export async function createItem(formData: FormData) {
   const payload = inventarioSchema.parse({
     ...raw,
     activo: formData.get("activo") === "on",
+    visibleCliente: formData.get("visibleCliente") === "on",
   });
 
   await getDb().insert(inventario).values({
@@ -23,6 +24,8 @@ export async function createItem(formData: FormData) {
     stock: String(payload.stock),
     costoUnitario: String(payload.costoUnitario),
     stockMinimo: String(payload.stockMinimo),
+    precioVenta: String(payload.precioVenta),
+    visibleCliente: payload.visibleCliente,
     activo: payload.activo,
   });
 

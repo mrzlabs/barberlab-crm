@@ -19,6 +19,8 @@ export const inventarioSchema = z.object({
   stock: money,
   costoUnitario: money,
   stockMinimo: money,
+  precioVenta: money.default(0),
+  visibleCliente: z.coerce.boolean().default(false),
   activo: z.coerce.boolean().default(true),
 });
 

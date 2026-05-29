@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { fmtDateTime, fmtMoney, toDateInput } from "@/lib/admin/format";
 import { requireRole } from "@/lib/auth/session";
-import { getMisCitas, getReservaCatalog, getSlots } from "@/lib/cliente/queries";
+import { getHistorialCliente, getMisCitas, getReservaCatalog, getSlots } from "@/lib/cliente/queries";
 import { buscarSlotsSchema } from "@/lib/validations/cliente";
 import { cancelarCita, reprogramarCita } from "./actions";
 
@@ -20,12 +20,22 @@ function getParam(value: string | string[] | undefined) {
 function estadoClass(estado: string) {
   if (estado === "realizada") return "bg-emerald-50 text-emerald-700";
   if (estado === "cancelada" || estado === "no_asistio") return "bg-red-50 text-red-700";
+  if (estado === "confirmada") return "bg-violet-50 text-violet-700";
   return "bg-cyan-50 text-cyan-700";
+}
+
+function estadoDetalle(estado: string) {
+  if (estado === "reservada") return "Tu cita fue solicitada. El comercio debe confirmarla.";
+  if (estado === "confirmada") return "Tu cita esta confirmada. Asiste en el horario indicado.";
+  if (estado === "realizada") return "Servicio atendido y cerrado.";
+  if (estado === "cancelada") return "La cita fue cancelada.";
+  if (estado === "no_asistio") return "La cita quedo marcada como no asistida.";
+  return "Estado operativo de la cita.";
 }
 
 export default async function MisCitasPage({ searchParams }: PageProps) {
   const profile = await requireRole(["cliente"]);
-  const [{ citas }, catalog] = await Promise.all([getMisCitas(profile.id), getReservaCatalog()]);
+  const [{ citas }, catalog, historial] = await Promise.all([getMisCitas(profile.id), getReservaCatalog(), getHistorialCliente(profile.id)]);
   const citaReprogramar = getParam(searchParams?.citaId);
   const params = buscarSlotsSchema.parse({
     servicioId: getParam(searchParams?.servicioId) || catalog.servicios[0]?.id,
@@ -124,6 +134,9 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
                 <span className={`rounded-full px-3 py-1 text-xs font-black ${estadoClass(cita.estado)}`}>{cita.estado}</span>
               </div>
               <dl className="mt-5 grid gap-3 text-sm">
+                <div className={`rounded-2xl p-3 text-sm font-semibold ${estadoClass(cita.estado)}`}>
+                  {estadoDetalle(cita.estado)}
+                </div>
                 <div className="flex justify-between gap-4">
                   <dt className="text-muted-foreground">Especialista</dt>
                   <dd className="font-semibold text-right">{cita.empleado}</dd>
@@ -163,6 +176,36 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
           No tienes citas registradas.
         </section>
       ) : null}
+
+      <section className="glass-panel rounded-[2rem] p-5">
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Historial</p>
+            <h3 className="mt-1 text-2xl font-black">Movimientos de tus citas</h3>
+          </div>
+        </div>
+        <div className="mt-5 grid gap-3">
+          {historial.map((item) => (
+            <article className="rounded-2xl border bg-white p-4 text-sm shadow-sm" key={item.id}>
+              <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
+                <div>
+                  <strong className="block">{item.servicio}</strong>
+                  <span className="text-slate-500">{item.detalle || item.accion}</span>
+                </div>
+                <span className="text-xs font-black uppercase tracking-[0.12em] text-slate-500">{fmtDateTime(item.createdAt)}</span>
+              </div>
+              <p className="mt-2 text-xs font-bold text-slate-500">
+                {item.estadoAnterior || "inicio"} → {item.estadoNuevo || "sin cambio"}
+              </p>
+            </article>
+          ))}
+          {historial.length === 0 ? (
+            <p className="rounded-2xl border border-dashed bg-white/70 p-6 text-center text-sm font-semibold text-slate-500">
+              Aun no hay movimientos registrados.
+            </p>
+          ) : null}
+        </div>
+      </section>
     </div>
   );
 }

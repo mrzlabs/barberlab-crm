@@ -124,6 +124,8 @@ export const inventario = pgTable("inventario", {
   stock: numeric("stock", { precision: 12, scale: 2 }).notNull().default("0"),
   costoUnitario: numeric("costo_unitario", { precision: 12, scale: 2 }).notNull().default("0"),
   stockMinimo: numeric("stock_minimo", { precision: 12, scale: 2 }).notNull().default("0"),
+  precioVenta: numeric("precio_venta", { precision: 12, scale: 2 }).notNull().default("0"),
+  visibleCliente: boolean("visible_cliente").notNull().default(false),
   activo: boolean("activo").notNull().default(true),
   ...timestamps,
 });
@@ -148,3 +150,15 @@ export const servicioInsumos = pgTable("servicio_insumos", {
 }, (table) => ({
   servicioInventarioUnq: unique().on(table.servicioId, table.inventarioId),
 }));
+
+export const citaHistorial = pgTable("cita_historial", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  citaId: uuid("cita_id").notNull().references(() => citas.id, { onDelete: "cascade" }),
+  actorId: uuid("actor_id").references(() => usuarios.id, { onDelete: "set null" }),
+  actorRol: rolUsuario("actor_rol"),
+  estadoAnterior: estadoCita("estado_anterior"),
+  estadoNuevo: estadoCita("estado_nuevo"),
+  accion: text("accion").notNull(),
+  detalle: text("detalle"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});

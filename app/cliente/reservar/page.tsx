@@ -1,5 +1,5 @@
 import { fmtDateTime, fmtMoney, toDateInput } from "@/lib/admin/format";
-import { getReservaCatalog, getSlots } from "@/lib/cliente/queries";
+import { getProductosCliente, getReservaCatalog, getSlots } from "@/lib/cliente/queries";
 import { buscarSlotsSchema } from "@/lib/validations/cliente";
 import { reservarCita } from "./actions";
 
@@ -16,7 +16,7 @@ function getParam(value: string | string[] | undefined) {
 }
 
 export default async function ReservarPage({ searchParams }: PageProps) {
-  const catalog = await getReservaCatalog();
+  const [catalog, products] = await Promise.all([getReservaCatalog(), getProductosCliente()]);
   const params = buscarSlotsSchema.parse({
     servicioId: getParam(searchParams?.servicioId) || catalog.servicios[0]?.id,
     empleadoId: getParam(searchParams?.empleadoId) || catalog.empleados[0]?.id,
@@ -25,11 +25,6 @@ export default async function ReservarPage({ searchParams }: PageProps) {
   const slots = await getSlots(params.empleadoId, params.fecha, params.servicioId);
   const selectedService = catalog.servicios.find((service) => service.id === params.servicioId);
   const selectedEmployee = catalog.empleados.find((employee) => employee.id === params.empleadoId);
-  const products = [
-    { name: "Pomada premium", tag: "Styling", price: "$32.000" },
-    { name: "Aceite barba", tag: "Cuidado", price: "$38.000" },
-    { name: "Kit unas", tag: "Spa", price: "$45.000" },
-  ];
 
   return (
     <div className="space-y-6">
@@ -133,11 +128,11 @@ export default async function ReservarPage({ searchParams }: PageProps) {
         </div>
         <div className="mt-5 flex gap-3 overflow-x-auto pb-2 scrollbar-soft">
           {products.map((item) => (
-            <article className="min-w-[230px] rounded-[1.4rem] border bg-white p-4 shadow-sm" key={item.name}>
+            <article className="min-w-[230px] rounded-[1.4rem] border bg-white p-4 shadow-sm" key={item.id}>
               <div className="h-24 rounded-2xl bg-[radial-gradient(circle_at_24%_28%,rgba(34,211,238,.35),transparent_5rem),linear-gradient(135deg,#0f172a,#312e81)]" />
-              <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-cyan-700">{item.tag}</p>
-              <h4 className="mt-1 text-lg font-black">{item.name}</h4>
-              <p className="mt-2 text-sm font-black text-slate-600">{item.price}</p>
+              <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-cyan-700">{item.categoria}</p>
+              <h4 className="mt-1 text-lg font-black">{item.nombre}</h4>
+              <p className="mt-2 text-sm font-black text-slate-600">{fmtMoney(item.precioVenta)} · stock {item.stock} {item.unidad}</p>
             </article>
           ))}
         </div>

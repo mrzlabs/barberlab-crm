@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { citas } from "@/lib/db/schema";
+import { addCitaHistory } from "@/lib/citas/history";
 import { ensureCliente, slotDisponible } from "@/lib/cliente/queries";
 import { reservarSchema } from "@/lib/validations/cliente";
 
@@ -26,13 +27,22 @@ export async function reservarCita(formData: FormData) {
     throw new Error("El horario seleccionado ya no esta disponible");
   }
 
-  await getDb().insert(citas).values({
+  const [created] = await getDb().insert(citas).values({
     clienteId: cliente.id,
     empleadoId: payload.empleadoId,
     servicioId: payload.servicioId,
     inicio,
     fin,
     estado: "reservada",
+  }).returning({ id: citas.id });
+
+  await addCitaHistory({
+    citaId: created.id,
+    actorId: profile.id,
+    actorRol: "cliente",
+    estadoNuevo: "reservada",
+    accion: "cita_cliente_reservada",
+    detalle: "Cliente separo una cita desde la agenda publica",
   });
 
   revalidatePath("/cliente/reservar");

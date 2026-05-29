@@ -7,6 +7,7 @@ import { getEmpleadoByUsr } from "@/lib/empleado/queries";
 import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
 import { citas } from "@/lib/db/schema";
+import { addCitaHistory } from "@/lib/citas/history";
 import { estadoCitaSchema } from "@/lib/validations/admin";
 
 export async function updateMiCita(formData: FormData) {
@@ -22,10 +23,26 @@ export async function updateMiCita(formData: FormData) {
     throw new Error("Empleado sin perfil operativo");
   }
 
+  const [current] = await getDb()
+    .select({ estado: citas.estado })
+    .from(citas)
+    .where(and(eq(citas.id, payload.citaId), eq(citas.empleadoId, empleado.id)))
+    .limit(1);
+
   await getDb().update(citas).set({
     estado: payload.estado,
     updatedAt: new Date(),
   }).where(and(eq(citas.id, payload.citaId), eq(citas.empleadoId, empleado.id)));
+
+  await addCitaHistory({
+    citaId: payload.citaId,
+    actorId: profile.id,
+    actorRol: "empleado",
+    estadoAnterior: current?.estado,
+    estadoNuevo: payload.estado,
+    accion: "estado_cita_empleado",
+    detalle: `Empleado cambio cita a ${payload.estado}`,
+  });
 
   revalidatePath("/empleado/mi-agenda");
   revalidatePath("/empleado/cerrar-turno");

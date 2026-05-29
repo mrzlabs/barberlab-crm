@@ -4,13 +4,14 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
 import { slotDisponible } from "@/lib/cliente/queries";
+import { addCitaHistory } from "@/lib/citas/history";
 import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
 import { bloqueosEmpleado, citas, horariosEmpleado } from "@/lib/db/schema";
 import { bloqueoEmpleadoSchema, citaAdminSchema, estadoCitaSchema, horarioEmpleadoSchema } from "@/lib/validations/admin";
 
 export async function createCitaAdmin(formData: FormData) {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   if (isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
@@ -32,13 +33,22 @@ export async function createCitaAdmin(formData: FormData) {
     throw new Error("El horario seleccionado no esta disponible");
   }
 
-  await getDb().insert(citas).values({
+  const [created] = await getDb().insert(citas).values({
     clienteId: payload.clienteId,
     empleadoId: payload.empleadoId,
     servicioId: payload.servicioId,
     inicio,
     fin,
     estado: payload.estado,
+  }).returning({ id: citas.id });
+
+  await addCitaHistory({
+    citaId: created.id,
+    actorId: profile.id,
+    actorRol: "admin",
+    estadoNuevo: payload.estado,
+    accion: "cita_admin_creada",
+    detalle: "Cita creada desde agenda admin",
   });
 
   revalidatePath("/admin/agenda");
@@ -86,18 +96,29 @@ export async function createBloqueoEmpleado(formData: FormData) {
 }
 
 export async function updateCitaAdmin(formData: FormData) {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   if (isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
   }
 
   const payload = estadoCitaSchema.parse(Object.fromEntries(formData));
+  const [current] = await getDb().select({ estado: citas.estado }).from(citas).where(eq(citas.id, payload.citaId)).limit(1);
 
   await getDb().update(citas).set({
     estado: payload.estado,
     updatedAt: new Date(),
   }).where(eq(citas.id, payload.citaId));
+
+  await addCitaHistory({
+    citaId: payload.citaId,
+    actorId: profile.id,
+    actorRol: "admin",
+    estadoAnterior: current?.estado,
+    estadoNuevo: payload.estado,
+    accion: "estado_cita_admin",
+    detalle: `Admin cambio cita a ${payload.estado}`,
+  });
 
   revalidatePath("/admin/agenda");
   revalidatePath("/admin/turnos");
