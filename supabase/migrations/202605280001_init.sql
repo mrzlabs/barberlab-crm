@@ -1,4 +1,4 @@
--- CRM Ego's Barberia y Peluqueria
+-- CRM  Barberia y Peluqueria
 -- Fase 1: schema, RLS, funciones y triggers base
 
 create extension if not exists pgcrypto;

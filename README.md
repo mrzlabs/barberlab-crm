@@ -90,8 +90,10 @@ La seguridad queda aplicada en SQL:
 
 ```bash
 npm install
-npm run dev
+npm run dev:prod
 ```
+
+Produccion local usa `http://127.0.0.1:3011` y cache `.next-prod`.
 
 ## Demo local
 
@@ -106,6 +108,8 @@ URL:
 ```text
 http://127.0.0.1:3012/login
 ```
+
+Demo local usa cache `.next-demo`. Puede estar abierto al tiempo con produccion local sin corromper `.next`.
 
 Credenciales:
 
