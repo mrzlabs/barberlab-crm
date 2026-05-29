@@ -1,4 +1,5 @@
 import { loginAction } from "./actions";
+import { isDemoMode } from "@/lib/demo";
 
 export default function LoginPage({
   searchParams,
@@ -49,7 +50,7 @@ export default function LoginPage({
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               Usa clave o magic link segun el rol asignado en Supabase.
             </p>
-            {process.env.BARBERLAB_DEMO_MODE === "true" ? (
+            {isDemoMode() ? (
               <div className="mt-4 rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-sm text-cyan-950">
                 <p className="font-black">Acceso demo local</p>
                 <p className="mt-1">Email: admin@barberlab.local</p>

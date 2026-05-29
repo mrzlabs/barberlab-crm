@@ -91,6 +91,54 @@ npm install
 npm run dev
 ```
 
-## Siguiente fase
+## Demo local
 
-Fase 3: Modulo admin, dashboard, turnos, gastos e inventario.
+Usar para revisar UX sin Supabase ni Postgres:
+
+```bash
+npm run dev:demo
+```
+
+URL:
+
+```text
+http://127.0.0.1:3012/login
+```
+
+Credenciales:
+
+```text
+Email: admin@barberlab.local
+Password: BarberLab2026!
+```
+
+El modo demo se activa con:
+
+```env
+BARBERLAB_DEMO_MODE=true
+```
+
+En demo:
+
+- Login usa cookie local.
+- Dashboard, agenda, turnos, gastos, inventario, servicios, empleados, clientes y reportes usan datos simulados.
+- Las acciones de servicios, empleados y clientes no escriben en base de datos.
+
+## Produccion
+
+Usar con:
+
+```env
+BARBERLAB_DEMO_MODE=false
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+DATABASE_URL=
+NEXT_PUBLIC_APP_URL=
+```
+
+En produccion:
+
+- Auth depende de Supabase Auth.
+- RLS aplica en Postgres.
+- Server Actions escriben en Supabase.
+- Vercel debe tener todas las variables reales configuradas.

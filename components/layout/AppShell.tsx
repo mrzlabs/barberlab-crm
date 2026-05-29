@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { UserRole } from "@/lib/auth/roles";
+import { isDemoMode } from "@/lib/demo";
 
 type NavItem = {
   href: string;
@@ -17,6 +18,8 @@ export function AppShell({
   nav: NavItem[];
   children: React.ReactNode;
 }) {
+  const mode = isDemoMode() ? "DEMO" : "PRODUCCION";
+
   return (
     <div className="surface-grid min-h-dvh">
       <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/90 shadow-sm backdrop-blur-xl">
@@ -30,7 +33,10 @@ export function AppShell({
               <h1 className="text-lg font-black tracking-tight">{title}</h1>
             </div>
           </div>
-          <span className="rounded-full border bg-slate-50 px-3 py-1 text-xs font-black uppercase text-slate-700">{role}</span>
+          <div className="flex items-center gap-2">
+            <span className={`rounded-full px-3 py-1 text-xs font-black uppercase ${isDemoMode() ? "bg-cyan-50 text-cyan-700" : "bg-emerald-50 text-emerald-700"}`}>{mode}</span>
+            <span className="rounded-full border bg-slate-50 px-3 py-1 text-xs font-black uppercase text-slate-700">{role}</span>
+          </div>
         </div>
         <nav className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 pb-4">
           {nav.map((item) => (
