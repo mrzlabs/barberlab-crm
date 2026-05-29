@@ -4,13 +4,13 @@ import { getDashboard, getRecentTurnos } from "@/lib/admin/queries";
 
 export const dynamic = "force-dynamic";
 
-function KpiCard({ label, value, detail, tone }: { label: string; value: string; detail: string; tone: string }) {
+function KpiCard({ label, value, detail, tone, href = "/admin/reportes" }: { label: string; value: string; detail: string; tone: string; href?: string }) {
   return (
-    <article className={`glass-panel min-w-0 rounded-[1.4rem] p-4 sm:p-5 ${tone}`}>
+    <Link className={`glass-panel block min-w-0 rounded-[1.4rem] p-4 transition hover:-translate-y-1 hover:border-cyan-300 hover:shadow-xl sm:p-5 ${tone}`} href={href}>
       <p className="truncate text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
-      <strong className="mt-2 block truncate text-xl font-black tracking-tight sm:text-2xl lg:text-3xl">{value}</strong>
+      <strong className="mt-2 block max-w-full break-words text-[clamp(1.05rem,3.8vw,1.85rem)] font-black leading-tight tracking-tight [overflow-wrap:anywhere]">{value}</strong>
       <p className="mt-1.5 truncate text-xs font-semibold text-slate-500 sm:text-sm">{detail}</p>
-    </article>
+    </Link>
   );
 }
 
@@ -71,7 +71,7 @@ export default async function DashboardPage() {
         <KpiCard label="Ingresos hoy" value={fmtMoney(dashboard.today.ingresos)} detail={`${dashboard.today.turnos} turnos cerrados`} tone="border-cyan-100" />
         <KpiCard label="Margen hoy" value={fmtMoney(dashboard.today.margen)} detail={`${fmtMoney(dashboard.today.gastos)} en gastos`} tone="border-violet-100" />
         <KpiCard label="Ticket promedio" value={fmtMoney(dashboard.today.ticket)} detail={`${dashboard.today.citas} citas hoy`} tone="border-emerald-100" />
-        <KpiCard label="Stock mínimo" value={String(dashboard.lowStock)} detail="Items con alerta" tone="border-amber-100" />
+        <KpiCard label="Stock mínimo" value={String(dashboard.lowStock)} detail="Items con alerta" tone="border-amber-100" href="/admin/inventario" />
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
