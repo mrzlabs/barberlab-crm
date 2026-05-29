@@ -549,14 +549,17 @@ export function AppChrome({
 
       {/* ── Background ──────────────────────────────────────────── */}
       <div className="fixed inset-0 -z-10">
-        {/* base: warm off-white con toque de lavanda muy suave */}
-        <div className="absolute inset-0 bg-[linear-gradient(160deg,#faf9ff_0%,#f5f3ff_35%,#f0f9ff_68%,#fafffe_100%)]" />
-        {/* halos de color corp — apenas perceptibles */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_10%_0%,rgba(124,58,237,.07),transparent),radial-gradient(ellipse_60%_50%_at_90%_0%,rgba(34,211,238,.05),transparent),radial-gradient(ellipse_70%_55%_at_50%_100%,rgba(109,40,217,.05),transparent)]" />
+        {/* base lavanda */}
+        <div className="absolute inset-0 bg-[linear-gradient(160deg,#faf9ff_0%,#f4f0ff_38%,#eef6ff_72%,#fafffe_100%)]" />
+        {/* rayas diagonales barbershop — casi imperceptibles */}
+        <div className="absolute inset-0 opacity-100 [background-image:repeating-linear-gradient(-55deg,transparent_0px,transparent_28px,rgba(109,40,217,.028)_28px,rgba(109,40,217,.028)_30px),repeating-linear-gradient(35deg,transparent_0px,transparent_48px,rgba(109,40,217,.018)_48px,rgba(109,40,217,.018)_50px)]" />
+        {/* halos corp */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_8%_2%,rgba(124,58,237,.08),transparent),radial-gradient(ellipse_55%_45%_at_92%_5%,rgba(34,211,238,.06),transparent),radial-gradient(ellipse_60%_50%_at_50%_98%,rgba(109,40,217,.06),transparent)]" />
+        {/* neural canvas — más denso */}
         <NeuralCanvas
           className="absolute inset-0 h-full w-full"
-          density={55}
-          speed={0.14}
+          density={130}
+          speed={0.13}
           nodeColor="167,139,250"
           lineColor="139,92,246"
           glowColor="124,58,237"
@@ -569,9 +572,9 @@ export function AppChrome({
       )}
 
       {/* ── Sidebar ─────────────────────────────────────────────── */}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex flex-col border-r border-white/70 bg-white/88 shadow-2xl shadow-slate-950/10 backdrop-blur-2xl transition-all duration-300 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[19rem] lg:w-[19rem]" : "w-[19rem] lg:w-[5.2rem]"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-40 flex flex-col border-r border-white/40 bg-white/30 shadow-2xl shadow-violet-950/10 backdrop-blur-[28px] transition-all duration-300 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[19rem] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}>
         {/* header */}
-        <div className="flex items-center justify-between gap-3 border-b border-slate-200/60 p-4">
+        <div className="flex items-center justify-between gap-3 border-b border-white/30 p-4">
           <div className="flex min-w-0 items-center gap-3">
             <LogoMark />
             <div className={open ? "block" : "hidden"}>
@@ -579,10 +582,10 @@ export function AppChrome({
               <h1 className="truncate text-sm font-black">{title}</h1>
             </div>
           </div>
-          <button className="hidden rounded-xl border border-slate-200 bg-white p-2 text-slate-600 hover:bg-violet-50 hover:text-violet-700 lg:grid" onClick={() => setOpen((v) => !v)} type="button" aria-label="Contraer menú">
+          <button className="hidden rounded-xl border border-white/50 bg-white/50 p-2 text-slate-600 hover:bg-white/70 hover:text-violet-700 backdrop-blur-sm lg:grid" onClick={() => setOpen((v) => !v)} type="button" aria-label="Contraer menú">
             {open ? <ChevronLeft className="size-4" /> : <ChevronRight className="size-4" />}
           </button>
-          <button className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 lg:hidden" onClick={() => setMobileOpen(false)} type="button" aria-label="Cerrar menú">
+          <button className="rounded-xl border border-white/50 bg-white/50 p-2 text-slate-600 lg:hidden" onClick={() => setMobileOpen(false)} type="button" aria-label="Cerrar menú">
             <X className="size-4" />
           </button>
         </div>
@@ -597,27 +600,27 @@ export function AppChrome({
           </div>
 
           {open && (
-            <label className="mb-3 flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-400 focus-within:border-violet-300">
-              <Search className="size-4" />
+            <label className="mb-3 flex items-center gap-2 rounded-2xl border border-white/40 bg-white/40 px-3 py-2.5 text-sm font-semibold text-slate-500 backdrop-blur-sm focus-within:border-violet-300 focus-within:bg-white/60">
+              <Search className="size-4 shrink-0" />
               <input className="w-full bg-transparent outline-none placeholder:text-slate-400" placeholder="Buscar módulo" />
             </label>
           )}
 
-          <nav className="grid gap-0.5">
+          <nav className="grid gap-1">
             {nav.map((item) => {
               const style = navStyles[item.label] ?? navStyles.Dashboard;
               const Icon = style.icon;
               return (
                 <Link
-                  className={`group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-violet-50 hover:text-violet-700 ${open ? "justify-start" : "justify-center"}`}
+                  className={`group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-white/50 hover:text-violet-800 ${open ? "justify-start" : "justify-center"}`}
                   href={item.href}
                   key={item.href}
                   onClick={() => setMobileOpen(false)}
                 >
-                  <span className={`grid size-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br shadow-sm transition group-hover:scale-110 ${style.tone}`}>
-                    <Icon className="size-[15px]" />
+                  <span className={`grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br shadow-md shadow-black/10 transition group-hover:scale-105 group-hover:shadow-lg ${style.tone}`}>
+                    <Icon className="size-5" />
                   </span>
-                  {open && <span className="truncate">{item.label}</span>}
+                  {open && <span className="truncate font-semibold tracking-[-0.01em]">{item.label}</span>}
                 </Link>
               );
             })}
@@ -656,7 +659,7 @@ export function AppChrome({
       {/* ── Main area ───────────────────────────────────────────── */}
       <div className={`min-h-dvh pb-14 transition-[padding] duration-300 ${open ? "lg:pl-[19rem]" : "lg:pl-[5.2rem]"}`}>
         {/* topbar */}
-        <header className="sticky top-0 z-20 border-b border-white/60 bg-white/80 px-4 py-3 backdrop-blur-2xl">
+        <header className="sticky top-0 z-20 border-b border-white/30 bg-white/25 px-4 py-3 backdrop-blur-[28px]">
           <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <button className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-700 lg:hidden" onClick={() => setMobileOpen(true)} type="button" aria-label="Abrir menú">
