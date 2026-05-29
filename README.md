@@ -157,6 +157,23 @@ Admin inicial:
 npm run admin:create
 ```
 
+Super admin produccion:
+
+```bash
+npm run super-admin:create
+```
+
+Variables:
+
+```env
+BARBERLAB_SUPER_ADMIN_EMAIL=admin@mrzlabs.dev
+BARBERLAB_SUPER_ADMIN_PASSWORD=
+BARBERLAB_SUPER_ADMIN_NOMBRE=Super Admin BarberLab
+BARBERLAB_SUPER_ADMIN_TELEFONO=3503803010
+```
+
+El `super admin` usa `rol=admin` en SQL para conservar compatibilidad con RLS y agrega `super_admin=true` en metadata de Supabase Auth.
+
 Empleado:
 
 - Crear desde `/admin/empleados`.
