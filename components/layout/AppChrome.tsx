@@ -664,7 +664,7 @@ export function AppChrome({
       )}
 
       {/* ── Sidebar ─────────────────────────────────────────────── */}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex flex-col border-r border-slate-900/10 bg-white/78 shadow-2xl shadow-slate-950/12 backdrop-blur-[28px] transition-all duration-300 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(19rem,86vw)] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-40 flex flex-col border-r border-white/25 bg-white/14 shadow-2xl shadow-violet-950/8 backdrop-blur-[32px] transition-all duration-300 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(19rem,86vw)] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}>
         {/* header */}
         <div className="flex items-center justify-between gap-3 border-b border-slate-900/10 p-4">
           <div className="flex min-w-0 items-center gap-3">
@@ -674,10 +674,10 @@ export function AppChrome({
               <h1 className="truncate text-sm font-black text-slate-950">{title}</h1>
             </div>
           </div>
-          <button className="hidden rounded-xl border border-slate-900/10 bg-white/70 p-2 text-slate-600 hover:bg-white hover:text-violet-700 backdrop-blur-sm lg:grid" onClick={() => setOpen((v) => !v)} type="button" aria-label="Contraer menú">
+          <button className="hidden rounded-xl border border-white/30 bg-white/20 p-2 text-slate-600 hover:bg-white hover:text-violet-700 backdrop-blur-sm lg:grid" onClick={() => setOpen((v) => !v)} type="button" aria-label="Contraer menú">
             {open ? <ChevronLeft className="size-4" /> : <ChevronRight className="size-4" />}
           </button>
-          <button className="rounded-xl border border-slate-900/10 bg-white/70 p-2 text-slate-600 lg:hidden" onClick={() => setMobileOpen(false)} type="button" aria-label="Cerrar menú">
+          <button className="rounded-xl border border-white/30 bg-white/20 p-2 text-slate-600 lg:hidden" onClick={() => setMobileOpen(false)} type="button" aria-label="Cerrar menú">
             <X className="size-4" />
           </button>
         </div>
@@ -691,7 +691,7 @@ export function AppChrome({
           </div>
 
           {open && (
-            <label className="mb-3 flex items-center gap-2 rounded-2xl border border-slate-900/10 bg-white/70 px-3 py-2.5 text-sm font-semibold text-slate-500 backdrop-blur-sm focus-within:border-cyan-300/50 focus-within:bg-white">
+            <label className="mb-3 flex items-center gap-2 rounded-2xl border border-white/25 bg-white/18 px-3 py-2.5 text-sm font-semibold text-slate-700 backdrop-blur-sm focus-within:border-violet-400/60 focus-within:bg-white/50">
               <Search className="size-4 shrink-0" />
               <input className="w-full bg-transparent outline-none placeholder:text-slate-400" placeholder="Buscar módulo" />
             </label>
@@ -704,7 +704,7 @@ export function AppChrome({
               const shapeClass = style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-xl" : "rounded-[14px]";
               return (
                 <Link
-                  className={`group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-600 transition hover:bg-white/80 hover:text-slate-950 ${open ? "justify-start" : "justify-center"}`}
+                  className={`group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-semibold text-slate-800 transition hover:bg-white/40 hover:text-slate-950 ${open ? "justify-start" : "justify-center"}`}
                   href={item.href}
                   key={item.href}
                   onClick={() => setMobileOpen(false)}
@@ -751,7 +751,7 @@ export function AppChrome({
       {/* ── Main area ───────────────────────────────────────────── */}
       <div className={`min-h-dvh pb-14 transition-[padding] duration-300 ${open ? "lg:pl-[19rem]" : "lg:pl-[5.2rem]"}`}>
         {/* topbar */}
-        <header className="sticky top-0 z-20 border-b border-slate-900/10 bg-white/72 px-4 py-3 backdrop-blur-[28px]">
+        <header className="sticky top-0 z-20 border-b border-white/20 bg-white/16 px-4 py-3 backdrop-blur-[32px]">
           <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <button className="rounded-2xl border border-slate-900/10 bg-white p-3 text-slate-700 lg:hidden" onClick={() => setMobileOpen(true)} type="button" aria-label="Abrir menú">

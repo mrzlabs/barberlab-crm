@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createNegocioUser, updateNegocio } from "../actions";
 import { getNegocioById, getNegocioStats } from "@/lib/super-admin/queries";
+import { BrandPreview } from "./BrandPreview";
 
 export const dynamic = "force-dynamic";
 
@@ -64,7 +65,7 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_390px]">
-        <form action={updateNegocio} className="glass-panel rounded-[2rem] p-5">
+        <form action={updateNegocio} className="glass-panel rounded-[2rem] p-5" data-brand-form>
           <input name="id" type="hidden" value={negocio.id} />
           <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Personalizacion</p>
           <h3 className="mt-1 text-2xl font-black">Marca y suscripcion</h3>
@@ -134,25 +135,14 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
           </button>
         </form>
 
-        <aside className="glass-panel rounded-[2rem] p-5">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Vista previa</p>
-          <div className="mt-4 rounded-[1.6rem] p-5 text-white" style={{ background: `linear-gradient(135deg, ${negocio.colorPrimario}, ${negocio.colorAcento})` }}>
-            <div className="grid size-14 place-items-center overflow-hidden rounded-2xl bg-white/95 text-lg font-black" style={{ color: negocio.colorPrimario }}>
-              {negocio.logoUrl ? "Logo" : negocio.nombre.slice(0, 2).toUpperCase()}
-            </div>
-            <h4 className="mt-5 text-2xl font-black">{negocio.nombre}</h4>
-            <p className="mt-2 text-sm text-white/75">Plan {negocio.plan} · {negocio.estado}</p>
-            <div className="mt-5 flex gap-2">
-              <span className="size-7 rounded-full border border-white/30" style={{ backgroundColor: negocio.colorPrimario }} />
-              <span className="size-7 rounded-full border border-white/30" style={{ backgroundColor: negocio.colorSecundario }} />
-              <span className="size-7 rounded-full border border-white/30" style={{ backgroundColor: negocio.colorAcento }} />
-            </div>
-          </div>
-          <div className="mt-4 rounded-2xl border bg-white/80 p-4 text-sm leading-6 text-slate-600">
-            <strong className="block text-slate-950">Independencia de datos</strong>
-            Cada negocio opera con su propio `negocio_id`. El modo dedicado queda reservado para clientes enterprise con base separada.
-          </div>
-        </aside>
+        <BrandPreview
+          defaultNombre={negocio.nombre}
+          defaultPlan={negocio.plan}
+          defaultEstado={negocio.estado}
+          defaultPrimario={negocio.colorPrimario}
+          defaultSecundario={negocio.colorSecundario}
+          defaultAcento={negocio.colorAcento}
+        />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[430px_1fr]">
