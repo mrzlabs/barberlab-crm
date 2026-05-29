@@ -1,4 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
+import { loadLocalEnv } from "./load-env.mjs";
+
+loadLocalEnv();
 
 const required = [
   "NEXT_PUBLIC_SUPABASE_URL",
