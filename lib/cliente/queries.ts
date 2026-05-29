@@ -1,6 +1,8 @@
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { citas, clientes, empleados, servicios, usuarios } from "@/lib/db/schema";
+import { citaHistorial, citas, clientes, empleados, inventario, servicios, usuarios } from "@/lib/db/schema";
+import { isDemoMode } from "@/lib/demo";
+import { getCurrentProfile } from "@/lib/auth/session";
 
 export type Slot = {
   inicio: Date;
@@ -16,9 +18,12 @@ export async function ensureCliente(user: { id: string; nombre: string; email: s
   const existing = await getClienteByUsr(user.id);
   if (existing) return existing;
 
+  const profile = await getCurrentProfile();
+
   const [created] = await getDb()
     .insert(clientes)
     .values({
+      negocioId: profile?.negocioId,
       usuarioId: user.id,
       nombre: user.nombre,
       email: user.email,
@@ -31,6 +36,8 @@ export async function ensureCliente(user: { id: string; nombre: string; email: s
 
 export async function getReservaCatalog() {
   const db = getDb();
+  const profile = await getCurrentProfile();
+  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
   const [serviciosActivos, empleadosActivos] = await Promise.all([
     db
       .select({
@@ -41,7 +48,7 @@ export async function getReservaCatalog() {
         precio: servicios.precio,
       })
       .from(servicios)
-      .where(eq(servicios.activo, true))
+      .where(and(eq(servicios.negocioId, negocioId), eq(servicios.activo, true)))
       .orderBy(asc(servicios.categoria), asc(servicios.nombre)),
     db
       .select({
@@ -51,11 +58,37 @@ export async function getReservaCatalog() {
       })
       .from(empleados)
       .innerJoin(usuarios, eq(empleados.usuarioId, usuarios.id))
-      .where(and(eq(empleados.activo, true), eq(usuarios.activo, true)))
+      .where(and(eq(empleados.negocioId, negocioId), eq(empleados.activo, true), eq(usuarios.activo, true)))
       .orderBy(asc(usuarios.nombre)),
   ]);
 
   return { servicios: serviciosActivos, empleados: empleadosActivos };
+}
+
+export async function getProductosCliente() {
+  if (isDemoMode()) {
+    return [
+      { id: "prod-1", nombre: "Pomada premium", categoria: "Styling", stock: "12", unidad: "unidad", precioVenta: "32000" },
+      { id: "prod-2", nombre: "Aceite barba", categoria: "Cuidado", stock: "8", unidad: "unidad", precioVenta: "38000" },
+      { id: "prod-3", nombre: "Kit unas", categoria: "Spa", stock: "6", unidad: "unidad", precioVenta: "45000" },
+    ];
+  }
+
+  const profile = await getCurrentProfile();
+
+  return getDb()
+    .select({
+      id: inventario.id,
+      nombre: inventario.nombre,
+      categoria: inventario.categoria,
+      stock: inventario.stock,
+      unidad: inventario.unidad,
+      precioVenta: inventario.precioVenta,
+    })
+    .from(inventario)
+    .where(and(eq(inventario.negocioId, profile?.negocioId || "00000000-0000-0000-0000-000000000000"), eq(inventario.activo, true), eq(inventario.visibleCliente, true), sql`${inventario.stock} > 0`))
+    .orderBy(asc(inventario.categoria), asc(inventario.nombre))
+    .limit(24);
 }
 
 export async function getSlots(empleadoId?: string, fecha?: string, servicioId?: string) {
@@ -103,6 +136,29 @@ export async function getMisCitas(userId: string) {
     .limit(40);
 
   return { cliente, citas: rows };
+}
+
+export async function getHistorialCliente(userId: string) {
+  const cliente = await getClienteByUsr(userId);
+  if (!cliente) return [];
+
+  return getDb()
+    .select({
+      id: citaHistorial.id,
+      citaId: citaHistorial.citaId,
+      accion: citaHistorial.accion,
+      detalle: citaHistorial.detalle,
+      estadoAnterior: citaHistorial.estadoAnterior,
+      estadoNuevo: citaHistorial.estadoNuevo,
+      createdAt: citaHistorial.createdAt,
+      servicio: servicios.nombre,
+    })
+    .from(citaHistorial)
+    .innerJoin(citas, eq(citaHistorial.citaId, citas.id))
+    .innerJoin(servicios, eq(citas.servicioId, servicios.id))
+    .where(eq(citas.clienteId, cliente.id))
+    .orderBy(desc(citaHistorial.createdAt))
+    .limit(30);
 }
 
 export async function citaPerteneceCliente(userId: string, citaId: string) {

@@ -7,6 +7,6 @@ const nav = [
 ];
 
 export default async function EmpleadoLayout({ children }: { children: React.ReactNode }) {
-  await requireRole(["empleado"]);
-  return <AppShell role="empleado" title="Empleado" nav={nav}>{children}</AppShell>;
+  const profile = await requireRole(["empleado"]);
+  return <AppShell profile={profile} role="empleado" title={profile.negocioNombre || "Empleado"} nav={nav}>{children}</AppShell>;
 }

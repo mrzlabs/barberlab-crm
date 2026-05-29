@@ -55,3 +55,24 @@ export async function loginAction(formData: FormData) {
   if (error) redirect("/login?error=auth");
   redirect(parsed.data.next || "/");
 }
+
+export async function googleLoginAction(formData: FormData) {
+  if (isDemoMode()) redirect("/login?error=google-demo");
+
+  const next = String(formData.get("next") || "");
+  const supabase = createSupabaseServerClient();
+  const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback${next ? `?next=${next}` : ""}`;
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo,
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
+    },
+  });
+
+  if (error || !data.url) redirect("/login?error=google");
+  redirect(data.url);
+}

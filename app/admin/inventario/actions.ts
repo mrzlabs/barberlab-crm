@@ -8,14 +8,16 @@ import { inventario, movInventario } from "@/lib/db/schema";
 import { inventarioSchema, movInventarioSchema } from "@/lib/validations/admin";
 
 export async function createItem(formData: FormData) {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   const raw = Object.fromEntries(formData);
   const payload = inventarioSchema.parse({
     ...raw,
     activo: formData.get("activo") === "on",
+    visibleCliente: formData.get("visibleCliente") === "on",
   });
 
   await getDb().insert(inventario).values({
+    negocioId: profile.negocioId,
     sku: payload.sku.trim().toUpperCase(),
     nombre: payload.nombre.trim(),
     categoria: payload.categoria.trim(),
@@ -23,6 +25,8 @@ export async function createItem(formData: FormData) {
     stock: String(payload.stock),
     costoUnitario: String(payload.costoUnitario),
     stockMinimo: String(payload.stockMinimo),
+    precioVenta: String(payload.precioVenta),
+    visibleCliente: payload.visibleCliente,
     activo: payload.activo,
   });
 
@@ -31,12 +35,13 @@ export async function createItem(formData: FormData) {
 }
 
 export async function createMov(formData: FormData) {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   const payload = movInventarioSchema.parse(Object.fromEntries(formData));
   const db = getDb();
 
   await db.transaction(async (tx) => {
     await tx.insert(movInventario).values({
+      negocioId: profile.negocioId,
       inventarioId: payload.inventarioId,
       tipo: payload.tipo,
       cantidad: String(payload.cantidad),

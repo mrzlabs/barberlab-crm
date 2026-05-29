@@ -9,7 +9,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { clienteAdminSchema } from "@/lib/validations/catalog";
 
 export async function createCliente(formData: FormData) {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   if (isDemoMode()) {
     revalidatePath("/admin/clientes");
     return;
@@ -28,9 +28,10 @@ export async function createCliente(formData: FormData) {
       email: payload.email.trim().toLowerCase(),
       password: payload.password,
       email_confirm: true,
-      app_metadata: { rol: "cliente", role: "cliente" },
+      app_metadata: { rol: "cliente", role: "cliente", negocio_id: profile.negocioId },
       user_metadata: {
         rol: "cliente",
+        negocio_id: profile.negocioId,
         nombre: payload.nombre.trim(),
         telefono: payload.telefono.trim(),
       },
@@ -47,6 +48,7 @@ export async function createCliente(formData: FormData) {
     if (userId && payload.email) {
       await tx.insert(usuarios).values({
         id: userId,
+        negocioId: profile.negocioId,
         email: payload.email.trim().toLowerCase(),
         rol: "cliente",
         nombre: payload.nombre.trim(),
@@ -56,6 +58,7 @@ export async function createCliente(formData: FormData) {
     }
 
     await tx.insert(clientes).values({
+      negocioId: profile.negocioId,
       usuarioId: userId,
       nombre: payload.nombre.trim(),
       telefono: payload.telefono.trim(),

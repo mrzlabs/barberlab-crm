@@ -9,7 +9,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { empleadoAdminSchema } from "@/lib/validations/catalog";
 
 export async function createEmpleado(formData: FormData) {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   if (isDemoMode()) {
     revalidatePath("/admin/empleados");
     return;
@@ -24,9 +24,10 @@ export async function createEmpleado(formData: FormData) {
     email: payload.email.trim().toLowerCase(),
     password: payload.password,
     email_confirm: true,
-    app_metadata: { rol: "empleado", role: "empleado" },
+    app_metadata: { rol: "empleado", role: "empleado", negocio_id: profile.negocioId },
     user_metadata: {
       rol: "empleado",
+      negocio_id: profile.negocioId,
       nombre: payload.nombre.trim(),
       telefono: payload.telefono.trim(),
     },
@@ -41,6 +42,7 @@ export async function createEmpleado(formData: FormData) {
   await getDb().transaction(async (tx) => {
     await tx.insert(usuarios).values({
       id: userId,
+      negocioId: profile.negocioId,
       email: payload.email.trim().toLowerCase(),
       rol: "empleado",
       nombre: payload.nombre.trim(),
@@ -49,6 +51,7 @@ export async function createEmpleado(formData: FormData) {
     });
 
     await tx.insert(empleados).values({
+      negocioId: profile.negocioId,
       usuarioId: userId,
       especialidad: payload.especialidad,
       comisionPct: String(payload.comisionPct),

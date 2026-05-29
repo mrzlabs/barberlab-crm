@@ -14,6 +14,6 @@ const nav = [
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  await requireRole(["admin"]);
-  return <AppShell role="admin" title="Administracion" nav={nav}>{children}</AppShell>;
+  const profile = await requireRole(["admin", "super_admin"]);
+  return <AppShell profile={profile} role="admin" title={profile.negocioNombre || "Administracion"} nav={nav}>{children}</AppShell>;
 }

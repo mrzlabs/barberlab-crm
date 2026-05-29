@@ -30,7 +30,7 @@ export default async function InventarioPage() {
       <section className="grid gap-6 xl:grid-cols-2">
         <form action={createItem} className="rounded-2xl border bg-white p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wide text-primary">Catalogo</p>
-          <h2 className="mt-1 text-2xl font-black">Nuevo insumo</h2>
+          <h2 className="mt-1 text-2xl font-black">Nuevo item</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <label className="text-xs font-bold uppercase text-muted-foreground">
               SKU
@@ -60,12 +60,20 @@ export default async function InventarioPage() {
               Costo unitario
               <input className={input} defaultValue="0" min="0" name="costoUnitario" type="number" />
             </label>
+            <label className="text-xs font-bold uppercase text-muted-foreground">
+              Precio venta
+              <input className={input} defaultValue="0" min="0" name="precioVenta" type="number" />
+            </label>
             <label className="flex items-end gap-2 text-sm font-semibold">
               <input defaultChecked name="activo" type="checkbox" />
               Activo
             </label>
+            <label className="flex items-end gap-2 text-sm font-semibold">
+              <input name="visibleCliente" type="checkbox" />
+              Visible cliente
+            </label>
             <button className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white sm:col-span-2" type="submit">
-              Crear insumo
+              Crear item
             </button>
           </div>
         </form>
@@ -122,6 +130,8 @@ export default async function InventarioPage() {
                 <th className="px-5 py-3 text-right">Stock</th>
                 <th className="px-5 py-3 text-right">Minimo</th>
                 <th className="px-5 py-3 text-right">Costo</th>
+                <th className="px-5 py-3 text-right">Venta</th>
+                <th className="px-5 py-3">Cliente</th>
                 <th className="px-5 py-3">Estado</th>
               </tr>
             </thead>
@@ -136,6 +146,12 @@ export default async function InventarioPage() {
                     <td className="px-5 py-4 text-right">{item.stock} {item.unidad}</td>
                     <td className="px-5 py-4 text-right">{item.stockMinimo}</td>
                     <td className="px-5 py-4 text-right">{fmtMoney(item.costoUnitario)}</td>
+                    <td className="px-5 py-4 text-right">{fmtMoney(item.precioVenta)}</td>
+                    <td className="px-5 py-4">
+                      <span className={`rounded-full px-3 py-1 text-xs font-black ${item.visibleCliente ? "bg-cyan-50 text-cyan-700" : "bg-slate-100 text-slate-600"}`}>
+                        {item.visibleCliente ? "Visible" : "Interno"}
+                      </span>
+                    </td>
                     <td className="px-5 py-4">
                       <span className={`rounded-full px-3 py-1 text-xs font-black ${low ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}>
                         {low ? "Reponer" : "OK"}
@@ -146,7 +162,7 @@ export default async function InventarioPage() {
               })}
               {items.length === 0 ? (
                 <tr>
-                  <td className="px-5 py-8 text-center text-muted-foreground" colSpan={7}>Sin insumos registrados.</td>
+                  <td className="px-5 py-8 text-center text-muted-foreground" colSpan={9}>Sin items registrados.</td>
                 </tr>
               ) : null}
             </tbody>

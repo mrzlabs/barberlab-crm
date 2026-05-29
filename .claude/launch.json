@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "BarberLab · Producción (3011)",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/dev-prod.mjs"],
+      "port": 3011
+    },
+    {
+      "name": "BarberLab · Demo (3012)",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/dev-demo.mjs"],
+      "port": 3012
+    },
+    {
+      "name": "BarberLab · Dev genérico (3000)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000
+    }
+  ]
+}

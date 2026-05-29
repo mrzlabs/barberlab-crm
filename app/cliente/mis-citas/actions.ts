@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { citas } from "@/lib/db/schema";
+import { addCitaHistory } from "@/lib/citas/history";
 import { citaPerteneceCliente, slotDisponible } from "@/lib/cliente/queries";
 import { citaIdSchema, reprogramarSchema } from "@/lib/validations/cliente";
 
@@ -18,6 +19,15 @@ export async function cancelarCita(formData: FormData) {
   }
 
   await getDb().update(citas).set({ estado: "cancelada", updatedAt: new Date() }).where(eq(citas.id, payload.citaId));
+  await addCitaHistory({
+    citaId: payload.citaId,
+    actorId: profile.id,
+    actorRol: "cliente",
+    estadoAnterior: cita.estado,
+    estadoNuevo: "cancelada",
+    accion: "cita_cliente_cancelada",
+    detalle: "Cliente cancelo la cita",
+  });
 
   revalidatePath("/cliente/mis-citas");
   revalidatePath("/admin/agenda");
@@ -58,6 +68,16 @@ export async function reprogramarCita(formData: FormData) {
       updatedAt: new Date(),
     })
     .where(eq(citas.id, payload.citaId));
+
+  await addCitaHistory({
+    citaId: payload.citaId,
+    actorId: profile.id,
+    actorRol: "cliente",
+    estadoAnterior: cita.estado,
+    estadoNuevo: "reservada",
+    accion: "cita_cliente_reprogramada",
+    detalle: "Cliente reprogramo la cita y quedo pendiente de confirmacion",
+  });
 
   revalidatePath("/cliente/mis-citas");
   revalidatePath("/cliente/reservar");

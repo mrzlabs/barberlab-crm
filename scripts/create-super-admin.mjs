@@ -35,13 +35,13 @@ const telefono = process.env.BARBERLAB_SUPER_ADMIN_TELEFONO || "3503803010";
 
 const metadata = {
   app_metadata: {
-    rol: "admin",
-    role: "admin",
+    rol: "super_admin",
+    role: "super_admin",
     super_admin: true,
   },
   user_metadata: {
-    rol: "admin",
-    role: "admin",
+    rol: "super_admin",
+    role: "super_admin",
     super_admin: true,
     nombre,
     telefono,
@@ -88,9 +88,10 @@ if (error) {
 const { error: profileError } = await supabase.from("usuarios").upsert({
   id: data.user.id,
   email,
-  rol: "admin",
+  rol: "super_admin",
   nombre,
   telefono,
+  super_admin: true,
   activo: true,
 });
 

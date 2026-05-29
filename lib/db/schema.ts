@@ -12,7 +12,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-export const rolUsuario = pgEnum("rol_usuario", ["admin", "empleado", "cliente"]);
+export const rolUsuario = pgEnum("rol_usuario", ["super_admin", "admin", "empleado", "cliente"]);
 export const especialidadEmpleado = pgEnum("especialidad_empleado", ["barberia", "peluqueria", "spa_unas", "tatuajes"]);
 export const categoriaServicio = pgEnum("categoria_servicio", ["barberia", "peluqueria", "spa_unas", "tatuajes"]);
 export const estadoCita = pgEnum("estado_cita", ["reservada", "confirmada", "realizada", "cancelada", "no_asistio"]);
@@ -25,18 +25,40 @@ const timestamps = {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 };
 
+export const negocios = pgTable("negocios", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  nombre: text("nombre").notNull(),
+  slug: text("slug").notNull().unique(),
+  telefono: text("telefono"),
+  direccion: text("direccion"),
+  logoUrl: text("logo_url"),
+  colorPrimario: text("color_primario").notNull().default("#111827"),
+  colorSecundario: text("color_secundario").notNull().default("#22d3ee"),
+  colorAcento: text("color_acento").notNull().default("#7c3aed"),
+  fuente: text("fuente").notNull().default("Inter"),
+  plan: text("plan").notNull().default("starter"),
+  estado: text("estado").notNull().default("activo"),
+  modoAislamiento: text("modo_aislamiento").notNull().default("multi_tenant"),
+  fechaInicio: date("fecha_inicio").notNull(),
+  fechaFin: date("fecha_fin"),
+  ...timestamps,
+});
+
 export const usuarios = pgTable("usuarios", {
   id: uuid("id").primaryKey(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   email: text("email").notNull().unique(),
   rol: rolUsuario("rol").notNull(),
   nombre: text("nombre").notNull(),
   telefono: text("telefono"),
+  superAdmin: boolean("super_admin").notNull().default(false),
   activo: boolean("activo").notNull().default(true),
   ...timestamps,
 });
 
 export const empleados = pgTable("empleados", {
   id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   usuarioId: uuid("usuario_id").notNull().references(() => usuarios.id, { onDelete: "cascade" }).unique(),
   especialidad: especialidadEmpleado("especialidad").notNull(),
   comisionPct: numeric("comision_pct", { precision: 5, scale: 2 }).notNull().default("0"),
@@ -46,6 +68,7 @@ export const empleados = pgTable("empleados", {
 
 export const clientes = pgTable("clientes", {
   id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   usuarioId: uuid("usuario_id").references(() => usuarios.id, { onDelete: "set null" }).unique(),
   nombre: text("nombre").notNull(),
   telefono: text("telefono").notNull(),
@@ -56,6 +79,7 @@ export const clientes = pgTable("clientes", {
 
 export const servicios = pgTable("servicios", {
   id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   categoria: categoriaServicio("categoria").notNull(),
   nombre: text("nombre").notNull(),
   duracionMin: integer("duracion_min").notNull(),
@@ -67,6 +91,7 @@ export const servicios = pgTable("servicios", {
 
 export const horariosEmpleado = pgTable("horarios_empleado", {
   id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   empleadoId: uuid("empleado_id").notNull().references(() => empleados.id, { onDelete: "cascade" }),
   diaSemana: integer("dia_semana").notNull(),
   horaInicio: time("hora_inicio").notNull(),
@@ -76,6 +101,7 @@ export const horariosEmpleado = pgTable("horarios_empleado", {
 
 export const bloqueosEmpleado = pgTable("bloqueos_empleado", {
   id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   empleadoId: uuid("empleado_id").notNull().references(() => empleados.id, { onDelete: "cascade" }),
   fechaInicio: timestamp("fecha_inicio", { withTimezone: true }).notNull(),
   fechaFin: timestamp("fecha_fin", { withTimezone: true }).notNull(),
@@ -85,6 +111,7 @@ export const bloqueosEmpleado = pgTable("bloqueos_empleado", {
 
 export const citas = pgTable("citas", {
   id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   clienteId: uuid("cliente_id").notNull().references(() => clientes.id),
   empleadoId: uuid("empleado_id").notNull().references(() => empleados.id),
   servicioId: uuid("servicio_id").notNull().references(() => servicios.id),
@@ -96,6 +123,7 @@ export const citas = pgTable("citas", {
 
 export const turnos = pgTable("turnos", {
   id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   citaId: uuid("cita_id").notNull().references(() => citas.id).unique(),
   precioFinal: numeric("precio_final", { precision: 12, scale: 2 }).notNull(),
   propina: numeric("propina", { precision: 12, scale: 2 }).notNull().default("0"),
@@ -107,6 +135,7 @@ export const turnos = pgTable("turnos", {
 
 export const gastos = pgTable("gastos", {
   id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   categoria: categoriaGasto("categoria").notNull(),
   monto: numeric("monto", { precision: 12, scale: 2 }).notNull(),
   fecha: date("fecha").notNull(),
@@ -117,6 +146,7 @@ export const gastos = pgTable("gastos", {
 
 export const inventario = pgTable("inventario", {
   id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   sku: text("sku").notNull().unique(),
   nombre: text("nombre").notNull(),
   categoria: text("categoria").notNull(),
@@ -124,12 +154,15 @@ export const inventario = pgTable("inventario", {
   stock: numeric("stock", { precision: 12, scale: 2 }).notNull().default("0"),
   costoUnitario: numeric("costo_unitario", { precision: 12, scale: 2 }).notNull().default("0"),
   stockMinimo: numeric("stock_minimo", { precision: 12, scale: 2 }).notNull().default("0"),
+  precioVenta: numeric("precio_venta", { precision: 12, scale: 2 }).notNull().default("0"),
+  visibleCliente: boolean("visible_cliente").notNull().default(false),
   activo: boolean("activo").notNull().default(true),
   ...timestamps,
 });
 
 export const movInventario = pgTable("mov_inventario", {
   id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   inventarioId: uuid("inventario_id").notNull().references(() => inventario.id),
   tipo: tipoMovInventario("tipo").notNull(),
   cantidad: numeric("cantidad", { precision: 12, scale: 2 }).notNull(),
@@ -141,6 +174,7 @@ export const movInventario = pgTable("mov_inventario", {
 
 export const servicioInsumos = pgTable("servicio_insumos", {
   id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   servicioId: uuid("servicio_id").notNull().references(() => servicios.id, { onDelete: "cascade" }),
   inventarioId: uuid("inventario_id").notNull().references(() => inventario.id),
   cantidad: numeric("cantidad", { precision: 12, scale: 2 }).notNull(),
@@ -148,3 +182,16 @@ export const servicioInsumos = pgTable("servicio_insumos", {
 }, (table) => ({
   servicioInventarioUnq: unique().on(table.servicioId, table.inventarioId),
 }));
+
+export const citaHistorial = pgTable("cita_historial", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
+  citaId: uuid("cita_id").notNull().references(() => citas.id, { onDelete: "cascade" }),
+  actorId: uuid("actor_id").references(() => usuarios.id, { onDelete: "set null" }),
+  actorRol: rolUsuario("actor_rol"),
+  estadoAnterior: estadoCita("estado_anterior"),
+  estadoNuevo: estadoCita("estado_nuevo"),
+  accion: text("accion").notNull(),
+  detalle: text("detalle"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});

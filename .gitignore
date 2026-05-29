@@ -6,5 +6,6 @@ out/
 dist/
 coverage/
 .vercel/
+supabase/.temp/
 .env*.local
 *.tsbuildinfo
