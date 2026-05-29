@@ -1,5 +1,7 @@
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
+import { mockCitas, mockGastos, mockInventario, mockTurnos } from "@/lib/mock";
 import {
   citas,
   clientes,
@@ -29,6 +31,28 @@ function startOfMonth(date = new Date()) {
 }
 
 export async function getDashboard() {
+  if (isDemoMode()) {
+    return {
+      today: {
+        turnos: 18,
+        citas: 24,
+        ingresos: 2450000,
+        gastos: 420000,
+        margen: 2030000,
+        propinas: 85000,
+        ticket: 72000,
+      },
+      month: {
+        turnos: 286,
+        ingresos: 36500000,
+        gastos: 9400000,
+        margen: 27100000,
+        ticket: 76500,
+      },
+      lowStock: 1,
+    };
+  }
+
   const db = getDb();
   const todayStart = startOfDay();
   const todayEnd = endOfDay();
@@ -98,6 +122,8 @@ export async function getDashboard() {
 }
 
 export async function getRecentTurnos() {
+  if (isDemoMode()) return mockTurnos;
+
   const db = getDb();
   return db
     .select({
@@ -121,6 +147,8 @@ export async function getRecentTurnos() {
 }
 
 export async function getPendingCitas() {
+  if (isDemoMode()) return mockCitas;
+
   const db = getDb();
   return db
     .select({
@@ -143,11 +171,15 @@ export async function getPendingCitas() {
 }
 
 export async function getGastos() {
+  if (isDemoMode()) return mockGastos;
+
   const db = getDb();
   return db.select().from(gastos).orderBy(desc(gastos.fecha), desc(gastos.createdAt)).limit(40);
 }
 
 export async function getInventario() {
+  if (isDemoMode()) return mockInventario;
+
   const db = getDb();
   return db.select().from(inventario).orderBy(desc(inventario.activo), inventario.nombre);
 }

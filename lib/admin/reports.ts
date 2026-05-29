@@ -1,4 +1,5 @@
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
 import {
   citas,
@@ -42,6 +43,36 @@ function rangeDates(range: ReportRange) {
 }
 
 export async function getReportes(range: ReportRange) {
+  if (isDemoMode()) {
+    return {
+      kpis: {
+        turnos: 286,
+        ingresos: 36500000,
+        propinas: 1250000,
+        ticket: 76500,
+        costoInsumo: 4850000,
+        gastos: 9400000,
+        margenBruto: 22250000,
+        tasaNoAsistencia: 0.047,
+      },
+      byService: [
+        { servicio: "Corte premium", categoria: "barberia" as const, turnos: 112, ingresos: 7840000, costoInsumo: 640000, margen: 7200000, rentabilidad: 0.918 },
+        { servicio: "Corte y barba", categoria: "barberia" as const, turnos: 86, ingresos: 5590000, costoInsumo: 520000, margen: 5070000, rentabilidad: 0.907 },
+        { servicio: "Manicure semipermanente", categoria: "spa_unas" as const, turnos: 54, ingresos: 4320000, costoInsumo: 980000, margen: 3340000, rentabilidad: 0.773 },
+      ],
+      byEmployee: [
+        { empleado: "Mateo Barber", especialidad: "barberia" as const, comisionPct: "40", turnos: 148, ingresos: 11400000, propinas: 560000, comision: 4560000 },
+        { empleado: "Sofia Nails", especialidad: "spa_unas" as const, comisionPct: "35", turnos: 54, ingresos: 4320000, propinas: 210000, comision: 1512000 },
+        { empleado: "Nico Ink", especialidad: "tatuajes" as const, comisionPct: "45", turnos: 18, ingresos: 6800000, propinas: 300000, comision: 3060000 },
+      ],
+      byPayment: [
+        { metodoPago: "transferencia" as const, turnos: 142, ingresos: 18400000 },
+        { metodoPago: "tarjeta" as const, turnos: 91, ingresos: 12400000 },
+        { metodoPago: "efectivo" as const, turnos: 53, ingresos: 5700000 },
+      ],
+    };
+  }
+
   const db = getDb();
   const { from, to } = rangeDates(range);
 

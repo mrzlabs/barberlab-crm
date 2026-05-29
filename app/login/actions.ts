@@ -1,7 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { z } from "zod";
+import { demoCreds, isDemoMode } from "@/lib/demo";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const loginSchema = z.object({
@@ -20,6 +22,18 @@ export async function loginAction(formData: FormData) {
   });
 
   if (!parsed.success) redirect("/login?error=invalid");
+
+  if (isDemoMode()) {
+    if (parsed.data.email === demoCreds.email && parsed.data.password === demoCreds.password) {
+      cookies().set("barberlab_demo_role", demoCreds.role, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+      });
+      redirect(parsed.data.next || "/admin/dashboard");
+    }
+    redirect("/login?error=auth");
+  }
 
   const supabase = createSupabaseServerClient();
   const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback${parsed.data.next ? `?next=${parsed.data.next}` : ""}`;

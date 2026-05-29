@@ -49,6 +49,13 @@ export default function LoginPage({
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               Usa clave o magic link segun el rol asignado en Supabase.
             </p>
+            {process.env.BARBERLAB_DEMO_MODE === "true" ? (
+              <div className="mt-4 rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-sm text-cyan-950">
+                <p className="font-black">Acceso demo local</p>
+                <p className="mt-1">Email: admin@barberlab.local</p>
+                <p>Password: BarberLab2026!</p>
+              </div>
+            ) : null}
             {searchParams.error && <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm font-bold text-red-700">Credenciales invalidas.</p>}
             {searchParams.sent && <p className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-700">Magic link enviado.</p>}
             <form action={loginAction} className="mt-6 grid gap-4">

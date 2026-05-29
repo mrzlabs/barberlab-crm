@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleFromClaims, type UserRole } from "@/lib/auth/roles";
+import { demoCreds, isDemoMode } from "@/lib/demo";
 
 export type CurrentProfile = {
   id: string;
@@ -11,6 +13,17 @@ export type CurrentProfile = {
 };
 
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
+  const demoRole = cookies().get("barberlab_demo_role")?.value;
+  if (isDemoMode() && demoRole === "admin") {
+    return {
+      id: "00000000-0000-0000-0000-000000000001",
+      email: demoCreds.email,
+      rol: "admin",
+      nombre: "Admin BarberLab",
+      telefono: "3503803010",
+    };
+  }
+
   const supabase = createSupabaseServerClient();
   const { data: userData } = await supabase.auth.getUser();
   const user = userData.user;
