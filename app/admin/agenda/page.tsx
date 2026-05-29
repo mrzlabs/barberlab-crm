@@ -14,20 +14,24 @@ export default async function AdminAgendaPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl bg-slate-950 p-6 text-white shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-wide text-cyan-300">Agenda completa</p>
-        <h2 className="mt-2 text-3xl font-black tracking-tight">Operacion por especialista</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
-          Vista consolidada para confirmar carga diaria, cliente, servicio, estado y contacto manual por WhatsApp.
-        </p>
+      <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-6 text-white shadow-2xl shadow-violet-950/20 sm:p-8">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_25%,rgba(34,211,238,.34),transparent_18rem),radial-gradient(circle_at_78%_35%,rgba(168,85,247,.35),transparent_22rem)]" />
+        <div className="relative">
+          <div className="mac-dots" />
+          <p className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Agenda completa</p>
+          <h2 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">Operacion por especialista</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
+            Admin puede controlar toda la agenda, revisar estados, contactar clientes y detectar carga operativa por empleado.
+          </p>
+        </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <section className="flex gap-4 overflow-x-auto pb-2 scrollbar-soft">
         {citas.map((cita) => (
-          <article className="rounded-2xl border bg-white p-5 shadow-sm" key={cita.id}>
+          <article className="glass-panel min-w-[310px] rounded-[1.7rem] p-5 transition hover:-translate-y-1 hover:border-violet-300 hover:shadow-xl sm:min-w-[360px]" key={cita.id}>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{fmtDateTime(cita.inicio)}</p>
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{fmtDateTime(cita.inicio)}</p>
                 <h3 className="mt-2 text-xl font-black">{cita.cliente}</h3>
               </div>
               <span className={`rounded-full px-3 py-1 text-xs font-black ${badge(cita.estado)}`}>{cita.estado}</span>
@@ -36,7 +40,7 @@ export default async function AdminAgendaPage() {
               <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Servicio</dt><dd className="font-semibold text-right">{cita.servicio}</dd></div>
               <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Empleado</dt><dd className="font-semibold text-right">{cita.empleado}</dd></div>
               <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Categoria</dt><dd className="font-semibold capitalize">{cita.categoria.replace("_", " ")}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">WhatsApp</dt><dd><a className="font-black text-cyan-700" href={`https://wa.me/57${cita.telefono.replace(/\D/g, "")}`} target="_blank">Contactar</a></dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">WhatsApp</dt><dd><a className="rounded-full bg-emerald-50 px-3 py-1 font-black text-emerald-700" href={`https://wa.me/57${cita.telefono.replace(/\D/g, "")}`} target="_blank">Contactar</a></dd></div>
             </dl>
           </article>
         ))}

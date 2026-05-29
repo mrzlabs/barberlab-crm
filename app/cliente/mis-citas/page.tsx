@@ -36,24 +36,26 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl bg-slate-950 p-6 text-white shadow-sm">
-        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+      <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-6 text-white shadow-2xl shadow-violet-950/20 sm:p-8">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(34,211,238,.32),transparent_18rem),radial-gradient(circle_at_82%_45%,rgba(168,85,247,.34),transparent_22rem)]" />
+        <div className="relative flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-cyan-300">Historial cliente</p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight">Mis citas</h2>
+            <div className="mac-dots" />
+            <p className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Historial cliente</p>
+            <h2 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">Mis citas</h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
               Consulta, cancela o reprograma citas. Las citas realizadas quedan bloqueadas para cambios.
             </p>
           </div>
-          <Link className="rounded-xl bg-cyan-400 px-4 py-3 text-sm font-black text-slate-950" href="/cliente/reservar">
+          <Link className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950" href="/cliente/reservar">
             Nueva reserva
           </Link>
         </div>
       </section>
 
       {citaReprogramar ? (
-        <section className="rounded-2xl border bg-white shadow-sm">
-          <div className="border-b p-5">
+        <section className="glass-panel rounded-[2rem]">
+          <div className="border-b border-slate-200/70 p-5">
             <h3 className="text-2xl font-black">Reprogramar cita</h3>
             <p className="mt-1 text-sm text-muted-foreground">Selecciona nueva combinacion y confirma un slot disponible.</p>
           </div>
@@ -95,7 +97,7 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
                 <input name="fin" type="hidden" value={slot.fin.toISOString()} />
                 <strong className="block text-lg">{fmtDateTime(slot.inicio)}</strong>
                 <p className="mt-1 text-sm text-muted-foreground">Finaliza {fmtDateTime(slot.fin)}</p>
-                <button className="mt-4 w-full rounded-xl bg-cyan-500 px-4 py-3 text-sm font-black text-white" type="submit">
+                <button className="mt-4 w-full rounded-2xl bg-cyan-500 px-4 py-3 text-sm font-black text-white" type="submit">
                   Confirmar cambio
                 </button>
               </form>
@@ -109,14 +111,14 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
         </section>
       ) : null}
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <section className="flex gap-4 overflow-x-auto pb-2 scrollbar-soft">
         {citas.map((cita) => {
           const bloqueada = cita.estado === "realizada" || cita.estado === "cancelada" || cita.estado === "no_asistio";
           return (
-            <article className="rounded-2xl border bg-white p-5 shadow-sm" key={cita.id}>
+            <article className="glass-panel min-w-[300px] rounded-[1.7rem] p-5 transition hover:-translate-y-1 hover:border-violet-300 hover:shadow-xl sm:min-w-[350px]" key={cita.id}>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{fmtDateTime(cita.inicio)}</p>
+                  <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{fmtDateTime(cita.inicio)}</p>
                   <h3 className="mt-2 text-xl font-black">{cita.servicio}</h3>
                 </div>
                 <span className={`rounded-full px-3 py-1 text-xs font-black ${estadoClass(cita.estado)}`}>{cita.estado}</span>
@@ -138,14 +140,14 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
               {!bloqueada ? (
                 <div className="mt-5 grid gap-2 sm:grid-cols-2">
                   <Link
-                    className="rounded-xl border px-4 py-3 text-center text-sm font-black"
+                    className="rounded-2xl border bg-white px-4 py-3 text-center text-sm font-black"
                     href={`/cliente/mis-citas?citaId=${cita.id}&servicioId=${cita.servicioId}&empleadoId=${cita.empleadoId}&fecha=${toDateInput(new Date(cita.inicio))}`}
                   >
                     Reprogramar
                   </Link>
                   <form action={cancelarCita}>
                     <input name="citaId" type="hidden" value={cita.id} />
-                    <button className="w-full rounded-xl bg-red-50 px-4 py-3 text-sm font-black text-red-700" type="submit">
+                    <button className="w-full rounded-2xl bg-red-50 px-4 py-3 text-sm font-black text-red-700" type="submit">
                       Cancelar
                     </button>
                   </form>
