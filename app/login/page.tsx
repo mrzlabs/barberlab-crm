@@ -7,10 +7,10 @@ export default function LoginPage({
   searchParams: { next?: string; error?: string; sent?: string };
 }) {
   return (
-    <main className="surface-grid grid min-h-dvh place-items-center p-4">
-      <section className="grid w-full max-w-5xl overflow-hidden rounded-[2rem] border bg-white shadow-2xl shadow-slate-950/10 lg:grid-cols-[1.05fr_0.95fr]">
+    <main className="surface-grid grid min-h-dvh place-items-center p-3 sm:p-5">
+      <section className="grid w-full max-w-6xl overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/72 shadow-2xl shadow-violet-950/30 backdrop-blur-2xl lg:grid-cols-[1.08fr_0.92fr]">
         <div className="relative hidden min-h-[620px] bg-slate-950 p-8 text-white lg:block">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(34,211,238,0.28),transparent_24rem),radial-gradient(circle_at_80%_70%,rgba(16,185,129,0.18),transparent_20rem)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(34,211,238,0.34),transparent_24rem),radial-gradient(circle_at_80%_70%,rgba(124,58,237,0.28),transparent_20rem)]" />
           <div className="relative flex h-full flex-col justify-between">
             <div>
               <div className="grid size-14 place-items-center rounded-2xl bg-white text-lg font-black text-slate-950">BL</div>
@@ -22,7 +22,7 @@ export default function LoginPage({
                 Agenda, caja, inventario, turnos, comisiones y rentabilidad en una sola operacion.
               </p>
             </div>
-            <div className="grid gap-3 rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur">
+            <div className="grid gap-3 rounded-3xl border border-cyan-300/10 bg-white/8 p-5 shadow-2xl shadow-cyan-950/20 backdrop-blur">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-300">Turnos hoy</span>
                 <strong className="text-cyan-300">Operativo</strong>
@@ -39,7 +39,7 @@ export default function LoginPage({
           </div>
         </div>
 
-        <div className="p-6 sm:p-10">
+        <div className="bg-white/96 p-6 text-slate-950 sm:p-10 lg:bg-white/92">
           <div className="lg:hidden">
             <div className="grid size-12 place-items-center rounded-2xl bg-slate-950 text-sm font-black text-cyan-300">BL</div>
             <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-primary">BarberLab CRM</p>
@@ -69,7 +69,7 @@ export default function LoginPage({
                 Password
                 <input className="rounded-xl border bg-slate-50 px-4 py-3 outline-none focus:border-cyan-500" name="password" type="password" minLength={8} />
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <button className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white" name="mode" value="password" type="submit">
                   Entrar
                 </button>

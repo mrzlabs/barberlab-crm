@@ -645,7 +645,7 @@ export function AppChrome({
 
   return (
     <div
-      className="crm-shell min-h-dvh overflow-x-hidden text-slate-950"
+      className="crm-shell min-h-dvh overflow-x-hidden text-slate-100"
       style={{
         ["--brand-primary" as string]: brand?.colorPrimario || "#111827",
         ["--brand-secondary" as string]: brand?.colorSecundario || "#22d3ee",
@@ -656,10 +656,8 @@ export function AppChrome({
 
       {/* ── Background ──────────────────────────────────────────── */}
       <div className="fixed inset-0 -z-10">
-        {/* base lavanda muy suave */}
-        <div className="absolute inset-0 bg-[linear-gradient(160deg,#fbfaff_0%,#f5f1ff_38%,#eef6ff_72%,#fafffd_100%)]" />
-        {/* halos corp difusos */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_45%_at_8%_2%,rgba(124,58,237,.07),transparent),radial-gradient(ellipse_50%_40%_at_92%_5%,rgba(34,211,238,.055),transparent),radial-gradient(ellipse_55%_45%_at_50%_98%,rgba(109,40,217,.055),transparent)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(155deg,#020617_0%,#07111f_42%,#13071f_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_45%_at_8%_2%,rgba(34,211,238,.13),transparent),radial-gradient(ellipse_50%_40%_at_92%_5%,rgba(124,58,237,.18),transparent),radial-gradient(ellipse_55%_45%_at_50%_98%,rgba(20,184,166,.10),transparent)]" />
         {/* espirales Archimedeas girando lentamente */}
         <SpiralCanvas className="absolute inset-0 h-full w-full" />
         {/* puntos neurales + líneas encima */}
@@ -679,20 +677,20 @@ export function AppChrome({
       )}
 
       {/* ── Sidebar ─────────────────────────────────────────────── */}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex flex-col border-r border-white/40 bg-white/30 shadow-2xl shadow-violet-950/10 backdrop-blur-[28px] transition-all duration-300 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[19rem] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-40 flex flex-col border-r border-white/10 bg-slate-950/78 shadow-2xl shadow-black/40 backdrop-blur-[28px] transition-all duration-300 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(19rem,86vw)] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}>
         {/* header */}
-        <div className="flex items-center justify-between gap-3 border-b border-white/30 p-4">
+        <div className="flex items-center justify-between gap-3 border-b border-white/10 p-4">
           <div className="flex min-w-0 items-center gap-3">
             <LogoMark brand={brand} />
             <div className={open ? "block" : "hidden"}>
               <p className="text-[11px] font-black uppercase tracking-[0.22em]" style={{ color: brand?.colorAcento || "#6d28d9" }}>{brand?.plan ? `Plan ${brand.plan}` : "BarberLab"}</p>
-              <h1 className="truncate text-sm font-black">{title}</h1>
+              <h1 className="truncate text-sm font-black text-white">{title}</h1>
             </div>
           </div>
-          <button className="hidden rounded-xl border border-white/50 bg-white/50 p-2 text-slate-600 hover:bg-white/70 hover:text-violet-700 backdrop-blur-sm lg:grid" onClick={() => setOpen((v) => !v)} type="button" aria-label="Contraer menú">
+          <button className="hidden rounded-xl border border-white/10 bg-white/10 p-2 text-slate-200 hover:bg-white/15 hover:text-cyan-200 backdrop-blur-sm lg:grid" onClick={() => setOpen((v) => !v)} type="button" aria-label="Contraer menú">
             {open ? <ChevronLeft className="size-4" /> : <ChevronRight className="size-4" />}
           </button>
-          <button className="rounded-xl border border-white/50 bg-white/50 p-2 text-slate-600 lg:hidden" onClick={() => setMobileOpen(false)} type="button" aria-label="Cerrar menú">
+          <button className="rounded-xl border border-white/10 bg-white/10 p-2 text-slate-200 lg:hidden" onClick={() => setMobileOpen(false)} type="button" aria-label="Cerrar menú">
             <X className="size-4" />
           </button>
         </div>
@@ -700,15 +698,15 @@ export function AppChrome({
         {/* nav body */}
         <div className="flex-1 overflow-y-auto p-3">
           <div className={`mb-4 flex flex-wrap gap-2 ${open ? "justify-start" : "justify-center"}`}>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-slate-600">
+            <span className="rounded-full border border-cyan-300/15 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-cyan-100">
               {open ? role : role.slice(0, 1)}
             </span>
           </div>
 
           {open && (
-            <label className="mb-3 flex items-center gap-2 rounded-2xl border border-white/40 bg-white/40 px-3 py-2.5 text-sm font-semibold text-slate-500 backdrop-blur-sm focus-within:border-violet-300 focus-within:bg-white/60">
+            <label className="mb-3 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/8 px-3 py-2.5 text-sm font-semibold text-slate-300 backdrop-blur-sm focus-within:border-cyan-300/50 focus-within:bg-white/12">
               <Search className="size-4 shrink-0" />
-              <input className="w-full bg-transparent outline-none placeholder:text-slate-400" placeholder="Buscar módulo" />
+              <input className="w-full bg-transparent outline-none placeholder:text-slate-500" placeholder="Buscar módulo" />
             </label>
           )}
 
@@ -719,7 +717,7 @@ export function AppChrome({
               const shapeClass = style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-xl" : "rounded-[14px]";
               return (
                 <Link
-                  className={`group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-600 transition hover:bg-white/55 hover:text-slate-900 ${open ? "justify-start" : "justify-center"}`}
+                  className={`group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:text-white ${open ? "justify-start" : "justify-center"}`}
                   href={item.href}
                   key={item.href}
                   onClick={() => setMobileOpen(false)}
@@ -766,23 +764,23 @@ export function AppChrome({
       {/* ── Main area ───────────────────────────────────────────── */}
       <div className={`min-h-dvh pb-14 transition-[padding] duration-300 ${open ? "lg:pl-[19rem]" : "lg:pl-[5.2rem]"}`}>
         {/* topbar */}
-        <header className="sticky top-0 z-20 border-b border-white/30 bg-white/25 px-4 py-3 backdrop-blur-[28px]">
+        <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/72 px-4 py-3 backdrop-blur-[28px]">
           <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <button className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-700 lg:hidden" onClick={() => setMobileOpen(true)} type="button" aria-label="Abrir menú">
+              <button className="rounded-2xl border border-white/10 bg-white/10 p-3 text-cyan-100 lg:hidden" onClick={() => setMobileOpen(true)} type="button" aria-label="Abrir menú">
                 <Menu className="size-4" />
               </button>
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-violet-600">MRZLABS / CRM</p>
-                <h2 className="text-xl font-black tracking-tight sm:text-2xl">{title}</h2>
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-300">MRZLABS / CRM</p>
+                <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">{title}</h2>
               </div>
             </div>
             <div className="relative hidden items-center gap-2 md:flex">
-              <button className="relative grid size-10 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:border-violet-200 hover:text-violet-700" onClick={() => setAlertsOpen((v) => !v)} type="button" aria-label="Ver alarmas">
+              <button className="relative grid size-10 place-items-center rounded-2xl border border-white/10 bg-white/10 text-slate-200 shadow-sm hover:border-cyan-300/40 hover:text-cyan-100" onClick={() => setAlertsOpen((v) => !v)} type="button" aria-label="Ver alarmas">
                 <Bell className="size-4.5" />
                 {!alertsHidden && <span className="absolute right-2 top-2 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,.9)]" />}
               </button>
-              <button className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-black text-white hover:bg-violet-950 transition" onClick={() => setBotOpen(true)} type="button">
+              <button className="rounded-2xl bg-cyan-300 px-4 py-2.5 text-sm font-black text-slate-950 shadow-lg shadow-cyan-950/20 hover:bg-cyan-200 transition" onClick={() => setBotOpen(true)} type="button">
                 Ayuda
               </button>
               {alertsOpen && (

@@ -22,7 +22,7 @@ html {
 
 body {
   margin: 0;
-  background: #faf9ff;
+  background: #030712;
   color: hsl(var(--foreground));
   font-family: var(--font-outfit), "Plus Jakarta Sans", Inter, sans-serif;
   text-rendering: geometricPrecision;
@@ -43,10 +43,30 @@ a {
   position: relative;
 }
 
+.surface-grid {
+  background:
+    radial-gradient(circle at 14% 18%, rgba(34, 211, 238, 0.18), transparent 20rem),
+    radial-gradient(circle at 86% 74%, rgba(124, 58, 237, 0.24), transparent 24rem),
+    linear-gradient(135deg, #020617 0%, #08111f 42%, #12071f 100%);
+}
+
+.surface-grid::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 30px 30px;
+  mask-image: linear-gradient(to bottom, black, transparent 90%);
+}
+
 .glass-panel {
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 22px 80px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.88);
+  color: #0f172a;
+  box-shadow: 0 24px 90px rgba(2, 6, 23, 0.18);
   backdrop-filter: blur(22px);
 }
 
