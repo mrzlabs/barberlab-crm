@@ -700,10 +700,9 @@ export function AppChrome({
         {/* nav body */}
         <div className="flex-1 overflow-y-auto p-3">
           <div className={`mb-4 flex flex-wrap gap-2 ${open ? "justify-start" : "justify-center"}`}>
-            <span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wide ${mode === "DEMO" ? "bg-violet-100 text-violet-700" : "bg-emerald-100 text-emerald-700"}`}>
-              {open ? mode : mode.slice(0, 1)}
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-slate-600">
+              {open ? role : role.slice(0, 1)}
             </span>
-            {open && <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-slate-600">{role}</span>}
           </div>
 
           {open && (

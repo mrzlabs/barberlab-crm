@@ -65,6 +65,11 @@ Desde ese panel se registra:
 Google Auth:
 
 - El login tiene opcion `Ingresar con Google`.
+- El boton llama a Supabase OAuth.
+- Supabase redirige a Google.
+- Google devuelve la sesion a `/auth/callback`.
+- Si el usuario ya existe en `usuarios`, entra con su rol asignado.
+- Si el usuario no existe, se crea como `cliente` dentro del negocio base `barberlab-demo`.
 - Debe habilitarse Google Provider en Supabase Auth.
 - Callback requerido:
 
@@ -72,6 +77,22 @@ Google Auth:
 https://TU_DOMINIO/auth/callback
 http://127.0.0.1:3011/auth/callback
 ```
+
+Magic link:
+
+- Es acceso sin password.
+- El usuario escribe su correo y pulsa `Magic link`.
+- Supabase envia un enlace temporal al correo.
+- Al abrir el enlace, Supabase valida el token y crea sesion.
+- El usuario entra con el rol que tenga en `usuarios` y en metadata.
+- Sirve para clientes o empleados que no quieren recordar clave.
+- No reemplaza el control de rol. Solo cambia el metodo de entrada.
+
+Pantalla de espera:
+
+- `app/loading.tsx` controla la espera global.
+- Se usa en navegaciones lentas, carga de rutas protegidas y render server.
+- Mantiene firma MRZLABS, fondo dinamico y estado visual de modulo.
 
 ## Flujo operativo
 

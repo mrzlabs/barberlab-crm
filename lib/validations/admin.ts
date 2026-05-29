@@ -92,3 +92,12 @@ export const negocioSchema = z.object({
   adminNombre: z.string().min(2).max(120),
   adminTelefono: z.string().min(7).max(30),
 });
+
+export const negocioUpdateSchema = negocioSchema.omit({
+  adminEmail: true,
+  adminPassword: true,
+  adminNombre: true,
+  adminTelefono: true,
+}).extend({
+  id: z.string().uuid(),
+});

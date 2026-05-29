@@ -1,11 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { negocios, usuarios } from "@/lib/db/schema";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
-import { negocioSchema } from "@/lib/validations/admin";
+import { negocioSchema, negocioUpdateSchema } from "@/lib/validations/admin";
 
 export async function createNegocio(formData: FormData) {
   await requireRole(["super_admin"]);
@@ -57,4 +58,28 @@ export async function createNegocio(formData: FormData) {
   });
 
   revalidatePath("/super-admin/negocios");
+}
+
+export async function updateNegocio(formData: FormData) {
+  await requireRole(["super_admin"]);
+  const payload = negocioUpdateSchema.parse(Object.fromEntries(formData));
+
+  await getDb().update(negocios).set({
+    nombre: payload.nombre.trim(),
+    slug: payload.slug.trim().toLowerCase(),
+    telefono: payload.telefono || null,
+    direccion: payload.direccion || null,
+    logoUrl: payload.logoUrl || null,
+    colorPrimario: payload.colorPrimario,
+    colorSecundario: payload.colorSecundario,
+    colorAcento: payload.colorAcento,
+    fuente: payload.fuente,
+    plan: payload.plan,
+    estado: payload.estado,
+    modoAislamiento: payload.modoAislamiento,
+    updatedAt: new Date(),
+  }).where(eq(negocios.id, payload.id));
+
+  revalidatePath("/super-admin/negocios");
+  revalidatePath(`/super-admin/negocios/${payload.id}`);
 }

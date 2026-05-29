@@ -1,5 +1,6 @@
 import { getNegocios } from "@/lib/super-admin/queries";
 import { createNegocio } from "./actions";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -104,6 +105,7 @@ export default async function NegociosPage() {
                   <th className="px-5 py-3">Estado</th>
                   <th className="px-5 py-3">Aislamiento</th>
                   <th className="px-5 py-3">Marca</th>
+                  <th className="px-5 py-3">Gestion</th>
                 </tr>
               </thead>
               <tbody className="bg-white/80">
@@ -120,6 +122,11 @@ export default async function NegociosPage() {
                           <span className="size-5 rounded-full border" key={color} style={{ backgroundColor: color }} />
                         ))}
                       </div>
+                    </td>
+                    <td className="px-5 py-4">
+                      <Link className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-black text-white" href={`/super-admin/negocios/${negocio.id}`}>
+                        Editar
+                      </Link>
                     </td>
                   </tr>
                 ))}
