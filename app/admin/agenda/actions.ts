@@ -34,6 +34,7 @@ export async function createCitaAdmin(formData: FormData) {
   }
 
   const [created] = await getDb().insert(citas).values({
+    negocioId: profile.negocioId,
     clienteId: payload.clienteId,
     empleadoId: payload.empleadoId,
     servicioId: payload.servicioId,
@@ -56,7 +57,7 @@ export async function createCitaAdmin(formData: FormData) {
 }
 
 export async function createHorarioEmpleado(formData: FormData) {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   if (isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
@@ -65,6 +66,7 @@ export async function createHorarioEmpleado(formData: FormData) {
   const payload = horarioEmpleadoSchema.parse(Object.fromEntries(formData));
 
   await getDb().insert(horariosEmpleado).values({
+    negocioId: profile.negocioId,
     empleadoId: payload.empleadoId,
     diaSemana: payload.diaSemana,
     horaInicio: payload.horaInicio,
@@ -76,7 +78,7 @@ export async function createHorarioEmpleado(formData: FormData) {
 }
 
 export async function createBloqueoEmpleado(formData: FormData) {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   if (isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
@@ -85,6 +87,7 @@ export async function createBloqueoEmpleado(formData: FormData) {
   const payload = bloqueoEmpleadoSchema.parse(Object.fromEntries(formData));
 
   await getDb().insert(bloqueosEmpleado).values({
+    negocioId: profile.negocioId,
     empleadoId: payload.empleadoId,
     fechaInicio: new Date(payload.fechaInicio),
     fechaFin: new Date(payload.fechaFin),

@@ -73,3 +73,22 @@ export const estadoCitaSchema = z.object({
   citaId: z.string().uuid(),
   estado: z.enum(["reservada", "confirmada", "cancelada", "no_asistio"]),
 });
+
+export const negocioSchema = z.object({
+  nombre: z.string().min(2).max(120),
+  slug: z.string().min(2).max(80).regex(/^[a-z0-9-]+$/),
+  telefono: z.string().max(30).optional().or(z.literal("")),
+  direccion: z.string().max(180).optional().or(z.literal("")),
+  logoUrl: z.string().url().optional().or(z.literal("")),
+  colorPrimario: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  colorSecundario: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  colorAcento: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  fuente: z.string().min(2).max(60),
+  plan: z.enum(["starter", "pro", "enterprise"]),
+  estado: z.enum(["activo", "suspendido", "cancelado"]),
+  modoAislamiento: z.enum(["multi_tenant", "dedicado"]),
+  adminEmail: z.string().email(),
+  adminPassword: z.string().min(8).max(72),
+  adminNombre: z.string().min(2).max(120),
+  adminTelefono: z.string().min(7).max(30),
+});

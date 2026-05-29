@@ -13,6 +13,7 @@ import {
   usuarios,
 } from "@/lib/db/schema";
 import { toDateInput } from "@/lib/admin/format";
+import { getCurrentProfile } from "@/lib/auth/session";
 
 function startOfDay(date = new Date()) {
   const value = new Date(date);
@@ -54,6 +55,8 @@ export async function getDashboard() {
   }
 
   const db = getDb();
+  const profile = await getCurrentProfile();
+  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
   const todayStart = startOfDay();
   const todayEnd = endOfDay();
   const monthStart = startOfMonth();
@@ -68,7 +71,7 @@ export async function getDashboard() {
         ticket: sql<string>`coalesce(avg(${turnos.precioFinal}), 0)`,
       })
       .from(turnos)
-      .where(and(gte(turnos.createdAt, todayStart), lte(turnos.createdAt, todayEnd))),
+      .where(and(eq(turnos.negocioId, negocioId), gte(turnos.createdAt, todayStart), lte(turnos.createdAt, todayEnd))),
     db
       .select({
         count: sql<number>`count(*)::int`,
@@ -76,23 +79,23 @@ export async function getDashboard() {
         ticket: sql<string>`coalesce(avg(${turnos.precioFinal}), 0)`,
       })
       .from(turnos)
-      .where(gte(turnos.createdAt, monthStart)),
+      .where(and(eq(turnos.negocioId, negocioId), gte(turnos.createdAt, monthStart))),
     db
       .select({ total: sql<string>`coalesce(sum(${gastos.monto}), 0)` })
       .from(gastos)
-      .where(eq(gastos.fecha, today)),
+      .where(and(eq(gastos.negocioId, negocioId), eq(gastos.fecha, today))),
     db
       .select({ total: sql<string>`coalesce(sum(${gastos.monto}), 0)` })
       .from(gastos)
-      .where(gte(gastos.fecha, toDateInput(monthStart))),
+      .where(and(eq(gastos.negocioId, negocioId), gte(gastos.fecha, toDateInput(monthStart)))),
     db
       .select({ count: sql<number>`count(*)::int` })
       .from(inventario)
-      .where(and(eq(inventario.activo, true), sql`${inventario.stock} <= ${inventario.stockMinimo}`)),
+      .where(and(eq(inventario.negocioId, negocioId), eq(inventario.activo, true), sql`${inventario.stock} <= ${inventario.stockMinimo}`)),
     db
       .select({ count: sql<number>`count(*)::int` })
       .from(citas)
-      .where(and(gte(citas.inicio, todayStart), lte(citas.inicio, todayEnd))),
+      .where(and(eq(citas.negocioId, negocioId), gte(citas.inicio, todayStart), lte(citas.inicio, todayEnd))),
   ]);
 
   const todayIncome = Number(todayTurnos[0]?.ingresos ?? 0);
@@ -125,6 +128,8 @@ export async function getRecentTurnos() {
   if (isDemoMode()) return mockTurnos;
 
   const db = getDb();
+  const profile = await getCurrentProfile();
+  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
   return db
     .select({
       id: turnos.id,
@@ -142,6 +147,7 @@ export async function getRecentTurnos() {
     .innerJoin(servicios, eq(citas.servicioId, servicios.id))
     .innerJoin(empleados, eq(citas.empleadoId, empleados.id))
     .innerJoin(usuarios, eq(empleados.usuarioId, usuarios.id))
+    .where(eq(turnos.negocioId, negocioId))
     .orderBy(desc(turnos.createdAt))
     .limit(12);
 }
@@ -150,6 +156,8 @@ export async function getPendingCitas() {
   if (isDemoMode()) return mockCitas;
 
   const db = getDb();
+  const profile = await getCurrentProfile();
+  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
   return db
     .select({
       id: citas.id,
@@ -165,7 +173,7 @@ export async function getPendingCitas() {
     .innerJoin(servicios, eq(citas.servicioId, servicios.id))
     .innerJoin(empleados, eq(citas.empleadoId, empleados.id))
     .innerJoin(usuarios, eq(empleados.usuarioId, usuarios.id))
-    .where(sql`${citas.estado} in ('reservada', 'confirmada')`)
+    .where(and(eq(citas.negocioId, negocioId), sql`${citas.estado} in ('reservada', 'confirmada')`))
     .orderBy(desc(citas.inicio))
     .limit(20);
 }
@@ -174,12 +182,14 @@ export async function getGastos() {
   if (isDemoMode()) return mockGastos;
 
   const db = getDb();
-  return db.select().from(gastos).orderBy(desc(gastos.fecha), desc(gastos.createdAt)).limit(40);
+  const profile = await getCurrentProfile();
+  return db.select().from(gastos).where(eq(gastos.negocioId, profile?.negocioId || "00000000-0000-0000-0000-000000000000")).orderBy(desc(gastos.fecha), desc(gastos.createdAt)).limit(40);
 }
 
 export async function getInventario() {
   if (isDemoMode()) return mockInventario;
 
   const db = getDb();
-  return db.select().from(inventario).orderBy(desc(inventario.activo), inventario.nombre);
+  const profile = await getCurrentProfile();
+  return db.select().from(inventario).where(eq(inventario.negocioId, profile?.negocioId || "00000000-0000-0000-0000-000000000000")).orderBy(desc(inventario.activo), inventario.nombre);
 }

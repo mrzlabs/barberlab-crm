@@ -28,6 +28,7 @@ export async function reservarCita(formData: FormData) {
   }
 
   const [created] = await getDb().insert(citas).values({
+    negocioId: profile.negocioId,
     clienteId: cliente.id,
     empleadoId: payload.empleadoId,
     servicioId: payload.servicioId,

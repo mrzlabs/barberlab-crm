@@ -1,4 +1,4 @@
-import { loginAction } from "./actions";
+import { googleLoginAction, loginAction } from "./actions";
 import { isDemoMode } from "@/lib/demo";
 
 export default function LoginPage({
@@ -77,6 +77,12 @@ export default function LoginPage({
                   Magic link
                 </button>
               </div>
+            </form>
+            <form action={googleLoginAction} className="mt-3">
+              <input type="hidden" name="next" value={searchParams.next || ""} />
+              <button className="w-full rounded-xl border bg-white px-4 py-3 text-sm font-black text-slate-800" type="submit">
+                Ingresar con Google
+              </button>
             </form>
           </div>
         </div>

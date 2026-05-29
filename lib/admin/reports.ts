@@ -12,6 +12,7 @@ import {
   usuarios,
 } from "@/lib/db/schema";
 import { toDateInput } from "@/lib/admin/format";
+import { getCurrentProfile } from "@/lib/auth/session";
 
 export type ReportRange = {
   from: string;
@@ -75,6 +76,8 @@ export async function getReportes(range: ReportRange) {
 
   const db = getDb();
   const { from, to } = rangeDates(range);
+  const profile = await getCurrentProfile();
+  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
 
   const [kpis, gastosPeriodo, noAsistencia, byService, byEmployee, byPayment] = await Promise.all([
     db
@@ -92,18 +95,18 @@ export async function getReportes(range: ReportRange) {
       })
       .from(turnos)
       .innerJoin(citas, eq(turnos.citaId, citas.id))
-      .where(and(gte(turnos.createdAt, from), lte(turnos.createdAt, to))),
+      .where(and(eq(turnos.negocioId, negocioId), gte(turnos.createdAt, from), lte(turnos.createdAt, to))),
     db
       .select({ total: sql<string>`coalesce(sum(${gastos.monto}), 0)` })
       .from(gastos)
-      .where(and(gte(gastos.fecha, range.from), lte(gastos.fecha, range.to))),
+      .where(and(eq(gastos.negocioId, negocioId), gte(gastos.fecha, range.from), lte(gastos.fecha, range.to))),
     db
       .select({
         total: sql<number>`count(*)::int`,
         noAsistio: sql<number>`count(*) filter (where ${citas.estado} = 'no_asistio')::int`,
       })
       .from(citas)
-      .where(and(gte(citas.inicio, from), lte(citas.inicio, to))),
+      .where(and(eq(citas.negocioId, negocioId), gte(citas.inicio, from), lte(citas.inicio, to))),
     db
       .select({
         servicio: servicios.nombre,
@@ -120,7 +123,7 @@ export async function getReportes(range: ReportRange) {
       .from(turnos)
       .innerJoin(citas, eq(turnos.citaId, citas.id))
       .innerJoin(servicios, eq(citas.servicioId, servicios.id))
-      .where(and(gte(turnos.createdAt, from), lte(turnos.createdAt, to)))
+      .where(and(eq(turnos.negocioId, negocioId), gte(turnos.createdAt, from), lte(turnos.createdAt, to)))
       .groupBy(servicios.id)
       .orderBy(desc(sql`coalesce(sum(${turnos.precioFinal} + ${turnos.propina}), 0)`)),
     db
@@ -137,7 +140,7 @@ export async function getReportes(range: ReportRange) {
       .innerJoin(citas, eq(turnos.citaId, citas.id))
       .innerJoin(empleados, eq(citas.empleadoId, empleados.id))
       .innerJoin(usuarios, eq(empleados.usuarioId, usuarios.id))
-      .where(and(gte(turnos.createdAt, from), lte(turnos.createdAt, to)))
+      .where(and(eq(turnos.negocioId, negocioId), gte(turnos.createdAt, from), lte(turnos.createdAt, to)))
       .groupBy(usuarios.id, empleados.id)
       .orderBy(desc(sql`coalesce(sum(${turnos.precioFinal}), 0)`)),
     db
@@ -147,7 +150,7 @@ export async function getReportes(range: ReportRange) {
         ingresos: sql<string>`coalesce(sum(${turnos.precioFinal} + ${turnos.propina}), 0)`,
       })
       .from(turnos)
-      .where(and(gte(turnos.createdAt, from), lte(turnos.createdAt, to)))
+      .where(and(eq(turnos.negocioId, negocioId), gte(turnos.createdAt, from), lte(turnos.createdAt, to)))
       .groupBy(turnos.metodoPago)
       .orderBy(desc(sql`coalesce(sum(${turnos.precioFinal} + ${turnos.propina}), 0)`)),
   ]);

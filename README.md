@@ -29,6 +29,50 @@ MRZLABS conserva:
 - Automatizaciones internas.
 - Know-how tecnico.
 
+## Arquitectura SaaS hibrida
+
+Modelo recomendado e implementado:
+
+- Planes `starter` y `pro`: una base multi-tenant con aislamiento por `negocio_id`.
+- Plan `enterprise`: preparado para aislamiento dedicado por cliente.
+- MRZLABS opera como `super_admin`.
+- Cada barberia tiene su propio registro en `negocios`.
+- Cada tabla operativa queda asociada a `negocio_id`.
+- RLS filtra por negocio autenticado.
+- Los usuarios se crean asociados al negocio.
+- El branding se toma desde `negocios`: logo, colores, fuente, plan y estado.
+
+Panel MRZLABS:
+
+```text
+/super-admin/negocios
+```
+
+Desde ese panel se registra:
+
+- Barberia.
+- Slug.
+- Telefono.
+- Direccion.
+- Logo.
+- Colores.
+- Fuente.
+- Plan.
+- Estado de suscripcion.
+- Modo de aislamiento.
+- Admin inicial del negocio.
+
+Google Auth:
+
+- El login tiene opcion `Ingresar con Google`.
+- Debe habilitarse Google Provider en Supabase Auth.
+- Callback requerido:
+
+```text
+https://TU_DOMINIO/auth/callback
+http://127.0.0.1:3011/auth/callback
+```
+
 ## Flujo operativo
 
 ### Agenda

@@ -2,6 +2,7 @@ import { asc, desc, eq } from "drizzle-orm";
 import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
 import { bloqueosEmpleado, citas, clientes, empleados, horariosEmpleado, servicios, usuarios } from "@/lib/db/schema";
+import { getCurrentProfile } from "@/lib/auth/session";
 
 const now = new Date();
 
@@ -13,6 +14,8 @@ export async function getAgendaAdmin() {
       { id: "cita-demo-3", inicio: new Date(now.getTime() + 180 * 60000), fin: new Date(now.getTime() + 300 * 60000), estado: "reservada", cliente: "Andres Mora", telefono: "3152223344", servicio: "Tatuaje pequeno", empleado: "Nico Ink", categoria: "tatuajes" },
     ];
   }
+
+  const profile = await getCurrentProfile();
 
   return getDb()
     .select({
@@ -31,6 +34,7 @@ export async function getAgendaAdmin() {
     .innerJoin(servicios, eq(citas.servicioId, servicios.id))
     .innerJoin(empleados, eq(citas.empleadoId, empleados.id))
     .innerJoin(usuarios, eq(empleados.usuarioId, usuarios.id))
+    .where(eq(citas.negocioId, profile?.negocioId || "00000000-0000-0000-0000-000000000000"))
     .orderBy(desc(citas.inicio))
     .limit(80);
 }
@@ -45,7 +49,8 @@ export async function getServiciosAdmin() {
     ];
   }
 
-  return getDb().select().from(servicios).orderBy(asc(servicios.categoria), asc(servicios.nombre));
+  const profile = await getCurrentProfile();
+  return getDb().select().from(servicios).where(eq(servicios.negocioId, profile?.negocioId || "00000000-0000-0000-0000-000000000000")).orderBy(asc(servicios.categoria), asc(servicios.nombre));
 }
 
 export async function getEmpleadosAdmin() {
@@ -56,6 +61,8 @@ export async function getEmpleadosAdmin() {
       { id: "emp-3", usuarioId: "usr-3", nombre: "Nico Ink", email: "nico@barberlab.local", telefono: "3118889900", especialidad: "tatuajes", comisionPct: "45", activo: true },
     ];
   }
+
+  const profile = await getCurrentProfile();
 
   return getDb()
     .select({
@@ -70,6 +77,7 @@ export async function getEmpleadosAdmin() {
     })
     .from(empleados)
     .innerJoin(usuarios, eq(empleados.usuarioId, usuarios.id))
+    .where(eq(empleados.negocioId, profile?.negocioId || "00000000-0000-0000-0000-000000000000"))
     .orderBy(asc(usuarios.nombre));
 }
 
@@ -82,7 +90,8 @@ export async function getClientesAdmin() {
     ];
   }
 
-  return getDb().select().from(clientes).orderBy(desc(clientes.createdAt)).limit(100);
+  const profile = await getCurrentProfile();
+  return getDb().select().from(clientes).where(eq(clientes.negocioId, profile?.negocioId || "00000000-0000-0000-0000-000000000000")).orderBy(desc(clientes.createdAt)).limit(100);
 }
 
 export async function getHorariosAdmin() {
@@ -93,6 +102,8 @@ export async function getHorariosAdmin() {
       { id: "hor-3", empleadoId: "emp-2", empleado: "Sofia Nails", diaSemana: 5, horaInicio: "10:00:00", horaFin: "19:00:00" },
     ];
   }
+
+  const profile = await getCurrentProfile();
 
   return getDb()
     .select({
@@ -106,6 +117,7 @@ export async function getHorariosAdmin() {
     .from(horariosEmpleado)
     .innerJoin(empleados, eq(horariosEmpleado.empleadoId, empleados.id))
     .innerJoin(usuarios, eq(empleados.usuarioId, usuarios.id))
+    .where(eq(horariosEmpleado.negocioId, profile?.negocioId || "00000000-0000-0000-0000-000000000000"))
     .orderBy(asc(usuarios.nombre), asc(horariosEmpleado.diaSemana), asc(horariosEmpleado.horaInicio));
 }
 
@@ -115,6 +127,8 @@ export async function getBloqueosAdmin() {
       { id: "bloq-1", empleadoId: "emp-2", empleado: "Sofia Nails", fechaInicio: new Date(now.getTime() + 24 * 60 * 60000), fechaFin: new Date(now.getTime() + 28 * 60 * 60000), motivo: "Capacitacion" },
     ];
   }
+
+  const profile = await getCurrentProfile();
 
   return getDb()
     .select({
@@ -128,6 +142,7 @@ export async function getBloqueosAdmin() {
     .from(bloqueosEmpleado)
     .innerJoin(empleados, eq(bloqueosEmpleado.empleadoId, empleados.id))
     .innerJoin(usuarios, eq(empleados.usuarioId, usuarios.id))
+    .where(eq(bloqueosEmpleado.negocioId, profile?.negocioId || "00000000-0000-0000-0000-000000000000"))
     .orderBy(desc(bloqueosEmpleado.fechaInicio))
     .limit(40);
 }

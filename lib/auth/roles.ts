@@ -1,15 +1,17 @@
-export const roles = ["admin", "empleado", "cliente"] as const;
+export const roles = ["super_admin", "admin", "empleado", "cliente"] as const;
 
 export type UserRole = (typeof roles)[number];
 
 export const roleHome: Record<UserRole, string> = {
+  super_admin: "/super-admin/negocios",
   admin: "/admin/dashboard",
   empleado: "/empleado/mi-agenda",
   cliente: "/cliente/reservar",
 };
 
 export const protectedPrefixes: Array<{ prefix: string; roles: UserRole[] }> = [
-  { prefix: "/admin", roles: ["admin"] },
+  { prefix: "/super-admin", roles: ["super_admin"] },
+  { prefix: "/admin", roles: ["admin", "super_admin"] },
   { prefix: "/empleado", roles: ["empleado"] },
   { prefix: "/cliente", roles: ["cliente"] },
 ];

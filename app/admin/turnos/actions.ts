@@ -14,6 +14,7 @@ export async function closeTurno(formData: FormData) {
   const [current] = await getDb().select({ estado: citas.estado }).from(citas).where(eq(citas.id, payload.citaId)).limit(1);
 
   await getDb().insert(turnos).values({
+    negocioId: profile.negocioId,
     citaId: payload.citaId,
     precioFinal: String(payload.precioFinal),
     propina: String(payload.propina),

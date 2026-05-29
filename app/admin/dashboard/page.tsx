@@ -31,12 +31,12 @@ export default async function DashboardPage() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(34,211,238,.34),transparent_18rem),radial-gradient(circle_at_84%_65%,rgba(168,85,247,.38),transparent_20rem)]" />
           <div className="relative">
             <div className="mac-dots" />
-            <p className="mt-6 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-200 sm:mt-8">Operación no-code para barberías</p>
+            <p className="mt-6 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-200 sm:mt-8">Resumen operativo</p>
             <h2 className="mt-3 text-2xl font-black tracking-tight sm:text-4xl lg:text-5xl">
-              Agenda, caja, inventario y rentabilidad en una sola vista.
+              Control diario de agenda, caja, inventario y rentabilidad.
             </h2>
             <p className="mt-3 text-sm leading-6 text-slate-300 sm:mt-5">
-              CRM modular con flujo visual, alarmas operativas y datos en tiempo real.
+              Vista personalizada del negocio para tomar decisiones rápidas sin entrar a cada módulo.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link className="rounded-2xl bg-cyan-300 px-4 py-2.5 text-sm font-black text-slate-950 sm:px-5 sm:py-3" href="/admin/agenda">Agendar turno</Link>

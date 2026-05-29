@@ -24,6 +24,7 @@ import {
   Lightbulb,
 } from "lucide-react";
 import type { UserRole } from "@/lib/auth/roles";
+import type { CurrentProfile } from "@/lib/auth/session";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -63,6 +64,21 @@ const navStyles: Record<string, NavStyle> = {
 // ─── Help topics (Odoo-style detail) ─────────────────────────────────────────
 
 const helpTopics: Record<UserRole, HelpTopic[]> = {
+  super_admin: [
+    {
+      title: "Negocios SaaS",
+      body: "Este panel controla las barberias registradas, planes, estado de suscripcion, colores, logo y modo de aislamiento.",
+      steps: [
+        "Registra una barberia desde el panel MRZLABS.",
+        "Define plan Starter, Pro o Enterprise.",
+        "Personaliza colores, fuente y logo.",
+        "Crea el admin inicial del negocio.",
+      ],
+      tips: ["Usa dedicado solo para clientes enterprise.", "Suspende negocios con pagos vencidos."],
+      cta: "Ver negocios",
+      href: "/super-admin/negocios",
+    },
+  ],
   admin: [
     {
       title: "Dashboard",
@@ -316,6 +332,10 @@ const helpTopics: Record<UserRole, HelpTopic[]> = {
 // ─── Alerts ──────────────────────────────────────────────────────────────────
 
 const alerts: Record<UserRole, { label: string; tone: string; href: string; detail: string }[]> = {
+  super_admin: [
+    { label: "Negocios activos", tone: "bg-cyan-50 text-cyan-700", href: "/super-admin/negocios", detail: "Revisar clientes SaaS" },
+    { label: "Suscripciones", tone: "bg-violet-50 text-violet-700", href: "/super-admin/negocios", detail: "Validar planes y estado" },
+  ],
   admin: [
     { label: "2 citas próximas", tone: "bg-cyan-50 text-cyan-700", href: "/admin/agenda", detail: "Revisar agenda y aprobaciones" },
     { label: "1 insumo bajo mínimo", tone: "bg-amber-50 text-amber-700", href: "/admin/inventario", detail: "Revisar stock y reposición" },
@@ -567,12 +587,20 @@ function BotIcon() {
 
 // ─── LogoMark ─────────────────────────────────────────────────────────────────
 
-function LogoMark() {
+function LogoMark({ brand }: { brand?: CurrentProfile }) {
+  if (brand?.logoUrl) {
+    return (
+      <div className="relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/50 bg-white shadow-xl shadow-violet-950/15">
+        <img alt={brand.negocioNombre || "Logo"} className="h-full w-full object-cover" src={brand.logoUrl} />
+      </div>
+    );
+  }
+
   return (
-    <div className="relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/50 bg-slate-950 text-white shadow-xl shadow-violet-950/25">
-      <span className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(34,211,238,.9),transparent_1.2rem),radial-gradient(circle_at_78%_82%,rgba(168,85,247,.85),transparent_1.4rem)]" />
-      <span className="relative text-[11px] font-black tracking-[0.24em]">BL</span>
-      <span className="absolute bottom-2 left-1/2 h-px w-6 -translate-x-1/2 bg-cyan-200" />
+    <div className="relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/50 text-white shadow-xl shadow-violet-950/25" style={{ backgroundColor: brand?.colorPrimario || "#0f172a" }}>
+      <span className="absolute inset-0 opacity-80" style={{ background: `radial-gradient(circle at 20% 10%, ${brand?.colorSecundario || "#22d3ee"}, transparent 1.2rem), radial-gradient(circle at 78% 82%, ${brand?.colorAcento || "#7c3aed"}, transparent 1.4rem)` }} />
+      <span className="relative text-[11px] font-black tracking-[0.24em]">{(brand?.negocioNombre || "BL").slice(0, 2).toUpperCase()}</span>
+      <span className="absolute bottom-2 left-1/2 h-px w-6 -translate-x-1/2" style={{ backgroundColor: brand?.colorSecundario || "#67e8f9" }} />
     </div>
   );
 }
@@ -580,9 +608,9 @@ function LogoMark() {
 // ─── AppChrome ───────────────────────────────────────────────────────────────
 
 export function AppChrome({
-  role, title, nav, mode, children,
+  role, title, nav, mode, children, brand,
 }: {
-  role: UserRole; title: string; nav: NavItem[]; mode: string; children: React.ReactNode;
+  role: UserRole; title: string; nav: NavItem[]; mode: string; children: React.ReactNode; brand?: CurrentProfile;
 }) {
   const [open, setOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -616,7 +644,15 @@ export function AppChrome({
   const panelPosClass = botSide === "right" ? "right-4" : "left-4";
 
   return (
-    <div className="crm-shell min-h-dvh overflow-x-hidden text-slate-950">
+    <div
+      className="crm-shell min-h-dvh overflow-x-hidden text-slate-950"
+      style={{
+        ["--brand-primary" as string]: brand?.colorPrimario || "#111827",
+        ["--brand-secondary" as string]: brand?.colorSecundario || "#22d3ee",
+        ["--brand-accent" as string]: brand?.colorAcento || "#7c3aed",
+        fontFamily: `${brand?.fuente || "Inter"}, Inter, Segoe UI, Roboto, Arial, sans-serif`,
+      }}
+    >
 
       {/* ── Background ──────────────────────────────────────────── */}
       <div className="fixed inset-0 -z-10">
@@ -647,9 +683,9 @@ export function AppChrome({
         {/* header */}
         <div className="flex items-center justify-between gap-3 border-b border-white/30 p-4">
           <div className="flex min-w-0 items-center gap-3">
-            <LogoMark />
+            <LogoMark brand={brand} />
             <div className={open ? "block" : "hidden"}>
-              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-violet-700">BarberLab</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.22em]" style={{ color: brand?.colorAcento || "#6d28d9" }}>{brand?.plan ? `Plan ${brand.plan}` : "BarberLab"}</p>
               <h1 className="truncate text-sm font-black">{title}</h1>
             </div>
           </div>

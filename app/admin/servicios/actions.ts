@@ -8,7 +8,7 @@ import { servicios } from "@/lib/db/schema";
 import { servicioAdminSchema } from "@/lib/validations/catalog";
 
 export async function createServicio(formData: FormData) {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   if (isDemoMode()) {
     revalidatePath("/admin/servicios");
     return;
@@ -20,6 +20,7 @@ export async function createServicio(formData: FormData) {
   });
 
   await getDb().insert(servicios).values({
+    negocioId: profile.negocioId,
     categoria: payload.categoria,
     nombre: payload.nombre.trim(),
     duracionMin: payload.duracionMin,

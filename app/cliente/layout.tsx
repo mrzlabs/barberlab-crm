@@ -7,6 +7,6 @@ const nav = [
 ];
 
 export default async function ClienteLayout({ children }: { children: React.ReactNode }) {
-  await requireRole(["cliente"]);
-  return <AppShell role="cliente" title="Cliente" nav={nav}>{children}</AppShell>;
+  const profile = await requireRole(["cliente"]);
+  return <AppShell profile={profile} role="cliente" title={profile.negocioNombre || "Cliente"} nav={nav}>{children}</AppShell>;
 }
