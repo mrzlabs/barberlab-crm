@@ -37,3 +37,37 @@ export const turnoSchema = z.object({
   descuento: money.default(0),
   observaciones: z.string().max(300).optional(),
 });
+
+export const citaAdminSchema = z.object({
+  clienteId: z.string().uuid(),
+  empleadoId: z.string().uuid(),
+  servicioId: z.string().uuid(),
+  inicio: z.string().datetime(),
+  fin: z.string().datetime(),
+  estado: z.enum(["reservada", "confirmada"]).default("confirmada"),
+});
+
+export const horarioEmpleadoSchema = z.object({
+  empleadoId: z.string().uuid(),
+  diaSemana: z.coerce.number().int().min(0).max(6),
+  horaInicio: z.string().regex(/^\d{2}:\d{2}$/),
+  horaFin: z.string().regex(/^\d{2}:\d{2}$/),
+}).refine((value) => value.horaInicio < value.horaFin, {
+  message: "La hora inicio debe ser menor a la hora fin",
+  path: ["horaFin"],
+});
+
+export const bloqueoEmpleadoSchema = z.object({
+  empleadoId: z.string().uuid(),
+  fechaInicio: z.string().min(16),
+  fechaFin: z.string().min(16),
+  motivo: z.string().max(180).optional(),
+}).refine((value) => new Date(value.fechaInicio).getTime() < new Date(value.fechaFin).getTime(), {
+  message: "La fecha inicio debe ser menor a la fecha fin",
+  path: ["fechaFin"],
+});
+
+export const estadoCitaSchema = z.object({
+  citaId: z.string().uuid(),
+  estado: z.enum(["reservada", "confirmada", "cancelada", "no_asistio"]),
+});

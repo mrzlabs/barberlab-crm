@@ -1,7 +1,7 @@
 import { asc, desc, eq } from "drizzle-orm";
 import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
-import { citas, clientes, empleados, servicios, usuarios } from "@/lib/db/schema";
+import { bloqueosEmpleado, citas, clientes, empleados, horariosEmpleado, servicios, usuarios } from "@/lib/db/schema";
 
 const now = new Date();
 
@@ -83,4 +83,51 @@ export async function getClientesAdmin() {
   }
 
   return getDb().select().from(clientes).orderBy(desc(clientes.createdAt)).limit(100);
+}
+
+export async function getHorariosAdmin() {
+  if (isDemoMode()) {
+    return [
+      { id: "hor-1", empleadoId: "emp-1", empleado: "Mateo Barber", diaSemana: 1, horaInicio: "09:00:00", horaFin: "18:00:00" },
+      { id: "hor-2", empleadoId: "emp-1", empleado: "Mateo Barber", diaSemana: 2, horaInicio: "09:00:00", horaFin: "18:00:00" },
+      { id: "hor-3", empleadoId: "emp-2", empleado: "Sofia Nails", diaSemana: 5, horaInicio: "10:00:00", horaFin: "19:00:00" },
+    ];
+  }
+
+  return getDb()
+    .select({
+      id: horariosEmpleado.id,
+      empleadoId: horariosEmpleado.empleadoId,
+      empleado: usuarios.nombre,
+      diaSemana: horariosEmpleado.diaSemana,
+      horaInicio: horariosEmpleado.horaInicio,
+      horaFin: horariosEmpleado.horaFin,
+    })
+    .from(horariosEmpleado)
+    .innerJoin(empleados, eq(horariosEmpleado.empleadoId, empleados.id))
+    .innerJoin(usuarios, eq(empleados.usuarioId, usuarios.id))
+    .orderBy(asc(usuarios.nombre), asc(horariosEmpleado.diaSemana), asc(horariosEmpleado.horaInicio));
+}
+
+export async function getBloqueosAdmin() {
+  if (isDemoMode()) {
+    return [
+      { id: "bloq-1", empleadoId: "emp-2", empleado: "Sofia Nails", fechaInicio: new Date(now.getTime() + 24 * 60 * 60000), fechaFin: new Date(now.getTime() + 28 * 60 * 60000), motivo: "Capacitacion" },
+    ];
+  }
+
+  return getDb()
+    .select({
+      id: bloqueosEmpleado.id,
+      empleadoId: bloqueosEmpleado.empleadoId,
+      empleado: usuarios.nombre,
+      fechaInicio: bloqueosEmpleado.fechaInicio,
+      fechaFin: bloqueosEmpleado.fechaFin,
+      motivo: bloqueosEmpleado.motivo,
+    })
+    .from(bloqueosEmpleado)
+    .innerJoin(empleados, eq(bloqueosEmpleado.empleadoId, empleados.id))
+    .innerJoin(usuarios, eq(empleados.usuarioId, usuarios.id))
+    .orderBy(desc(bloqueosEmpleado.fechaInicio))
+    .limit(40);
 }

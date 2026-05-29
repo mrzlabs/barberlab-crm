@@ -4,6 +4,173 @@ CRM comercializable para barberias, peluquerias, spa de unas y tatuajes.
 
 Cliente piloto potencial: Ego's Barberia y Peluqueria, Bogota.
 
+## Modelo comercial
+
+BarberLab CRM se vende como producto SaaS, implementacion o servicio administrado.
+
+No se vende el codigo fuente.
+
+El cliente compra:
+
+- Uso del CRM.
+- Parametrizacion del negocio.
+- Configuracion de usuarios, servicios, empleados, horarios e inventario.
+- Soporte de despliegue.
+- Ajustes funcionales pactados.
+- Hosting y mantenimiento si aplica dentro de la oferta.
+
+MRZLABS conserva:
+
+- Codigo fuente.
+- Arquitectura.
+- Repositorio.
+- Migraciones.
+- Componentes visuales.
+- Automatizaciones internas.
+- Know-how tecnico.
+
+## Flujo operativo
+
+### Agenda
+
+La agenda es la etapa de planificacion.
+
+Una cita contiene:
+
+- Cliente.
+- Empleado.
+- Servicio.
+- Fecha y hora de inicio.
+- Fecha y hora de fin.
+- Estado.
+
+Estados de cita:
+
+- `reservada`: el cliente o admin separo un espacio.
+- `confirmada`: el comercio o empleado valido la atencion.
+- `realizada`: el servicio ya fue cerrado como turno.
+- `cancelada`: la cita no se atendera.
+- `no_asistio`: el cliente no asistio.
+
+Para que la agenda funcione deben existir:
+
+- Servicios activos.
+- Empleados activos.
+- Clientes.
+- Horarios por empleado.
+- Bloqueos si el empleado no estara disponible.
+
+El admin gestiona la agenda en `/admin/agenda`.
+
+Desde esa vista puede:
+
+- Consultar agenda completa.
+- Crear cita para un cliente.
+- Buscar disponibilidad por servicio, empleado y fecha.
+- Crear horarios de empleado.
+- Crear bloqueos de agenda.
+- Confirmar cita.
+- Cancelar cita.
+- Marcar no asistencia.
+- Contactar por WhatsApp.
+
+El empleado gestiona sus citas en `/empleado/mi-agenda`.
+
+Desde esa vista puede:
+
+- Ver sus citas.
+- Confirmar cita.
+- Cancelar cita.
+- Marcar no asistencia.
+- Contactar al cliente por WhatsApp.
+
+El cliente gestiona sus citas en `/cliente/reservar` y `/cliente/mis-citas`.
+
+Desde esas vistas puede:
+
+- Consultar servicios.
+- Consultar especialistas.
+- Ver horarios disponibles.
+- Reservar cita.
+- Ver sus citas.
+- Cancelar o reprogramar.
+
+### Turnos
+
+El turno es la etapa comercial y contable.
+
+Un turno no se crea desde cero. Un turno nace desde una cita.
+
+Flujo:
+
+1. Existe una cita en agenda.
+2. La cita queda `reservada` o `confirmada`.
+3. El cliente recibe el servicio.
+4. Admin o empleado entra a cierre de turno.
+5. Registra precio final, propina, metodo de pago, descuento y observaciones.
+6. El sistema crea el turno.
+7. La cita pasa a `realizada`.
+8. El cierre alimenta caja, reportes, comisiones, margen e inventario.
+
+Admin cierra turnos en `/admin/turnos`.
+
+Empleado cierra sus turnos en `/empleado/cerrar-turno`.
+
+## Plan de implementacion pendiente
+
+### Fase A. Agenda operativa
+
+Estado: implementado.
+
+- Crear cita desde admin.
+- Buscar disponibilidad desde admin.
+- Crear horarios por empleado.
+- Crear bloqueos por empleado.
+- Confirmar, cancelar y marcar no asistencia desde admin.
+- Confirmar, cancelar y marcar no asistencia desde empleado.
+
+### Fase B. Productos e inventario comercial
+
+Estado: pendiente.
+
+- Conectar productos visibles para cliente con tabla `inventario`.
+- Crear vista de productos disponibles.
+- Permitir solicitud manual de producto por WhatsApp.
+- Descontar stock por venta manual.
+- Separar inventario interno de insumos y productos para venta.
+
+### Fase C. Aprobacion comercial de citas
+
+Estado: parcial.
+
+- Cliente puede reservar.
+- Admin y empleado pueden confirmar o cancelar.
+- Falta vista de estado mas clara para cliente.
+- Falta historial de cambios por cita.
+
+### Fase D. Seguridad y despliegue
+
+Estado: pendiente antes de produccion real.
+
+- Revisar politicas RLS con usuarios reales.
+- Rotar claves expuestas durante configuracion.
+- Configurar variables en Vercel.
+- Configurar dominio.
+- Ejecutar pruebas mobile, tablet y desktop.
+- Ejecutar pruebas por rol.
+- Validar datos reales del comercio piloto.
+
+### Fase E. Comercializacion
+
+Estado: pendiente.
+
+- Definir plan demo.
+- Definir plan mensual.
+- Definir alcance de soporte.
+- Definir politica de datos.
+- Definir terminos de uso.
+- Crear presentacion comercial sin entregar codigo.
+
 ## Fase 1
 
 Incluye:

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { fmtDateTime, fmtMoney } from "@/lib/admin/format";
 import { requireRole } from "@/lib/auth/session";
 import { getMiAgenda } from "@/lib/empleado/queries";
+import { updateMiCita } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -90,6 +91,19 @@ export default async function MiAgendaPage() {
                 </dd>
               </div>
             </dl>
+            {cita.estado !== "realizada" ? (
+              <div className="mt-5 grid grid-cols-3 gap-2">
+                {["confirmada", "cancelada", "no_asistio"].map((estado) => (
+                  <form action={updateMiCita} key={estado}>
+                    <input name="citaId" type="hidden" value={cita.id} />
+                    <input name="estado" type="hidden" value={estado} />
+                    <button className="w-full rounded-xl border bg-white px-2 py-2 text-[11px] font-black capitalize text-slate-700" type="submit">
+                      {estado.replace("_", " ")}
+                    </button>
+                  </form>
+                ))}
+              </div>
+            ) : null}
           </article>
         ))}
       </section>
