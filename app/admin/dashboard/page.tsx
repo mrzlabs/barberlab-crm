@@ -6,10 +6,10 @@ export const dynamic = "force-dynamic";
 
 function KpiCard({ label, value, detail, tone }: { label: string; value: string; detail: string; tone: string }) {
   return (
-    <article className={`glass-panel rounded-[1.6rem] p-5 ${tone}`}>
-      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">{label}</p>
-      <strong className="mt-3 block text-3xl font-black tracking-tight">{value}</strong>
-      <p className="mt-2 text-sm font-semibold text-slate-600">{detail}</p>
+    <article className={`glass-panel min-w-0 rounded-[1.4rem] p-4 sm:p-5 ${tone}`}>
+      <p className="truncate text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <strong className="mt-2 block truncate text-xl font-black tracking-tight sm:text-2xl lg:text-3xl">{value}</strong>
+      <p className="mt-1.5 truncate text-xs font-semibold text-slate-500 sm:text-sm">{detail}</p>
     </article>
   );
 }
@@ -27,25 +27,25 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
-        <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-6 text-white shadow-2xl shadow-violet-950/20 sm:p-8">
+        <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-5 text-white shadow-2xl shadow-violet-950/20 sm:p-8">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(34,211,238,.34),transparent_18rem),radial-gradient(circle_at_84%_65%,rgba(168,85,247,.38),transparent_20rem)]" />
           <div className="relative">
             <div className="mac-dots" />
-            <p className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Operacion no-code para barberias</p>
-            <h2 className="mt-3 max-w-3xl text-4xl font-black tracking-tight sm:text-5xl">
-              Admin controla agenda, turnos, caja, inventario y rentabilidad desde una sola vista.
+            <p className="mt-6 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-200 sm:mt-8">Operación no-code para barberías</p>
+            <h2 className="mt-3 text-2xl font-black tracking-tight sm:text-4xl lg:text-5xl">
+              Agenda, caja, inventario y rentabilidad en una sola vista.
             </h2>
-            <p className="mt-5 max-w-2xl text-sm leading-6 text-slate-300">
-              Modelo inspirado en CRM empresariales: componentes modulares, flujo visual, alarmas operativas y datos listos para tomar decisiones.
+            <p className="mt-3 text-sm leading-6 text-slate-300 sm:mt-5">
+              CRM modular con flujo visual, alarmas operativas y datos en tiempo real.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950" href="/admin/agenda">Agendar turno</Link>
-              <Link className="rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-black text-white" href="/admin/turnos">Cerrar caja</Link>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link className="rounded-2xl bg-cyan-300 px-4 py-2.5 text-sm font-black text-slate-950 sm:px-5 sm:py-3" href="/admin/agenda">Agendar turno</Link>
+              <Link className="rounded-2xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-black text-white sm:px-5 sm:py-3" href="/admin/turnos">Cerrar caja</Link>
             </div>
           </div>
         </div>
 
-        <aside className="glass-panel rounded-[2rem] p-5">
+        <aside className="glass-panel rounded-[2rem] p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.18em] text-violet-700">Next steps</p>
@@ -67,18 +67,18 @@ export default async function DashboardPage() {
         </aside>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
         <KpiCard label="Ingresos hoy" value={fmtMoney(dashboard.today.ingresos)} detail={`${dashboard.today.turnos} turnos cerrados`} tone="border-cyan-100" />
         <KpiCard label="Margen hoy" value={fmtMoney(dashboard.today.margen)} detail={`${fmtMoney(dashboard.today.gastos)} en gastos`} tone="border-violet-100" />
-        <KpiCard label="Ticket promedio" value={fmtMoney(dashboard.today.ticket)} detail={`${dashboard.today.citas} citas en agenda hoy`} tone="border-emerald-100" />
-        <KpiCard label="Stock minimo" value={String(dashboard.lowStock)} detail="Items con alerta activa" tone="border-amber-100" />
+        <KpiCard label="Ticket promedio" value={fmtMoney(dashboard.today.ticket)} detail={`${dashboard.today.citas} citas hoy`} tone="border-emerald-100" />
+        <KpiCard label="Stock mínimo" value={String(dashboard.lowStock)} detail="Items con alerta" tone="border-amber-100" />
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-        <div className="glass-panel rounded-[2rem] p-5">
+        <div className="glass-panel rounded-[2rem] p-4 sm:p-5">
           <div className="mac-dots" />
-          <h3 className="mt-5 text-2xl font-black">Performance mensual</h3>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <h3 className="mt-4 text-xl font-black sm:text-2xl">Performance mensual</h3>
+          <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
             <KpiCard label="Ingresos mes" value={fmtMoney(dashboard.month.ingresos)} detail={`${dashboard.month.turnos} turnos`} tone="" />
             <KpiCard label="Gastos mes" value={fmtMoney(dashboard.month.gastos)} detail="Operacion" tone="" />
             <KpiCard label="Margen mes" value={fmtMoney(dashboard.month.margen)} detail={`Ticket ${fmtMoney(dashboard.month.ticket)}`} tone="" />

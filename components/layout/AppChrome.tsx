@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useMemo, useState } from "react";
 import {
+  BarChart3,
   Bell,
   Boxes,
   CalendarDays,
@@ -15,12 +16,10 @@ import {
   Menu,
   Scissors,
   Search,
-  Settings2,
   Sparkles,
   Users,
   X,
   TrendingUp,
-  Package,
   ArrowRight,
   Lightbulb,
 } from "lucide-react";
@@ -29,7 +28,11 @@ import type { UserRole } from "@/lib/auth/roles";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type NavItem = { href: string; label: string };
-type NavStyle = { icon: React.ComponentType<{ className?: string }>; tone: string };
+type NavStyle = {
+  icon: React.ComponentType<{ className?: string }>;
+  tone: string;
+  shape: "circle" | "squircle" | "square";
+};
 type HelpTopic = {
   title: string;
   body: string;
@@ -42,19 +45,19 @@ type HelpTopic = {
 // ─── Nav styles ──────────────────────────────────────────────────────────────
 
 const navStyles: Record<string, NavStyle> = {
-  Dashboard:    { icon: LayoutDashboard, tone: "from-blue-500 to-cyan-400 text-white" },
-  Agenda:       { icon: CalendarDays,    tone: "from-emerald-500 to-teal-400 text-white" },
-  Turnos:       { icon: ClipboardCheck,  tone: "from-orange-500 to-amber-300 text-white" },
-  Gastos:       { icon: CreditCard,      tone: "from-rose-500 to-pink-400 text-white" },
-  Inventario:   { icon: Boxes,           tone: "from-lime-500 to-emerald-400 text-slate-950" },
-  Servicios:    { icon: Scissors,        tone: "from-violet-600 to-fuchsia-400 text-white" },
-  Empleados:    { icon: Users,           tone: "from-sky-500 to-blue-500 text-white" },
-  Clientes:     { icon: Users,           tone: "from-teal-500 to-cyan-400 text-white" },
-  Reportes:     { icon: Settings2,       tone: "from-slate-800 to-violet-600 text-white" },
-  "Mi agenda":  { icon: CalendarDays,    tone: "from-emerald-500 to-teal-400 text-white" },
-  "Cerrar turno":{ icon: ClipboardCheck, tone: "from-orange-500 to-amber-300 text-white" },
-  Reservar:     { icon: CalendarDays,    tone: "from-cyan-500 to-blue-500 text-white" },
-  "Mis citas":  { icon: ClipboardCheck,  tone: "from-violet-600 to-fuchsia-400 text-white" },
+  Dashboard:     { icon: LayoutDashboard, tone: "bg-indigo-600 text-white shadow-indigo-500/40",                       shape: "squircle" },
+  Agenda:        { icon: CalendarDays,    tone: "bg-emerald-500 text-white shadow-emerald-400/40",                     shape: "circle"   },
+  Turnos:        { icon: ClipboardCheck,  tone: "bg-gradient-to-br from-orange-500 to-amber-400 text-white shadow-orange-400/40", shape: "squircle" },
+  Gastos:        { icon: CreditCard,      tone: "bg-rose-500 text-white shadow-rose-400/40",                           shape: "square"   },
+  Inventario:    { icon: Boxes,           tone: "bg-lime-500 text-slate-900 shadow-lime-400/40",                       shape: "squircle" },
+  Servicios:     { icon: Scissors,        tone: "bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white shadow-violet-500/40", shape: "circle" },
+  Empleados:     { icon: Users,           tone: "bg-sky-500 text-white shadow-sky-400/40",                             shape: "circle"   },
+  Clientes:      { icon: Users,           tone: "bg-teal-500 text-white shadow-teal-400/40",                           shape: "circle"   },
+  Reportes:      { icon: BarChart3,       tone: "bg-gradient-to-br from-slate-700 to-violet-700 text-white shadow-violet-700/40", shape: "squircle" },
+  "Mi agenda":   { icon: CalendarDays,    tone: "bg-emerald-500 text-white shadow-emerald-400/40",                     shape: "circle"   },
+  "Cerrar turno":{ icon: ClipboardCheck,  tone: "bg-gradient-to-br from-orange-500 to-amber-400 text-white shadow-orange-400/40", shape: "squircle" },
+  Reservar:      { icon: CalendarDays,    tone: "bg-cyan-500 text-white shadow-cyan-400/40",                           shape: "circle"   },
+  "Mis citas":   { icon: ClipboardCheck,  tone: "bg-violet-600 text-white shadow-violet-500/40",                       shape: "squircle" },
 };
 
 // ─── Help topics (Odoo-style detail) ─────────────────────────────────────────
@@ -674,21 +677,22 @@ export function AppChrome({
             </label>
           )}
 
-          <nav className="grid gap-1">
+          <nav className="grid gap-0.5">
             {nav.map((item) => {
               const style = navStyles[item.label] ?? navStyles.Dashboard;
               const Icon = style.icon;
+              const shapeClass = style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-xl" : "rounded-[14px]";
               return (
                 <Link
-                  className={`group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-white/50 hover:text-violet-800 ${open ? "justify-start" : "justify-center"}`}
+                  className={`group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-600 transition hover:bg-white/55 hover:text-slate-900 ${open ? "justify-start" : "justify-center"}`}
                   href={item.href}
                   key={item.href}
                   onClick={() => setMobileOpen(false)}
                 >
-                  <span className={`grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br shadow-md shadow-black/10 transition group-hover:scale-105 group-hover:shadow-lg ${style.tone}`}>
-                    <Icon className="size-5" />
+                  <span className={`grid size-9 shrink-0 place-items-center shadow-md transition group-hover:scale-[1.08] group-hover:shadow-lg ${shapeClass} ${style.tone}`}>
+                    <Icon className="size-[17px]" />
                   </span>
-                  {open && <span className="truncate font-semibold tracking-[-0.01em]">{item.label}</span>}
+                  {open && <span className="truncate text-[13.5px] font-semibold leading-none">{item.label}</span>}
                 </Link>
               );
             })}
