@@ -549,8 +549,10 @@ export function AppChrome({
 
       {/* ── Background ──────────────────────────────────────────── */}
       <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_18%,rgba(124,58,237,.13),transparent_30rem),radial-gradient(circle_at_86%_10%,rgba(34,211,238,.11),transparent_28rem),radial-gradient(circle_at_55%_78%,rgba(20,184,166,.08),transparent_26rem),linear-gradient(145deg,rgba(255,255,255,.98),rgba(248,245,255,.94)_46%,rgba(238,253,255,.88))]" />
-        <div className="absolute inset-0 opacity-[0.045] [background-image:linear-gradient(rgba(15,23,42,1)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,1)_1px,transparent_1px)] [background-size:30px_30px]" />
+        {/* base: warm off-white con toque de lavanda muy suave */}
+        <div className="absolute inset-0 bg-[linear-gradient(160deg,#faf9ff_0%,#f5f3ff_35%,#f0f9ff_68%,#fafffe_100%)]" />
+        {/* halos de color corp — apenas perceptibles */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_10%_0%,rgba(124,58,237,.07),transparent),radial-gradient(ellipse_60%_50%_at_90%_0%,rgba(34,211,238,.05),transparent),radial-gradient(ellipse_70%_55%_at_50%_100%,rgba(109,40,217,.05),transparent)]" />
         <NeuralCanvas
           className="absolute inset-0 h-full w-full"
           density={55}
