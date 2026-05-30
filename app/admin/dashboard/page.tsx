@@ -5,6 +5,21 @@ import { getCurrentProfile } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
+const emptyDashboard = {
+  today: { turnos: 0, citas: 0, ingresos: 0, gastos: 0, costoInsumo: 0, margen: 0, propinas: 0, ticket: 0 },
+  month: { turnos: 0, ingresos: 0, gastos: 0, costoInsumo: 0, margen: 0, ticket: 0 },
+  lowStock: 0,
+  deltaHoy: { ingresos: null, margen: null, ticket: null },
+  deltaMes: { ingresos: null, margen: null },
+};
+
+function safeQuery<T>(promise: Promise<T>, fallback: T, timeoutMs = 8000): Promise<T> {
+  return Promise.race([
+    promise.catch(() => fallback),
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), timeoutMs)),
+  ]);
+}
+
 function DeltaBadge({ delta }: { delta: number | null | undefined }) {
   if (delta == null) return null;
   const up = delta >= 0;
@@ -46,7 +61,11 @@ const flow = [
 ];
 
 export default async function DashboardPage() {
-  const [dashboard, recentTurnos, profile] = await Promise.all([getDashboard(), getRecentTurnos(), getCurrentProfile()]);
+  const [dashboard, recentTurnos, profile] = await Promise.all([
+    safeQuery(getDashboard(), emptyDashboard),
+    safeQuery(getRecentTurnos(), []),
+    safeQuery(getCurrentProfile(), null),
+  ]);
 
   return (
     <div className="space-y-6">
