@@ -12,6 +12,7 @@ import { bloqueoEmpleadoSchema, citaAdminSchema, estadoCitaSchema, horarioEmplea
 
 export async function createCitaAdmin(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  if (!profile.negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
@@ -58,6 +59,7 @@ export async function createCitaAdmin(formData: FormData) {
 
 export async function createHorarioEmpleado(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  if (!profile.negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
@@ -79,6 +81,7 @@ export async function createHorarioEmpleado(formData: FormData) {
 
 export async function createBloqueoEmpleado(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  if (!profile.negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
@@ -100,6 +103,7 @@ export async function createBloqueoEmpleado(formData: FormData) {
 
 export async function reagendarCita(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  if (!profile.negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) { revalidatePath("/admin/agenda"); return; }
 
   const citaId = formData.get("citaId") as string;
@@ -143,6 +147,7 @@ export async function reagendarCita(formData: FormData) {
 
 export async function deleteHorario(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  if (!profile.negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) { revalidatePath("/admin/agenda"); return; }
 
   const horarioId = formData.get("horarioId") as string;
@@ -156,6 +161,7 @@ export async function deleteHorario(formData: FormData) {
 
 export async function deleteBloqueo(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  if (!profile.negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) { revalidatePath("/admin/agenda"); return; }
 
   const bloqueoId = formData.get("bloqueoId") as string;
