@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useMemo, useState } from "react";
+import { ThemeApplier } from "@/components/layout/ThemeApplier";
 import {
   BarChart3,
   Bell,
@@ -614,6 +616,7 @@ export function AppChrome({
   const [botSide, setBotSide] = useState<"right" | "left">("right");
   const [botVisible, setBotVisible] = useState(true);
 
+  const pathname = usePathname();
   const topics = helpTopics[role];
   const topic = topics[topicIndex] ?? topics[0];
   const profileAlerts = useMemo(() => alerts[role], [role]);
@@ -643,6 +646,14 @@ export function AppChrome({
         fontFamily: `${brand?.fuente || "Inter"}, Inter, Segoe UI, Roboto, Arial, sans-serif`,
       }}
     >
+
+      {/* aplica CSS vars del negocio al DOM */}
+      <ThemeApplier
+        primary={brand?.colorPrimario ?? "#111827"}
+        secondary={brand?.colorSecundario ?? "#22d3ee"}
+        accent={brand?.colorAcento ?? "#7c3aed"}
+        fuente={brand?.fuente ?? "Outfit"}
+      />
 
       {/* ── Background ──────────────────────────────────────────── */}
       <div className="fixed inset-0 -z-10">
@@ -705,17 +716,29 @@ export function AppChrome({
               const style = navStyles[item.label] ?? navStyles.Dashboard;
               const Icon = style.icon;
               const shapeClass = style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-xl" : "rounded-[14px]";
+              const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
               return (
                 <Link
-                  className={`group flex items-center gap-3 rounded-2xl px-3 py-3 text-base font-bold text-slate-800 transition hover:bg-white/60 hover:text-slate-950 ${open ? "justify-start" : "justify-center"}`}
+                  className={`group flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition ${
+                    isActive
+                      ? "bg-white/70 text-slate-950 shadow-sm"
+                      : "text-slate-700 hover:bg-white/40 hover:text-slate-950"
+                  } ${open ? "justify-start" : "justify-center"}`}
                   href={item.href}
                   key={item.href}
                   onClick={() => setMobileOpen(false)}
                 >
-                  <span className={`grid size-9 shrink-0 place-items-center shadow-md transition group-hover:scale-[1.08] group-hover:shadow-lg ${shapeClass} ${style.tone}`}>
+                  <span className={`grid size-9 shrink-0 place-items-center shadow-sm transition group-hover:scale-105 ${isActive ? "shadow-md scale-105" : ""} ${shapeClass} ${style.tone}`}>
                     <Icon className="size-[17px]" />
                   </span>
-                  {open && <span className="truncate text-[15px] font-bold leading-none">{item.label}</span>}
+                  {open && (
+                    <span className="flex-1 truncate text-[13.5px] leading-none">
+                      {item.label}
+                    </span>
+                  )}
+                  {open && isActive && (
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-60" />
+                  )}
                 </Link>
               );
             })}
@@ -748,6 +771,30 @@ export function AppChrome({
               <Bell className="size-4" /> Mostrar alarmas
             </button>
           )}
+        </div>
+
+        {/* ── Perfil usuario ──────────────────────────────────── */}
+        <div className={`border-t border-white/20 p-3 ${open ? "" : "flex justify-center"}`}>
+          <div className={`flex items-center gap-3 rounded-2xl p-2 transition hover:bg-white/30 ${open ? "" : "justify-center"}`}>
+            {/* avatar */}
+            <div
+              className="grid size-9 shrink-0 place-items-center rounded-full text-sm font-black text-white shadow-md"
+              style={{ background: `linear-gradient(135deg, ${brand?.colorAcento ?? "#7c3aed"}, ${brand?.colorPrimario ?? "#111827"})` }}
+            >
+              {(brand?.nombre ?? role).slice(0, 1).toUpperCase()}
+            </div>
+            {open && (
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[13px] font-bold text-slate-900">{brand?.nombre ?? "Usuario"}</p>
+                <p className="truncate text-[11px] font-medium capitalize text-slate-500">{role} · {brand?.negocioNombre ?? "BarberLab"}</p>
+              </div>
+            )}
+            {open && (
+              <Link href="/login" className="shrink-0 rounded-lg p-1.5 text-slate-400 hover:bg-white/50 hover:text-slate-700 transition" aria-label="Cerrar sesión">
+                <X className="size-3.5" />
+              </Link>
+            )}
+          </div>
         </div>
       </aside>
 

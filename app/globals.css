@@ -24,7 +24,7 @@ body {
   margin: 0;
   background: #f4f7fb;
   color: hsl(var(--foreground));
-  font-family: var(--font-outfit), "Plus Jakarta Sans", Inter, sans-serif;
+  font-family: var(--brand-font, Outfit), var(--font-outfit), "Plus Jakarta Sans", Inter, sans-serif;
   text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
 }

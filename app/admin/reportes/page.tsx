@@ -1,6 +1,7 @@
 import { fmtMoney } from "@/lib/admin/format";
 import { getReportes, parseRange } from "@/lib/admin/reports";
 import { ExportButtons } from "@/components/reports/ExportButtons";
+import { DonutChart } from "@/components/reports/DonutChart";
 
 export const dynamic = "force-dynamic";
 
@@ -297,31 +298,19 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
           </div>
         </article>
 
-        {/* intensidad */}
-        <article className="rounded-2xl border bg-white shadow-sm">
-          <div className="border-b px-5 py-4">
-            <h3 className="font-black">Intensidad operativa</h3>
-            <p className="text-xs text-slate-500">Dos indicadores simples para leer concentración por servicio y empleado.</p>
-          </div>
-          {hasData ? (
-            <div className="grid gap-4 p-5 md:grid-cols-2">
-              <CircleStat
-                label="Servicio principal"
-                value={serviceShare}
-                detail={`${topSvc?.servicio || "Sin servicio"} representa esta porción de turnos cerrados.`}
-                color="#22d3ee"
-              />
-              <CircleStat
-                label="Empleado principal"
-                value={employeeShare}
-                detail={`${topEmp?.empleado || "Sin empleado"} representa esta porción de turnos cerrados.`}
-                color="#7c3aed"
-              />
-            </div>
-          ) : (
-            <p className="p-6 text-sm text-slate-400">Sin datos suficientes para intensidad operativa.</p>
-          )}
-        </article>
+        {/* donuts */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <DonutChart
+            title="Distribución por servicio"
+            centerLabel="servicios"
+            slices={r.byService.map((s) => ({ label: s.servicio, value: s.turnos }))}
+          />
+          <DonutChart
+            title="Distribución por empleado"
+            centerLabel="empleados"
+            slices={r.byEmployee.map((e) => ({ label: e.empleado, value: e.turnos }))}
+          />
+        </div>
       </section>
 
     </div>
