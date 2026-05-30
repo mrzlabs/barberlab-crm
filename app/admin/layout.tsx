@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { SubmitToast } from "@/components/layout/SubmitToast";
-import { requireRole } from "@/lib/auth/session";
+import { getCurrentProfile } from "@/lib/auth/session";
 import { getAlerts } from "@/lib/admin/queries";
 
 const nav = [
@@ -18,11 +18,25 @@ const nav = [
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const profile = await requireRole(["admin", "super_admin"]);
-  const alerts = profile.negocioId ? await getAlerts(profile.negocioId) : [];
+  // getCurrentProfile retorna null sin redirect — el middleware ya protege /admin/*.
+  // Si lanza durante un RSC fetch (token refresh race), el catch evita el 307 loop.
+  const profile = await getCurrentProfile().catch(() => null);
+
+  if (!profile || !["admin", "super_admin"].includes(profile.rol)) {
+    // Sesión inválida en RSC fetch: renderiza children sin shell.
+    // El middleware redirige a /login en la siguiente navegación completa.
+    return <>{children}</>;
+  }
+
+  const alerts = profile.negocioId
+    ? await getAlerts(profile.negocioId).catch(() => [])
+    : [];
+
   return (
     <>
-      <AppShell alerts={alerts} profile={profile} role="admin" title={profile.negocioNombre || "Administracion"} nav={nav}>{children}</AppShell>
+      <AppShell alerts={alerts} profile={profile} role="admin" title={profile.negocioNombre || "Administracion"} nav={nav}>
+        {children}
+      </AppShell>
       <Suspense>
         <SubmitToast />
       </Suspense>
