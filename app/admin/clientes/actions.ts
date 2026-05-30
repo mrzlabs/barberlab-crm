@@ -48,28 +48,35 @@ export async function createCliente(formData: FormData) {
     userId = data.user.id;
   }
 
-  await getDb().transaction(async (tx) => {
-    if (userId && payload.email) {
-      await tx.insert(usuarios).values({
-        id: userId,
+  try {
+    await getDb().transaction(async (tx) => {
+      if (userId && payload.email) {
+        await tx.insert(usuarios).values({
+          id: userId,
+          negocioId,
+          email: payload.email.trim().toLowerCase(),
+          rol: "cliente",
+          nombre: payload.nombre.trim(),
+          telefono: payload.telefono.trim(),
+          activo: true,
+        });
+      }
+
+      await tx.insert(clientes).values({
         negocioId,
-        email: payload.email.trim().toLowerCase(),
-        rol: "cliente",
+        usuarioId: userId,
         nombre: payload.nombre.trim(),
         telefono: payload.telefono.trim(),
-        activo: true,
+        email: payload.email || null,
+        notas: payload.notas || null,
       });
-    }
-
-    await tx.insert(clientes).values({
-      negocioId,
-      usuarioId: userId,
-      nombre: payload.nombre.trim(),
-      telefono: payload.telefono.trim(),
-      email: payload.email || null,
-      notas: payload.notas || null,
     });
-  });
+  } catch (dbError) {
+    if (userId) {
+      await createSupabaseAdminClient().auth.admin.deleteUser(userId).catch(() => {});
+    }
+    throw new Error("Error al guardar el cliente en base de datos. Usuario Auth eliminado.");
+  }
 
   redirect("/admin/clientes?ok=Cliente+guardado+correctamente");
 }

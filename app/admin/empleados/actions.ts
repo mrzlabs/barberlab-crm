@@ -43,25 +43,30 @@ export async function createEmpleado(formData: FormData) {
 
   const userId = data.user.id;
 
-  await getDb().transaction(async (tx) => {
-    await tx.insert(usuarios).values({
-      id: userId,
-      negocioId,
-      email: payload.email.trim().toLowerCase(),
-      rol: "empleado",
-      nombre: payload.nombre.trim(),
-      telefono: payload.telefono.trim(),
-      activo: payload.activo,
-    });
+  try {
+    await getDb().transaction(async (tx) => {
+      await tx.insert(usuarios).values({
+        id: userId,
+        negocioId,
+        email: payload.email.trim().toLowerCase(),
+        rol: "empleado",
+        nombre: payload.nombre.trim(),
+        telefono: payload.telefono.trim(),
+        activo: payload.activo,
+      });
 
-    await tx.insert(empleados).values({
-      negocioId,
-      usuarioId: userId,
-      especialidad: payload.especialidad,
-      comisionPct: String(payload.comisionPct),
-      activo: payload.activo,
+      await tx.insert(empleados).values({
+        negocioId,
+        usuarioId: userId,
+        especialidad: payload.especialidad,
+        comisionPct: String(payload.comisionPct),
+        activo: payload.activo,
+      });
     });
-  });
+  } catch (dbError) {
+    await createSupabaseAdminClient().auth.admin.deleteUser(userId).catch(() => {});
+    throw new Error("Error al guardar el empleado en base de datos. Usuario Auth eliminado.");
+  }
 
   revalidatePath("/cliente/reservar");
   redirect("/admin/empleados?ok=Empleado+creado+correctamente");

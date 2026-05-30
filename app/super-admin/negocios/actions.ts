@@ -55,18 +55,27 @@ export async function createNegocio(formData: FormData) {
   });
 
   if (error || !data.user) {
+    // Revertir negocio si el Auth user no se pudo crear
+    await db.delete(negocios).where(eq(negocios.id, negocio.id)).catch(() => {});
     throw new Error(error?.message || "No se pudo crear el admin del negocio");
   }
 
-  await db.insert(usuarios).values({
-    id: data.user.id,
-    negocioId: negocio.id,
-    email: payload.adminEmail.trim().toLowerCase(),
-    rol: "admin",
-    nombre: payload.adminNombre.trim(),
-    telefono: payload.adminTelefono.trim(),
-    activo: true,
-  });
+  try {
+    await db.insert(usuarios).values({
+      id: data.user.id,
+      negocioId: negocio.id,
+      email: payload.adminEmail.trim().toLowerCase(),
+      rol: "admin",
+      nombre: payload.adminNombre.trim(),
+      telefono: payload.adminTelefono.trim(),
+      activo: true,
+    });
+  } catch (dbError) {
+    // Revertir Auth user y negocio para evitar estado huérfano
+    await supabase.auth.admin.deleteUser(data.user.id).catch(() => {});
+    await db.delete(negocios).where(eq(negocios.id, negocio.id)).catch(() => {});
+    throw new Error("Error al guardar el usuario admin. Operación revertida.");
+  }
 
   revalidatePath("/super-admin/negocios");
 }
@@ -163,34 +172,42 @@ export async function createNegocioUser(formData: FormData) {
     throw new Error(error?.message || "No se pudo crear el usuario");
   }
 
-  await db.insert(usuarios).values({
-    id: data.user.id,
-    negocioId: payload.negocioId,
-    email,
-    rol: payload.rol,
-    nombre: payload.nombre.trim(),
-    telefono: payload.telefono.trim(),
-    activo: true,
-  });
+  try {
+    await db.transaction(async (tx) => {
+      await tx.insert(usuarios).values({
+        id: data.user.id,
+        negocioId: payload.negocioId,
+        email,
+        rol: payload.rol,
+        nombre: payload.nombre.trim(),
+        telefono: payload.telefono.trim(),
+        activo: true,
+      });
 
-  if (payload.rol === "empleado") {
-    await db.insert(empleados).values({
-      negocioId: payload.negocioId,
-      usuarioId: data.user.id,
-      especialidad: payload.especialidad as "barberia" | "peluqueria" | "spa_unas" | "tatuajes",
-      comisionPct: String(payload.comisionPct ?? 0),
-      activo: true,
-    });
-  }
+      if (payload.rol === "empleado") {
+        await tx.insert(empleados).values({
+          negocioId: payload.negocioId,
+          usuarioId: data.user.id,
+          especialidad: payload.especialidad as "barberia" | "peluqueria" | "spa_unas" | "tatuajes",
+          comisionPct: String(payload.comisionPct ?? 0),
+          activo: true,
+        });
+      }
 
-  if (payload.rol === "cliente") {
-    await db.insert(clientes).values({
-      negocioId: payload.negocioId,
-      usuarioId: data.user.id,
-      nombre: payload.nombre.trim(),
-      telefono: payload.telefono.trim(),
-      email,
+      if (payload.rol === "cliente") {
+        await tx.insert(clientes).values({
+          negocioId: payload.negocioId,
+          usuarioId: data.user.id,
+          nombre: payload.nombre.trim(),
+          telefono: payload.telefono.trim(),
+          email,
+        });
+      }
     });
+  } catch (dbError) {
+    // Revertir Auth user para evitar estado huérfano
+    await supabase.auth.admin.deleteUser(data.user.id).catch(() => {});
+    throw new Error("Error al guardar en base de datos. Usuario Auth eliminado.");
   }
 
   revalidatePath("/super-admin/negocios");
