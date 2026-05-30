@@ -1,8 +1,11 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { eq } from "drizzle-orm";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleFromClaims, type UserRole } from "@/lib/auth/roles";
 import { demoCreds, isDemoMode } from "@/lib/demo";
+import { getDb } from "@/lib/db";
+import { negocios, usuarios } from "@/lib/db/schema";
 
 export type CurrentProfile = {
   id: string;
@@ -61,37 +64,58 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
 
   const claimRole = getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata);
 
-  const { data: profile } = await supabase
-    .from("usuarios")
-    .select("id,email,rol,nombre,telefono,negocio_id,super_admin,negocios(id,nombre,slug,correo,representante,descripcion,slogan,logo_url,color_primario,color_secundario,color_acento,fuente,plan,estado,fecha_fin)")
-    .eq("id", user.id)
-    .maybeSingle();
+  const [profile] = await getDb()
+    .select({
+      id: usuarios.id,
+      email: usuarios.email,
+      rol: usuarios.rol,
+      nombre: usuarios.nombre,
+      telefono: usuarios.telefono,
+      negocioId: usuarios.negocioId,
+      superAdmin: usuarios.superAdmin,
+      negocioNombre: negocios.nombre,
+      negocioSlug: negocios.slug,
+      negocioCorreo: negocios.correo,
+      representante: negocios.representante,
+      descripcion: negocios.descripcion,
+      slogan: negocios.slogan,
+      logoUrl: negocios.logoUrl,
+      colorPrimario: negocios.colorPrimario,
+      colorSecundario: negocios.colorSecundario,
+      colorAcento: negocios.colorAcento,
+      fuente: negocios.fuente,
+      plan: negocios.plan,
+      negocioEstado: negocios.estado,
+      fechaFin: negocios.fechaFin,
+    })
+    .from(usuarios)
+    .leftJoin(negocios, eq(usuarios.negocioId, negocios.id))
+    .where(eq(usuarios.id, user.id))
+    .limit(1);
 
   if (!profile) return null;
-
-  const negocio = Array.isArray(profile.negocios) ? profile.negocios[0] : profile.negocios;
 
   return {
     id: profile.id,
     email: profile.email,
-    rol: (profile.super_admin ? "super_admin" : claimRole ?? profile.rol) as UserRole,
+    rol: (profile.superAdmin ? "super_admin" : claimRole ?? profile.rol) as UserRole,
     nombre: profile.nombre,
     telefono: profile.telefono,
-    negocioId: profile.negocio_id,
-    negocioNombre: negocio?.nombre ?? null,
-    negocioSlug: negocio?.slug ?? null,
-    negocioCorreo: negocio?.correo ?? null,
-    representante: negocio?.representante ?? null,
-    descripcion: negocio?.descripcion ?? null,
-    slogan: negocio?.slogan ?? null,
-    logoUrl: negocio?.logo_url ?? null,
-    colorPrimario: negocio?.color_primario ?? "#111827",
-    colorSecundario: negocio?.color_secundario ?? "#22d3ee",
-    colorAcento: negocio?.color_acento ?? "#7c3aed",
-    fuente: negocio?.fuente ?? "Inter",
-    plan: negocio?.plan ?? null,
-    negocioEstado: negocio?.estado ?? null,
-    fechaFin: negocio?.fecha_fin ?? null,
+    negocioId: profile.negocioId,
+    negocioNombre: profile.negocioNombre,
+    negocioSlug: profile.negocioSlug,
+    negocioCorreo: profile.negocioCorreo,
+    representante: profile.representante,
+    descripcion: profile.descripcion,
+    slogan: profile.slogan,
+    logoUrl: profile.logoUrl,
+    colorPrimario: profile.colorPrimario ?? "#111827",
+    colorSecundario: profile.colorSecundario ?? "#22d3ee",
+    colorAcento: profile.colorAcento ?? "#7c3aed",
+    fuente: profile.fuente ?? "Inter",
+    plan: profile.plan,
+    negocioEstado: profile.negocioEstado,
+    fechaFin: profile.fechaFin,
   };
 }
 

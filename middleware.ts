@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { getRoleFromClaims, getRoleFromProfile, protectedPrefixes, roleHome } from "@/lib/auth/roles";
+import { getRoleFromClaims, protectedPrefixes, roleHome } from "@/lib/auth/roles";
 import { isDemoMode } from "@/lib/demo";
 
 export async function middleware(request: NextRequest) {
@@ -31,14 +31,14 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const matched = protectedPrefixes.find((item) => pathname.startsWith(item.prefix));
-  const session = user ? await getSessionAccess(supabase, user) : null;
+  const role = user ? getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata) : null;
 
   if (!matched) {
     if (isDemoMode() && pathname === "/login" && demoRole === "admin") {
       return NextResponse.redirect(new URL(roleHome.admin, request.url));
     }
     if (pathname === "/login" && user) {
-      if (session?.role) return NextResponse.redirect(new URL(roleHome[session.role], request.url));
+      if (role) return NextResponse.redirect(new URL(roleHome[role], request.url));
     }
     return supabaseResponse;
   }
@@ -53,39 +53,18 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (!session?.role) {
+  if (!role) {
     const url = new URL("/login", request.url);
     url.searchParams.set("next", pathname);
     url.searchParams.set("error", "profile");
     return NextResponse.redirect(url);
   }
 
-  if (!session.active) {
-    return NextResponse.redirect(new URL("/unauthorized?reason=inactive", request.url));
-  }
-
-  if (!matched.roles.includes(session.role)) {
+  if (!matched.roles.includes(role)) {
     return NextResponse.redirect(new URL("/unauthorized", request.url));
   }
 
   return supabaseResponse;
-}
-
-async function getSessionAccess(supabase: ReturnType<typeof createServerClient>, user: { id: string; app_metadata: Record<string, unknown>; user_metadata: Record<string, unknown> }) {
-  const { data: profile } = await supabase
-    .from("usuarios")
-    .select("rol,super_admin,activo,negocios(estado)")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const role = getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata) ?? getRoleFromProfile(profile);
-  const negocio = Array.isArray(profile?.negocios) ? profile?.negocios[0] : profile?.negocios;
-  const negocioActivo = role === "super_admin" || !negocio || negocio.estado === "activo";
-
-  return {
-    role,
-    active: Boolean(profile?.activo) && negocioActivo,
-  };
 }
 
 export const config = {
