@@ -144,6 +144,23 @@ export async function toggleNegocio(formData: FormData) {
   revalidatePath(`/super-admin/negocios/${id}`);
 }
 
+export async function resetUserPassword(formData: FormData) {
+  await requireRole(["super_admin"]);
+  const userId = String(formData.get("userId") || "");
+  const password = String(formData.get("password") || "");
+  const negocioId = String(formData.get("negocioId") || "");
+
+  if (!userId || password.length < 8) {
+    throw new Error("Datos inválidos");
+  }
+
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase.auth.admin.updateUserById(userId, { password });
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/super-admin/negocios/${negocioId}`);
+}
+
 export async function createNegocioUser(formData: FormData) {
   await requireRole(["super_admin"]);
   const payload = negocioUserSchema.parse(Object.fromEntries(formData));

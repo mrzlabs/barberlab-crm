@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createNegocioUser, toggleNegocio, updateNegocio } from "../actions";
 import { getNegocioById, getNegocioStats, getNegocioUsers } from "@/lib/super-admin/queries";
 import { BrandPreview } from "./BrandPreview";
+import { ResetPasswordButton } from "./ResetPasswordButton";
 
 export const dynamic = "force-dynamic";
 
@@ -242,6 +243,7 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
                   <th className="px-5 py-3">Rol</th>
                   <th className="px-5 py-3">Telefono</th>
                   <th className="px-5 py-3">Estado</th>
+                  <th className="px-5 py-3">Acciones</th>
                 </tr>
               </thead>
               <tbody className="bg-white/80">
@@ -258,10 +260,17 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
                         {user.activo ? "Activo" : "Inactivo"}
                       </span>
                     </td>
+                    <td className="px-5 py-4">
+                      <ResetPasswordButton
+                        userId={user.id}
+                        nombre={user.nombre}
+                        negocioId={negocio.id}
+                      />
+                    </td>
                   </tr>
                 ))}
                 {usuarios.length === 0 ? (
-                  <tr><td className="px-5 py-8 text-center text-slate-500" colSpan={4}>Sin usuarios en este negocio.</td></tr>
+                  <tr><td className="px-5 py-8 text-center text-slate-500" colSpan={5}>Sin usuarios en este negocio.</td></tr>
                 ) : null}
               </tbody>
             </table>

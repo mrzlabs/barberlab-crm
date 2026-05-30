@@ -6,6 +6,11 @@ import { isDemoMode } from "@/lib/demo";
 export async function middleware(request: NextRequest) {
   const demoRole = request.cookies.get("barberlab_demo_role")?.value;
 
+  // DEBUG temporal — ver en Vercel Function Logs
+  console.log("[mw] cookies:", request.cookies.getAll().map((c) => c.name));
+  console.log("[mw] SUPABASE_URL:", !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+  console.log("[mw] ANON_KEY:", !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
   const supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -27,7 +32,12 @@ export async function middleware(request: NextRequest) {
 
   const {
     data: { user },
+    error: getUserError,
   } = await supabase.auth.getUser();
+
+  // DEBUG temporal
+  console.log("[mw] getUser error:", getUserError?.message ?? null);
+  console.log("[mw] user id:", user?.id ?? null);
 
   const pathname = request.nextUrl.pathname;
   const matched = protectedPrefixes.find((item) => pathname.startsWith(item.prefix));

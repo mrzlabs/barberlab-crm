@@ -8,9 +8,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8).optional().or(z.literal("")),
+  password: z.string().min(8),
   next: z.string().optional(),
-  mode: z.enum(["password", "magic"]),
 });
 
 export async function loginAction(formData: FormData) {
@@ -18,7 +17,6 @@ export async function loginAction(formData: FormData) {
     email: formData.get("email"),
     password: formData.get("password"),
     next: formData.get("next") || undefined,
-    mode: formData.get("mode"),
   });
 
   if (!parsed.success) redirect("/login?error=invalid");
@@ -36,43 +34,11 @@ export async function loginAction(formData: FormData) {
   }
 
   const supabase = createSupabaseServerClient();
-  const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback${parsed.data.next ? `?next=${parsed.data.next}` : ""}`;
-
-  if (parsed.data.mode === "magic") {
-    const { error } = await supabase.auth.signInWithOtp({
-      email: parsed.data.email,
-      options: { emailRedirectTo: redirectTo },
-    });
-    if (error) redirect("/login?error=auth");
-    redirect("/login?sent=1");
-  }
-
   const { error } = await supabase.auth.signInWithPassword({
     email: parsed.data.email,
-    password: parsed.data.password || "",
+    password: parsed.data.password,
   });
 
   if (error) redirect("/login?error=auth");
   redirect(parsed.data.next || "/");
-}
-
-export async function googleLoginAction(formData: FormData) {
-  if (isDemoMode()) redirect("/login?error=google-demo");
-
-  const next = String(formData.get("next") || "");
-  const supabase = createSupabaseServerClient();
-  const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback${next ? `?next=${next}` : ""}`;
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo,
-      queryParams: {
-        access_type: "offline",
-        prompt: "consent",
-      },
-    },
-  });
-
-  if (error || !data.url) redirect("/login?error=google");
-  redirect(data.url);
 }

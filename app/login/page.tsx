@@ -1,10 +1,10 @@
-import { googleLoginAction, loginAction } from "./actions";
+import { loginAction } from "./actions";
 import { isDemoMode } from "@/lib/demo";
 
 export default function LoginPage({
   searchParams,
 }: {
-  searchParams: { next?: string; error?: string; sent?: string };
+  searchParams: { next?: string; error?: string };
 }) {
   return (
     <main className="surface-grid grid min-h-dvh place-items-center p-3 sm:p-5">
@@ -48,7 +48,7 @@ export default function LoginPage({
             <p className="hidden text-xs font-black uppercase tracking-[0.18em] text-primary lg:block">BarberLab CRM</p>
             <h2 className="mt-3 text-3xl font-black tracking-tight">Ingreso seguro</h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Usa clave o magic link segun el rol asignado en Supabase.
+              Ingresa con tu email y contraseña.
             </p>
             {isDemoMode() ? (
               <div className="mt-4 rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-sm text-cyan-950">
@@ -57,8 +57,9 @@ export default function LoginPage({
                 <p>Password: BarberLab2026!</p>
               </div>
             ) : null}
-            {searchParams.error && <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm font-bold text-red-700">Credenciales invalidas.</p>}
-            {searchParams.sent && <p className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-700">Magic link enviado.</p>}
+            {searchParams.error && (
+              <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm font-bold text-red-700">Credenciales invalidas.</p>
+            )}
             <form action={loginAction} className="mt-6 grid gap-4">
               <input type="hidden" name="next" value={searchParams.next || ""} />
               <label className="grid gap-2 text-sm font-bold">
@@ -67,21 +68,10 @@ export default function LoginPage({
               </label>
               <label className="grid gap-2 text-sm font-bold">
                 Password
-                <input className="rounded-xl border bg-slate-50 px-4 py-3 outline-none focus:border-cyan-500" name="password" type="password" minLength={8} />
+                <input className="rounded-xl border bg-slate-50 px-4 py-3 outline-none focus:border-cyan-500" name="password" type="password" minLength={8} required />
               </label>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <button className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white" name="mode" value="password" type="submit">
-                  Entrar
-                </button>
-                <button className="rounded-xl border px-4 py-3 text-sm font-black text-slate-800" name="mode" value="magic" type="submit">
-                  Magic link
-                </button>
-              </div>
-            </form>
-            <form action={googleLoginAction} className="mt-3">
-              <input type="hidden" name="next" value={searchParams.next || ""} />
-              <button className="w-full rounded-xl border bg-white px-4 py-3 text-sm font-black text-slate-800" type="submit">
-                Ingresar con Google
+              <button className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white" type="submit">
+                Entrar
               </button>
             </form>
           </div>
