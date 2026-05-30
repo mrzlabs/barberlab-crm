@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
+type CookieToSet = { name: string; value: string; options: CookieOptions };
+
 export function createSupabaseMiddlewareClient(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -9,21 +11,20 @@ export function createSupabaseMiddlewareClient(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
+        getAll() {
+          return request.cookies.getAll();
         },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({ name, value, ...options });
+        setAll(cookiesToSet: CookieToSet[]) {
+          // Actualiza cookies en el request (para que el mismo middleware las vea)
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          // Recrea el response UNA SOLA VEZ con todas las cookies en batch
           response = NextResponse.next({ request });
-          response.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({ name, value: "", ...options });
-          response = NextResponse.next({ request });
-          response.cookies.set({ name, value: "", ...options });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
         },
       },
-    },
+    }
   );
 
   return { supabase, response };

@@ -2,6 +2,8 @@ import { cookies } from "next/headers";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 
+type CookieToSet = { name: string; value: string; options: CookieOptions };
+
 export function createSupabaseServerClient() {
   const cookieStore = cookies();
 
@@ -10,17 +12,20 @@ export function createSupabaseServerClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
+        getAll() {
+          return cookieStore.getAll();
         },
-        set(name: string, value: string, options: CookieOptions) {
-          try { cookieStore.set({ name, value, ...options }); } catch {}
-        },
-        remove(name: string, options: CookieOptions) {
-          try { cookieStore.set({ name, value: "", ...options }); } catch {}
+        setAll(cookiesToSet: CookieToSet[]) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Server Component de solo-lectura — el middleware refresca la sesión
+          }
         },
       },
-    },
+    }
   );
 }
 
