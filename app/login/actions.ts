@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { z } from "zod";
 import { demoCreds, isDemoMode } from "@/lib/demo";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getRoleFromClaims, roleHome } from "@/lib/auth/roles";
+import { getRoleFromClaims, getRoleFromProfile, roleHome } from "@/lib/auth/roles";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -43,9 +43,20 @@ export async function loginAction(formData: FormData) {
   if (error) redirect("/login?error=auth");
 
   const { data: { user } } = await supabase.auth.getUser();
-  const role = user
-    ? (getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata))
-    : null;
+  if (!user) redirect("/login?error=auth");
 
-  redirect(parsed.data.next || (role ? roleHome[role] : "/admin/dashboard"));
+  const { data: profile } = await supabase
+    .from("usuarios")
+    .select("rol,super_admin,activo,negocios(estado)")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const role = getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata) ?? getRoleFromProfile(profile);
+  if (!role || !profile) redirect("/login?error=profile");
+
+  const negocio = Array.isArray(profile.negocios) ? profile.negocios[0] : profile.negocios;
+  const negocioActivo = role === "super_admin" || !negocio || negocio.estado === "activo";
+  if (!profile.activo || !negocioActivo) redirect("/login?error=inactive");
+
+  redirect(parsed.data.next || roleHome[role]);
 }

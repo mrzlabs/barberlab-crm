@@ -36,3 +36,9 @@ export function getRoleFromClaims(claims: Record<string, unknown> | null | undef
 
   return null;
 }
+
+export function getRoleFromProfile(profile: Record<string, unknown> | null | undefined): UserRole | null {
+  if (!profile) return null;
+  if (profile.super_admin === true) return "super_admin";
+  return isRole(profile.rol) ? profile.rol : null;
+}

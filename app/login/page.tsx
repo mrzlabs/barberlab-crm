@@ -1,25 +1,32 @@
 import { loginAction } from "./actions";
 import { isDemoMode } from "@/lib/demo";
 
+const errorMsg: Record<string, string> = {
+  invalid: "Datos incompletos o formato invalido.",
+  auth: "El usuario no existe en Auth o la contraseña no coincide.",
+  profile: "La cuenta existe en Auth, pero no tiene perfil interno vinculado.",
+  inactive: "La cuenta o el comercio estan inactivos.",
+};
+
 export default function LoginPage({
   searchParams,
 }: {
   searchParams: { next?: string; error?: string };
 }) {
   return (
-    <main className="surface-grid grid min-h-dvh place-items-center p-3 sm:p-5">
-      <section className="grid w-full max-w-6xl overflow-hidden rounded-[2rem] border border-white/80 bg-white/88 shadow-2xl shadow-slate-950/12 backdrop-blur-2xl lg:grid-cols-[1.08fr_0.92fr]">
-        <div className="relative hidden min-h-[620px] bg-slate-950 p-8 text-white lg:block">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(34,211,238,0.34),transparent_24rem),radial-gradient(circle_at_80%_70%,rgba(124,58,237,0.28),transparent_20rem)]" />
+    <main className="surface-grid grid min-h-dvh place-items-center p-3 text-slate-950 sm:p-5">
+      <section className="grid w-full max-w-6xl overflow-hidden rounded-[2rem] border border-white/80 bg-white/92 shadow-2xl shadow-slate-950/12 backdrop-blur-2xl lg:grid-cols-[1.04fr_0.96fr]">
+        <div className="relative hidden min-h-[620px] bg-[#070a13] p-8 text-white lg:block">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(45,212,191,0.34),transparent_22rem),radial-gradient(circle_at_80%_68%,rgba(124,58,237,0.34),transparent_20rem),linear-gradient(135deg,rgba(255,255,255,.08),transparent_34%)]" />
           <div className="relative flex h-full flex-col justify-between">
             <div>
-              <div className="grid size-14 place-items-center rounded-2xl bg-white text-lg font-black text-slate-950">BL</div>
+              <div className="flex size-16 items-center justify-center rounded-3xl border border-white/20 bg-white/10 text-lg font-black text-cyan-200 shadow-2xl shadow-cyan-500/20">BL</div>
               <p className="mt-8 text-xs font-black uppercase tracking-[0.22em] text-cyan-300">BarberLab CRM</p>
-              <h1 className="mt-4 max-w-md text-5xl font-black leading-tight tracking-tight">
-                Control comercial para barberias que quieren escalar.
+              <h1 className="mt-4 max-w-lg text-5xl font-black leading-tight tracking-tight">
+                Gestion comercial clara para barberias y salones.
               </h1>
               <p className="mt-5 max-w-md text-sm leading-6 text-slate-300">
-                Agenda, caja, inventario, turnos, comisiones y rentabilidad en una sola operacion.
+                Agenda, caja, inventario, turnos, comisiones y rentabilidad conectados en una sola operacion.
               </p>
             </div>
             <div className="grid gap-3 rounded-3xl border border-cyan-300/10 bg-white/8 p-5 shadow-2xl shadow-cyan-950/20 backdrop-blur">
@@ -48,7 +55,7 @@ export default function LoginPage({
             <p className="hidden text-xs font-black uppercase tracking-[0.18em] text-primary lg:block">BarberLab CRM</p>
             <h2 className="mt-3 text-3xl font-black tracking-tight">Ingreso seguro</h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Ingresa con tu email y contraseña.
+              Usa el acceso creado para tu rol. El sistema valida Auth, perfil interno y comercio activo.
             </p>
             {isDemoMode() ? (
               <div className="mt-4 rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-sm text-cyan-950">
@@ -57,8 +64,16 @@ export default function LoginPage({
                 <p>Password: BarberLab2026!</p>
               </div>
             ) : null}
-            {searchParams.error && (
-              <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm font-bold text-red-700">Credenciales invalidas.</p>
+            {searchParams.error ? (
+              <p className="mt-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm font-bold text-red-700">
+                {errorMsg[searchParams.error] || "No se pudo iniciar sesion."}
+              </p>
+            ) : (
+              <div className="mt-4 grid gap-2 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-xs font-bold text-slate-600 sm:grid-cols-3">
+                <span>Auth</span>
+                <span>Perfil</span>
+                <span>Rol activo</span>
+              </div>
             )}
             <form action={loginAction} className="mt-6 grid gap-4">
               <input type="hidden" name="next" value={searchParams.next || ""} />
