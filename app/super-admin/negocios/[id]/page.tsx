@@ -165,6 +165,10 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
                 <option value="cancelado">Cancelado</option>
               </select>
             </label>
+            <label className="grid gap-2 text-sm font-bold">
+              Fecha renovación
+              <input className={input} name="fechaFin" type="date" defaultValue={negocio.fechaFin || ""} />
+            </label>
             <label className="grid gap-2 text-sm font-bold md:col-span-2">
               Aislamiento
               <select className={input} name="modoAislamiento" defaultValue={negocio.modoAislamiento}>

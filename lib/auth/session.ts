@@ -24,6 +24,7 @@ export type CurrentProfile = {
   fuente: string;
   plan: string | null;
   negocioEstado: string | null;
+  fechaFin: string | null;
 };
 
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
@@ -49,6 +50,7 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
       fuente: "Inter",
       plan: "pro",
       negocioEstado: "activo",
+      fechaFin: renewalDate(24),
     };
   }
 
@@ -61,7 +63,7 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
 
   const { data: profile } = await supabase
     .from("usuarios")
-    .select("id,email,rol,nombre,telefono,negocio_id,super_admin,negocios(id,nombre,slug,correo,representante,descripcion,slogan,logo_url,color_primario,color_secundario,color_acento,fuente,plan,estado)")
+    .select("id,email,rol,nombre,telefono,negocio_id,super_admin,negocios(id,nombre,slug,correo,representante,descripcion,slogan,logo_url,color_primario,color_secundario,color_acento,fuente,plan,estado,fecha_fin)")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -89,7 +91,14 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
     fuente: negocio?.fuente ?? "Inter",
     plan: negocio?.plan ?? null,
     negocioEstado: negocio?.estado ?? null,
+    fechaFin: negocio?.fecha_fin ?? null,
   };
+}
+
+function renewalDate(days: number) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString().slice(0, 10);
 }
 
 export async function requireRole(allowed: UserRole[]) {

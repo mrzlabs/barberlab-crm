@@ -36,6 +36,7 @@ export async function createNegocio(formData: FormData) {
     estado: payload.estado,
     modoAislamiento: payload.modoAislamiento,
     fechaInicio: new Date().toISOString().slice(0, 10),
+    fechaFin: payload.fechaFin || renewalDate(30),
   }).returning({ id: negocios.id });
 
   const { data, error } = await supabase.auth.admin.createUser({
@@ -93,11 +94,18 @@ export async function updateNegocio(formData: FormData) {
     plan: payload.plan,
     estado: payload.estado,
     modoAislamiento: payload.modoAislamiento,
+    fechaFin: payload.fechaFin || null,
     updatedAt: new Date(),
   }).where(eq(negocios.id, payload.id));
 
   revalidatePath("/super-admin/negocios");
   revalidatePath(`/super-admin/negocios/${payload.id}`);
+}
+
+function renewalDate(days: number) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString().slice(0, 10);
 }
 
 export async function toggleNegocio(formData: FormData) {

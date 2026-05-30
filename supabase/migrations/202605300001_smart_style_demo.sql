@@ -1,0 +1,75 @@
+update negocios
+set
+  nombre = 'Smart Style',
+  slug = 'smart-style',
+  telefono = '3503803010',
+  correo = 'contacto@smartstyle.local',
+  direccion = 'Carrera 112 #65 03, Bogotá',
+  representante = 'Administrador Smart Style',
+  tipo_documento = 'nit',
+  numero_documento = '900000001-1',
+  ciudad_indicativo = '+57 601',
+  contacto_principal = '+57 350 380 3010',
+  descripcion = 'Salón de belleza y barbería con agenda digital, control de caja, servicios personalizados y seguimiento comercial.',
+  slogan = 'Belleza, agenda y caja bajo control en una sola operación.',
+  color_primario = '#17120d',
+  color_secundario = '#d8c4a2',
+  color_acento = '#8b5e34',
+  fuente = 'Outfit',
+  plan = 'pro',
+  estado = 'activo',
+  modo_aislamiento = 'multi_tenant',
+  fecha_inicio = coalesce(fecha_inicio, current_date),
+  fecha_fin = current_date + 24,
+  updated_at = now()
+where id = 'b2383f3b-43df-4967-a744-699116ff59fc'
+   or slug in ('barberlab-demo', 'smart-style');
+
+insert into negocios (
+  nombre,
+  slug,
+  telefono,
+  correo,
+  direccion,
+  representante,
+  tipo_documento,
+  numero_documento,
+  ciudad_indicativo,
+  contacto_principal,
+  descripcion,
+  slogan,
+  color_primario,
+  color_secundario,
+  color_acento,
+  fuente,
+  plan,
+  estado,
+  modo_aislamiento,
+  fecha_inicio,
+  fecha_fin
+)
+select
+  'Smart Style',
+  'smart-style',
+  '3503803010',
+  'contacto@smartstyle.local',
+  'Carrera 112 #65 03, Bogotá',
+  'Administrador Smart Style',
+  'nit',
+  '900000001-1',
+  '+57 601',
+  '+57 350 380 3010',
+  'Salón de belleza y barbería con agenda digital, control de caja, servicios personalizados y seguimiento comercial.',
+  'Belleza, agenda y caja bajo control en una sola operación.',
+  '#17120d',
+  '#d8c4a2',
+  '#8b5e34',
+  'Outfit',
+  'pro',
+  'activo',
+  'multi_tenant',
+  current_date,
+  current_date + 24
+where not exists (
+  select 1 from negocios where slug = 'smart-style'
+);

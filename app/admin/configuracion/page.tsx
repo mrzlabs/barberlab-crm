@@ -29,6 +29,20 @@ export default async function ConfiguracionPage() {
 
       <form action={updateMiNegocio} className="glass-panel rounded-[2rem] p-5">
         <input name="negocioId" type="hidden" value={negocio.id} />
+        <div className="mb-5 grid gap-3 rounded-[1.5rem] border bg-white p-4 sm:grid-cols-3">
+          <article>
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Plan</p>
+            <strong className="mt-1 block capitalize">{negocio.plan}</strong>
+          </article>
+          <article>
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Estado</p>
+            <strong className="mt-1 block capitalize">{negocio.estado}</strong>
+          </article>
+          <article>
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Renovación</p>
+            <strong className="mt-1 block">{negocio.fechaFin || "Sin fecha"}</strong>
+          </article>
+        </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="grid gap-2 text-sm font-bold">Nombre<input className={input} name="nombre" defaultValue={negocio.nombre} required /></label>
           <label className="grid gap-2 text-sm font-bold">Telefono<input className={input} name="telefono" defaultValue={negocio.telefono || ""} /></label>

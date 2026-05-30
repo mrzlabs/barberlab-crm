@@ -160,6 +160,7 @@ export default async function NegociosPage() {
                 <option value="dedicado">Dedicado</option>
               </select>
             </div>
+            <input className={input} name="fechaFin" placeholder="Fecha renovación" type="date" />
 
             {/* admin */}
             <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">

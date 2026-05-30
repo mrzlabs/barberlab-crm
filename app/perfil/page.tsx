@@ -4,9 +4,22 @@ import { logoutAction, resetPasswordAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
+function daysLeft(date: string | null) {
+  if (!date) return null;
+  const end = new Date(`${date}T23:59:59-05:00`).getTime();
+  const now = Date.now();
+  return Math.ceil((end - now) / 86_400_000);
+}
+
 export default async function PerfilPage({ searchParams }: { searchParams?: { reset?: string } }) {
   const profile = await getCurrentProfile();
   if (!profile) redirect("/login");
+  const remainingDays = daysLeft(profile.fechaFin);
+  const renewalText = remainingDays === null
+    ? "Sin fecha de renovación"
+    : remainingDays > 0
+      ? `${remainingDays} días para renovar`
+      : "Suscripción vencida";
 
   const items = [
     ["Nombre", profile.nombre],
@@ -18,6 +31,8 @@ export default async function PerfilPage({ searchParams }: { searchParams?: { re
     ["Representante", profile.representante || "Sin representante"],
     ["Plan", profile.plan || "Sin plan"],
     ["Estado", profile.negocioEstado || "Sin estado"],
+    ["Renovación", profile.fechaFin || "Sin fecha"],
+    ["Tiempo restante", renewalText],
   ];
 
   return (
@@ -42,6 +57,22 @@ export default async function PerfilPage({ searchParams }: { searchParams?: { re
         ) : null}
 
         <section className="glass-panel rounded-[2rem] p-5">
+          <div className="mb-5 rounded-[1.5rem] border bg-white p-5">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-700">Suscripción</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+              <div>
+                <h2 className="text-2xl font-black capitalize">Plan {profile.plan || "sin plan"}</h2>
+                <p className="mt-1 text-sm text-slate-500">{renewalText}</p>
+              </div>
+              <a
+                className="rounded-2xl bg-slate-950 px-4 py-3 text-center text-sm font-black text-white"
+                href={`https://wa.me/573503803010?text=${encodeURIComponent(`Hola MRZLABS, quiero continuar la suscripción de ${profile.negocioNombre || "mi comercio"}.`)}`}
+                target="_blank"
+              >
+                Continuar suscripción
+              </a>
+            </div>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {items.map(([label, value]) => (
               <article className="rounded-2xl border bg-white/80 p-4" key={label}>

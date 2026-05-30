@@ -95,6 +95,7 @@ export const negocioSchema = z.object({
   plan: z.enum(["starter", "pro", "enterprise"]),
   estado: z.enum(["activo", "suspendido", "cancelado"]),
   modoAislamiento: z.enum(["multi_tenant", "dedicado"]),
+  fechaFin: z.string().min(10).optional().or(z.literal("")),
   adminEmail: z.string().email(),
   adminPassword: z.string().min(8).max(72),
   adminNombre: z.string().min(2).max(120),
@@ -127,6 +128,7 @@ export const negocioSelfSchema = negocioUpdateSchema.omit({
   plan: true,
   estado: true,
   modoAislamiento: true,
+  fechaFin: true,
 }).extend({
   negocioId: z.string().uuid(),
 });
