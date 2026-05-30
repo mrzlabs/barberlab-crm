@@ -4,16 +4,17 @@ import { Download, Printer } from "lucide-react";
 
 type ServiceRow = {
   servicio: string; categoria: string; turnos: number;
-  ingresos: number; margen: number; rentabilidad: number;
+  ingresos: number; costoInsumo: number; comision: number;
+  margen: number; utilidadNeta: number; rentabilidad: number; rentabilidadNeta: number;
 };
 type EmployeeRow = {
   empleado: string; especialidad: string; turnos: number;
-  ingresos: number; propinas: number; comision: number;
+  ingresos: number; propinas: number; costoInsumo: number; comision: number; utilidadNegocio: number;
 };
 type PaymentRow = { metodoPago: string; ingresos: number; turnos: number };
 type Kpis = {
   ingresos: number; margenBruto: number; ticket: number;
-  propinas: number; costoInsumo: number; gastos: number;
+  propinas: number; costoInsumo: number; gastos: number; comisiones: number; utilidadNeta: number;
   turnos: number; tasaNoAsistencia: number;
 };
 
@@ -43,16 +44,16 @@ export function ExportButtons({
       [`Periodo: ${from} al ${to}`],
       [],
       ["── KPIs del periodo ──"],
-      ["Ingresos", "Margen bruto", "Ticket promedio", "Propinas", "Costo insumo", "Gastos", "Turnos", "No asistencia"],
-      [kpis.ingresos, kpis.margenBruto, kpis.ticket, kpis.propinas, kpis.costoInsumo, kpis.gastos, kpis.turnos, pct(kpis.tasaNoAsistencia)],
+      ["Ingresos", "Margen bruto", "Utilidad neta", "Ticket promedio", "Propinas", "Costo insumo", "Gastos", "Comisiones", "Turnos", "No asistencia"],
+      [kpis.ingresos, kpis.margenBruto, kpis.utilidadNeta, kpis.ticket, kpis.propinas, kpis.costoInsumo, kpis.gastos, kpis.comisiones, kpis.turnos, pct(kpis.tasaNoAsistencia)],
       [],
       ["── Rentabilidad por servicio ──"],
-      ["Servicio", "Categoría", "Turnos", "Ingresos", "Margen", "Rentabilidad"],
-      ...byService.map((s) => [s.servicio, s.categoria, s.turnos, fmt(s.ingresos), fmt(s.margen), pct(s.rentabilidad)]),
+      ["Servicio", "Categoría", "Turnos", "Ingresos", "Costo insumo", "Comisión", "Margen bruto", "Utilidad neta", "Rentabilidad bruta", "Rentabilidad neta"],
+      ...byService.map((s) => [s.servicio, s.categoria, s.turnos, fmt(s.ingresos), fmt(s.costoInsumo), fmt(s.comision), fmt(s.margen), fmt(s.utilidadNeta), pct(s.rentabilidad), pct(s.rentabilidadNeta)]),
       [],
       ["── Producción por empleado ──"],
-      ["Empleado", "Especialidad", "Turnos", "Ingreso total", "Comisión estimada"],
-      ...byEmployee.map((e) => [e.empleado, e.especialidad, e.turnos, fmt(e.ingresos + e.propinas), fmt(e.comision)]),
+      ["Empleado", "Especialidad", "Turnos", "Ingreso total", "Costo insumo", "Comisión estimada", "Utilidad negocio"],
+      ...byEmployee.map((e) => [e.empleado, e.especialidad, e.turnos, fmt(e.ingresos + e.propinas), fmt(e.costoInsumo), fmt(e.comision), fmt(e.utilidadNegocio)]),
       [],
       ["── Método de pago ──"],
       ["Método", "Ingresos", "Turnos"],

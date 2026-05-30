@@ -6,6 +6,7 @@ import {
   empleados,
   gastos,
   inventario,
+  negocios,
   servicioInsumos,
   servicios,
   turnos,
@@ -46,6 +47,10 @@ function rangeDates(range: ReportRange) {
 export async function getReportes(range: ReportRange) {
   if (isDemoMode()) {
     return {
+      settings: {
+        comisionBase: "precio_final" as const,
+        propinaEnComision: false,
+      },
       kpis: {
         turnos: 286,
         ingresos: 36500000,
@@ -53,18 +58,20 @@ export async function getReportes(range: ReportRange) {
         ticket: 76500,
         costoInsumo: 4850000,
         gastos: 9400000,
+        comisiones: 9132000,
         margenBruto: 22250000,
+        utilidadNeta: 13118000,
         tasaNoAsistencia: 0.047,
       },
       byService: [
-        { servicio: "Corte premium", categoria: "barberia" as const, turnos: 112, ingresos: 7840000, costoInsumo: 640000, margen: 7200000, rentabilidad: 0.918 },
-        { servicio: "Corte y barba", categoria: "barberia" as const, turnos: 86, ingresos: 5590000, costoInsumo: 520000, margen: 5070000, rentabilidad: 0.907 },
-        { servicio: "Manicure semipermanente", categoria: "spa_unas" as const, turnos: 54, ingresos: 4320000, costoInsumo: 980000, margen: 3340000, rentabilidad: 0.773 },
+        { servicio: "Corte premium", categoria: "barberia" as const, turnos: 112, ingresos: 7840000, costoInsumo: 640000, comision: 3136000, margen: 7200000, utilidadNeta: 4064000, rentabilidad: 0.918, rentabilidadNeta: 0.518 },
+        { servicio: "Corte y barba", categoria: "barberia" as const, turnos: 86, ingresos: 5590000, costoInsumo: 520000, comision: 2236000, margen: 5070000, utilidadNeta: 2834000, rentabilidad: 0.907, rentabilidadNeta: 0.507 },
+        { servicio: "Manicure semipermanente", categoria: "spa_unas" as const, turnos: 54, ingresos: 4320000, costoInsumo: 980000, comision: 1512000, margen: 3340000, utilidadNeta: 1828000, rentabilidad: 0.773, rentabilidadNeta: 0.423 },
       ],
       byEmployee: [
-        { empleado: "Mateo Barber", especialidad: "barberia" as const, comisionPct: "40", turnos: 148, ingresos: 11400000, propinas: 560000, comision: 4560000 },
-        { empleado: "Sofia Nails", especialidad: "spa_unas" as const, comisionPct: "35", turnos: 54, ingresos: 4320000, propinas: 210000, comision: 1512000 },
-        { empleado: "Nico Ink", especialidad: "tatuajes" as const, comisionPct: "45", turnos: 18, ingresos: 6800000, propinas: 300000, comision: 3060000 },
+        { empleado: "Mateo Barber", especialidad: "barberia" as const, comisionPct: "40", turnos: 148, ingresos: 11400000, propinas: 560000, costoInsumo: 940000, comision: 4560000, utilidadNegocio: 6460000 },
+        { empleado: "Sofia Nails", especialidad: "spa_unas" as const, comisionPct: "35", turnos: 54, ingresos: 4320000, propinas: 210000, costoInsumo: 980000, comision: 1512000, utilidadNegocio: 2038000 },
+        { empleado: "Nico Ink", especialidad: "tatuajes" as const, comisionPct: "45", turnos: 18, ingresos: 6800000, propinas: 300000, costoInsumo: 1380000, comision: 3060000, utilidadNegocio: 2660000 },
       ],
       byPayment: [
         { metodoPago: "transferencia" as const, turnos: 142, ingresos: 18400000 },
@@ -78,6 +85,32 @@ export async function getReportes(range: ReportRange) {
   const { from, to } = rangeDates(range);
   const profile = await getCurrentProfile();
   const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
+  const [config] = await db
+    .select({
+      comisionBase: negocios.comisionBase,
+      propinaEnComision: negocios.propinaEnComision,
+    })
+    .from(negocios)
+    .where(eq(negocios.id, negocioId))
+    .limit(1);
+  const comisionBase = config?.comisionBase ?? "precio_final";
+  const propinaEnComision = config?.propinaEnComision ?? false;
+  const costByTurn = sql<number>`(
+    select coalesce(sum(si.cantidad * i.costo_unitario), 0)
+    from ${servicioInsumos} si
+    inner join ${inventario} i on i.id = si.inventario_id
+    where si.servicio_id = ${citas.servicioId}
+  )`;
+  const commissionBaseExpr =
+    comisionBase === "precio_menos_insumo"
+      ? sql<number>`greatest(${turnos.precioFinal} - ${costByTurn}, 0)`
+      : comisionBase === "precio_menos_descuento"
+        ? sql<number>`greatest(${turnos.precioFinal} - ${turnos.descuento}, 0)`
+        : sql<number>`${turnos.precioFinal}`;
+  const commissionableExpr = propinaEnComision
+    ? sql<number>`(${commissionBaseExpr} + ${turnos.propina})`
+    : commissionBaseExpr;
+  const commissionExpr = sql<number>`(${commissionableExpr} * (${empleados.comisionPct} / 100))`;
 
   const [kpis, gastosPeriodo, noAsistencia, byService, byEmployee, byPayment] = await Promise.all([
     db
@@ -86,15 +119,12 @@ export async function getReportes(range: ReportRange) {
         ingresos: sql<string>`coalesce(sum(${turnos.precioFinal} + ${turnos.propina}), 0)`,
         propinas: sql<string>`coalesce(sum(${turnos.propina}), 0)`,
         ticket: sql<string>`coalesce(avg(${turnos.precioFinal}), 0)`,
-        costoInsumo: sql<string>`coalesce(sum((
-          select coalesce(sum(si.cantidad * i.costo_unitario), 0)
-          from ${servicioInsumos} si
-          inner join ${inventario} i on i.id = si.inventario_id
-          where si.servicio_id = ${citas.servicioId}
-        )), 0)`,
+        costoInsumo: sql<string>`coalesce(sum(${costByTurn}), 0)`,
+        comisiones: sql<string>`coalesce(sum(${commissionExpr}), 0)`,
       })
       .from(turnos)
       .innerJoin(citas, eq(turnos.citaId, citas.id))
+      .innerJoin(empleados, eq(citas.empleadoId, empleados.id))
       .where(and(eq(turnos.negocioId, negocioId), gte(turnos.createdAt, from), lte(turnos.createdAt, to))),
     db
       .select({ total: sql<string>`coalesce(sum(${gastos.monto}), 0)` })
@@ -113,16 +143,13 @@ export async function getReportes(range: ReportRange) {
         categoria: servicios.categoria,
         turnos: sql<number>`count(${turnos.id})::int`,
         ingresos: sql<string>`coalesce(sum(${turnos.precioFinal} + ${turnos.propina}), 0)`,
-        costoInsumo: sql<string>`coalesce(sum((
-          select coalesce(sum(si.cantidad * i.costo_unitario), 0)
-          from ${servicioInsumos} si
-          inner join ${inventario} i on i.id = si.inventario_id
-          where si.servicio_id = ${servicios.id}
-        )), 0)`,
+        costoInsumo: sql<string>`coalesce(sum(${costByTurn}), 0)`,
+        comision: sql<string>`coalesce(sum(${commissionExpr}), 0)`,
       })
       .from(turnos)
       .innerJoin(citas, eq(turnos.citaId, citas.id))
       .innerJoin(servicios, eq(citas.servicioId, servicios.id))
+      .innerJoin(empleados, eq(citas.empleadoId, empleados.id))
       .where(and(eq(turnos.negocioId, negocioId), gte(turnos.createdAt, from), lte(turnos.createdAt, to)))
       .groupBy(servicios.id)
       .orderBy(desc(sql`coalesce(sum(${turnos.precioFinal} + ${turnos.propina}), 0)`)),
@@ -134,7 +161,8 @@ export async function getReportes(range: ReportRange) {
         turnos: sql<number>`count(${turnos.id})::int`,
         ingresos: sql<string>`coalesce(sum(${turnos.precioFinal}), 0)`,
         propinas: sql<string>`coalesce(sum(${turnos.propina}), 0)`,
-        comision: sql<string>`coalesce(sum(${turnos.precioFinal} * (${empleados.comisionPct} / 100)), 0)`,
+        costoInsumo: sql<string>`coalesce(sum(${costByTurn}), 0)`,
+        comision: sql<string>`coalesce(sum(${commissionExpr}), 0)`,
       })
       .from(turnos)
       .innerJoin(citas, eq(turnos.citaId, citas.id))
@@ -157,11 +185,16 @@ export async function getReportes(range: ReportRange) {
 
   const ingresos = Number(kpis[0]?.ingresos ?? 0);
   const costoInsumo = Number(kpis[0]?.costoInsumo ?? 0);
+  const comisiones = Number(kpis[0]?.comisiones ?? 0);
   const gastoTotal = Number(gastosPeriodo[0]?.total ?? 0);
   const citasTotal = noAsistencia[0]?.total ?? 0;
   const citasNoAsistio = noAsistencia[0]?.noAsistio ?? 0;
 
   return {
+    settings: {
+      comisionBase,
+      propinaEnComision,
+    },
     kpis: {
       turnos: kpis[0]?.turnos ?? 0,
       ingresos,
@@ -169,25 +202,33 @@ export async function getReportes(range: ReportRange) {
       ticket: Number(kpis[0]?.ticket ?? 0),
       costoInsumo,
       gastos: gastoTotal,
+      comisiones,
       margenBruto: ingresos - costoInsumo - gastoTotal,
+      utilidadNeta: ingresos - costoInsumo - gastoTotal - comisiones,
       tasaNoAsistencia: citasTotal ? citasNoAsistio / citasTotal : 0,
     },
     byService: byService.map((item) => {
       const ingreso = Number(item.ingresos);
       const costo = Number(item.costoInsumo);
+      const comision = Number(item.comision);
       return {
         ...item,
         ingresos: ingreso,
         costoInsumo: costo,
+        comision,
         margen: ingreso - costo,
+        utilidadNeta: ingreso - costo - comision,
         rentabilidad: ingreso ? (ingreso - costo) / ingreso : 0,
+        rentabilidadNeta: ingreso ? (ingreso - costo - comision) / ingreso : 0,
       };
     }),
     byEmployee: byEmployee.map((item) => ({
       ...item,
       ingresos: Number(item.ingresos),
       propinas: Number(item.propinas),
+      costoInsumo: Number(item.costoInsumo),
       comision: Number(item.comision),
+      utilidadNegocio: Number(item.ingresos) + Number(item.propinas) - Number(item.costoInsumo) - Number(item.comision),
     })),
     byPayment: byPayment.map((item) => ({
       ...item,

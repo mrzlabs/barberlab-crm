@@ -176,6 +176,19 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
                 <option value="dedicado">Dedicado</option>
               </select>
             </label>
+            <label className="grid gap-2 text-sm font-bold">
+              Base de comisión
+              <select className={input} name="comisionBase" defaultValue={negocio.comisionBase || "precio_final"}>
+                <option value="precio_final">Precio final</option>
+                <option value="precio_menos_descuento">Precio menos descuento</option>
+                <option value="precio_menos_insumo">Precio menos insumo</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-3 rounded-xl border bg-white/70 px-4 py-3 text-sm font-bold">
+              <input name="propinaEnComision" type="hidden" value="false" />
+              <input className="size-4 accent-violet-700" name="propinaEnComision" type="checkbox" value="true" defaultChecked={negocio.propinaEnComision} />
+              Propina comisionable
+            </label>
           </div>
           <button className="mt-5 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white" type="submit">
             Guardar cambios

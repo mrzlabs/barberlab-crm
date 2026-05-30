@@ -95,6 +95,8 @@ export const negocioSchema = z.object({
   plan: z.enum(["starter", "pro", "enterprise"]),
   estado: z.enum(["activo", "suspendido", "cancelado"]),
   modoAislamiento: z.enum(["multi_tenant", "dedicado"]),
+  comisionBase: z.enum(["precio_final", "precio_menos_descuento", "precio_menos_insumo"]).default("precio_final"),
+  propinaEnComision: z.coerce.boolean().default(false),
   fechaFin: z.string().min(10).optional().or(z.literal("")),
   adminEmail: z.string().email(),
   adminPassword: z.string().min(8).max(72),

@@ -160,6 +160,19 @@ export default async function NegociosPage() {
                 <option value="dedicado">Dedicado</option>
               </select>
             </div>
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-500">Regla contable</p>
+              <select className={input} name="comisionBase" defaultValue="precio_final">
+                <option value="precio_final">Comisión sobre precio final</option>
+                <option value="precio_menos_descuento">Comisión sobre precio menos descuento</option>
+                <option value="precio_menos_insumo">Comisión sobre precio menos insumo</option>
+              </select>
+              <label className="mt-2 flex items-center gap-2 text-xs font-bold text-slate-600">
+                <input name="propinaEnComision" type="hidden" value="false" />
+                <input className="size-4 accent-violet-700" name="propinaEnComision" type="checkbox" value="true" />
+                Incluir propina en comisión
+              </label>
+            </div>
             <input className={input} name="fechaFin" placeholder="Fecha renovación" type="date" />
 
             {/* admin */}

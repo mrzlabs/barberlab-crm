@@ -32,6 +32,8 @@ export async function updateMiNegocio(formData: FormData) {
     colorSecundario: payload.colorSecundario,
     colorAcento: payload.colorAcento,
     fuente: payload.fuente,
+    comisionBase: payload.comisionBase,
+    propinaEnComision: payload.propinaEnComision,
     updatedAt: new Date(),
   }).where(eq(negocios.id, payload.negocioId));
 

@@ -8,6 +8,12 @@ type PageProps = { searchParams?: Record<string, string | string[] | undefined> 
 
 function pct(value: number) { return `${(value * 100).toFixed(1)}%`; }
 
+const commissionBaseLabel: Record<string, string> = {
+  precio_final: "Precio final",
+  precio_menos_descuento: "Precio menos descuento",
+  precio_menos_insumo: "Precio menos insumo",
+};
+
 function KpiCard({
   label, value, detail, accent, icon,
 }: { label: string; value: string; detail: string; accent: string; icon: string }) {
@@ -100,11 +106,30 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
       </section>
 
       {/* ── KPIs ─── */}
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
-        <KpiCard label="Ingresos" value={fmtMoney(r.kpis.ingresos)} detail={`${r.kpis.turnos} turnos cerrados`} accent="border-l-4 border-l-cyan-400" icon="💰" />
-        <KpiCard label="Margen bruto" value={fmtMoney(r.kpis.margenBruto)} detail={`${fmtMoney(r.kpis.costoInsumo)} costo insumo`} accent="border-l-4 border-l-violet-400" icon="📈" />
-        <KpiCard label="Ticket promedio" value={fmtMoney(r.kpis.ticket)} detail={`${fmtMoney(r.kpis.propinas)} propinas`} accent="border-l-4 border-l-emerald-400" icon="🎫" />
-        <KpiCard label="No asistencia" value={pct(r.kpis.tasaNoAsistencia)} detail={`${fmtMoney(r.kpis.gastos)} gastos`} accent="border-l-4 border-l-amber-400" icon="⚠️" />
+      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <KpiCard label="Ingresos" value={fmtMoney(r.kpis.ingresos)} detail={`${r.kpis.turnos} turnos cerrados`} accent="border-l-4 border-l-cyan-400" icon="$" />
+        <KpiCard label="Utilidad neta" value={fmtMoney(r.kpis.utilidadNeta)} detail="Luego de insumos, gastos y comisiones" accent="border-l-4 border-l-emerald-400" icon="UN" />
+        <KpiCard label="Margen bruto" value={fmtMoney(r.kpis.margenBruto)} detail={`${fmtMoney(r.kpis.costoInsumo)} costo insumo`} accent="border-l-4 border-l-violet-400" icon="MB" />
+        <KpiCard label="Comisiones" value={fmtMoney(r.kpis.comisiones)} detail={commissionBaseLabel[r.settings.comisionBase] || "Precio final"} accent="border-l-4 border-l-amber-400" icon="%" />
+        <KpiCard label="Ticket promedio" value={fmtMoney(r.kpis.ticket)} detail={`${fmtMoney(r.kpis.propinas)} propinas`} accent="border-l-4 border-l-sky-400" icon="TP" />
+        <KpiCard label="Gastos" value={fmtMoney(r.kpis.gastos)} detail="Operación del periodo" accent="border-l-4 border-l-rose-400" icon="G" />
+        <KpiCard label="Costo insumo" value={fmtMoney(r.kpis.costoInsumo)} detail="Descuento por servicio cerrado" accent="border-l-4 border-l-teal-400" icon="CI" />
+        <KpiCard label="No asistencia" value={pct(r.kpis.tasaNoAsistencia)} detail="Citas no asistidas sobre citas totales" accent="border-l-4 border-l-orange-400" icon="NA" />
+      </section>
+
+      <section className="grid gap-3 rounded-2xl border bg-white p-4 shadow-sm sm:grid-cols-3">
+        <article>
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">Regla de comisión</p>
+          <strong className="mt-1 block text-sm">{commissionBaseLabel[r.settings.comisionBase] || "Precio final"}</strong>
+        </article>
+        <article>
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">Propina en comisión</p>
+          <strong className="mt-1 block text-sm">{r.settings.propinaEnComision ? "Incluida" : "No incluida"}</strong>
+        </article>
+        <article>
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">Editable por comercio</p>
+          <strong className="mt-1 block text-sm">Admin / Configuración</strong>
+        </article>
       </section>
 
       {/* ── Tendencias comerciales ─── */}
@@ -120,7 +145,7 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
                 <div className="h-full rounded-full bg-cyan-400 transition-all" style={{ width: `${Math.max(8, (topSvc.ingresos / maxSvc) * 100)}%` }} />
               </div>
               <strong className="mt-3 block text-xl font-black">{fmtMoney(topSvc.ingresos)}</strong>
-              <span className="text-xs text-slate-400">{topSvc.turnos} turnos · {pct(topSvc.rentabilidad)} margen</span>
+              <span className="text-xs text-slate-400">{topSvc.turnos} turnos · {pct(topSvc.rentabilidadNeta)} utilidad neta</span>
             </>
           ) : <p className="mt-3 text-sm text-slate-400">Sin turnos en el periodo.</p>}
         </article>
@@ -136,7 +161,7 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
                 <div className="h-full rounded-full bg-violet-500" style={{ width: `${Math.max(8, ((topEmp.ingresos + topEmp.propinas) / maxEmp) * 100)}%` }} />
               </div>
               <strong className="mt-3 block text-xl font-black">{fmtMoney(topEmp.ingresos + topEmp.propinas)}</strong>
-              <span className="text-xs text-slate-400">{topEmp.turnos} turnos · comisión {fmtMoney(topEmp.comision)}</span>
+              <span className="text-xs text-slate-400">{topEmp.turnos} turnos · utilidad {fmtMoney(topEmp.utilidadNegocio)}</span>
             </>
           ) : <p className="mt-3 text-sm text-slate-400">Sin producción por empleado.</p>}
         </article>
@@ -168,15 +193,17 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
             <span className="rounded-full bg-cyan-50 px-2.5 py-1 text-[10px] font-bold text-cyan-700">{r.byService.length} servicios</span>
           </div>
           <div className="overflow-x-auto scrollbar-soft">
-            <table className="w-full min-w-[600px] text-left text-sm">
+            <table className="w-full min-w-[860px] text-left text-sm">
               <thead className="bg-slate-950 text-[10px] uppercase tracking-wide text-cyan-100">
                 <tr>
                   <th className="px-5 py-3">Servicio</th>
                   <th className="px-5 py-3">Categoría</th>
                   <th className="px-4 py-3 text-right">Turnos</th>
                   <th className="px-4 py-3 text-right">Ingreso</th>
-                  <th className="px-4 py-3 text-right">Margen</th>
-                  <th className="px-4 py-3 text-right">Rent.</th>
+                  <th className="px-4 py-3 text-right">Costo</th>
+                  <th className="px-4 py-3 text-right">Comisión</th>
+                  <th className="px-4 py-3 text-right">Utilidad</th>
+                  <th className="px-4 py-3 text-right">Rent. neta</th>
                 </tr>
               </thead>
               <tbody>
@@ -186,16 +213,18 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
                     <td className="px-5 py-3.5 capitalize text-slate-500">{s.categoria.replace("_", " ")}</td>
                     <td className="px-4 py-3.5 text-right tabular-nums">{s.turnos}</td>
                     <td className="px-4 py-3.5 text-right tabular-nums font-semibold">{fmtMoney(s.ingresos)}</td>
-                    <td className="px-4 py-3.5 text-right tabular-nums font-black">{fmtMoney(s.margen)}</td>
+                    <td className="px-4 py-3.5 text-right tabular-nums">{fmtMoney(s.costoInsumo)}</td>
+                    <td className="px-4 py-3.5 text-right tabular-nums">{fmtMoney(s.comision)}</td>
+                    <td className="px-4 py-3.5 text-right tabular-nums font-black">{fmtMoney(s.utilidadNeta)}</td>
                     <td className="px-4 py-3.5 text-right">
-                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${s.rentabilidad >= 0.5 ? "bg-emerald-100 text-emerald-700" : s.rentabilidad >= 0.25 ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"}`}>
-                        {pct(s.rentabilidad)}
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${s.rentabilidadNeta >= 0.4 ? "bg-emerald-100 text-emerald-700" : s.rentabilidadNeta >= 0.2 ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"}`}>
+                        {pct(s.rentabilidadNeta)}
                       </span>
                     </td>
                   </tr>
                 ))}
                 {r.byService.length === 0 && (
-                  <tr><td className="px-5 py-8 text-center text-slate-400" colSpan={6}>Sin turnos en el periodo.</td></tr>
+                  <tr><td className="px-5 py-8 text-center text-slate-400" colSpan={8}>Sin turnos en el periodo.</td></tr>
                 )}
               </tbody>
             </table>
@@ -207,19 +236,21 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
           <div className="flex items-center justify-between border-b px-5 py-4">
             <div>
               <h3 className="font-black">Producción por empleado</h3>
-              <p className="text-xs text-slate-500">Producción, propinas y comisión estimada.</p>
+              <p className="text-xs text-slate-500">Producción, costo, comisión y utilidad para el negocio.</p>
             </div>
             <span className="rounded-full bg-violet-50 px-2.5 py-1 text-[10px] font-bold text-violet-700">{r.byEmployee.length} empleados</span>
           </div>
           <div className="overflow-x-auto scrollbar-soft">
-            <table className="w-full min-w-[520px] text-left text-sm">
+            <table className="w-full min-w-[760px] text-left text-sm">
               <thead className="bg-slate-950 text-[10px] uppercase tracking-wide text-cyan-100">
                 <tr>
                   <th className="px-5 py-3">Empleado</th>
                   <th className="px-5 py-3">Especialidad</th>
                   <th className="px-4 py-3 text-right">Turnos</th>
                   <th className="px-4 py-3 text-right">Producción</th>
+                  <th className="px-4 py-3 text-right">Costo</th>
                   <th className="px-4 py-3 text-right">Comisión</th>
+                  <th className="px-4 py-3 text-right">Utilidad</th>
                 </tr>
               </thead>
               <tbody>
@@ -229,11 +260,13 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
                     <td className="px-5 py-3.5 capitalize text-slate-500">{e.especialidad.replace("_", " ")}</td>
                     <td className="px-4 py-3.5 text-right tabular-nums">{e.turnos}</td>
                     <td className="px-4 py-3.5 text-right tabular-nums font-semibold">{fmtMoney(e.ingresos + e.propinas)}</td>
+                    <td className="px-4 py-3.5 text-right tabular-nums">{fmtMoney(e.costoInsumo)}</td>
                     <td className="px-4 py-3.5 text-right tabular-nums font-black text-violet-700">{fmtMoney(e.comision)}</td>
+                    <td className="px-4 py-3.5 text-right tabular-nums font-black text-emerald-700">{fmtMoney(e.utilidadNegocio)}</td>
                   </tr>
                 ))}
                 {r.byEmployee.length === 0 && (
-                  <tr><td className="px-5 py-8 text-center text-slate-400" colSpan={5}>Sin producción en el periodo.</td></tr>
+                  <tr><td className="px-5 py-8 text-center text-slate-400" colSpan={7}>Sin producción en el periodo.</td></tr>
                 )}
               </tbody>
             </table>

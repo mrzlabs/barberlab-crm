@@ -35,6 +35,8 @@ export async function createNegocio(formData: FormData) {
     plan: payload.plan,
     estado: payload.estado,
     modoAislamiento: payload.modoAislamiento,
+    comisionBase: payload.comisionBase,
+    propinaEnComision: payload.propinaEnComision,
     fechaInicio: new Date().toISOString().slice(0, 10),
     fechaFin: payload.fechaFin || renewalDate(30),
   }).returning({ id: negocios.id });
@@ -94,6 +96,8 @@ export async function updateNegocio(formData: FormData) {
     plan: payload.plan,
     estado: payload.estado,
     modoAislamiento: payload.modoAislamiento,
+    comisionBase: payload.comisionBase,
+    propinaEnComision: payload.propinaEnComision,
     fechaFin: payload.fechaFin || null,
     updatedAt: new Date(),
   }).where(eq(negocios.id, payload.id));

@@ -181,6 +181,23 @@ Admin cierra turnos en `/admin/turnos`.
 
 Empleado cierra sus turnos en `/empleado/cerrar-turno`.
 
+## Cálculos comerciales
+
+Cada comercio define su regla en `/admin/configuracion`:
+
+- Base de comisión: precio final, precio menos descuento o precio menos costo de insumo.
+- Propina comisionable: incluida o no incluida.
+
+`/admin/reportes` calcula:
+
+- Ingresos: `precio_final + propina`.
+- Costo de insumo: `servicio_insumos.cantidad * inventario.costo_unitario`.
+- Comisión: base configurada por comercio por `empleados.comision_pct`.
+- Margen bruto: ingresos menos costo de insumo menos gastos.
+- Utilidad neta: ingresos menos costo de insumo menos gastos menos comisiones.
+- Utilidad por servicio: ingresos del servicio menos costo de insumo menos comisión.
+- Utilidad por empleado: producción más propinas menos costo de insumo menos comisión.
+
 ## Plan de implementacion pendiente
 
 ### Fase A. Agenda operativa

@@ -71,6 +71,27 @@ export default async function ConfiguracionPage() {
           <label className="grid gap-2 text-sm font-bold">Color acento<input className={input} name="colorAcento" type="color" defaultValue={negocio.colorAcento} /></label>
           <label className="grid gap-2 text-sm font-bold">Fuente<input className={input} name="fuente" defaultValue={negocio.fuente} /></label>
         </div>
+        <div className="mt-5 rounded-[1.5rem] border bg-white p-4">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-violet-700">Reglas contables</p>
+          <div className="mt-3 grid gap-4 md:grid-cols-2">
+            <label className="grid gap-2 text-sm font-bold">
+              Base de comisión
+              <select className={input} name="comisionBase" defaultValue={negocio.comisionBase || "precio_final"}>
+                <option value="precio_final">Precio final del turno</option>
+                <option value="precio_menos_descuento">Precio menos descuento</option>
+                <option value="precio_menos_insumo">Precio menos costo de insumo</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-3 rounded-xl border bg-slate-50 px-4 py-3 text-sm font-bold">
+              <input name="propinaEnComision" type="hidden" value="false" />
+              <input className="size-4 accent-violet-700" name="propinaEnComision" type="checkbox" value="true" defaultChecked={negocio.propinaEnComision} />
+              Incluir propina en comisión
+            </label>
+          </div>
+          <p className="mt-3 text-xs leading-5 text-slate-500">
+            Esta regla alimenta reportes, utilidad neta, utilidad por empleado y utilidad por servicio.
+          </p>
+        </div>
         <button className="mt-5 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white" type="submit">Guardar configuracion</button>
       </form>
     </div>

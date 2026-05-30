@@ -47,6 +47,8 @@ export const negocios = pgTable("negocios", {
   plan: text("plan").notNull().default("starter"),
   estado: text("estado").notNull().default("activo"),
   modoAislamiento: text("modo_aislamiento").notNull().default("multi_tenant"),
+  comisionBase: text("comision_base").notNull().default("precio_final"),
+  propinaEnComision: boolean("propina_en_comision").notNull().default(false),
   fechaInicio: date("fecha_inicio").notNull(),
   fechaFin: date("fecha_fin"),
   ...timestamps,
