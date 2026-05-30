@@ -2,26 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ThemeApplier } from "@/components/layout/ThemeApplier";
+import { AnimatedGrid } from "@/components/layout/AnimatedGrid";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { BottomTabBar } from "@/components/layout/BottomTabBar";
+import { BackButton } from "@/components/layout/BackButton";
+import { PageTransition } from "@/components/layout/PageTransition";
+import { navStyles } from "@/components/layout/nav-config";
 import {
-  BarChart3,
   Bell,
-  Boxes,
-  CalendarDays,
   ChevronLeft,
   ChevronRight,
   CircleHelp,
-  ClipboardCheck,
-  CreditCard,
-  LayoutDashboard,
   LogOut,
   Menu,
-  Scissors,
   Search,
-  Settings,
   Sparkles,
-  Users,
   X,
   TrendingUp,
   ArrowRight,
@@ -30,15 +27,11 @@ import {
 } from "lucide-react";
 import type { UserRole } from "@/lib/auth/roles";
 import type { CurrentProfile } from "@/lib/auth/session";
+import type { ConfigVisual } from "@/lib/db/schema";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type NavItem = { href: string; label: string };
-type NavStyle = {
-  icon: React.ComponentType<{ className?: string }>;
-  tone: string;
-  shape: "circle" | "squircle" | "square";
-};
 type HelpTopic = {
   title: string;
   body: string;
@@ -48,26 +41,7 @@ type HelpTopic = {
   href?: string;
 };
 
-// ─── Nav styles ──────────────────────────────────────────────────────────────
-
-const navStyles: Record<string, NavStyle> = {
-  Dashboard:     { icon: LayoutDashboard, tone: "bg-indigo-600 text-white shadow-indigo-500/40",                       shape: "squircle" },
-  Agenda:        { icon: CalendarDays,    tone: "bg-emerald-500 text-white shadow-emerald-400/40",                     shape: "circle"   },
-  Turnos:        { icon: ClipboardCheck,  tone: "bg-gradient-to-br from-orange-500 to-amber-400 text-white shadow-orange-400/40", shape: "squircle" },
-  Gastos:        { icon: CreditCard,      tone: "bg-rose-500 text-white shadow-rose-400/40",                           shape: "square"   },
-  Inventario:    { icon: Boxes,           tone: "bg-lime-500 text-slate-900 shadow-lime-400/40",                       shape: "squircle" },
-  Servicios:     { icon: Scissors,        tone: "bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white shadow-violet-500/40", shape: "circle" },
-  Empleados:     { icon: Users,           tone: "bg-sky-500 text-white shadow-sky-400/40",                             shape: "circle"   },
-  Clientes:      { icon: Users,           tone: "bg-teal-500 text-white shadow-teal-400/40",                           shape: "circle"   },
-  Reportes:      { icon: BarChart3,       tone: "bg-gradient-to-br from-slate-700 to-violet-700 text-white shadow-violet-700/40", shape: "squircle" },
-  Configuracion: { icon: Settings,        tone: "bg-gradient-to-br from-cyan-600 to-teal-500 text-white shadow-cyan-500/40", shape: "squircle" },
-  "Mi agenda":   { icon: CalendarDays,    tone: "bg-emerald-500 text-white shadow-emerald-400/40",                     shape: "circle"   },
-  "Cerrar turno":{ icon: ClipboardCheck,  tone: "bg-gradient-to-br from-orange-500 to-amber-400 text-white shadow-orange-400/40", shape: "squircle" },
-  Reservar:      { icon: CalendarDays,    tone: "bg-cyan-500 text-white shadow-cyan-400/40",                           shape: "circle"   },
-  "Mis citas":   { icon: ClipboardCheck,  tone: "bg-violet-600 text-white shadow-violet-500/40",                       shape: "squircle" },
-};
-
-// ─── Help topics (Odoo-style detail) ─────────────────────────────────────────
+// ─── Help topics ─────────────────────────────────────────────────────────────
 
 const helpTopics: Record<UserRole, HelpTopic[]> = {
   super_admin: [
@@ -141,11 +115,10 @@ const helpTopics: Record<UserRole, HelpTopic[]> = {
     },
     {
       title: "Gastos",
-      body: "El módulo de gastos registra todos los egresos del negocio: arriendos, servicios, compras de insumos, comisiones externas y gastos operativos. Estos datos alimentan el flujo de caja en los reportes.",
+      body: "El módulo de gastos registra todos los egresos del negocio: arriendos, servicios, compras de insumos, comisiones externas y gastos operativos.",
       steps: [
         "Registra cada gasto con categoría, monto, fecha y método de pago.",
         "Asigna gastos a categorías como Insumos, Arriendo, Marketing, Personal u Otros.",
-        "Los gastos recurrentes (arriendo, servicios públicos) se pueden marcar como mensuales.",
         "El total de gastos aparece en el reporte de rentabilidad junto a los ingresos por turnos.",
         "Adjunta referencia o número de factura para trazabilidad contable.",
       ],
@@ -164,7 +137,6 @@ const helpTopics: Record<UserRole, HelpTopic[]> = {
         "Cada vez que se cierra un turno, el sistema descuenta los insumos asociados al servicio.",
         "Las alertas de stock bajo aparecen en el dashboard y en la campana de notificaciones.",
         "Registra entradas de inventario (compras) para actualizar stock y costo promedio.",
-        "La vista de productos muestra qué insumos están críticos, normales o con exceso.",
       ],
       tips: [
         "Define el stock mínimo como la cantidad que necesitas para una semana de operación.",
@@ -175,13 +147,12 @@ const helpTopics: Record<UserRole, HelpTopic[]> = {
     },
     {
       title: "Servicios",
-      body: "El catálogo de servicios define qué ofrece el negocio: corte, barba, coloración, tratamientos, combos. Cada servicio tiene precio, duración, costo de insumos y especialidades asignadas.",
+      body: "El catálogo de servicios define qué ofrece el negocio: corte, barba, coloración, tratamientos, combos.",
       steps: [
         "Crea un servicio con nombre, descripción, precio de venta y duración estimada.",
         "Asigna el costo de insumos para calcular margen real por servicio.",
         "Vincula el servicio a los empleados que pueden realizarlo (por especialidad).",
         "Los servicios activos aparecen en la vista de reserva del cliente.",
-        "Desactiva servicios temporalmente sin eliminarlos para mantener el historial.",
       ],
       tips: [
         "Agrupa servicios en combos para aumentar el ticket promedio.",
@@ -192,13 +163,12 @@ const helpTopics: Record<UserRole, HelpTopic[]> = {
     },
     {
       title: "Empleados",
-      body: "Gestiona el equipo: crea perfiles con especialidad, estado, comisión y credenciales de acceso. Cada empleado ve solo sus citas y puede cerrar sus propios turnos.",
+      body: "Gestiona el equipo: crea perfiles con especialidad, estado, comisión y credenciales de acceso.",
       steps: [
         "Crea el perfil del empleado con nombre, especialidad y porcentaje de comisión.",
         "Asigna las credenciales de acceso para que el empleado entre al CRM como rol 'empleado'.",
         "Carga los horarios semanales del empleado (días y horas disponibles).",
         "Registra bloqueos para vacaciones, festivos o citas personales.",
-        "El estado 'activo/inactivo' controla si el empleado aparece disponible para agendar.",
       ],
       tips: [
         "Los horarios y bloqueos son la fuente de verdad para la disponibilidad en la agenda.",
@@ -215,7 +185,6 @@ const helpTopics: Record<UserRole, HelpTopic[]> = {
         "El sistema registra automáticamente cada cita y turno cerrado en su historial.",
         "Consulta el historial para conocer preferencias, servicios frecuentes y antigüedad.",
         "Agrega notas internas (alergias, preferencias de corte, condiciones especiales).",
-        "Usa el filtro por fecha de última visita para identificar clientes inactivos.",
       ],
       tips: [
         "El ticket promedio por cliente se calcula automáticamente desde los turnos cerrados.",
@@ -245,35 +214,30 @@ const helpTopics: Record<UserRole, HelpTopic[]> = {
   empleado: [
     {
       title: "Mi agenda",
-      body: "Como empleado, tu agenda muestra todas tus citas del día organizadas por hora. Puedes ver el nombre del cliente, el servicio asignado, la duración estimada y el estado de cada cita.",
+      body: "Como empleado, tu agenda muestra todas tus citas del día organizadas por hora.",
       steps: [
         "Revisa tu agenda al inicio del turno para conocer la carga del día.",
         "Las citas en estado 'pendiente' necesitan tu confirmación antes de atender.",
-        "Contacta al cliente por WhatsApp si necesitas confirmar horario o datos del servicio.",
-        "Marca la cita como 'en proceso' cuando el cliente llega y como 'realizada' al terminar.",
-        "Las citas realizadas quedan disponibles para cierre de turno desde la sección de turnos.",
+        "Marca la cita como 'realizada' al terminar el servicio.",
+        "Las citas realizadas quedan disponibles para cierre de turno.",
       ],
       tips: [
         "Si un cliente no llega, márcala como 'no asistió' para mantener el registro limpio.",
-        "El admin puede ver tu agenda completa en cualquier momento desde /admin/agenda.",
       ],
       cta: "Ver mi agenda",
       href: "/empleado/mi-agenda",
     },
     {
       title: "Cerrar turno",
-      body: "El cierre de turno es el paso final de cada atención. Aquí registras el cobro: precio final, propina, método de pago y descuento. Este registro alimenta la caja del negocio y tus comisiones.",
+      body: "El cierre de turno es el paso final de cada atención. Registras el cobro: precio final, propina, método de pago y descuento.",
       steps: [
         "Entra a 'Cerrar turno' después de realizar el servicio.",
-        "Selecciona la cita que acabas de completar de la lista de citas realizadas.",
-        "Confirma el precio final (puede diferir del base por servicios adicionales).",
-        "Registra si el cliente dio propina y el método de pago usado.",
-        "Agrega observaciones si el servicio fue diferente al original.",
-        "Guarda el turno: el registro queda en caja y se calcula tu comisión automáticamente.",
+        "Selecciona la cita que acabas de completar.",
+        "Confirma el precio final y registra el método de pago.",
+        "Guarda el turno: el registro queda en caja.",
       ],
       tips: [
         "Cierra cada turno en el momento para evitar errores al final del día.",
-        "La propina es tuya y queda registrada por separado de la comisión del servicio.",
       ],
       cta: "Cerrar turno",
       href: "/empleado/cerrar-turno",
@@ -282,53 +246,37 @@ const helpTopics: Record<UserRole, HelpTopic[]> = {
   cliente: [
     {
       title: "Reservar cita",
-      body: "Reserva tu próxima cita en segundos: elige el servicio que quieres, el especialista de tu preferencia y el horario disponible. El sistema solo te muestra horas reales, no slots vacíos.",
+      body: "Reserva tu próxima cita en segundos: elige el servicio, el especialista y el horario disponible.",
       steps: [
-        "Entra a 'Reservar' y elige el servicio que necesitas (corte, barba, combo, etc.).",
-        "Selecciona el especialista de tu preferencia o elige 'cualquier disponible'.",
-        "El sistema muestra solo los horarios reales disponibles para ese empleado.",
-        "Confirma el horario y escribe una nota si tienes alguna preferencia especial.",
-        "Tu cita queda en estado 'reservada'. El negocio la confirma cuando abre el turno.",
-        "Recibes confirmación y puedes revisar el estado en 'Mis citas'.",
+        "Elige el servicio que necesitas.",
+        "Selecciona el especialista de tu preferencia.",
+        "Confirma el horario disponible.",
+        "Tu cita queda en estado 'reservada'.",
       ],
-      tips: [
-        "Reserva con al menos 24 horas de anticipación para asegurar tu horario.",
-        "Si necesitas cambiar la cita, cancela desde 'Mis citas' y vuelve a reservar.",
-      ],
+      tips: ["Reserva con al menos 24 horas de anticipación."],
       cta: "Reservar ahora",
       href: "/cliente/reservar",
     },
     {
       title: "Mis citas",
-      body: "En 'Mis citas' puedes ver el historial completo de tus reservas: pasadas, próximas y pendientes de confirmación. También puedes ver el detalle de cada servicio recibido.",
+      body: "Consulta el historial completo de tus reservas: pasadas, próximas y pendientes de confirmación.",
       steps: [
-        "Consulta el estado de tu reserva más reciente en la parte superior.",
-        "Las citas 'reservadas' están esperando confirmación del negocio.",
-        "Las citas 'confirmadas' están agendadas y listas para la fecha indicada.",
-        "Puedes cancelar una cita con al menos 2 horas de anticipación.",
-        "El historial muestra todos los servicios que has recibido y las fechas.",
+        "Consulta el estado de tu reserva más reciente.",
+        "Las citas 'confirmadas' están agendadas y listas.",
+        "Puedes cancelar con al menos 2 horas de anticipación.",
       ],
-      tips: [
-        "Activa notificaciones en tu teléfono para recibir confirmaciones por WhatsApp.",
-        "Si tienes dudas sobre una cita, contacta directamente al negocio con el número de reserva.",
-      ],
+      tips: ["Contacta directamente al negocio si tienes dudas sobre una cita."],
       cta: "Ver mis citas",
       href: "/cliente/mis-citas",
     },
     {
       title: "Productos",
-      body: "Descubre los productos de cuidado capilar y barbería disponibles para compra en sede. Puedes consultar los recomendados según tu tipo de cabello o solicitar uno por WhatsApp.",
+      body: "Descubre los productos de cuidado capilar disponibles para compra en sede.",
       steps: [
-        "Revisa el catálogo de productos disponibles en la sección de reservas.",
-        "Consulta la descripción y el precio de cada producto.",
-        "Para comprar, solicítalo directamente en el local durante tu próxima visita.",
-        "También puedes pedirlo por WhatsApp con el nombre exacto del producto.",
-        "Los productos recomendados cambian según la temporada y el stock disponible.",
+        "Revisa el catálogo de productos disponibles.",
+        "Para comprar, solicítalo directamente en el local.",
       ],
-      tips: [
-        "Pregunta a tu especialista qué productos se usaron en tu servicio para replicar el resultado.",
-        "Los combos de producto + servicio suelen tener precio preferencial.",
-      ],
+      tips: ["Pregunta a tu especialista qué productos se usaron en tu servicio."],
       cta: "Reservar y comprar",
       href: "/cliente/reservar",
     },
@@ -339,235 +287,18 @@ const helpTopics: Record<UserRole, HelpTopic[]> = {
 
 type AppAlert = { label: string; tone: string; href: string; detail: string };
 
-// ─── SpiralCanvas ────────────────────────────────────────────────────────────
-
-function SpiralCanvas({ className }: { className?: string }) {
-  const ref = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const cv = ref.current;
-    if (!cv) return;
-    const ctx = cv.getContext("2d");
-    if (!ctx) return;
-
-    let W = 0, H = 0;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-    const fit = () => {
-      const rect = cv.parentElement!.getBoundingClientRect();
-      W = rect.width; H = rect.height;
-      cv.width = W * dpr; cv.height = H * dpr;
-      cv.style.width = `${W}px`; cv.style.height = `${H}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    fit();
-    const ro = new ResizeObserver(fit);
-    ro.observe(cv.parentElement!);
-
-    const defs = [
-      { fx: 0.10, fy: 0.20, fr: 0.30, turns: 4.5, spd:  0.00016, col: "109,40,217", a: 0.07 },
-      { fx: 0.90, fy: 0.78, fr: 0.32, turns: 5.0, spd: -0.00013, col: "109,40,217", a: 0.06 },
-      { fx: 0.52, fy: 0.06, fr: 0.24, turns: 3.5, spd:  0.00020, col: "34,211,238", a: 0.05 },
-      { fx: 0.18, fy: 0.88, fr: 0.28, turns: 4.0, spd: -0.00015, col: "109,40,217", a: 0.055 },
-      { fx: 0.84, fy: 0.14, fr: 0.26, turns: 3.5, spd:  0.00018, col: "34,211,238", a: 0.042 },
-      { fx: 0.50, fy: 0.52, fr: 0.20, turns: 3.0, spd: -0.00010, col: "109,40,217", a: 0.035 },
-    ];
-    const rots = defs.map(() => Math.random() * Math.PI * 2);
-    const STEPS = 260;
-    let raf = 0;
-
-    const tick = () => {
-      ctx.clearRect(0, 0, W, H);
-      const min = Math.min(W, H);
-      for (let s = 0; s < defs.length; s++) {
-        const d = defs[s];
-        rots[s] += d.spd;
-        const cx = d.fx * W, cy = d.fy * H, maxR = d.fr * min;
-        ctx.beginPath();
-        for (let i = 0; i <= STEPS; i++) {
-          const t = i / STEPS;
-          const angle = t * d.turns * Math.PI * 2 + rots[s];
-          const r = t * maxR;
-          const x = cx + r * Math.cos(angle);
-          const y = cy + r * Math.sin(angle);
-          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-        }
-        ctx.strokeStyle = `rgba(${d.col},${d.a})`;
-        ctx.lineWidth = 1.3;
-        ctx.lineCap = "round";
-        ctx.stroke();
-      }
-      raf = requestAnimationFrame(tick);
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
-  }, []);
-
-  return <canvas ref={ref} className={className} aria-hidden="true" />;
-}
-
-// ─── NeuralCanvas ─────────────────────────────────────────────────────────────
-
-type Particle = { x: number; y: number; vx: number; vy: number; baseR: number; pulse: number };
-type Pulse = { a: number; b: number; t: number; dur: number };
-
-function NeuralCanvas({
-  className,
-  density = 70,
-  speed = 0.16,
-  nodeColor = "216, 180, 254",
-  lineColor = "167, 139, 250",
-  glowColor = "192, 132, 252",
-}: {
-  className?: string;
-  density?: number;
-  speed?: number;
-  nodeColor?: string;
-  lineColor?: string;
-  glowColor?: string;
-}) {
-  const ref = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const cv = ref.current;
-    if (!cv) return;
-    const ctx = cv.getContext("2d");
-    if (!ctx) return;
-
-    let W = 0;
-    let H = 0;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-    const fit = () => {
-      const rect = cv.parentElement!.getBoundingClientRect();
-      W = rect.width;
-      H = rect.height;
-      cv.width = W * dpr;
-      cv.height = H * dpr;
-      cv.style.width = `${W}px`;
-      cv.style.height = `${H}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    fit();
-
-    const ro = new ResizeObserver(fit);
-    ro.observe(cv.parentElement!);
-
-    const particles: Particle[] = Array.from({ length: density }, () => ({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      vx: (Math.random() - 0.5) * speed,
-      vy: (Math.random() - 0.5) * speed,
-      baseR: 1.2 + Math.random() * 1.6,
-      pulse: Math.random() * Math.PI * 2,
-    }));
-
-    const pulses: Pulse[] = [];
-    const MAX_DIST = 150;
-
-    const spawnPulse = () => {
-      const a = Math.floor(Math.random() * particles.length);
-      const candidates: number[] = [];
-      for (let i = 0; i < particles.length; i++) {
-        if (i === a) continue;
-        const dx = particles[a].x - particles[i].x;
-        const dy = particles[a].y - particles[i].y;
-        if (dx * dx + dy * dy < MAX_DIST * MAX_DIST) candidates.push(i);
-      }
-      if (!candidates.length) return;
-      const b = candidates[Math.floor(Math.random() * candidates.length)];
-      pulses.push({ a, b, t: 0, dur: 1200 + Math.random() * 1600 });
-    };
-
-    let last = performance.now();
-    let pulseTimer = 0;
-    let raf = 0;
-
-    const tick = (now: number) => {
-      const dt = now - last;
-      last = now;
-      pulseTimer += dt;
-      if (pulseTimer > 300) { spawnPulse(); pulseTimer = 0; }
-
-      ctx.clearRect(0, 0, W, H);
-
-      for (const p of particles) {
-        p.x += p.vx; p.y += p.vy; p.pulse += 0.012;
-        if (p.x < 0 || p.x > W) p.vx *= -1;
-        if (p.y < 0 || p.y > H) p.vy *= -1;
-      }
-
-      ctx.lineCap = "round";
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const d2 = dx * dx + dy * dy;
-          if (d2 > MAX_DIST * MAX_DIST) continue;
-          const alpha = (1 - Math.sqrt(d2) / MAX_DIST) * 0.3;
-          ctx.strokeStyle = `rgba(${lineColor}, ${alpha})`;
-          ctx.lineWidth = 0.7;
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.stroke();
-        }
-      }
-
-      for (let k = pulses.length - 1; k >= 0; k--) {
-        const pl = pulses[k];
-        pl.t += dt;
-        const prog = pl.t / pl.dur;
-        if (prog >= 1) { pulses.splice(k, 1); continue; }
-        const A = particles[pl.a]; const B = particles[pl.b];
-        const x = A.x + (B.x - A.x) * prog;
-        const y = A.y + (B.y - A.y) * prog;
-        const fade = Math.sin(prog * Math.PI);
-        ctx.strokeStyle = `rgba(${nodeColor}, ${0.5 * fade})`;
-        ctx.lineWidth = 1.2;
-        ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.stroke();
-        ctx.fillStyle = `rgba(${nodeColor}, ${0.9 * fade})`;
-        ctx.shadowColor = `rgba(${glowColor}, 0.9)`;
-        ctx.shadowBlur = 14;
-        ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-
-      for (const p of particles) {
-        const breath = 0.6 + Math.sin(p.pulse) * 0.25;
-        ctx.fillStyle = `rgba(${nodeColor}, ${0.72 * breath})`;
-        ctx.shadowColor = `rgba(${glowColor}, 0.85)`;
-        ctx.shadowBlur = 9;
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.baseR, 0, Math.PI * 2); ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-
-      raf = requestAnimationFrame(tick);
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
-  }, [density, speed, nodeColor, lineColor, glowColor]);
-
-  return <canvas ref={ref} className={className} aria-hidden="true" />;
-}
-
 // ─── BotIcon ──────────────────────────────────────────────────────────────────
 
 function BotIcon() {
   return (
     <span className="relative flex h-9 w-8 items-end justify-center" aria-hidden="true">
-      {/* antenna */}
       <span className="absolute left-1/2 top-0 h-2 w-px -translate-x-1/2 rounded-full bg-violet-300" />
       <span className="absolute left-1/2 top-0 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-400 shadow-[0_0_10px_3px_rgba(167,139,250,.85)]" />
-      {/* head */}
       <span className="absolute left-0 top-2.5 h-[22px] w-8 rounded-xl border border-violet-300/60 bg-slate-950 shadow-[0_0_16px_rgba(124,58,237,.55)]">
         <span className="absolute left-1.5 top-[7px] size-1 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,.95)]" />
         <span className="absolute right-1.5 top-[7px] size-1 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,.95)]" />
         <span className="absolute bottom-1 left-1/2 h-px w-3 -translate-x-1/2 rounded-full bg-cyan-300/70" />
       </span>
-      {/* body */}
       <span className="absolute bottom-0 left-1/2 h-3.5 w-5 -translate-x-1/2 rounded-b-lg rounded-t-sm border border-violet-300/40 bg-violet-950/80" />
     </span>
   );
@@ -583,7 +314,6 @@ function LogoMark({ brand }: { brand?: CurrentProfile }) {
       </div>
     );
   }
-
   return (
     <div className="relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/50 text-white shadow-xl shadow-violet-950/25" style={{ backgroundColor: brand?.colorPrimario || "#0f172a" }}>
       <span className="absolute inset-0 opacity-80" style={{ background: `radial-gradient(circle at 20% 10%, ${brand?.colorSecundario || "#22d3ee"}, transparent 1.2rem), radial-gradient(circle at 78% 82%, ${brand?.colorAcento || "#7c3aed"}, transparent 1.4rem)` }} />
@@ -606,9 +336,16 @@ function hexAlpha(hex: string, alpha: number): string {
 }
 
 export function AppChrome({
-  role, title, nav, mode, children, brand, alerts = [],
+  role, title, nav, mode, children, brand, alerts = [], configVisual,
 }: {
-  role: UserRole; title: string; nav: NavItem[]; mode: string; children: React.ReactNode; brand?: CurrentProfile; alerts?: AppAlert[];
+  role: UserRole;
+  title: string;
+  nav: NavItem[];
+  mode: string;
+  children: React.ReactNode;
+  brand?: CurrentProfile;
+  alerts?: AppAlert[];
+  configVisual?: ConfigVisual | null;
 }) {
   const [open, setOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -619,7 +356,6 @@ export function AppChrome({
   const [topicIndex, setTopicIndex] = useState(0);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  // Bot corner roam: "right" | "left", fades out then teleports
   const [botSide, setBotSide] = useState<"right" | "left">("right");
   const [botVisible, setBotVisible] = useState(true);
 
@@ -630,6 +366,7 @@ export function AppChrome({
   const primaryColor  = brand?.colorPrimario  || "#111827";
   const secondaryColor = brand?.colorSecundario || "#22d3ee";
   const accentColor   = brand?.colorAcento    || "#7c3aed";
+  const bgPhotoUrl    = configVisual?.bgPhotoUrl;
 
   useEffect(() => {
     if (botOpen) return;
@@ -643,7 +380,7 @@ export function AppChrome({
     return () => window.clearInterval(id);
   }, [botOpen]);
 
-  const botPosClass = botSide === "right" ? "right-4" : "left-4";
+  const botPosClass   = botSide === "right" ? "right-4" : "left-4";
   const panelPosClass = botSide === "right" ? "right-4" : "left-4";
 
   return (
@@ -656,7 +393,6 @@ export function AppChrome({
         fontFamily: `${brand?.fuente || "Inter"}, Inter, Segoe UI, Roboto, Arial, sans-serif`,
       }}
     >
-      {/* aplica CSS vars del negocio al DOM */}
       <ThemeApplier
         primary={primaryColor}
         secondary={secondaryColor}
@@ -664,8 +400,22 @@ export function AppChrome({
         fuente={brand?.fuente ?? "Outfit"}
       />
 
-      {/* ── Logo/foto como fondo difuminado ─────────────────────── */}
-      {brand?.logoUrl && (
+      {/* ── Negocio background photo (blur layer) ───────────────── */}
+      {bgPhotoUrl && (
+        <div
+          className="pointer-events-none fixed inset-0 -z-30"
+          style={{
+            backgroundImage: `url(${bgPhotoUrl})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            opacity: 0.15,
+            filter: "blur(60px)",
+          }}
+        />
+      )}
+
+      {/* ── Static gradient + logo blur (behind grid) ───────────── */}
+      {brand?.logoUrl && !bgPhotoUrl && (
         <div
           className="pointer-events-none fixed inset-0 -z-20"
           style={{
@@ -678,21 +428,10 @@ export function AppChrome({
         />
       )}
 
-      {/* ── Background ──────────────────────────────────────────── */}
-      <div className="fixed inset-0 -z-10">
+      {/* ── Background gradient + AnimatedGrid ──────────────────── */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(155deg,#eef7fb_0%,#f7f4ff_46%,#fbfdff_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_45%_at_8%_2%,rgba(34,211,238,.12),transparent),radial-gradient(ellipse_50%_40%_at_92%_5%,rgba(124,58,237,.14),transparent),radial-gradient(ellipse_55%_45%_at_50%_98%,rgba(20,184,166,.09),transparent)]" />
-        {/* espirales Archimedeas girando lentamente */}
-        <SpiralCanvas className="absolute inset-0 h-full w-full" />
-        {/* puntos neurales + líneas encima */}
-        <NeuralCanvas
-          className="absolute inset-0 h-full w-full"
-          density={130}
-          speed={0.13}
-          nodeColor="167,139,250"
-          lineColor="139,92,246"
-          glowColor="124,58,237"
-        />
+        <AnimatedGrid className="absolute inset-0" lineOpacity={0.12} accentOpacity={0.22} />
       </div>
 
       {/* ── Mobile overlay ──────────────────────────────────────── */}
@@ -702,7 +441,7 @@ export function AppChrome({
 
       {/* ── Sidebar ─────────────────────────────────────────────── */}
       <aside
-        className={`glass-sidebar fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(19rem,86vw)] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}
+        className={`glass-sidebar fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-[350ms] [transition-timing-function:cubic-bezier(0.4,0,0.2,1.2)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(19rem,86vw)] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}
         style={{ background: hexAlpha(primaryColor, 0.88) }}
       >
         {/* header */}
@@ -757,32 +496,27 @@ export function AppChrome({
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
               return (
                 <Link
-                  className={`group flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition ${
-                    isActive
-                      ? "bg-white/18 text-white shadow-sm"
-                      : "text-white/75 hover:bg-white/10 hover:text-white"
-                  } ${open ? "justify-start" : "justify-center"}`}
-                  href={item.href}
                   key={item.href}
+                  href={item.href}
                   onClick={() => setMobileOpen(false)}
+                  className={`group flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-all duration-150 ${open ? "justify-start" : "justify-center"} ${isActive ? "text-white shadow-sm" : "text-white/70 hover:text-white"}`}
+                  style={isActive
+                    ? { background: `linear-gradient(135deg, ${hexAlpha(primaryColor, 0.6)}, ${hexAlpha(secondaryColor, 0.4)})`, boxShadow: `inset 0 0 0 1px ${hexAlpha(secondaryColor, 0.3)}` }
+                    : undefined}
+                  onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.10)"; }}
+                  onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = ""; }}
                 >
-                  <span className={`grid size-9 shrink-0 place-items-center shadow-sm transition group-hover:scale-105 ${isActive ? "scale-105 shadow-md" : ""} ${shapeClass} ${style.tone}`}>
+                  <span className={`grid size-9 shrink-0 place-items-center shadow-sm transition-transform group-hover:scale-105 ${isActive ? "scale-105 shadow-md" : ""} ${shapeClass} ${style.tone}`}>
                     <Icon className="size-[17px]" />
                   </span>
-                  {open && (
-                    <span className="flex-1 truncate text-[13.5px] leading-none">
-                      {item.label}
-                    </span>
-                  )}
-                  {open && isActive && (
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white opacity-60" />
-                  )}
+                  {open && <span className="flex-1 truncate text-[13.5px] leading-none">{item.label}</span>}
+                  {open && isActive && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white opacity-70" />}
                 </Link>
               );
             })}
           </nav>
 
-          {/* alerts panel in sidebar */}
+          {/* alerts in sidebar */}
           {open && !alertsHidden && alerts.length > 0 && (
             <section className="mt-5 rounded-3xl border border-white/15 bg-white/10 p-4 shadow-sm">
               <div className="flex items-center justify-between">
@@ -811,7 +545,7 @@ export function AppChrome({
           )}
         </div>
 
-        {/* ── Perfil usuario ──────────────────────────────────── */}
+        {/* profile */}
         <div className={`border-t border-white/10 p-3 ${open ? "" : "flex justify-center"}`}>
           <button
             className={`flex w-full items-center gap-3 rounded-2xl p-2 text-left transition hover:bg-white/12 ${open ? "" : "justify-center"}`}
@@ -819,32 +553,28 @@ export function AppChrome({
             type="button"
           >
             {brand?.logoUrl ? (
-              <img
-                src={brand.logoUrl}
-                alt=""
-                className="size-9 shrink-0 rounded-full border-2 border-white/30 object-cover shadow-md"
-              />
+              <img src={brand.logoUrl} alt="" className="size-9 shrink-0 rounded-full border-2 border-white/30 object-cover shadow-md" />
             ) : (
-              <div
-                className="grid size-9 shrink-0 place-items-center rounded-full text-sm font-black text-white shadow-md"
-                style={{ background: `linear-gradient(135deg, ${accentColor}, ${hexAlpha(accentColor, 0.5)})` }}
-              >
+              <div className="grid size-9 shrink-0 place-items-center rounded-full text-sm font-black text-white shadow-md"
+                style={{ background: `linear-gradient(135deg, ${accentColor}, ${hexAlpha(accentColor, 0.5)})` }}>
                 {(brand?.nombre ?? role).slice(0, 1).toUpperCase()}
               </div>
             )}
             {open && (
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-bold text-white">{brand?.nombre ?? "Usuario"}</p>
-                <p className="truncate text-[11px] font-medium capitalize text-white/60">{role} · {brand?.negocioNombre ?? "BarberLab"}</p>
-              </div>
+              <>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-bold text-white">{brand?.nombre ?? "Usuario"}</p>
+                  <p className="truncate text-[11px] font-medium capitalize text-white/60">{role} · {brand?.negocioNombre ?? "BarberLab"}</p>
+                </div>
+                <ChevronRight className="size-3.5 shrink-0 text-white/40" />
+              </>
             )}
-            {open && <ChevronRight className="size-3.5 shrink-0 text-white/40" />}
           </button>
         </div>
       </aside>
 
       {/* ── Main area ───────────────────────────────────────────── */}
-      <div className={`min-h-dvh pb-14 transition-[padding] duration-300 ${open ? "lg:pl-[19rem]" : "lg:pl-[5.2rem]"}`}>
+      <div className={`min-h-dvh pb-28 transition-[padding] duration-300 lg:pb-14 ${open ? "lg:pl-[19rem]" : "lg:pl-[5.2rem]"}`}>
         {/* topbar */}
         <header
           className="sticky top-0 z-20 border-b border-white/15 px-4 py-3 backdrop-blur-[32px]"
@@ -856,7 +586,7 @@ export function AppChrome({
                 <Menu className="size-4" />
               </button>
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-cyan-700">MRZLABS / CRM</p>
+                <Breadcrumb />
                 <h2 className="text-xl font-black tracking-tight text-slate-950 sm:text-2xl">{title}</h2>
               </div>
             </div>
@@ -868,9 +598,7 @@ export function AppChrome({
                 aria-label="Ver alarmas"
               >
                 <Bell className="size-4.5" />
-                {!alertsHidden && alerts.length > 0 && (
-                  <span className="absolute right-2 top-2 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,.9)]" />
-                )}
+                {!alertsHidden && alerts.length > 0 && <span className="absolute right-2 top-2 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,.9)]" />}
               </button>
               <button
                 className="rounded-2xl px-4 py-2.5 text-sm font-black text-white shadow-lg transition hover:opacity-90"
@@ -915,127 +643,61 @@ export function AppChrome({
           </div>
         </header>
 
-        <main className="mx-auto max-w-[1480px] px-4 py-6 sm:px-6">{children}</main>
+        {/* page content with transition */}
+        <main className="mx-auto max-w-[1480px] px-4 py-6 sm:px-6">
+          <PageTransition>{children}</PageTransition>
+        </main>
       </div>
+
+      {/* ── Mobile bottom tab bar ────────────────────────────────── */}
+      <BottomTabBar items={nav} />
+
+      {/* ── Floating back button (mobile subpages) ───────────────── */}
+      <BackButton />
 
       {/* ── Profile slide-over ──────────────────────────────────── */}
       {profileOpen && (
         <>
-          <div
-            className="fixed inset-0 z-50 bg-slate-950/25 backdrop-blur-sm"
-            onClick={() => setProfileOpen(false)}
-          />
+          <div className="fixed inset-0 z-50 bg-slate-950/25 backdrop-blur-sm" onClick={() => setProfileOpen(false)} />
           <div className="fixed inset-y-0 right-0 z-50 flex w-[min(90vw,360px)] flex-col border-l border-white/20 bg-white/90 shadow-2xl shadow-slate-950/20 backdrop-blur-2xl">
-            {/* header */}
             <div className="flex items-center justify-between border-b border-slate-100 p-5">
-              <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: accentColor }}>
-                Mi perfil
-              </p>
-              <button
-                className="rounded-xl border border-slate-200 p-2 text-slate-400 transition hover:text-slate-700"
-                onClick={() => setProfileOpen(false)}
-                type="button"
-                aria-label="Cerrar"
-              >
-                <X className="size-4" />
-              </button>
+              <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: accentColor }}>Mi perfil</p>
+              <button className="rounded-xl border border-slate-200 p-2 text-slate-400 transition hover:text-slate-700" onClick={() => setProfileOpen(false)} type="button" aria-label="Cerrar"><X className="size-4" /></button>
             </div>
-
-            {/* avatar + nombre */}
             <div className="flex flex-col items-center gap-3 p-6">
               {brand?.logoUrl ? (
-                <img
-                  src={brand.logoUrl}
-                  alt={brand.nombre}
-                  className="size-20 rounded-full border-4 border-white object-cover shadow-xl"
-                />
+                <img src={brand.logoUrl} alt={brand.nombre} className="size-20 rounded-full border-4 border-white object-cover shadow-xl" />
               ) : (
-                <div
-                  className="grid size-20 place-items-center rounded-full text-2xl font-black text-white shadow-xl"
-                  style={{ background: `linear-gradient(135deg, ${accentColor}, ${primaryColor})` }}
-                >
+                <div className="grid size-20 place-items-center rounded-full text-2xl font-black text-white shadow-xl" style={{ background: `linear-gradient(135deg, ${accentColor}, ${primaryColor})` }}>
                   {(brand?.nombre ?? role).slice(0, 1).toUpperCase()}
                 </div>
               )}
               <div className="text-center">
                 <p className="text-lg font-black text-slate-900">{brand?.nombre ?? "Usuario"}</p>
-                <p className="mt-0.5 text-sm capitalize text-slate-500">
-                  {role} · {brand?.negocioNombre ?? "BarberLab"}
-                </p>
-                {brand?.email && (
-                  <p className="mt-0.5 text-xs text-slate-400">{brand.email}</p>
-                )}
+                <p className="mt-0.5 text-sm capitalize text-slate-500">{role} · {brand?.negocioNombre ?? "BarberLab"}</p>
+                {brand?.email && <p className="mt-0.5 text-xs text-slate-400">{brand.email}</p>}
               </div>
             </div>
-
-            {/* info cards */}
             <div className="flex-1 overflow-y-auto px-5 pb-4">
               <div className="grid gap-2">
-                {brand?.plan && (
-                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Plan</p>
-                    <p className="mt-1 font-black capitalize text-slate-900">{brand.plan}</p>
-                  </div>
-                )}
-                {brand?.negocioNombre && (
-                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Comercio</p>
-                    <p className="mt-1 font-black text-slate-900">{brand.negocioNombre}</p>
-                  </div>
-                )}
-                {brand?.negocioEstado && (
-                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Estado</p>
-                    <p className="mt-1 font-black capitalize text-slate-900">{brand.negocioEstado}</p>
-                  </div>
-                )}
-                {brand?.fechaFin && (
-                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Vigencia</p>
-                    <p className="mt-1 font-black text-slate-900">{brand.fechaFin}</p>
-                  </div>
-                )}
+                {brand?.plan && <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Plan</p><p className="mt-1 font-black capitalize text-slate-900">{brand.plan}</p></div>}
+                {brand?.negocioNombre && <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Comercio</p><p className="mt-1 font-black text-slate-900">{brand.negocioNombre}</p></div>}
+                {brand?.negocioEstado && <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Estado</p><p className="mt-1 font-black capitalize text-slate-900">{brand.negocioEstado}</p></div>}
               </div>
-
-              {/* paleta visual */}
               <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
-                  Paleta del negocio
-                </p>
+                <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Paleta del negocio</p>
                 <div className="flex gap-2">
-                  <span
-                    className="h-8 flex-1 rounded-xl border border-white/50 shadow-sm"
-                    style={{ background: primaryColor }}
-                    title="Principal"
-                  />
-                  <span
-                    className="h-8 flex-1 rounded-xl border border-white/50 shadow-sm"
-                    style={{ background: secondaryColor }}
-                    title="Secundario"
-                  />
-                  <span
-                    className="h-8 flex-1 rounded-xl border border-white/50 shadow-sm"
-                    style={{ background: accentColor }}
-                    title="Acento"
-                  />
+                  <span className="h-8 flex-1 rounded-xl shadow-sm" style={{ background: primaryColor }} />
+                  <span className="h-8 flex-1 rounded-xl shadow-sm" style={{ background: secondaryColor }} />
+                  <span className="h-8 flex-1 rounded-xl shadow-sm" style={{ background: accentColor }} />
                 </div>
               </div>
             </div>
-
-            {/* acciones */}
             <div className="grid gap-2 border-t border-slate-100 p-5">
-              <Link
-                href="/perfil"
-                onClick={() => setProfileOpen(false)}
-                className="flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-black text-white transition hover:opacity-90"
-                style={{ background: primaryColor }}
-              >
+              <Link href="/perfil" onClick={() => setProfileOpen(false)} className="flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-black text-white transition hover:opacity-90" style={{ background: primaryColor }}>
                 <UserCircle className="size-4" /> Ver perfil completo
               </Link>
-              <Link
-                href="/login"
-                className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-600 transition hover:border-red-200 hover:text-red-600"
-              >
+              <Link href="/login" className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-600 transition hover:border-red-200 hover:text-red-600">
                 <LogOut className="size-4" /> Cerrar sesión
               </Link>
             </div>
@@ -1043,7 +705,7 @@ export function AppChrome({
         </>
       )}
 
-      {/* ── About MRZLABS panel ─────────────────────────────────── */}
+      {/* ── About panel ─────────────────────────────────────────── */}
       {aboutOpen && (
         <div className={`fixed bottom-16 z-40 w-[min(92vw,360px)] rounded-3xl border border-violet-200 bg-white/97 p-5 shadow-2xl shadow-violet-950/16 backdrop-blur-2xl ${panelPosClass}`}>
           <div className="flex items-start justify-between gap-3">
@@ -1051,13 +713,9 @@ export function AppChrome({
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-600">MRZLABS</p>
               <h3 className="mt-1 text-lg font-black">CRM adaptable para negocios reales</h3>
             </div>
-            <button className="rounded-xl border border-slate-200 p-2 text-slate-400 hover:text-slate-700" onClick={() => setAboutOpen(false)} type="button" aria-label="Cerrar">
-              <X className="size-4" />
-            </button>
+            <button className="rounded-xl border border-slate-200 p-2 text-slate-400 hover:text-slate-700" onClick={() => setAboutOpen(false)} type="button" aria-label="Cerrar"><X className="size-4" /></button>
           </div>
-          <p className="mt-3 text-sm leading-6 text-slate-600">
-            Diseñamos sistemas con agenda, caja, inventario, reportes y roles para que el comercio pueda operar, medir y vender mejor sin depender de procesos manuales.
-          </p>
+          <p className="mt-3 text-sm leading-6 text-slate-600">Diseñamos sistemas con agenda, caja, inventario, reportes y roles para que el comercio pueda operar, medir y vender mejor.</p>
           <div className="mt-4 grid grid-cols-2 gap-2">
             {["Agenda inteligente", "Caja y turnos", "Control de stock", "Reportes en tiempo real"].map((f) => (
               <span key={f} className="rounded-xl bg-violet-50 px-3 py-2 text-[11px] font-black text-violet-700">{f}</span>
@@ -1069,24 +727,17 @@ export function AppChrome({
       {/* ── Bot help panel ──────────────────────────────────────── */}
       {botOpen && (
         <div className={`fixed bottom-16 z-40 max-h-[78dvh] w-[min(95vw,480px)] overflow-y-auto rounded-[2rem] border border-violet-200 bg-white/97 shadow-2xl shadow-slate-950/18 backdrop-blur-2xl ${panelPosClass}`}>
-          {/* panel header */}
           <div className="sticky top-0 z-10 flex items-center justify-between gap-4 rounded-t-[2rem] border-b border-slate-100 bg-white/95 px-5 py-4 backdrop-blur-xl">
             <div className="flex items-center gap-3">
-              <span className="grid size-9 place-items-center rounded-2xl bg-slate-950">
-                <Sparkles className="size-4 text-cyan-300" />
-              </span>
+              <span className="grid size-9 place-items-center rounded-2xl bg-slate-950"><Sparkles className="size-4 text-cyan-300" /></span>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-600">Bot MRZLABS</p>
                 <h3 className="text-base font-black">Guía BarberLab</h3>
               </div>
             </div>
-            <button className="rounded-xl border border-slate-200 p-2 text-slate-400 hover:text-slate-700" onClick={() => setBotOpen(false)} type="button" aria-label="Cerrar">
-              <X className="size-4" />
-            </button>
+            <button className="rounded-xl border border-slate-200 p-2 text-slate-400 hover:text-slate-700" onClick={() => setBotOpen(false)} type="button" aria-label="Cerrar"><X className="size-4" /></button>
           </div>
-
           <div className="p-5">
-            {/* topic tabs */}
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
               {topics.map((item, i) => (
                 <button
@@ -1099,8 +750,6 @@ export function AppChrome({
                 </button>
               ))}
             </div>
-
-            {/* active topic */}
             <div className="mt-4 rounded-3xl bg-slate-950 p-5 text-white">
               <div className="flex items-center gap-2">
                 <TrendingUp className="size-4 text-cyan-300" />
@@ -1109,8 +758,6 @@ export function AppChrome({
               <h4 className="mt-2.5 text-xl font-black">{topic.title}</h4>
               <p className="mt-2 text-sm leading-6 text-slate-300">{topic.body}</p>
             </div>
-
-            {/* steps */}
             <div className="mt-4">
               <p className="mb-2.5 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Paso a paso</p>
               <div className="grid gap-2">
@@ -1122,8 +769,6 @@ export function AppChrome({
                 ))}
               </div>
             </div>
-
-            {/* tips */}
             {topic.tips && topic.tips.length > 0 && (
               <div className="mt-4">
                 <p className="mb-2.5 text-[10px] font-black uppercase tracking-[0.18em] text-amber-600">Tips pro</p>
@@ -1137,8 +782,6 @@ export function AppChrome({
                 </div>
               </div>
             )}
-
-            {/* CTA */}
             {topic.href && topic.cta && (
               <Link className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-violet-950" href={topic.href}>
                 {topic.cta} <ArrowRight className="size-4" />
@@ -1150,26 +793,10 @@ export function AppChrome({
 
       {/* ── Signature bar ───────────────────────────────────────── */}
       <div className="fixed bottom-0 left-0 right-0 z-30 h-14 overflow-hidden border-t border-violet-400/15 bg-slate-950/94">
-        <NeuralCanvas
-          className="absolute inset-0 h-full w-full"
-          density={40}
-          speed={0.22}
-          nodeColor="216,180,254"
-          lineColor="167,139,250"
-          glowColor="192,132,252"
-        />
         <div className="relative flex h-full items-center justify-between px-4 sm:px-6">
-          <span className="text-[10px] font-semibold tracking-wide text-violet-400/50">
-            © {new Date().getFullYear()} MRZLABS · Todos los derechos reservados
-          </span>
-          <span className="absolute left-1/2 hidden -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.18em] text-violet-400/40 sm:block">
-            BarberLab CRM
-          </span>
-          <button
-            className="rounded-full border border-violet-400/25 bg-violet-950/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-violet-300/80 transition hover:bg-violet-900/70"
-            onClick={() => setAboutOpen((v) => !v)}
-            type="button"
-          >
+          <span className="text-[10px] font-semibold tracking-wide text-violet-400/50">© {new Date().getFullYear()} MRZLABS · Todos los derechos reservados</span>
+          <span className="absolute left-1/2 hidden -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.18em] text-violet-400/40 sm:block">BarberLab CRM</span>
+          <button className="rounded-full border border-violet-400/25 bg-violet-950/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-violet-300/80 transition hover:bg-violet-900/70" onClick={() => setAboutOpen((v) => !v)} type="button">
             Built by MRZLABS
           </button>
         </div>

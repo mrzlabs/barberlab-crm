@@ -2,6 +2,7 @@ import {
   boolean,
   date,
   integer,
+  json,
   numeric,
   pgEnum,
   pgTable,
@@ -11,6 +12,12 @@ import {
   unique,
   uuid,
 } from "drizzle-orm/pg-core";
+
+export type ConfigVisual = {
+  darkMode?: boolean;
+  bgPhotoUrl?: string | null;
+  bgPhotoStoragePath?: string | null;
+};
 
 export const rolUsuario = pgEnum("rol_usuario", ["super_admin", "admin", "empleado", "cliente"]);
 export const especialidadEmpleado = pgEnum("especialidad_empleado", ["barberia", "peluqueria", "spa_unas", "tatuajes"]);
@@ -44,6 +51,7 @@ export const negocios = pgTable("negocios", {
   colorSecundario: text("color_secundario").notNull().default("#22d3ee"),
   colorAcento: text("color_acento").notNull().default("#7c3aed"),
   fuente: text("fuente").notNull().default("Inter"),
+  configVisual: json("config_visual").$type<ConfigVisual>().notNull().default({}),
   plan: text("plan").notNull().default("starter"),
   estado: text("estado").notNull().default("activo"),
   modoAislamiento: text("modo_aislamiento").notNull().default("multi_tenant"),

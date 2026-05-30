@@ -82,6 +82,42 @@ a {
   transition: background 0.4s ease;
 }
 
+/* ── Dark mode (per-negocio toggle) ──────────────────────────── */
+.dark-mode .crm-shell {
+  color: #f1f5f9;
+}
+.dark-mode .glass-panel {
+  border-color: rgba(255,255,255,0.08);
+  background: rgba(15,15,25,0.94);
+  color: #f1f5f9;
+}
+
+/* ── Skeleton loader ─────────────────────────────────────────── */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.skeleton {
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+}
+
+/* ── Super admin dark overrides ──────────────────────────────── */
+:root {
+  --sa-bg: #0a0a0f;
+  --sa-sidebar: #111118;
+  --sa-border: rgba(255,255,255,0.07);
+  --sa-cyan: #22d3ee;
+  --sa-violet: #7c3aed;
+}
+
+/* ── Animated grid keyframes ─────────────────────────────────── */
+@keyframes grid-shift {
+  0%   { transform: translate(0, 0); }
+  100% { transform: translate(40px, 40px); }
+}
+
 .mac-dots::before {
   content: "";
   display: block;

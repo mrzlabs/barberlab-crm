@@ -3,11 +3,9 @@ import { isDemoMode } from "@/lib/demo";
 import { AppChrome } from "@/components/layout/AppChrome";
 import type { CurrentProfile } from "@/lib/auth/session";
 import type { AppAlert } from "@/lib/admin/queries";
+import type { ConfigVisual } from "@/lib/db/schema";
 
-type NavItem = {
-  href: string;
-  label: string;
-};
+type NavItem = { href: string; label: string };
 
 export function AppShell({
   role,
@@ -16,6 +14,7 @@ export function AppShell({
   children,
   profile,
   alerts = [],
+  configVisual,
 }: {
   role: UserRole;
   title: string;
@@ -23,8 +22,21 @@ export function AppShell({
   children: React.ReactNode;
   profile?: CurrentProfile;
   alerts?: AppAlert[];
+  configVisual?: ConfigVisual | null;
 }) {
   const mode = isDemoMode() ? "DEMO" : "PRODUCCION";
 
-  return <AppChrome alerts={alerts} brand={profile} mode={mode} nav={nav} role={role} title={title}>{children}</AppChrome>;
+  return (
+    <AppChrome
+      alerts={alerts}
+      brand={profile}
+      configVisual={configVisual}
+      mode={mode}
+      nav={nav}
+      role={role}
+      title={title}
+    >
+      {children}
+    </AppChrome>
+  );
 }

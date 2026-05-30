@@ -8,6 +8,10 @@ import {
   SECONDARY_SWATCHES,
   ACCENT_SWATCHES,
 } from "@/components/admin/ColorPicker";
+import { ConfigVisualPanel } from "@/components/admin/ConfigVisualPanel";
+import { eq } from "drizzle-orm";
+import { getDb } from "@/lib/db";
+import { negocios } from "@/lib/db/schema";
 
 export const dynamic = "force-dynamic";
 
@@ -16,8 +20,12 @@ const input = "w-full rounded-xl border bg-white px-3 py-2.5 text-sm outline-non
 export default async function ConfiguracionPage() {
   const profile = await requireRole(["admin", "super_admin"]);
   if (!profile.negocioId) notFound();
-  const negocio = await getNegocioById(profile.negocioId);
+  const [negocio, configRow] = await Promise.all([
+    getNegocioById(profile.negocioId),
+    getDb().select({ configVisual: negocios.configVisual }).from(negocios).where(eq(negocios.id, profile.negocioId)).limit(1),
+  ]);
   if (!negocio) notFound();
+  const configVisual = configRow[0]?.configVisual ?? {};
 
   return (
     <div className="space-y-6">
@@ -159,6 +167,12 @@ export default async function ConfiguracionPage() {
           Guardar configuracion
         </button>
       </form>
+
+      {/* Personalización visual avanzada */}
+      <ConfigVisualPanel
+        darkMode={!!configVisual.darkMode}
+        bgPhotoUrl={configVisual.bgPhotoUrl}
+      />
     </div>
   );
 }
