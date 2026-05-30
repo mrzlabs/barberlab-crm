@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { z } from "zod";
 import { demoCreds, isDemoMode } from "@/lib/demo";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getRoleFromClaims, roleHome } from "@/lib/auth/roles";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -40,5 +41,11 @@ export async function loginAction(formData: FormData) {
   });
 
   if (error) redirect("/login?error=auth");
-  redirect(parsed.data.next || "/");
+
+  const { data: { user } } = await supabase.auth.getUser();
+  const role = user
+    ? (getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata))
+    : null;
+
+  redirect(parsed.data.next || (role ? roleHome[role] : "/admin/dashboard"));
 }
