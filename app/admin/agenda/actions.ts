@@ -12,7 +12,8 @@ import { bloqueoEmpleadoSchema, citaAdminSchema, estadoCitaSchema, horarioEmplea
 
 export async function createCitaAdmin(formData: FormData) {
   const profile = await requireRole(["admin"]);
-  if (!profile.negocioId) throw new Error("Sin negocio asignado");
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
@@ -35,7 +36,7 @@ export async function createCitaAdmin(formData: FormData) {
   }
 
   const [created] = await getDb().insert(citas).values({
-    negocioId: profile.negocioId,
+    negocioId,
     clienteId: payload.clienteId,
     empleadoId: payload.empleadoId,
     servicioId: payload.servicioId,
@@ -59,7 +60,8 @@ export async function createCitaAdmin(formData: FormData) {
 
 export async function createHorarioEmpleado(formData: FormData) {
   const profile = await requireRole(["admin"]);
-  if (!profile.negocioId) throw new Error("Sin negocio asignado");
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
@@ -68,7 +70,7 @@ export async function createHorarioEmpleado(formData: FormData) {
   const payload = horarioEmpleadoSchema.parse(Object.fromEntries(formData));
 
   await getDb().insert(horariosEmpleado).values({
-    negocioId: profile.negocioId,
+    negocioId,
     empleadoId: payload.empleadoId,
     diaSemana: payload.diaSemana,
     horaInicio: payload.horaInicio,
@@ -81,7 +83,8 @@ export async function createHorarioEmpleado(formData: FormData) {
 
 export async function createBloqueoEmpleado(formData: FormData) {
   const profile = await requireRole(["admin"]);
-  if (!profile.negocioId) throw new Error("Sin negocio asignado");
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
@@ -90,7 +93,7 @@ export async function createBloqueoEmpleado(formData: FormData) {
   const payload = bloqueoEmpleadoSchema.parse(Object.fromEntries(formData));
 
   await getDb().insert(bloqueosEmpleado).values({
-    negocioId: profile.negocioId,
+    negocioId,
     empleadoId: payload.empleadoId,
     fechaInicio: new Date(payload.fechaInicio),
     fechaFin: new Date(payload.fechaFin),
@@ -103,7 +106,8 @@ export async function createBloqueoEmpleado(formData: FormData) {
 
 export async function reagendarCita(formData: FormData) {
   const profile = await requireRole(["admin"]);
-  if (!profile.negocioId) throw new Error("Sin negocio asignado");
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) { revalidatePath("/admin/agenda"); return; }
 
   const citaId = formData.get("citaId") as string;
@@ -119,7 +123,7 @@ export async function reagendarCita(formData: FormData) {
   const [current] = await getDb()
     .select({ estado: citas.estado, inicio: citas.inicio })
     .from(citas)
-    .where(and(eq(citas.id, citaId), eq(citas.negocioId, profile.negocioId)))
+    .where(and(eq(citas.id, citaId), eq(citas.negocioId, negocioId)))
     .limit(1);
 
   if (!current) throw new Error("Cita no encontrada");
@@ -127,7 +131,7 @@ export async function reagendarCita(formData: FormData) {
   await getDb()
     .update(citas)
     .set({ inicio, fin, updatedAt: new Date() })
-    .where(and(eq(citas.id, citaId), eq(citas.negocioId, profile.negocioId)));
+    .where(and(eq(citas.id, citaId), eq(citas.negocioId, negocioId)));
 
   await addCitaHistory({
     citaId,
@@ -147,13 +151,14 @@ export async function reagendarCita(formData: FormData) {
 
 export async function deleteHorario(formData: FormData) {
   const profile = await requireRole(["admin"]);
-  if (!profile.negocioId) throw new Error("Sin negocio asignado");
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) { revalidatePath("/admin/agenda"); return; }
 
   const horarioId = formData.get("horarioId") as string;
   await getDb()
     .delete(horariosEmpleado)
-    .where(and(eq(horariosEmpleado.id, horarioId), eq(horariosEmpleado.negocioId, profile.negocioId)));
+    .where(and(eq(horariosEmpleado.id, horarioId), eq(horariosEmpleado.negocioId, negocioId)));
 
   revalidatePath("/admin/agenda");
   revalidatePath("/cliente/reservar");
@@ -161,13 +166,14 @@ export async function deleteHorario(formData: FormData) {
 
 export async function deleteBloqueo(formData: FormData) {
   const profile = await requireRole(["admin"]);
-  if (!profile.negocioId) throw new Error("Sin negocio asignado");
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) { revalidatePath("/admin/agenda"); return; }
 
   const bloqueoId = formData.get("bloqueoId") as string;
   await getDb()
     .delete(bloqueosEmpleado)
-    .where(and(eq(bloqueosEmpleado.id, bloqueoId), eq(bloqueosEmpleado.negocioId, profile.negocioId)));
+    .where(and(eq(bloqueosEmpleado.id, bloqueoId), eq(bloqueosEmpleado.negocioId, negocioId)));
 
   revalidatePath("/admin/agenda");
   revalidatePath("/cliente/reservar");

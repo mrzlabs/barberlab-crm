@@ -11,6 +11,8 @@ import { turnoSchema } from "@/lib/validations/admin";
 
 export async function closeMiTurno(formData: FormData) {
   const profile = await requireRole(["empleado"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   const payload = turnoSchema.parse(Object.fromEntries(formData));
   const allowed = await citaPerteneceEmpleado(profile.id, payload.citaId);
 
@@ -21,7 +23,7 @@ export async function closeMiTurno(formData: FormData) {
   const [current] = await getDb().select({ estado: citas.estado }).from(citas).where(eq(citas.id, payload.citaId)).limit(1);
 
   await getDb().insert(turnos).values({
-    negocioId: profile.negocioId,
+    negocioId,
     citaId: payload.citaId,
     precioFinal: String(payload.precioFinal),
     propina: String(payload.propina),

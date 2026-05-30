@@ -10,10 +10,12 @@ import { gastoSchema } from "@/lib/validations/admin";
 
 export async function createGasto(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   const payload = gastoSchema.parse(Object.fromEntries(formData));
 
   await getDb().insert(gastos).values({
-    negocioId: profile.negocioId,
+    negocioId,
     categoria: payload.categoria,
     monto: String(payload.monto),
     fecha: payload.fecha,
@@ -27,6 +29,8 @@ export async function createGasto(formData: FormData) {
 
 export async function updateGasto(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   const gastoId = formData.get("gastoId") as string;
   const payload = gastoSchema.parse(Object.fromEntries(formData));
 
@@ -40,7 +44,7 @@ export async function updateGasto(formData: FormData) {
       comprobanteUrl: payload.comprobanteUrl || null,
       updatedAt: new Date(),
     })
-    .where(and(eq(gastos.id, gastoId), eq(gastos.negocioId, profile.negocioId)));
+    .where(and(eq(gastos.id, gastoId), eq(gastos.negocioId, negocioId)));
 
   revalidatePath("/admin/gastos");
   revalidatePath("/admin/dashboard");

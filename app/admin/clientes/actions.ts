@@ -12,6 +12,8 @@ import { clienteAdminSchema } from "@/lib/validations/catalog";
 
 export async function createCliente(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) {
     revalidatePath("/admin/clientes");
     return;
@@ -30,10 +32,10 @@ export async function createCliente(formData: FormData) {
       email: payload.email.trim().toLowerCase(),
       password: payload.password,
       email_confirm: true,
-      app_metadata: { rol: "cliente", role: "cliente", negocio_id: profile.negocioId },
+      app_metadata: { rol: "cliente", role: "cliente", negocio_id: negocioId },
       user_metadata: {
         rol: "cliente",
-        negocio_id: profile.negocioId,
+        negocio_id: negocioId,
         nombre: payload.nombre.trim(),
         telefono: payload.telefono.trim(),
       },
@@ -50,7 +52,7 @@ export async function createCliente(formData: FormData) {
     if (userId && payload.email) {
       await tx.insert(usuarios).values({
         id: userId,
-        negocioId: profile.negocioId,
+        negocioId,
         email: payload.email.trim().toLowerCase(),
         rol: "cliente",
         nombre: payload.nombre.trim(),
@@ -60,7 +62,7 @@ export async function createCliente(formData: FormData) {
     }
 
     await tx.insert(clientes).values({
-      negocioId: profile.negocioId,
+      negocioId,
       usuarioId: userId,
       nombre: payload.nombre.trim(),
       telefono: payload.telefono.trim(),
@@ -74,6 +76,8 @@ export async function createCliente(formData: FormData) {
 
 export async function updateCliente(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) { revalidatePath("/admin/clientes"); return; }
 
   const clienteId = formData.get("clienteId") as string;
@@ -85,7 +89,7 @@ export async function updateCliente(formData: FormData) {
   await getDb()
     .update(clientes)
     .set({ nombre, telefono, email, notas, updatedAt: new Date() })
-    .where(and(eq(clientes.id, clienteId), eq(clientes.negocioId, profile.negocioId)));
+    .where(and(eq(clientes.id, clienteId), eq(clientes.negocioId, negocioId)));
 
   revalidatePath("/admin/clientes");
 }

@@ -9,6 +9,8 @@ import { inventarioSchema, movInventarioSchema } from "@/lib/validations/admin";
 
 export async function createItem(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   const raw = Object.fromEntries(formData);
   const payload = inventarioSchema.parse({
     ...raw,
@@ -17,7 +19,7 @@ export async function createItem(formData: FormData) {
   });
 
   await getDb().insert(inventario).values({
-    negocioId: profile.negocioId,
+    negocioId,
     sku: payload.sku.trim().toUpperCase(),
     nombre: payload.nombre.trim(),
     categoria: payload.categoria.trim(),
@@ -36,12 +38,14 @@ export async function createItem(formData: FormData) {
 
 export async function createMov(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   const payload = movInventarioSchema.parse(Object.fromEntries(formData));
   const db = getDb();
 
   await db.transaction(async (tx) => {
     await tx.insert(movInventario).values({
-      negocioId: profile.negocioId,
+      negocioId,
       inventarioId: payload.inventarioId,
       tipo: payload.tipo,
       cantidad: String(payload.cantidad),
@@ -72,6 +76,8 @@ export async function createMov(formData: FormData) {
 
 export async function updateInventario(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   const inventarioId = formData.get("inventarioId") as string;
 
   const nombre = ((formData.get("nombre") as string) ?? "").trim();
@@ -86,7 +92,7 @@ export async function updateInventario(formData: FormData) {
   await getDb()
     .update(inventario)
     .set({ nombre, categoria, unidad, stockMinimo, costoUnitario, precioVenta, visibleCliente, activo, updatedAt: new Date() })
-    .where(and(eq(inventario.id, inventarioId), eq(inventario.negocioId, profile.negocioId)));
+    .where(and(eq(inventario.id, inventarioId), eq(inventario.negocioId, negocioId)));
 
   revalidatePath("/admin/inventario");
   revalidatePath("/admin/dashboard");

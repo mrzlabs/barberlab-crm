@@ -10,6 +10,8 @@ import { reservarSchema } from "@/lib/validations/cliente";
 
 export async function reservarCita(formData: FormData) {
   const profile = await requireRole(["cliente"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   const payload = reservarSchema.parse(Object.fromEntries(formData));
   const inicio = new Date(payload.inicio);
   const fin = new Date(payload.fin);
@@ -28,7 +30,7 @@ export async function reservarCita(formData: FormData) {
   }
 
   const [created] = await getDb().insert(citas).values({
-    negocioId: profile.negocioId,
+    negocioId,
     clienteId: cliente.id,
     empleadoId: payload.empleadoId,
     servicioId: payload.servicioId,

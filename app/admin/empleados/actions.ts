@@ -12,6 +12,8 @@ import { empleadoAdminSchema } from "@/lib/validations/catalog";
 
 export async function createEmpleado(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) {
     revalidatePath("/admin/empleados");
     return;
@@ -26,10 +28,10 @@ export async function createEmpleado(formData: FormData) {
     email: payload.email.trim().toLowerCase(),
     password: payload.password,
     email_confirm: true,
-    app_metadata: { rol: "empleado", role: "empleado", negocio_id: profile.negocioId },
+    app_metadata: { rol: "empleado", role: "empleado", negocio_id: negocioId },
     user_metadata: {
       rol: "empleado",
-      negocio_id: profile.negocioId,
+      negocio_id: negocioId,
       nombre: payload.nombre.trim(),
       telefono: payload.telefono.trim(),
     },
@@ -44,7 +46,7 @@ export async function createEmpleado(formData: FormData) {
   await getDb().transaction(async (tx) => {
     await tx.insert(usuarios).values({
       id: userId,
-      negocioId: profile.negocioId,
+      negocioId,
       email: payload.email.trim().toLowerCase(),
       rol: "empleado",
       nombre: payload.nombre.trim(),
@@ -53,7 +55,7 @@ export async function createEmpleado(formData: FormData) {
     });
 
     await tx.insert(empleados).values({
-      negocioId: profile.negocioId,
+      negocioId,
       usuarioId: userId,
       especialidad: payload.especialidad,
       comisionPct: String(payload.comisionPct),
@@ -67,6 +69,8 @@ export async function createEmpleado(formData: FormData) {
 
 export async function toggleEmpleado(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) { revalidatePath("/admin/empleados"); return; }
 
   const empleadoId = formData.get("empleadoId") as string;
@@ -76,10 +80,10 @@ export async function toggleEmpleado(formData: FormData) {
   await getDb().transaction(async (tx) => {
     await tx.update(usuarios)
       .set({ activo, updatedAt: new Date() })
-      .where(and(eq(usuarios.id, usuarioId), eq(usuarios.negocioId, profile.negocioId)));
+      .where(and(eq(usuarios.id, usuarioId), eq(usuarios.negocioId, negocioId)));
     await tx.update(empleados)
       .set({ activo, updatedAt: new Date() })
-      .where(and(eq(empleados.id, empleadoId), eq(empleados.negocioId, profile.negocioId)));
+      .where(and(eq(empleados.id, empleadoId), eq(empleados.negocioId, negocioId)));
   });
 
   revalidatePath("/admin/empleados");
@@ -88,6 +92,8 @@ export async function toggleEmpleado(formData: FormData) {
 
 export async function updateEmpleado(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) { revalidatePath("/admin/empleados"); return; }
 
   const empleadoId = formData.get("empleadoId") as string;
@@ -101,10 +107,10 @@ export async function updateEmpleado(formData: FormData) {
   await getDb().transaction(async (tx) => {
     await tx.update(usuarios)
       .set({ nombre, telefono, activo, updatedAt: new Date() })
-      .where(and(eq(usuarios.id, usuarioId), eq(usuarios.negocioId, profile.negocioId)));
+      .where(and(eq(usuarios.id, usuarioId), eq(usuarios.negocioId, negocioId)));
     await tx.update(empleados)
       .set({ especialidad, comisionPct, activo, updatedAt: new Date() })
-      .where(and(eq(empleados.id, empleadoId), eq(empleados.negocioId, profile.negocioId)));
+      .where(and(eq(empleados.id, empleadoId), eq(empleados.negocioId, negocioId)));
   });
 
   revalidatePath("/admin/empleados");
