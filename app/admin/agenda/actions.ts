@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
 import { slotDisponible } from "@/lib/cliente/queries";
 import { addCitaHistory } from "@/lib/citas/history";
@@ -93,6 +93,75 @@ export async function createBloqueoEmpleado(formData: FormData) {
     fechaFin: new Date(payload.fechaFin),
     motivo: payload.motivo || null,
   });
+
+  revalidatePath("/admin/agenda");
+  revalidatePath("/cliente/reservar");
+}
+
+export async function reagendarCita(formData: FormData) {
+  const profile = await requireRole(["admin"]);
+  if (isDemoMode()) { revalidatePath("/admin/agenda"); return; }
+
+  const citaId = formData.get("citaId") as string;
+  const empleadoId = formData.get("empleadoId") as string;
+  const servicioId = formData.get("servicioId") as string;
+  const inicio = new Date(formData.get("inicio") as string);
+  const fin = new Date(formData.get("fin") as string);
+  const fecha = (formData.get("inicio") as string).slice(0, 10);
+
+  const disponible = await slotDisponible({ empleadoId, servicioId, fecha, inicio, fin });
+  if (!disponible) throw new Error("El horario seleccionado ya no está disponible");
+
+  const [current] = await getDb()
+    .select({ estado: citas.estado, inicio: citas.inicio })
+    .from(citas)
+    .where(and(eq(citas.id, citaId), eq(citas.negocioId, profile.negocioId)))
+    .limit(1);
+
+  if (!current) throw new Error("Cita no encontrada");
+
+  await getDb()
+    .update(citas)
+    .set({ inicio, fin, updatedAt: new Date() })
+    .where(and(eq(citas.id, citaId), eq(citas.negocioId, profile.negocioId)));
+
+  await addCitaHistory({
+    citaId,
+    actorId: profile.id,
+    actorRol: "admin",
+    estadoAnterior: current.estado,
+    estadoNuevo: current.estado,
+    accion: "cita_reagendada",
+    detalle: `Reagendada de ${current.inicio.toISOString()} a ${inicio.toISOString()}`,
+  });
+
+  revalidatePath("/admin/agenda");
+  revalidatePath("/admin/turnos");
+  revalidatePath("/empleado/mi-agenda");
+  revalidatePath("/cliente/mis-citas");
+}
+
+export async function deleteHorario(formData: FormData) {
+  const profile = await requireRole(["admin"]);
+  if (isDemoMode()) { revalidatePath("/admin/agenda"); return; }
+
+  const horarioId = formData.get("horarioId") as string;
+  await getDb()
+    .delete(horariosEmpleado)
+    .where(and(eq(horariosEmpleado.id, horarioId), eq(horariosEmpleado.negocioId, profile.negocioId)));
+
+  revalidatePath("/admin/agenda");
+  revalidatePath("/cliente/reservar");
+}
+
+export async function deleteBloqueo(formData: FormData) {
+  const profile = await requireRole(["admin"]);
+  if (isDemoMode()) { revalidatePath("/admin/agenda"); return; }
+
+  const bloqueoId = formData.get("bloqueoId") as string;
+  await getDb()
+    .delete(bloqueosEmpleado)
+    .where(and(eq(bloqueosEmpleado.id, bloqueoId), eq(bloqueosEmpleado.negocioId, profile.negocioId)));
 
   revalidatePath("/admin/agenda");
   revalidatePath("/cliente/reservar");

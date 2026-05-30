@@ -108,6 +108,57 @@ export async function getMisTurnos(userId: string) {
     .limit(12);
 }
 
+export async function getStatsEmpleado(userId: string) {
+  const empleado = await getEmpleadoByUsr(userId);
+  if (!empleado) return null;
+
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
+  const db = getDb();
+  const comisionPct = Number(empleado.comisionPct);
+
+  const [mesStats, prevMesStats] = await Promise.all([
+    db
+      .select({
+        turnos: sql<number>`count(${turnos.id})::int`,
+        ingresos: sql<string>`coalesce(sum(${turnos.precioFinal} + ${turnos.propina}), 0)`,
+        propinas: sql<string>`coalesce(sum(${turnos.propina}), 0)`,
+        ticket: sql<string>`coalesce(avg(${turnos.precioFinal}), 0)`,
+      })
+      .from(turnos)
+      .innerJoin(citas, eq(turnos.citaId, citas.id))
+      .where(and(eq(citas.empleadoId, empleado.id), gte(turnos.createdAt, monthStart), lte(turnos.createdAt, monthEnd))),
+    db
+      .select({ ingresos: sql<string>`coalesce(sum(${turnos.precioFinal} + ${turnos.propina}), 0)` })
+      .from(turnos)
+      .innerJoin(citas, eq(turnos.citaId, citas.id))
+      .where(and(eq(citas.empleadoId, empleado.id), gte(turnos.createdAt, prevMonthStart), lte(turnos.createdAt, prevMonthEnd))),
+  ]);
+
+  const ingresosMes = Number(mesStats[0]?.ingresos ?? 0);
+  const ingresosPrevMes = Number(prevMesStats[0]?.ingresos ?? 0);
+  const delta = ingresosPrevMes > 0
+    ? Math.round(((ingresosMes - ingresosPrevMes) / ingresosPrevMes) * 100)
+    : null;
+
+  return {
+    comisionPct,
+    especialidad: empleado.especialidad,
+    mes: {
+      turnos: mesStats[0]?.turnos ?? 0,
+      ingresos: ingresosMes,
+      propinas: Number(mesStats[0]?.propinas ?? 0),
+      comision: Math.round(ingresosMes * comisionPct / 100),
+      ticket: Number(mesStats[0]?.ticket ?? 0),
+    },
+    delta,
+  };
+}
+
 export async function citaPerteneceEmpleado(userId: string, citaId: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return false;

@@ -157,7 +157,7 @@ export const gastos = pgTable("gastos", {
 export const inventario = pgTable("inventario", {
   id: uuid("id").primaryKey().defaultRandom(),
   negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
-  sku: text("sku").notNull().unique(),
+  sku: text("sku").notNull(),
   nombre: text("nombre").notNull(),
   categoria: text("categoria").notNull(),
   unidad: text("unidad").notNull(),
@@ -168,7 +168,9 @@ export const inventario = pgTable("inventario", {
   visibleCliente: boolean("visible_cliente").notNull().default(false),
   activo: boolean("activo").notNull().default(true),
   ...timestamps,
-});
+}, (table) => ({
+  negocioSkuUnq: unique().on(table.negocioId, table.sku),
+}));
 
 export const movInventario = pgTable("mov_inventario", {
   id: uuid("id").primaryKey().defaultRandom(),

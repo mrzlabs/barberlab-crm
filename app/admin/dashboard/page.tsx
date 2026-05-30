@@ -5,11 +5,34 @@ import { getCurrentProfile } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
-function KpiCard({ label, value, detail, tone, href = "/admin/reportes" }: { label: string; value: string; detail: string; tone: string; href?: string }) {
+function DeltaBadge({ delta }: { delta: number | null | undefined }) {
+  if (delta == null) return null;
+  const up = delta >= 0;
   return (
-    <Link className={`glass-panel block min-w-0 rounded-[1.4rem] p-4 transition hover:-translate-y-1 hover:border-cyan-300 hover:shadow-xl sm:p-5 ${tone}`} href={href}>
+    <span className={`ml-1.5 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-black ${up ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
+      {up ? "▲" : "▼"} {Math.abs(delta)}%
+    </span>
+  );
+}
+
+function KpiCard({
+  label, value, detail, delta, accentVar = "--brand-secondary", accentFixed, href = "/admin/reportes",
+}: {
+  label: string; value: string; detail: string; delta?: number | null;
+  accentVar?: string; accentFixed?: string; href?: string;
+}) {
+  const borderColor = accentFixed ?? `var(${accentVar})`;
+  return (
+    <Link
+      className="glass-panel block min-w-0 rounded-[1.4rem] p-4 transition hover:-translate-y-1 hover:shadow-xl sm:p-5"
+      style={{ borderLeftColor: borderColor, borderLeftWidth: "3px" }}
+      href={href}
+    >
       <p className="truncate text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
-      <strong className="mt-2 block max-w-full break-words text-[clamp(1.05rem,3.8vw,1.85rem)] font-black leading-tight tracking-tight [overflow-wrap:anywhere]">{value}</strong>
+      <div className="mt-2 flex flex-wrap items-baseline gap-1">
+        <strong className="break-words text-[clamp(1.05rem,3.8vw,1.85rem)] font-black leading-tight tracking-tight [overflow-wrap:anywhere]">{value}</strong>
+        <DeltaBadge delta={delta} />
+      </div>
       <p className="mt-1.5 truncate text-xs font-semibold text-slate-500 sm:text-sm">{detail}</p>
     </Link>
   );
@@ -69,10 +92,10 @@ export default async function DashboardPage() {
       </section>
 
       <section className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
-        <KpiCard label="Ingresos hoy" value={fmtMoney(dashboard.today.ingresos)} detail={`${dashboard.today.turnos} turnos cerrados`} tone="border-cyan-100" />
-        <KpiCard label="Margen hoy" value={fmtMoney(dashboard.today.margen)} detail={`${fmtMoney(dashboard.today.gastos)} en gastos`} tone="border-violet-100" />
-        <KpiCard label="Ticket promedio" value={fmtMoney(dashboard.today.ticket)} detail={`${dashboard.today.citas} citas hoy`} tone="border-emerald-100" />
-        <KpiCard label="Stock mínimo" value={String(dashboard.lowStock)} detail="Items con alerta" tone="border-amber-100" href="/admin/inventario" />
+        <KpiCard label="Ingresos hoy" value={fmtMoney(dashboard.today.ingresos)} detail={`${dashboard.today.turnos} turnos cerrados`} delta={dashboard.deltaHoy.ingresos} accentVar="--brand-secondary" />
+        <KpiCard label="Margen bruto hoy" value={fmtMoney(dashboard.today.margen)} detail={`Gastos ${fmtMoney(dashboard.today.gastos)} · Insumos ${fmtMoney(dashboard.today.costoInsumo)}`} delta={dashboard.deltaHoy.margen} accentVar="--brand-accent" />
+        <KpiCard label="Ticket promedio" value={fmtMoney(dashboard.today.ticket)} detail={`${dashboard.today.citas} citas hoy`} delta={dashboard.deltaHoy.ticket} accentVar="--brand-secondary" />
+        <KpiCard label="Stock mínimo" value={String(dashboard.lowStock)} detail="Items con alerta" accentFixed="#f59e0b" href="/admin/inventario" />
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
@@ -80,9 +103,9 @@ export default async function DashboardPage() {
           <div className="mac-dots" />
           <h3 className="mt-4 text-xl font-black sm:text-2xl">Performance mensual</h3>
           <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
-            <KpiCard label="Ingresos mes" value={fmtMoney(dashboard.month.ingresos)} detail={`${dashboard.month.turnos} turnos`} tone="" />
-            <KpiCard label="Gastos mes" value={fmtMoney(dashboard.month.gastos)} detail="Operacion" tone="" />
-            <KpiCard label="Margen mes" value={fmtMoney(dashboard.month.margen)} detail={`Ticket ${fmtMoney(dashboard.month.ticket)}`} tone="" />
+            <KpiCard label="Ingresos mes" value={fmtMoney(dashboard.month.ingresos)} detail={`${dashboard.month.turnos} turnos`} delta={dashboard.deltaMes.ingresos} accentVar="--brand-secondary" />
+            <KpiCard label="Gastos mes" value={fmtMoney(dashboard.month.gastos)} detail={`Insumos ${fmtMoney(dashboard.month.costoInsumo)}`} accentFixed="#f59e0b" />
+            <KpiCard label="Margen mes" value={fmtMoney(dashboard.month.margen)} detail={`Ticket ${fmtMoney(dashboard.month.ticket)}`} delta={dashboard.deltaMes.margen} accentVar="--brand-accent" />
           </div>
         </div>
 

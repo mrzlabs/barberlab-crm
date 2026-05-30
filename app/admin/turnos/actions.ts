@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
 import { addCitaHistory } from "@/lib/citas/history";
 import { getDb } from "@/lib/db";
@@ -33,7 +34,7 @@ export async function closeTurno(formData: FormData) {
     detalle: "Admin cerro turno y registro caja",
   });
 
-  revalidatePath("/admin/turnos");
   revalidatePath("/admin/dashboard");
   revalidatePath("/admin/inventario");
+  redirect("/admin/turnos?ok=Turno+cerrado+correctamente");
 }

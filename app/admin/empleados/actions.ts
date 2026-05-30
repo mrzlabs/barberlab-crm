@@ -1,6 +1,8 @@
 "use server";
 
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
 import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
@@ -57,6 +59,52 @@ export async function createEmpleado(formData: FormData) {
       comisionPct: String(payload.comisionPct),
       activo: payload.activo,
     });
+  });
+
+  revalidatePath("/cliente/reservar");
+  redirect("/admin/empleados?ok=Empleado+creado+correctamente");
+}
+
+export async function toggleEmpleado(formData: FormData) {
+  const profile = await requireRole(["admin"]);
+  if (isDemoMode()) { revalidatePath("/admin/empleados"); return; }
+
+  const empleadoId = formData.get("empleadoId") as string;
+  const usuarioId = formData.get("usuarioId") as string;
+  const activo = formData.get("activo") === "true";
+
+  await getDb().transaction(async (tx) => {
+    await tx.update(usuarios)
+      .set({ activo, updatedAt: new Date() })
+      .where(and(eq(usuarios.id, usuarioId), eq(usuarios.negocioId, profile.negocioId)));
+    await tx.update(empleados)
+      .set({ activo, updatedAt: new Date() })
+      .where(and(eq(empleados.id, empleadoId), eq(empleados.negocioId, profile.negocioId)));
+  });
+
+  revalidatePath("/admin/empleados");
+  revalidatePath("/cliente/reservar");
+}
+
+export async function updateEmpleado(formData: FormData) {
+  const profile = await requireRole(["admin"]);
+  if (isDemoMode()) { revalidatePath("/admin/empleados"); return; }
+
+  const empleadoId = formData.get("empleadoId") as string;
+  const usuarioId = formData.get("usuarioId") as string;
+  const nombre = ((formData.get("nombre") as string) ?? "").trim();
+  const telefono = ((formData.get("telefono") as string) ?? "").trim();
+  const especialidad = formData.get("especialidad") as "barberia" | "peluqueria" | "spa_unas" | "tatuajes";
+  const comisionPct = String(Math.max(0, Math.min(100, Number(formData.get("comisionPct")))));
+  const activo = formData.get("activo") === "on";
+
+  await getDb().transaction(async (tx) => {
+    await tx.update(usuarios)
+      .set({ nombre, telefono, activo, updatedAt: new Date() })
+      .where(and(eq(usuarios.id, usuarioId), eq(usuarios.negocioId, profile.negocioId)));
+    await tx.update(empleados)
+      .set({ especialidad, comisionPct, activo, updatedAt: new Date() })
+      .where(and(eq(empleados.id, empleadoId), eq(empleados.negocioId, profile.negocioId)));
   });
 
   revalidatePath("/admin/empleados");

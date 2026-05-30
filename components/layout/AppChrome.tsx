@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ThemeApplier } from "@/components/layout/ThemeApplier";
 import {
   BarChart3,
@@ -334,14 +334,9 @@ const helpTopics: Record<UserRole, HelpTopic[]> = {
   ],
 };
 
-// ─── Alerts ──────────────────────────────────────────────────────────────────
+// ─── Alert type ──────────────────────────────────────────────────────────────
 
-const alerts: Record<UserRole, { label: string; tone: string; href: string; detail: string }[]> = {
-  super_admin: [],
-  admin: [],
-  empleado: [],
-  cliente: [],
-};
+type AppAlert = { label: string; tone: string; href: string; detail: string };
 
 // ─── SpiralCanvas ────────────────────────────────────────────────────────────
 
@@ -600,9 +595,9 @@ function LogoMark({ brand }: { brand?: CurrentProfile }) {
 // ─── AppChrome ───────────────────────────────────────────────────────────────
 
 export function AppChrome({
-  role, title, nav, mode, children, brand,
+  role, title, nav, mode, children, brand, alerts = [],
 }: {
-  role: UserRole; title: string; nav: NavItem[]; mode: string; children: React.ReactNode; brand?: CurrentProfile;
+  role: UserRole; title: string; nav: NavItem[]; mode: string; children: React.ReactNode; brand?: CurrentProfile; alerts?: AppAlert[];
 }) {
   const [open, setOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -619,7 +614,6 @@ export function AppChrome({
   const pathname = usePathname();
   const topics = helpTopics[role];
   const topic = topics[topicIndex] ?? topics[0];
-  const profileAlerts = useMemo(() => alerts[role], [role]);
 
   useEffect(() => {
     if (botOpen) return;
@@ -745,7 +739,7 @@ export function AppChrome({
           </nav>
 
           {/* alerts panel in sidebar */}
-          {open && !alertsHidden && profileAlerts.length > 0 && (
+          {open && !alertsHidden && alerts.length > 0 && (
             <section className="mt-5 rounded-3xl border border-violet-100 bg-white/80 p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-600">Alarmas</p>
@@ -754,7 +748,7 @@ export function AppChrome({
                 </button>
               </div>
               <div className="mt-3 grid gap-2">
-                {profileAlerts.map((item) => (
+                {alerts.map((item) => (
                   <Link className={`flex items-start gap-2 rounded-xl px-3 py-2 text-xs font-bold ${item.tone} transition hover:opacity-80`} href={item.href} key={item.label}>
                     <span className="mt-px shrink-0 size-1.5 rounded-full bg-current opacity-60 mt-1" />
                     <span>
@@ -766,7 +760,7 @@ export function AppChrome({
               </div>
             </section>
           )}
-          {open && alertsHidden && profileAlerts.length > 0 && (
+          {open && alertsHidden && alerts.length > 0 && (
             <button className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-violet-200 px-3 py-3 text-xs font-bold text-violet-600 hover:bg-violet-50" onClick={() => setAlertsHidden(false)} type="button">
               <Bell className="size-4" /> Mostrar alarmas
             </button>
@@ -815,7 +809,7 @@ export function AppChrome({
             <div className="relative hidden items-center gap-2 md:flex">
               <button className="relative grid size-10 place-items-center rounded-2xl border border-slate-900/10 bg-white text-slate-600 shadow-sm hover:border-cyan-300/40 hover:text-cyan-700" onClick={() => setAlertsOpen((v) => !v)} type="button" aria-label="Ver alarmas">
                 <Bell className="size-4.5" />
-                {!alertsHidden && profileAlerts.length > 0 && <span className="absolute right-2 top-2 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,.9)]" />}
+                {!alertsHidden && alerts.length > 0 && <span className="absolute right-2 top-2 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,.9)]" />}
               </button>
               <button className="rounded-2xl bg-cyan-300 px-4 py-2.5 text-sm font-black text-slate-950 shadow-lg shadow-cyan-950/20 hover:bg-cyan-200 transition" onClick={() => setBotOpen(true)} type="button">
                 Ayuda
@@ -832,14 +826,14 @@ export function AppChrome({
                     </button>
                   </div>
                   <div className="mt-3 grid gap-2">
-                    {(!alertsHidden ? profileAlerts : []).map((item) => (
+                    {(!alertsHidden ? alerts : []).map((item) => (
                       <Link className={`block rounded-xl px-3 py-3 text-xs font-bold ${item.tone} transition hover:opacity-80`} href={item.href} key={item.label} onClick={() => setAlertsOpen(false)}>
                         <span className="block">{item.label}</span>
                         <span className="mt-0.5 block font-medium opacity-75">{item.detail}</span>
                       </Link>
                     ))}
                     {alertsHidden && <p className="rounded-xl border border-dashed border-slate-200 p-4 text-center text-xs font-bold text-slate-400">Alarmas ocultas</p>}
-                    {!alertsHidden && profileAlerts.length === 0 && <p className="rounded-xl border border-dashed border-slate-200 p-4 text-center text-xs font-bold text-slate-400">Sin alarmas activas</p>}
+                    {!alertsHidden && alerts.length === 0 && <p className="rounded-xl border border-dashed border-slate-200 p-4 text-center text-xs font-bold text-slate-400">Sin alarmas activas</p>}
                   </div>
                 </div>
               )}

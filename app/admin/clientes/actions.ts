@@ -1,6 +1,8 @@
 "use server";
 
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
 import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
@@ -66,6 +68,24 @@ export async function createCliente(formData: FormData) {
       notas: payload.notas || null,
     });
   });
+
+  redirect("/admin/clientes?ok=Cliente+guardado+correctamente");
+}
+
+export async function updateCliente(formData: FormData) {
+  const profile = await requireRole(["admin"]);
+  if (isDemoMode()) { revalidatePath("/admin/clientes"); return; }
+
+  const clienteId = formData.get("clienteId") as string;
+  const nombre = ((formData.get("nombre") as string) ?? "").trim();
+  const telefono = ((formData.get("telefono") as string) ?? "").trim();
+  const email = ((formData.get("email") as string) ?? "").trim() || null;
+  const notas = (formData.get("notas") as string | null) || null;
+
+  await getDb()
+    .update(clientes)
+    .set({ nombre, telefono, email, notas, updatedAt: new Date() })
+    .where(and(eq(clientes.id, clienteId), eq(clientes.negocioId, profile.negocioId)));
 
   revalidatePath("/admin/clientes");
 }

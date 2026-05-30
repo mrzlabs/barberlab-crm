@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
 import {
@@ -235,4 +235,40 @@ export async function getReportes(range: ReportRange) {
       ingresos: Number(item.ingresos),
     })),
   };
+}
+
+export type TrendPoint = { fecha: string; ingresos: number; turnos: number };
+
+export async function getTrendDiaria(range: ReportRange): Promise<TrendPoint[]> {
+  if (isDemoMode()) {
+    const seed = [1200000, 980000, 1450000, 890000, 1320000, 1100000, 760000, 1500000, 1280000, 920000, 1380000, 1050000, 1600000, 870000, 1250000, 1420000, 990000, 1180000, 1340000, 800000, 1470000, 1020000, 1300000, 1150000, 1390000, 940000, 1230000, 1480000, 1060000, 1420000];
+    const result: TrendPoint[] = [];
+    const cursor = new Date(`${range.from}T12:00:00`);
+    const toDate = new Date(`${range.to}T12:00:00`);
+    let i = 0;
+    while (cursor <= toDate && i < 62) {
+      result.push({ fecha: cursor.toISOString().slice(0, 10), ingresos: seed[i % seed.length], turnos: Math.floor(seed[i % seed.length] / 108000) });
+      cursor.setDate(cursor.getDate() + 1);
+      i++;
+    }
+    return result;
+  }
+
+  const db = getDb();
+  const { from, to } = rangeDates(range);
+  const profile = await getCurrentProfile();
+  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
+
+  const rows = await db
+    .select({
+      fecha: sql<string>`date(${turnos.createdAt} AT TIME ZONE 'America/Bogota')`,
+      ingresos: sql<string>`coalesce(sum(${turnos.precioFinal} + ${turnos.propina}), 0)`,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(turnos)
+    .where(and(eq(turnos.negocioId, negocioId), gte(turnos.createdAt, from), lte(turnos.createdAt, to)))
+    .groupBy(sql`date(${turnos.createdAt} AT TIME ZONE 'America/Bogota')`)
+    .orderBy(asc(sql`date(${turnos.createdAt} AT TIME ZONE 'America/Bogota')`));
+
+  return rows.map((r) => ({ fecha: r.fecha, ingresos: Number(r.ingresos), turnos: r.count }));
 }

@@ -1,5 +1,8 @@
+import { Suspense } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { SubmitToast } from "@/components/layout/SubmitToast";
 import { requireRole } from "@/lib/auth/session";
+import { getAlerts } from "@/lib/admin/queries";
 
 const nav = [
   { href: "/admin/dashboard", label: "Dashboard" },
@@ -16,5 +19,13 @@ const nav = [
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const profile = await requireRole(["admin", "super_admin"]);
-  return <AppShell profile={profile} role="admin" title={profile.negocioNombre || "Administracion"} nav={nav}>{children}</AppShell>;
+  const alerts = profile.negocioId ? await getAlerts(profile.negocioId) : [];
+  return (
+    <>
+      <AppShell alerts={alerts} profile={profile} role="admin" title={profile.negocioNombre || "Administracion"} nav={nav}>{children}</AppShell>
+      <Suspense>
+        <SubmitToast />
+      </Suspense>
+    </>
+  );
 }

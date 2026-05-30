@@ -1,7 +1,8 @@
 import { fmtMoney } from "@/lib/admin/format";
-import { getReportes, parseRange } from "@/lib/admin/reports";
+import { getReportes, getTrendDiaria, parseRange } from "@/lib/admin/reports";
 import { ExportButtons } from "@/components/reports/ExportButtons";
 import { DonutChart } from "@/components/reports/DonutChart";
+import { TrendChart } from "@/components/reports/TrendChart";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +48,7 @@ function CircleStat({ label, value, detail, color }: { label: string; value: num
 
 export default async function AdminReportesPage({ searchParams }: PageProps) {
   const range = parseRange(searchParams);
-  const r = await getReportes(range);
+  const [r, trend] = await Promise.all([getReportes(range), getTrendDiaria(range)]);
   const maxSvc = Math.max(...r.byService.map((s) => s.ingresos), 0);
   const maxEmp = Math.max(...r.byEmployee.map((e) => e.ingresos + e.propinas), 0);
   const topSvc = r.byService[0];
@@ -74,14 +75,32 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
                 Ingresos, costos, márgenes, comisiones, ticket promedio y rendimiento por empleado y servicio.
               </p>
             </div>
-            <ExportButtons
-              byService={r.byService}
-              byEmployee={r.byEmployee}
-              byPayment={r.byPayment}
-              kpis={r.kpis}
-              from={range.from}
-              to={range.to}
-            />
+            <div className="flex flex-wrap items-center gap-2">
+              <ExportButtons
+                byService={r.byService}
+                byEmployee={r.byEmployee}
+                byPayment={r.byPayment}
+                kpis={r.kpis}
+                from={range.from}
+                to={range.to}
+              />
+              <div className="flex gap-1.5 no-print">
+                {[
+                  { label: "CSV servicios", tipo: "servicios" },
+                  { label: "CSV empleados", tipo: "empleados" },
+                  { label: "CSV pagos", tipo: "pagos" },
+                ].map(({ label, tipo }) => (
+                  <a
+                    key={tipo}
+                    className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-xs font-black text-white hover:bg-white/20 transition"
+                    href={`/admin/reportes/export-csv?from=${range.from}&to=${range.to}&tipo=${tipo}`}
+                    download
+                  >
+                    ↓ {label}
+                  </a>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* date filter */}
@@ -131,6 +150,20 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
           <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">Editable por comercio</p>
           <strong className="mt-1 block text-sm">Admin / Configuración</strong>
         </article>
+      </section>
+
+      {/* ── Tendencia diaria ─── */}
+      <section className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b px-5 py-4">
+          <div>
+            <h3 className="font-black">Ingresos por día</h3>
+            <p className="text-xs text-slate-500">Evolución diaria de ingresos (precio final + propinas) en el período.</p>
+          </div>
+          <span className="rounded-full bg-cyan-50 px-2.5 py-1 text-[10px] font-bold text-cyan-700">{trend.length} días</span>
+        </div>
+        <div className="p-5">
+          <TrendChart data={trend} />
+        </div>
       </section>
 
       {/* ── Tendencias comerciales ─── */}
