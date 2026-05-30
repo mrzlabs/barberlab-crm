@@ -78,7 +78,15 @@ export const negocioSchema = z.object({
   nombre: z.string().min(2).max(120),
   slug: z.string().min(2).max(80).regex(/^[a-z0-9-]+$/),
   telefono: z.string().max(30).optional().or(z.literal("")),
+  correo: z.string().email().optional().or(z.literal("")),
   direccion: z.string().max(180).optional().or(z.literal("")),
+  representante: z.string().max(120).optional().or(z.literal("")),
+  tipoDocumento: z.enum(["cc", "ce", "nit", "pasaporte", "pep", "ppt", "ti"]).optional().or(z.literal("")),
+  numeroDocumento: z.string().max(40).optional().or(z.literal("")),
+  ciudadIndicativo: z.string().max(12).optional().or(z.literal("")),
+  contactoPrincipal: z.string().max(30).optional().or(z.literal("")),
+  descripcion: z.string().max(600).optional().or(z.literal("")),
+  slogan: z.string().max(160).optional().or(z.literal("")),
   logoUrl: z.string().url().optional().or(z.literal("")),
   colorPrimario: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   colorSecundario: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
@@ -111,4 +119,14 @@ export const negocioUserSchema = z.object({
   password: z.string().min(8).max(72),
   especialidad: z.enum(["barberia", "peluqueria", "spa_unas", "tatuajes"]).optional().or(z.literal("")),
   comisionPct: z.coerce.number().min(0).max(100).optional(),
+});
+
+export const negocioSelfSchema = negocioUpdateSchema.omit({
+  id: true,
+  slug: true,
+  plan: true,
+  estado: true,
+  modoAislamiento: true,
+}).extend({
+  negocioId: z.string().uuid(),
 });

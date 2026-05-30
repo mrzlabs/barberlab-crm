@@ -1,6 +1,6 @@
 import { count, desc, eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { citas, clientes, empleados, inventario, negocios, turnos } from "@/lib/db/schema";
+import { citas, clientes, empleados, inventario, negocios, turnos, usuarios } from "@/lib/db/schema";
 
 export async function getNegocios() {
   return getDb().select().from(negocios).orderBy(desc(negocios.createdAt)).limit(100);
@@ -27,4 +27,16 @@ export async function getNegocioStats(negocioId: string) {
     turnos: turnosRow?.total ?? 0,
     inventario: inventarioRow?.total ?? 0,
   };
+}
+
+export async function getNegocioUsers(negocioId: string) {
+  return getDb().select({
+    id: usuarios.id,
+    nombre: usuarios.nombre,
+    email: usuarios.email,
+    rol: usuarios.rol,
+    telefono: usuarios.telefono,
+    activo: usuarios.activo,
+    createdAt: usuarios.createdAt,
+  }).from(usuarios).where(eq(usuarios.negocioId, negocioId)).orderBy(desc(usuarios.createdAt)).limit(100);
 }

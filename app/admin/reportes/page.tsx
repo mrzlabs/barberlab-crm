@@ -21,14 +21,20 @@ function KpiCard({
   );
 }
 
-function HeatCell({ label, value, max }: { label: string; value: number; max: number }) {
-  const ratio = max ? value / max : 0;
-  const bg = ratio >= 0.76 ? "bg-cyan-500 text-white" : ratio >= 0.46 ? "bg-violet-500 text-white" : ratio >= 0.18 ? "bg-amber-200 text-slate-900" : "bg-slate-100 text-slate-500";
+function CircleStat({ label, value, detail, color }: { label: string; value: number; detail: string; color: string }) {
+  const safe = Math.max(0, Math.min(100, value));
   return (
-    <div className={`rounded-xl p-3 ${bg}`}>
-      <strong className="block truncate text-xs font-semibold leading-tight">{label}</strong>
-      <span className="mt-1 block text-[11px] font-bold opacity-80">{fmtMoney(value)}</span>
-    </div>
+    <article className="rounded-2xl border bg-white p-5 shadow-sm">
+      <div className="flex flex-col items-center text-center">
+        <div className="grid size-36 place-items-center rounded-full" style={{ background: `conic-gradient(${color} ${safe * 3.6}deg, #e5e7eb 0deg)` }}>
+          <div className="grid size-24 place-items-center rounded-full bg-white">
+            <strong className="text-2xl font-black">{safe.toFixed(0)}%</strong>
+          </div>
+        </div>
+        <h3 className="mt-4 text-xl font-black">{label}</h3>
+        <p className="mt-2 text-sm leading-6 text-slate-500">{detail}</p>
+      </div>
+    </article>
   );
 }
 
@@ -41,6 +47,8 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
   const topEmp = r.byEmployee[0];
   const topPay = r.byPayment[0];
   const hasData = r.kpis.turnos > 0;
+  const serviceShare = hasData && topSvc ? (topSvc.turnos / r.kpis.turnos) * 100 : 0;
+  const employeeShare = hasData && topEmp ? (topEmp.turnos / r.kpis.turnos) * 100 : 0;
 
   const inputCls = "w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/50 outline-none focus:border-cyan-400";
 
@@ -233,7 +241,7 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
         </article>
       </section>
 
-      {/* ── Método de pago + mapa de calor ─── */}
+      {/* ── Método de pago + intensidad ─── */}
       <section className="grid gap-6 xl:grid-cols-[1fr_1.6fr]">
 
         {/* métodos de pago */}
@@ -256,29 +264,29 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
           </div>
         </article>
 
-        {/* mapa de calor */}
+        {/* intensidad */}
         <article className="rounded-2xl border bg-white shadow-sm">
           <div className="border-b px-5 py-4">
-            <h3 className="font-black">Mapa de calor operativo</h3>
-            <p className="text-xs text-slate-500">Intensidad de ingreso por servicio y empleado.</p>
+            <h3 className="font-black">Intensidad operativa</h3>
+            <p className="text-xs text-slate-500">Dos indicadores simples para leer concentración por servicio y empleado.</p>
           </div>
           {hasData ? (
-            <div className="grid gap-6 p-5 md:grid-cols-2">
-              <div>
-                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">Servicios</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {r.byService.map((s) => <HeatCell key={s.servicio} label={s.servicio} value={s.ingresos} max={maxSvc} />)}
-                </div>
-              </div>
-              <div>
-                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">Empleados</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {r.byEmployee.map((e) => <HeatCell key={e.empleado} label={e.empleado} value={e.ingresos + e.propinas} max={maxEmp} />)}
-                </div>
-              </div>
+            <div className="grid gap-4 p-5 md:grid-cols-2">
+              <CircleStat
+                label="Servicio principal"
+                value={serviceShare}
+                detail={`${topSvc?.servicio || "Sin servicio"} representa esta porción de turnos cerrados.`}
+                color="#22d3ee"
+              />
+              <CircleStat
+                label="Empleado principal"
+                value={employeeShare}
+                detail={`${topEmp?.empleado || "Sin empleado"} representa esta porción de turnos cerrados.`}
+                color="#7c3aed"
+              />
             </div>
           ) : (
-            <p className="p-6 text-sm text-slate-400">Sin datos suficientes para mapa de calor.</p>
+            <p className="p-6 text-sm text-slate-400">Sin datos suficientes para intensidad operativa.</p>
           )}
         </article>
       </section>

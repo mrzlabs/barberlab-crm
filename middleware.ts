@@ -49,5 +49,6 @@ export const config = {
     "/super-admin/:path*",
     "/empleado/:path*",
     "/cliente/:path*",
+    "/perfil",
   ],
 };

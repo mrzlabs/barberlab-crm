@@ -13,6 +13,10 @@ export type CurrentProfile = {
   negocioId: string | null;
   negocioNombre: string | null;
   negocioSlug: string | null;
+  negocioCorreo: string | null;
+  representante: string | null;
+  descripcion: string | null;
+  slogan: string | null;
   logoUrl: string | null;
   colorPrimario: string;
   colorSecundario: string;
@@ -34,6 +38,10 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
       negocioId: "00000000-0000-0000-0000-000000000010",
       negocioNombre: "BarberLab Demo",
       negocioSlug: "barberlab-demo",
+      negocioCorreo: "demo@barberlab.local",
+      representante: "Admin Demo",
+      descripcion: "CRM demo para validar agenda, turnos, inventario y reportes.",
+      slogan: "Opera tu barberia con control total.",
       logoUrl: null,
       colorPrimario: "#111827",
       colorSecundario: "#22d3ee",
@@ -53,7 +61,7 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
 
   const { data: profile } = await supabase
     .from("usuarios")
-    .select("id,email,rol,nombre,telefono,negocio_id,super_admin,negocios(id,nombre,slug,logo_url,color_primario,color_secundario,color_acento,fuente,plan,estado)")
+    .select("id,email,rol,nombre,telefono,negocio_id,super_admin,negocios(id,nombre,slug,correo,representante,descripcion,slogan,logo_url,color_primario,color_secundario,color_acento,fuente,plan,estado)")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -70,6 +78,10 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
     negocioId: profile.negocio_id,
     negocioNombre: negocio?.nombre ?? null,
     negocioSlug: negocio?.slug ?? null,
+    negocioCorreo: negocio?.correo ?? null,
+    representante: negocio?.representante ?? null,
+    descripcion: negocio?.descripcion ?? null,
+    slogan: negocio?.slogan ?? null,
     logoUrl: negocio?.logo_url ?? null,
     colorPrimario: negocio?.color_primario ?? "#111827",
     colorSecundario: negocio?.color_secundario ?? "#22d3ee",

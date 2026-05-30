@@ -16,12 +16,14 @@ import {
   Menu,
   Scissors,
   Search,
+  Settings,
   Sparkles,
   Users,
   X,
   TrendingUp,
   ArrowRight,
   Lightbulb,
+  UserCircle,
 } from "lucide-react";
 import type { UserRole } from "@/lib/auth/roles";
 import type { CurrentProfile } from "@/lib/auth/session";
@@ -55,6 +57,7 @@ const navStyles: Record<string, NavStyle> = {
   Empleados:     { icon: Users,           tone: "bg-sky-500 text-white shadow-sky-400/40",                             shape: "circle"   },
   Clientes:      { icon: Users,           tone: "bg-teal-500 text-white shadow-teal-400/40",                           shape: "circle"   },
   Reportes:      { icon: BarChart3,       tone: "bg-gradient-to-br from-slate-700 to-violet-700 text-white shadow-violet-700/40", shape: "squircle" },
+  Configuracion: { icon: Settings,        tone: "bg-gradient-to-br from-cyan-600 to-teal-500 text-white shadow-cyan-500/40", shape: "squircle" },
   "Mi agenda":   { icon: CalendarDays,    tone: "bg-emerald-500 text-white shadow-emerald-400/40",                     shape: "circle"   },
   "Cerrar turno":{ icon: ClipboardCheck,  tone: "bg-gradient-to-br from-orange-500 to-amber-400 text-white shadow-orange-400/40", shape: "squircle" },
   Reservar:      { icon: CalendarDays,    tone: "bg-cyan-500 text-white shadow-cyan-400/40",                           shape: "circle"   },
@@ -704,7 +707,7 @@ export function AppChrome({
               const shapeClass = style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-xl" : "rounded-[14px]";
               return (
                 <Link
-                  className={`group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-semibold text-slate-800 transition hover:bg-white/40 hover:text-slate-950 ${open ? "justify-start" : "justify-center"}`}
+                  className={`group flex items-center gap-3 rounded-2xl px-3 py-3 text-base font-bold text-slate-800 transition hover:bg-white/60 hover:text-slate-950 ${open ? "justify-start" : "justify-center"}`}
                   href={item.href}
                   key={item.href}
                   onClick={() => setMobileOpen(false)}
@@ -712,7 +715,7 @@ export function AppChrome({
                   <span className={`grid size-9 shrink-0 place-items-center shadow-md transition group-hover:scale-[1.08] group-hover:shadow-lg ${shapeClass} ${style.tone}`}>
                     <Icon className="size-[17px]" />
                   </span>
-                  {open && <span className="truncate text-[13.5px] font-semibold leading-none">{item.label}</span>}
+                  {open && <span className="truncate text-[15px] font-bold leading-none">{item.label}</span>}
                 </Link>
               );
             })}
@@ -770,6 +773,9 @@ export function AppChrome({
               <button className="rounded-2xl bg-cyan-300 px-4 py-2.5 text-sm font-black text-slate-950 shadow-lg shadow-cyan-950/20 hover:bg-cyan-200 transition" onClick={() => setBotOpen(true)} type="button">
                 Ayuda
               </button>
+              <Link className="grid size-10 place-items-center rounded-2xl border border-slate-900/10 bg-white text-slate-700 shadow-sm hover:border-violet-300 hover:text-violet-700" href="/perfil" aria-label="Ver perfil">
+                <UserCircle className="size-5" />
+              </Link>
               {alertsOpen && (
                 <div className="absolute right-20 top-14 z-50 w-80 rounded-[1.6rem] border border-violet-100 bg-white/97 p-4 shadow-2xl shadow-slate-950/14 backdrop-blur-2xl">
                   <div className="flex items-center justify-between gap-3">

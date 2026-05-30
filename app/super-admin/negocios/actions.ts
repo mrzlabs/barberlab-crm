@@ -18,7 +18,15 @@ export async function createNegocio(formData: FormData) {
     nombre: payload.nombre.trim(),
     slug: payload.slug.trim().toLowerCase(),
     telefono: payload.telefono || null,
+    correo: payload.correo || null,
     direccion: payload.direccion || null,
+    representante: payload.representante || null,
+    tipoDocumento: payload.tipoDocumento || null,
+    numeroDocumento: payload.numeroDocumento || null,
+    ciudadIndicativo: payload.ciudadIndicativo || null,
+    contactoPrincipal: payload.contactoPrincipal || null,
+    descripcion: payload.descripcion || null,
+    slogan: payload.slogan || payload.descripcion?.slice(0, 150) || null,
     logoUrl: payload.logoUrl || null,
     colorPrimario: payload.colorPrimario,
     colorSecundario: payload.colorSecundario,
@@ -68,7 +76,15 @@ export async function updateNegocio(formData: FormData) {
     nombre: payload.nombre.trim(),
     slug: payload.slug.trim().toLowerCase(),
     telefono: payload.telefono || null,
+    correo: payload.correo || null,
     direccion: payload.direccion || null,
+    representante: payload.representante || null,
+    tipoDocumento: payload.tipoDocumento || null,
+    numeroDocumento: payload.numeroDocumento || null,
+    ciudadIndicativo: payload.ciudadIndicativo || null,
+    contactoPrincipal: payload.contactoPrincipal || null,
+    descripcion: payload.descripcion || null,
+    slogan: payload.slogan || payload.descripcion?.slice(0, 150) || null,
     logoUrl: payload.logoUrl || null,
     colorPrimario: payload.colorPrimario,
     colorSecundario: payload.colorSecundario,
@@ -82,6 +98,29 @@ export async function updateNegocio(formData: FormData) {
 
   revalidatePath("/super-admin/negocios");
   revalidatePath(`/super-admin/negocios/${payload.id}`);
+}
+
+export async function toggleNegocio(formData: FormData) {
+  await requireRole(["super_admin"]);
+  const id = String(formData.get("id") || "");
+  const nextEstado = String(formData.get("estado") || "");
+  if (!id || !["activo", "suspendido", "cancelado"].includes(nextEstado)) {
+    throw new Error("Estado invalido");
+  }
+
+  const active = nextEstado === "activo";
+  await getDb().update(negocios).set({
+    estado: nextEstado,
+    updatedAt: new Date(),
+  }).where(eq(negocios.id, id));
+
+  await getDb().update(usuarios).set({
+    activo: active,
+    updatedAt: new Date(),
+  }).where(eq(usuarios.negocioId, id));
+
+  revalidatePath("/super-admin/negocios");
+  revalidatePath(`/super-admin/negocios/${id}`);
 }
 
 export async function createNegocioUser(formData: FormData) {

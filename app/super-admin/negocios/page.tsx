@@ -102,9 +102,29 @@ export default async function NegociosPage() {
             <input className={input} name="slug" placeholder="slug-barberia" required />
             <div className="grid grid-cols-2 gap-3">
               <input className={input} name="telefono" placeholder="Teléfono" />
-              <input className={input} name="logoUrl" placeholder="URL logo" />
+              <input className={input} name="correo" placeholder="Correo" type="email" />
             </div>
             <input className={input} name="direccion" placeholder="Dirección" />
+            <input className={input} name="representante" placeholder="Representante legal" />
+            <div className="grid grid-cols-2 gap-3">
+              <select className={input} name="tipoDocumento" defaultValue="cc">
+                <option value="cc">Cédula ciudadanía</option>
+                <option value="ce">Cédula extranjería</option>
+                <option value="nit">NIT</option>
+                <option value="pasaporte">Pasaporte</option>
+                <option value="pep">PEP</option>
+                <option value="ppt">PPT</option>
+                <option value="ti">Tarjeta identidad</option>
+              </select>
+              <input className={input} name="numeroDocumento" placeholder="Número documento" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <input className={input} name="ciudadIndicativo" placeholder="Indicativo ciudad" />
+              <input className={input} name="contactoPrincipal" placeholder="Contacto principal" />
+            </div>
+            <textarea className={input} name="descripcion" placeholder="Descripción de la barbería" rows={3} />
+            <input className={input} name="slogan" placeholder="Slogan dashboard" />
+            <input className={input} name="logoUrl" placeholder="URL logo" />
 
             {/* colores */}
             <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">

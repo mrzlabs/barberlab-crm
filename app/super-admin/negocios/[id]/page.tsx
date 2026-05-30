@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { createNegocioUser, updateNegocio } from "../actions";
-import { getNegocioById, getNegocioStats } from "@/lib/super-admin/queries";
+import { createNegocioUser, toggleNegocio, updateNegocio } from "../actions";
+import { getNegocioById, getNegocioStats, getNegocioUsers } from "@/lib/super-admin/queries";
 import { BrandPreview } from "./BrandPreview";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +12,10 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
   const negocio = await getNegocioById(params.id);
   if (!negocio) notFound();
 
-  const stats = await getNegocioStats(negocio.id);
+  const [stats, usuarios] = await Promise.all([
+    getNegocioStats(negocio.id),
+    getNegocioUsers(negocio.id),
+  ]);
   const statItems = [
     ["Empleados", stats.empleados],
     ["Clientes", stats.clientes],
@@ -83,8 +86,48 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
               <input className={input} name="telefono" defaultValue={negocio.telefono || ""} />
             </label>
             <label className="grid gap-2 text-sm font-bold">
+              Correo
+              <input className={input} name="correo" type="email" defaultValue={negocio.correo || ""} />
+            </label>
+            <label className="grid gap-2 text-sm font-bold">
               Direccion
               <input className={input} name="direccion" defaultValue={negocio.direccion || ""} />
+            </label>
+            <label className="grid gap-2 text-sm font-bold">
+              Representante
+              <input className={input} name="representante" defaultValue={negocio.representante || ""} />
+            </label>
+            <label className="grid gap-2 text-sm font-bold">
+              Tipo documento
+              <select className={input} name="tipoDocumento" defaultValue={negocio.tipoDocumento || "cc"}>
+                <option value="cc">Cedula ciudadania</option>
+                <option value="ce">Cedula extranjeria</option>
+                <option value="nit">NIT</option>
+                <option value="pasaporte">Pasaporte</option>
+                <option value="pep">PEP</option>
+                <option value="ppt">PPT</option>
+                <option value="ti">Tarjeta identidad</option>
+              </select>
+            </label>
+            <label className="grid gap-2 text-sm font-bold">
+              Numero documento
+              <input className={input} name="numeroDocumento" defaultValue={negocio.numeroDocumento || ""} />
+            </label>
+            <label className="grid gap-2 text-sm font-bold">
+              Indicativo ciudad
+              <input className={input} name="ciudadIndicativo" defaultValue={negocio.ciudadIndicativo || ""} />
+            </label>
+            <label className="grid gap-2 text-sm font-bold">
+              Contacto principal
+              <input className={input} name="contactoPrincipal" defaultValue={negocio.contactoPrincipal || ""} />
+            </label>
+            <label className="grid gap-2 text-sm font-bold md:col-span-2">
+              Descripcion
+              <textarea className={input} name="descripcion" defaultValue={negocio.descripcion || ""} rows={3} />
+            </label>
+            <label className="grid gap-2 text-sm font-bold md:col-span-2">
+              Slogan dashboard
+              <input className={input} name="slogan" defaultValue={negocio.slogan || ""} />
             </label>
             <label className="grid gap-2 text-sm font-bold md:col-span-2">
               Logo URL
@@ -143,6 +186,70 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
           defaultSecundario={negocio.colorSecundario}
           defaultAcento={negocio.colorAcento}
         />
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[430px_1fr]">
+        <section className="glass-panel rounded-[2rem] p-5">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-rose-700">Control comercial</p>
+          <h3 className="mt-1 text-2xl font-black">Encender o apagar tienda</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Al suspender o cancelar, los usuarios relacionados quedan inactivos. Al activar, se rehabilitan para operar.
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+            {[
+              ["activo", "Activar"],
+              ["suspendido", "Suspender"],
+              ["cancelado", "Cancelar"],
+            ].map(([estado, label]) => (
+              <form action={toggleNegocio} key={estado}>
+                <input name="id" type="hidden" value={negocio.id} />
+                <input name="estado" type="hidden" value={estado} />
+                <button className="w-full rounded-2xl border bg-white px-4 py-3 text-sm font-black text-slate-800 hover:border-violet-300" type="submit">
+                  {label}
+                </button>
+              </form>
+            ))}
+          </div>
+        </section>
+
+        <section className="glass-panel overflow-hidden rounded-[2rem]">
+          <div className="border-b border-slate-200/70 p-5">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">Roles y accesos</p>
+            <h3 className="mt-1 text-2xl font-black">Usuarios registrados</h3>
+          </div>
+          <div className="overflow-x-auto scrollbar-soft">
+            <table className="w-full min-w-[760px] text-left text-sm">
+              <thead className="bg-slate-950 text-xs uppercase tracking-wide text-cyan-100">
+                <tr>
+                  <th className="px-5 py-3">Usuario</th>
+                  <th className="px-5 py-3">Rol</th>
+                  <th className="px-5 py-3">Telefono</th>
+                  <th className="px-5 py-3">Estado</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white/80">
+                {usuarios.map((user) => (
+                  <tr className="border-t" key={user.id}>
+                    <td className="px-5 py-4">
+                      <strong className="block">{user.nombre}</strong>
+                      <span className="text-xs text-slate-500">{user.email}</span>
+                    </td>
+                    <td className="px-5 py-4 capitalize">{user.rol}</td>
+                    <td className="px-5 py-4">{user.telefono || "Sin telefono"}</td>
+                    <td className="px-5 py-4">
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-black ${user.activo ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
+                        {user.activo ? "Activo" : "Inactivo"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {usuarios.length === 0 ? (
+                  <tr><td className="px-5 py-8 text-center text-slate-500" colSpan={4}>Sin usuarios en este negocio.</td></tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        </section>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[430px_1fr]">

@@ -14,6 +14,7 @@ export const protectedPrefixes: Array<{ prefix: string; roles: UserRole[] }> = [
   { prefix: "/admin", roles: ["admin", "super_admin"] },
   { prefix: "/empleado", roles: ["empleado"] },
   { prefix: "/cliente", roles: ["cliente"] },
+  { prefix: "/perfil", roles: ["super_admin", "admin", "empleado", "cliente"] },
 ];
 
 export function isRole(value: unknown): value is UserRole {

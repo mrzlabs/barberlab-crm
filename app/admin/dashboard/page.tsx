@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { fmtMoney } from "@/lib/admin/format";
 import { getDashboard, getRecentTurnos } from "@/lib/admin/queries";
+import { getCurrentProfile } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,7 @@ const flow = [
 ];
 
 export default async function DashboardPage() {
-  const [dashboard, recentTurnos] = await Promise.all([getDashboard(), getRecentTurnos()]);
+  const [dashboard, recentTurnos, profile] = await Promise.all([getDashboard(), getRecentTurnos(), getCurrentProfile()]);
 
   return (
     <div className="space-y-6">
@@ -36,7 +37,7 @@ export default async function DashboardPage() {
               Control diario de agenda, caja, inventario y rentabilidad.
             </h2>
             <p className="mt-3 text-sm leading-6 text-slate-300 sm:mt-5">
-              Vista personalizada del negocio para tomar decisiones rápidas sin entrar a cada módulo.
+              {profile?.slogan || "Vista personalizada del negocio para tomar decisiones rápidas sin entrar a cada módulo."}
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link className="rounded-2xl bg-cyan-300 px-4 py-2.5 text-sm font-black text-slate-950 sm:px-5 sm:py-3" href="/admin/agenda">Agendar turno</Link>
