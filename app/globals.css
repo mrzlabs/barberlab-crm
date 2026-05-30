@@ -70,6 +70,18 @@ a {
   backdrop-filter: blur(8px);
 }
 
+.glass-sidebar {
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-right: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+/* smooth brand color transitions */
+.crm-shell aside,
+.crm-shell header {
+  transition: background 0.4s ease;
+}
+
 .mac-dots::before {
   content: "";
   display: block;

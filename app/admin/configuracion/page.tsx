@@ -2,6 +2,12 @@ import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
 import { getNegocioById } from "@/lib/super-admin/queries";
 import { updateMiNegocio } from "./actions";
+import {
+  ColorPicker,
+  PRIMARY_SWATCHES,
+  SECONDARY_SWATCHES,
+  ACCENT_SWATCHES,
+} from "@/components/admin/ColorPicker";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +35,8 @@ export default async function ConfiguracionPage() {
 
       <form action={updateMiNegocio} className="glass-panel rounded-[2rem] p-5">
         <input name="negocioId" type="hidden" value={negocio.id} />
+
+        {/* Plan info */}
         <div className="mb-5 grid gap-3 rounded-[1.5rem] border bg-white p-4 sm:grid-cols-3">
           <article>
             <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Plan</p>
@@ -43,6 +51,8 @@ export default async function ConfiguracionPage() {
             <strong className="mt-1 block">{negocio.fechaFin || "Sin fecha"}</strong>
           </article>
         </div>
+
+        {/* Datos generales */}
         <div className="grid gap-4 md:grid-cols-2">
           <label className="grid gap-2 text-sm font-bold">Nombre<input className={input} name="nombre" defaultValue={negocio.nombre} required /></label>
           <label className="grid gap-2 text-sm font-bold">Telefono<input className={input} name="telefono" defaultValue={negocio.telefono || ""} /></label>
@@ -66,11 +76,63 @@ export default async function ConfiguracionPage() {
           <label className="grid gap-2 text-sm font-bold">Logo URL<input className={input} name="logoUrl" defaultValue={negocio.logoUrl || ""} /></label>
           <label className="grid gap-2 text-sm font-bold md:col-span-2">Descripcion<textarea className={input} name="descripcion" defaultValue={negocio.descripcion || ""} rows={4} /></label>
           <label className="grid gap-2 text-sm font-bold md:col-span-2">Slogan dashboard<input className={input} name="slogan" defaultValue={negocio.slogan || ""} /></label>
-          <label className="grid gap-2 text-sm font-bold">Color principal<input className={input} name="colorPrimario" type="color" defaultValue={negocio.colorPrimario} /></label>
-          <label className="grid gap-2 text-sm font-bold">Color secundario<input className={input} name="colorSecundario" type="color" defaultValue={negocio.colorSecundario} /></label>
-          <label className="grid gap-2 text-sm font-bold">Color acento<input className={input} name="colorAcento" type="color" defaultValue={negocio.colorAcento} /></label>
           <label className="grid gap-2 text-sm font-bold">Fuente<input className={input} name="fuente" defaultValue={negocio.fuente} /></label>
         </div>
+
+        {/* ── Paleta de colores ─────────────────────────────────── */}
+        <div className="mt-6 rounded-[1.5rem] border bg-white p-5">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Identidad visual</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Estos colores se aplican al sidebar, header, KPIs y botones del CRM en tiempo real.
+          </p>
+
+          {/* preview strip */}
+          <div className="mt-4 flex h-10 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+            <div className="flex-1" style={{ backgroundColor: negocio.colorPrimario }} />
+            <div className="flex-1" style={{ backgroundColor: negocio.colorSecundario }} />
+            <div className="flex-1" style={{ backgroundColor: negocio.colorAcento }} />
+          </div>
+
+          <div className="mt-5 grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
+                Color principal — Sidebar &amp; Fondo
+              </p>
+              <ColorPicker
+                name="colorPrimario"
+                defaultValue={negocio.colorPrimario}
+                swatches={PRIMARY_SWATCHES}
+                label=""
+              />
+            </div>
+
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
+                Color secundario — KPI Cards &amp; Highlights
+              </p>
+              <ColorPicker
+                name="colorSecundario"
+                defaultValue={negocio.colorSecundario}
+                swatches={SECONDARY_SWATCHES}
+                label=""
+              />
+            </div>
+
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
+                Color acento — Botones CTA &amp; Badges
+              </p>
+              <ColorPicker
+                name="colorAcento"
+                defaultValue={negocio.colorAcento}
+                swatches={ACCENT_SWATCHES}
+                label=""
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ── Reglas contables ─────────────────────────────────── */}
         <div className="mt-5 rounded-[1.5rem] border bg-white p-4">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-violet-700">Reglas contables</p>
           <div className="mt-3 grid gap-4 md:grid-cols-2">
@@ -92,7 +154,10 @@ export default async function ConfiguracionPage() {
             Esta regla alimenta reportes, utilidad neta, utilidad por empleado y utilidad por servicio.
           </p>
         </div>
-        <button className="mt-5 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white" type="submit">Guardar configuracion</button>
+
+        <button className="mt-5 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-violet-950" type="submit">
+          Guardar configuracion
+        </button>
       </form>
     </div>
   );

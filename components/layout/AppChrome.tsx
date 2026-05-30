@@ -15,6 +15,7 @@ import {
   ClipboardCheck,
   CreditCard,
   LayoutDashboard,
+  LogOut,
   Menu,
   Scissors,
   Search,
@@ -594,6 +595,16 @@ function LogoMark({ brand }: { brand?: CurrentProfile }) {
 
 // ─── AppChrome ───────────────────────────────────────────────────────────────
 
+function hexAlpha(hex: string, alpha: number): string {
+  const clean = hex.replace("#", "");
+  const full = clean.length === 3 ? clean.split("").map(c => c + c).join("") : clean;
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return `rgba(17,24,39,${alpha})`;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 export function AppChrome({
   role, title, nav, mode, children, brand, alerts = [],
 }: {
@@ -606,6 +617,7 @@ export function AppChrome({
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [alertsHidden, setAlertsHidden] = useState(false);
   const [topicIndex, setTopicIndex] = useState(0);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   // Bot corner roam: "right" | "left", fades out then teleports
   const [botSide, setBotSide] = useState<"right" | "left">("right");
@@ -614,6 +626,10 @@ export function AppChrome({
   const pathname = usePathname();
   const topics = helpTopics[role];
   const topic = topics[topicIndex] ?? topics[0];
+
+  const primaryColor  = brand?.colorPrimario  || "#111827";
+  const secondaryColor = brand?.colorSecundario || "#22d3ee";
+  const accentColor   = brand?.colorAcento    || "#7c3aed";
 
   useEffect(() => {
     if (botOpen) return;
@@ -634,20 +650,33 @@ export function AppChrome({
     <div
       className="crm-shell min-h-dvh overflow-x-hidden text-slate-950"
       style={{
-        ["--brand-primary" as string]: brand?.colorPrimario || "#111827",
-        ["--brand-secondary" as string]: brand?.colorSecundario || "#22d3ee",
-        ["--brand-accent" as string]: brand?.colorAcento || "#7c3aed",
+        ["--brand-primary" as string]: primaryColor,
+        ["--brand-secondary" as string]: secondaryColor,
+        ["--brand-accent" as string]: accentColor,
         fontFamily: `${brand?.fuente || "Inter"}, Inter, Segoe UI, Roboto, Arial, sans-serif`,
       }}
     >
-
       {/* aplica CSS vars del negocio al DOM */}
       <ThemeApplier
-        primary={brand?.colorPrimario ?? "#111827"}
-        secondary={brand?.colorSecundario ?? "#22d3ee"}
-        accent={brand?.colorAcento ?? "#7c3aed"}
+        primary={primaryColor}
+        secondary={secondaryColor}
+        accent={accentColor}
         fuente={brand?.fuente ?? "Outfit"}
       />
+
+      {/* ── Logo/foto como fondo difuminado ─────────────────────── */}
+      {brand?.logoUrl && (
+        <div
+          className="pointer-events-none fixed inset-0 -z-20"
+          style={{
+            backgroundImage: `url(${brand.logoUrl})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            opacity: 0.07,
+            filter: "blur(40px)",
+          }}
+        />
+      )}
 
       {/* ── Background ──────────────────────────────────────────── */}
       <div className="fixed inset-0 -z-10">
@@ -672,20 +701,35 @@ export function AppChrome({
       )}
 
       {/* ── Sidebar ─────────────────────────────────────────────── */}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex flex-col border-r border-white/25 bg-white/14 shadow-2xl shadow-violet-950/8 backdrop-blur-[32px] transition-all duration-300 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(19rem,86vw)] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}>
+      <aside
+        className={`glass-sidebar fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(19rem,86vw)] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}
+        style={{ background: hexAlpha(primaryColor, 0.88) }}
+      >
         {/* header */}
-        <div className="flex items-center justify-between gap-3 border-b border-slate-900/10 p-4">
+        <div className="flex items-center justify-between gap-3 border-b border-white/10 p-4">
           <div className="flex min-w-0 items-center gap-3">
             <LogoMark brand={brand} />
             <div className={open ? "block" : "hidden"}>
-              <p className="text-[11px] font-black uppercase tracking-[0.22em]" style={{ color: brand?.colorAcento || "#6d28d9" }}>{brand?.plan ? `Plan ${brand.plan}` : "BarberLab"}</p>
-              <h1 className="truncate text-sm font-black text-slate-950">{title}</h1>
+              <p className="text-[11px] font-black uppercase tracking-[0.22em]" style={{ color: secondaryColor }}>
+                {brand?.plan ? `Plan ${brand.plan}` : "BarberLab"}
+              </p>
+              <h1 className="truncate text-sm font-black text-white">{title}</h1>
             </div>
           </div>
-          <button className="hidden rounded-xl border border-white/30 bg-white/20 p-2 text-slate-600 hover:bg-white hover:text-violet-700 backdrop-blur-sm lg:grid" onClick={() => setOpen((v) => !v)} type="button" aria-label="Contraer menú">
+          <button
+            className="hidden rounded-xl border border-white/15 bg-white/10 p-2 text-white/70 backdrop-blur-sm hover:bg-white/20 hover:text-white lg:grid"
+            onClick={() => setOpen((v) => !v)}
+            type="button"
+            aria-label="Contraer menú"
+          >
             {open ? <ChevronLeft className="size-4" /> : <ChevronRight className="size-4" />}
           </button>
-          <button className="rounded-xl border border-white/30 bg-white/20 p-2 text-slate-600 lg:hidden" onClick={() => setMobileOpen(false)} type="button" aria-label="Cerrar menú">
+          <button
+            className="rounded-xl border border-white/15 bg-white/10 p-2 text-white/70 lg:hidden"
+            onClick={() => setMobileOpen(false)}
+            type="button"
+            aria-label="Cerrar menú"
+          >
             <X className="size-4" />
           </button>
         </div>
@@ -693,15 +737,15 @@ export function AppChrome({
         {/* nav body */}
         <div className="flex-1 overflow-y-auto p-3">
           <div className={`mb-4 flex flex-wrap gap-2 ${open ? "justify-start" : "justify-center"}`}>
-            <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-violet-700">
+            <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white/80">
               {open ? role : role.slice(0, 1)}
             </span>
           </div>
 
           {open && (
-            <label className="mb-3 flex items-center gap-2 rounded-2xl border border-white/25 bg-white/18 px-3 py-2.5 text-sm font-semibold text-slate-700 backdrop-blur-sm focus-within:border-violet-400/60 focus-within:bg-white/50">
-              <Search className="size-4 shrink-0" />
-              <input className="w-full bg-transparent outline-none placeholder:text-slate-400" placeholder="Buscar módulo" />
+            <label className="mb-3 flex items-center gap-2 rounded-2xl border border-white/15 bg-white/8 px-3 py-2.5 text-sm font-semibold text-white/70 backdrop-blur-sm focus-within:border-white/30 focus-within:bg-white/15">
+              <Search className="size-4 shrink-0 text-white/50" />
+              <input className="w-full bg-transparent text-white outline-none placeholder:text-white/40" placeholder="Buscar módulo" />
             </label>
           )}
 
@@ -715,14 +759,14 @@ export function AppChrome({
                 <Link
                   className={`group flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition ${
                     isActive
-                      ? "bg-white/70 text-slate-950 shadow-sm"
-                      : "text-slate-700 hover:bg-white/40 hover:text-slate-950"
+                      ? "bg-white/18 text-white shadow-sm"
+                      : "text-white/75 hover:bg-white/10 hover:text-white"
                   } ${open ? "justify-start" : "justify-center"}`}
                   href={item.href}
                   key={item.href}
                   onClick={() => setMobileOpen(false)}
                 >
-                  <span className={`grid size-9 shrink-0 place-items-center shadow-sm transition group-hover:scale-105 ${isActive ? "shadow-md scale-105" : ""} ${shapeClass} ${style.tone}`}>
+                  <span className={`grid size-9 shrink-0 place-items-center shadow-sm transition group-hover:scale-105 ${isActive ? "scale-105 shadow-md" : ""} ${shapeClass} ${style.tone}`}>
                     <Icon className="size-[17px]" />
                   </span>
                   {open && (
@@ -731,7 +775,7 @@ export function AppChrome({
                     </span>
                   )}
                   {open && isActive && (
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-60" />
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white opacity-60" />
                   )}
                 </Link>
               );
@@ -740,17 +784,17 @@ export function AppChrome({
 
           {/* alerts panel in sidebar */}
           {open && !alertsHidden && alerts.length > 0 && (
-            <section className="mt-5 rounded-3xl border border-violet-100 bg-white/80 p-4 shadow-sm">
+            <section className="mt-5 rounded-3xl border border-white/15 bg-white/10 p-4 shadow-sm">
               <div className="flex items-center justify-between">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-600">Alarmas</p>
-                <button className="rounded-lg p-1 text-slate-400 hover:text-violet-600" onClick={() => setAlertsHidden(true)} type="button" aria-label="Ocultar alarmas">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Alarmas</p>
+                <button className="rounded-lg p-1 text-white/40 hover:text-white/80" onClick={() => setAlertsHidden(true)} type="button" aria-label="Ocultar alarmas">
                   <X className="size-3.5" />
                 </button>
               </div>
               <div className="mt-3 grid gap-2">
                 {alerts.map((item) => (
                   <Link className={`flex items-start gap-2 rounded-xl px-3 py-2 text-xs font-bold ${item.tone} transition hover:opacity-80`} href={item.href} key={item.label}>
-                    <span className="mt-px shrink-0 size-1.5 rounded-full bg-current opacity-60 mt-1" />
+                    <span className="mt-1 size-1.5 shrink-0 rounded-full bg-current opacity-60" />
                     <span>
                       <span className="block">{item.label}</span>
                       <span className="block font-medium opacity-70">{item.detail}</span>
@@ -761,41 +805,51 @@ export function AppChrome({
             </section>
           )}
           {open && alertsHidden && alerts.length > 0 && (
-            <button className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-violet-200 px-3 py-3 text-xs font-bold text-violet-600 hover:bg-violet-50" onClick={() => setAlertsHidden(false)} type="button">
+            <button className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-white/20 px-3 py-3 text-xs font-bold text-white/60 hover:bg-white/10 hover:text-white/80" onClick={() => setAlertsHidden(false)} type="button">
               <Bell className="size-4" /> Mostrar alarmas
             </button>
           )}
         </div>
 
         {/* ── Perfil usuario ──────────────────────────────────── */}
-        <div className={`border-t border-white/20 p-3 ${open ? "" : "flex justify-center"}`}>
-          <div className={`flex items-center gap-3 rounded-2xl p-2 transition hover:bg-white/30 ${open ? "" : "justify-center"}`}>
-            {/* avatar */}
-            <div
-              className="grid size-9 shrink-0 place-items-center rounded-full text-sm font-black text-white shadow-md"
-              style={{ background: `linear-gradient(135deg, ${brand?.colorAcento ?? "#7c3aed"}, ${brand?.colorPrimario ?? "#111827"})` }}
-            >
-              {(brand?.nombre ?? role).slice(0, 1).toUpperCase()}
-            </div>
-            {open && (
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-bold text-slate-900">{brand?.nombre ?? "Usuario"}</p>
-                <p className="truncate text-[11px] font-medium capitalize text-slate-500">{role} · {brand?.negocioNombre ?? "BarberLab"}</p>
+        <div className={`border-t border-white/10 p-3 ${open ? "" : "flex justify-center"}`}>
+          <button
+            className={`flex w-full items-center gap-3 rounded-2xl p-2 text-left transition hover:bg-white/12 ${open ? "" : "justify-center"}`}
+            onClick={() => setProfileOpen(true)}
+            type="button"
+          >
+            {brand?.logoUrl ? (
+              <img
+                src={brand.logoUrl}
+                alt=""
+                className="size-9 shrink-0 rounded-full border-2 border-white/30 object-cover shadow-md"
+              />
+            ) : (
+              <div
+                className="grid size-9 shrink-0 place-items-center rounded-full text-sm font-black text-white shadow-md"
+                style={{ background: `linear-gradient(135deg, ${accentColor}, ${hexAlpha(accentColor, 0.5)})` }}
+              >
+                {(brand?.nombre ?? role).slice(0, 1).toUpperCase()}
               </div>
             )}
             {open && (
-              <Link href="/login" className="shrink-0 rounded-lg p-1.5 text-slate-400 hover:bg-white/50 hover:text-slate-700 transition" aria-label="Cerrar sesión">
-                <X className="size-3.5" />
-              </Link>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[13px] font-bold text-white">{brand?.nombre ?? "Usuario"}</p>
+                <p className="truncate text-[11px] font-medium capitalize text-white/60">{role} · {brand?.negocioNombre ?? "BarberLab"}</p>
+              </div>
             )}
-          </div>
+            {open && <ChevronRight className="size-3.5 shrink-0 text-white/40" />}
+          </button>
         </div>
       </aside>
 
       {/* ── Main area ───────────────────────────────────────────── */}
       <div className={`min-h-dvh pb-14 transition-[padding] duration-300 ${open ? "lg:pl-[19rem]" : "lg:pl-[5.2rem]"}`}>
         {/* topbar */}
-        <header className="sticky top-0 z-20 border-b border-white/20 bg-white/16 px-4 py-3 backdrop-blur-[32px]">
+        <header
+          className="sticky top-0 z-20 border-b border-white/15 px-4 py-3 backdrop-blur-[32px]"
+          style={{ background: hexAlpha(primaryColor, 0.06) }}
+        >
           <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <button className="rounded-2xl border border-slate-900/10 bg-white p-3 text-slate-700 lg:hidden" onClick={() => setMobileOpen(true)} type="button" aria-label="Abrir menú">
@@ -807,16 +861,33 @@ export function AppChrome({
               </div>
             </div>
             <div className="relative hidden items-center gap-2 md:flex">
-              <button className="relative grid size-10 place-items-center rounded-2xl border border-slate-900/10 bg-white text-slate-600 shadow-sm hover:border-cyan-300/40 hover:text-cyan-700" onClick={() => setAlertsOpen((v) => !v)} type="button" aria-label="Ver alarmas">
+              <button
+                className="relative grid size-10 place-items-center rounded-2xl border border-slate-900/10 bg-white text-slate-600 shadow-sm hover:border-cyan-300/40 hover:text-cyan-700"
+                onClick={() => setAlertsOpen((v) => !v)}
+                type="button"
+                aria-label="Ver alarmas"
+              >
                 <Bell className="size-4.5" />
-                {!alertsHidden && alerts.length > 0 && <span className="absolute right-2 top-2 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,.9)]" />}
+                {!alertsHidden && alerts.length > 0 && (
+                  <span className="absolute right-2 top-2 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,.9)]" />
+                )}
               </button>
-              <button className="rounded-2xl bg-cyan-300 px-4 py-2.5 text-sm font-black text-slate-950 shadow-lg shadow-cyan-950/20 hover:bg-cyan-200 transition" onClick={() => setBotOpen(true)} type="button">
+              <button
+                className="rounded-2xl px-4 py-2.5 text-sm font-black text-white shadow-lg transition hover:opacity-90"
+                style={{ background: accentColor }}
+                onClick={() => setBotOpen(true)}
+                type="button"
+              >
                 Ayuda
               </button>
-              <Link className="grid size-10 place-items-center rounded-2xl border border-slate-900/10 bg-white text-slate-700 shadow-sm hover:border-violet-300 hover:text-violet-700" href="/perfil" aria-label="Ver perfil">
+              <button
+                className="grid size-10 place-items-center rounded-2xl border border-slate-900/10 bg-white text-slate-700 shadow-sm transition hover:border-violet-300 hover:text-violet-700"
+                onClick={() => setProfileOpen(true)}
+                type="button"
+                aria-label="Ver perfil"
+              >
                 <UserCircle className="size-5" />
-              </Link>
+              </button>
               {alertsOpen && (
                 <div className="absolute right-20 top-14 z-50 w-80 rounded-[1.6rem] border border-violet-100 bg-white/97 p-4 shadow-2xl shadow-slate-950/14 backdrop-blur-2xl">
                   <div className="flex items-center justify-between gap-3">
@@ -846,6 +917,131 @@ export function AppChrome({
 
         <main className="mx-auto max-w-[1480px] px-4 py-6 sm:px-6">{children}</main>
       </div>
+
+      {/* ── Profile slide-over ──────────────────────────────────── */}
+      {profileOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-slate-950/25 backdrop-blur-sm"
+            onClick={() => setProfileOpen(false)}
+          />
+          <div className="fixed inset-y-0 right-0 z-50 flex w-[min(90vw,360px)] flex-col border-l border-white/20 bg-white/90 shadow-2xl shadow-slate-950/20 backdrop-blur-2xl">
+            {/* header */}
+            <div className="flex items-center justify-between border-b border-slate-100 p-5">
+              <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: accentColor }}>
+                Mi perfil
+              </p>
+              <button
+                className="rounded-xl border border-slate-200 p-2 text-slate-400 transition hover:text-slate-700"
+                onClick={() => setProfileOpen(false)}
+                type="button"
+                aria-label="Cerrar"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            {/* avatar + nombre */}
+            <div className="flex flex-col items-center gap-3 p-6">
+              {brand?.logoUrl ? (
+                <img
+                  src={brand.logoUrl}
+                  alt={brand.nombre}
+                  className="size-20 rounded-full border-4 border-white object-cover shadow-xl"
+                />
+              ) : (
+                <div
+                  className="grid size-20 place-items-center rounded-full text-2xl font-black text-white shadow-xl"
+                  style={{ background: `linear-gradient(135deg, ${accentColor}, ${primaryColor})` }}
+                >
+                  {(brand?.nombre ?? role).slice(0, 1).toUpperCase()}
+                </div>
+              )}
+              <div className="text-center">
+                <p className="text-lg font-black text-slate-900">{brand?.nombre ?? "Usuario"}</p>
+                <p className="mt-0.5 text-sm capitalize text-slate-500">
+                  {role} · {brand?.negocioNombre ?? "BarberLab"}
+                </p>
+                {brand?.email && (
+                  <p className="mt-0.5 text-xs text-slate-400">{brand.email}</p>
+                )}
+              </div>
+            </div>
+
+            {/* info cards */}
+            <div className="flex-1 overflow-y-auto px-5 pb-4">
+              <div className="grid gap-2">
+                {brand?.plan && (
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Plan</p>
+                    <p className="mt-1 font-black capitalize text-slate-900">{brand.plan}</p>
+                  </div>
+                )}
+                {brand?.negocioNombre && (
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Comercio</p>
+                    <p className="mt-1 font-black text-slate-900">{brand.negocioNombre}</p>
+                  </div>
+                )}
+                {brand?.negocioEstado && (
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Estado</p>
+                    <p className="mt-1 font-black capitalize text-slate-900">{brand.negocioEstado}</p>
+                  </div>
+                )}
+                {brand?.fechaFin && (
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Vigencia</p>
+                    <p className="mt-1 font-black text-slate-900">{brand.fechaFin}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* paleta visual */}
+              <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
+                  Paleta del negocio
+                </p>
+                <div className="flex gap-2">
+                  <span
+                    className="h-8 flex-1 rounded-xl border border-white/50 shadow-sm"
+                    style={{ background: primaryColor }}
+                    title="Principal"
+                  />
+                  <span
+                    className="h-8 flex-1 rounded-xl border border-white/50 shadow-sm"
+                    style={{ background: secondaryColor }}
+                    title="Secundario"
+                  />
+                  <span
+                    className="h-8 flex-1 rounded-xl border border-white/50 shadow-sm"
+                    style={{ background: accentColor }}
+                    title="Acento"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* acciones */}
+            <div className="grid gap-2 border-t border-slate-100 p-5">
+              <Link
+                href="/perfil"
+                onClick={() => setProfileOpen(false)}
+                className="flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-black text-white transition hover:opacity-90"
+                style={{ background: primaryColor }}
+              >
+                <UserCircle className="size-4" /> Ver perfil completo
+              </Link>
+              <Link
+                href="/login"
+                className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-600 transition hover:border-red-200 hover:text-red-600"
+              >
+                <LogOut className="size-4" /> Cerrar sesión
+              </Link>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* ── About MRZLABS panel ─────────────────────────────────── */}
       {aboutOpen && (
@@ -944,7 +1140,7 @@ export function AppChrome({
 
             {/* CTA */}
             {topic.href && topic.cta && (
-              <Link className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white hover:bg-violet-950 transition" href={topic.href}>
+              <Link className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-violet-950" href={topic.href}>
                 {topic.cta} <ArrowRight className="size-4" />
               </Link>
             )}
@@ -963,15 +1159,12 @@ export function AppChrome({
           glowColor="192,132,252"
         />
         <div className="relative flex h-full items-center justify-between px-4 sm:px-6">
-          {/* copyright izquierda */}
           <span className="text-[10px] font-semibold tracking-wide text-violet-400/50">
             © {new Date().getFullYear()} MRZLABS · Todos los derechos reservados
           </span>
-          {/* centro — solo sm+ */}
-          <span className="absolute left-1/2 -translate-x-1/2 hidden sm:block text-[10px] font-bold uppercase tracking-[0.18em] text-violet-400/40">
+          <span className="absolute left-1/2 hidden -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.18em] text-violet-400/40 sm:block">
             BarberLab CRM
           </span>
-          {/* built by botón derecha */}
           <button
             className="rounded-full border border-violet-400/25 bg-violet-950/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-violet-300/80 transition hover:bg-violet-900/70"
             onClick={() => setAboutOpen((v) => !v)}
@@ -984,11 +1177,11 @@ export function AppChrome({
 
       {/* ── Bot roaming button ──────────────────────────────────── */}
       <div
-        className={`fixed bottom-16 z-40 flex flex-col items-center gap-2 transition-all duration-500 ${botPosClass} ${botVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+        className={`fixed z-40 flex flex-col items-center gap-2 transition-all duration-500 ${botPosClass} ${botVisible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"}`}
         style={{ bottom: "3.75rem" }}
       >
         <button
-          className="bot-pulse relative grid size-10 place-items-center rounded-full border border-violet-400/50 bg-slate-950 shadow-xl shadow-violet-950/50 hover:scale-110 transition-transform"
+          className="bot-pulse relative grid size-10 place-items-center rounded-full border border-violet-400/50 bg-slate-950 shadow-xl shadow-violet-950/50 transition-transform hover:scale-110"
           onClick={() => setBotOpen((v) => !v)}
           type="button"
           aria-label="Abrir ayuda BarberLab"
