@@ -3,9 +3,12 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { demoCreds, isDemoMode } from "@/lib/demo";
+import { getDb } from "@/lib/db";
+import { negocios, usuarios } from "@/lib/db/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getRoleFromClaims, getRoleFromProfile, roleHome } from "@/lib/auth/roles";
+import { getRoleFromClaims, roleHome } from "@/lib/auth/roles";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -45,17 +48,22 @@ export async function loginAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?error=auth");
 
-  const { data: profile } = await supabase
-    .from("usuarios")
-    .select("rol,super_admin,activo,negocios(estado)")
-    .eq("id", user.id)
-    .maybeSingle();
+  const [profile] = await getDb()
+    .select({
+      rol: usuarios.rol,
+      superAdmin: usuarios.superAdmin,
+      activo: usuarios.activo,
+      negocioEstado: negocios.estado,
+    })
+    .from(usuarios)
+    .leftJoin(negocios, eq(usuarios.negocioId, negocios.id))
+    .where(eq(usuarios.id, user.id))
+    .limit(1);
 
-  const role = getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata) ?? getRoleFromProfile(profile);
+  const role = getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata) ?? (profile?.superAdmin ? "super_admin" : profile?.rol);
   if (!role || !profile) redirect("/login?error=profile");
 
-  const negocio = Array.isArray(profile.negocios) ? profile.negocios[0] : profile.negocios;
-  const negocioActivo = role === "super_admin" || !negocio || negocio.estado === "activo";
+  const negocioActivo = role === "super_admin" || !profile.negocioEstado || profile.negocioEstado === "activo";
   if (!profile.activo || !negocioActivo) redirect("/login?error=inactive");
 
   redirect(parsed.data.next || roleHome[role]);
