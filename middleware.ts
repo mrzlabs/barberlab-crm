@@ -1,11 +1,30 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { getRoleFromClaims, protectedPrefixes, roleHome } from "@/lib/auth/roles";
 import { isDemoMode } from "@/lib/demo";
-import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
   const demoRole = request.cookies.get("barberlab_demo_role")?.value;
-  const { supabase, response } = createSupabaseMiddlewareClient(request);
+
+  const supabaseResponse = NextResponse.next({ request });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -21,11 +40,11 @@ export async function middleware(request: NextRequest) {
       const role = getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata);
       if (role) return NextResponse.redirect(new URL(roleHome[role], request.url));
     }
-    return response;
+    return supabaseResponse;
   }
 
   if (isDemoMode() && demoRole === "admin" && matched.roles.includes("admin")) {
-    return response;
+    return supabaseResponse;
   }
 
   if (!user) {
@@ -39,7 +58,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/unauthorized", request.url));
   }
 
-  return response;
+  return supabaseResponse;
 }
 
 export const config = {
