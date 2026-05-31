@@ -215,3 +215,22 @@ export const citaHistorial = pgTable("cita_historial", {
   detalle: text("detalle"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const activityLogs = pgTable("activity_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "cascade" }),
+  usuarioId: uuid("usuario_id").references(() => usuarios.id, { onDelete: "set null" }),
+  accion: text("accion").notNull(),
+  detalle: json("detalle").$type<Record<string, unknown>>(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const impersonationTokens = pgTable("impersonation_tokens", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").notNull().references(() => negocios.id, { onDelete: "cascade" }),
+  createdBy: uuid("created_by").notNull().references(() => usuarios.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});

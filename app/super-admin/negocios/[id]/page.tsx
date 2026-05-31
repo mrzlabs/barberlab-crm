@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createNegocioUser, toggleNegocio, updateNegocio } from "../actions";
-import { getNegocioById, getNegocioStats, getNegocioUsers } from "@/lib/super-admin/queries";
+import { getNegocioById, getNegocioMonthlySummary, getNegocioStats, getNegocioUsers } from "@/lib/super-admin/queries";
 import { BrandPreview } from "./BrandPreview";
 import { ResetPasswordButton } from "./ResetPasswordButton";
+import { OperarButton } from "@/components/super-admin/OperarButton";
+import { fmtMoney } from "@/lib/admin/format";
 
 export const dynamic = "force-dynamic";
 
@@ -13,9 +15,10 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
   const negocio = await getNegocioById(params.id);
   if (!negocio) notFound();
 
-  const [stats, usuarios] = await Promise.all([
+  const [stats, usuarios, monthly] = await Promise.all([
     getNegocioStats(negocio.id),
     getNegocioUsers(negocio.id),
+    getNegocioMonthlySummary(negocio.id),
   ]);
   const statItems = [
     ["Empleados", stats.empleados],
@@ -38,9 +41,12 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
               Gestiona identidad visual, suscripcion y aislamiento. Los datos operativos se mantienen separados por negocio_id.
             </p>
           </div>
-          <Link className="w-fit rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-black text-white backdrop-blur hover:bg-white/15" href="/super-admin/negocios">
-            Volver
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <OperarButton negocioId={negocio.id} nombre={negocio.nombre} />
+            <Link className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-black text-white backdrop-blur hover:bg-white/15" href="/super-admin/negocios">
+              Volver
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -51,6 +57,19 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
             <strong className="mt-2 block text-3xl font-black">{value}</strong>
           </article>
         ))}
+      </section>
+
+      <section className="grid gap-4 sm:grid-cols-2">
+        <article className="glass-panel rounded-[1.4rem] p-5">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-600">Este mes</p>
+          <strong className="mt-2 block text-3xl font-black">{monthly.turnos}</strong>
+          <p className="mt-1 text-sm text-slate-500">Turnos cerrados</p>
+        </article>
+        <article className="glass-panel rounded-[1.4rem] p-5">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-600">Ingresos mes</p>
+          <strong className="mt-2 block text-3xl font-black">{fmtMoney(monthly.ingresos)}</strong>
+          <p className="mt-1 text-sm text-slate-500">Precio final + propinas</p>
+        </article>
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

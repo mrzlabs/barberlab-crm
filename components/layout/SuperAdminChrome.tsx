@@ -162,7 +162,7 @@ export function SuperAdminChrome({
           </nav>
         </div>
 
-        {/* profile */}
+        {/* profile + logout */}
         <div
           className={`border-t p-3 ${open ? "" : "flex justify-center"}`}
           style={{ borderColor: "rgba(255,255,255,0.07)" }}
@@ -180,16 +180,19 @@ export function SuperAdminChrome({
                   <p className="truncate text-[13px] font-bold text-white">{profile?.nombre ?? "Super Admin"}</p>
                   <p className="truncate text-[11px] font-medium text-white/40">MRZLABS SaaS</p>
                 </div>
-                <Link
-                  href="/login"
-                  className="rounded-lg p-1.5 text-white/30 transition hover:text-white/70"
-                  aria-label="Cerrar sesión"
-                >
-                  <LogOut className="size-3.5" />
-                </Link>
               </>
             )}
           </div>
+          {open && (
+            <Link
+              href="/login"
+              className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-rose-400 transition hover:bg-rose-950/40 hover:text-rose-300"
+              style={{ borderColor: "rgba(255,60,60,0.15)", border: "1px solid rgba(255,60,60,0.15)" }}
+            >
+              <LogOut className="size-3.5" />
+              Cerrar sesión
+            </Link>
+          )}
         </div>
       </aside>
 

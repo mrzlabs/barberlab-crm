@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleFromClaims, type UserRole } from "@/lib/auth/roles";
 import { demoCreds, isDemoMode } from "@/lib/demo";
@@ -63,6 +63,76 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
   if (!user) return null;
 
   const claimRole = getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata);
+
+  // ── Modo impersonación: super_admin operando un negocio ajeno ──────────────
+  const saImp = cookies().get("barberlab_sa_imp")?.value;
+  if (saImp) {
+    const [requester] = await getDb()
+      .select({ superAdmin: usuarios.superAdmin })
+      .from(usuarios)
+      .where(eq(usuarios.id, user.id))
+      .limit(1);
+
+    if (requester?.superAdmin) {
+      const [imp] = await getDb()
+        .select({
+          id: usuarios.id,
+          email: usuarios.email,
+          rol: usuarios.rol,
+          nombre: usuarios.nombre,
+          telefono: usuarios.telefono,
+          negocioId: usuarios.negocioId,
+          negocioNombre: negocios.nombre,
+          negocioSlug: negocios.slug,
+          negocioCorreo: negocios.correo,
+          representante: negocios.representante,
+          descripcion: negocios.descripcion,
+          slogan: negocios.slogan,
+          logoUrl: negocios.logoUrl,
+          colorPrimario: negocios.colorPrimario,
+          colorSecundario: negocios.colorSecundario,
+          colorAcento: negocios.colorAcento,
+          fuente: negocios.fuente,
+          plan: negocios.plan,
+          negocioEstado: negocios.estado,
+          fechaFin: negocios.fechaFin,
+        })
+        .from(usuarios)
+        .leftJoin(negocios, eq(usuarios.negocioId, negocios.id))
+        .where(and(
+          eq(usuarios.negocioId, saImp),
+          eq(usuarios.rol, "admin"),
+          eq(usuarios.activo, true),
+        ))
+        .limit(1);
+
+      if (imp) {
+        return {
+          id: imp.id,
+          email: imp.email,
+          rol: "admin" as UserRole,
+          nombre: imp.nombre,
+          telefono: imp.telefono,
+          negocioId: imp.negocioId,
+          negocioNombre: imp.negocioNombre,
+          negocioSlug: imp.negocioSlug,
+          negocioCorreo: imp.negocioCorreo,
+          representante: imp.representante,
+          descripcion: imp.descripcion,
+          slogan: imp.slogan,
+          logoUrl: imp.logoUrl,
+          colorPrimario: imp.colorPrimario ?? "#111827",
+          colorSecundario: imp.colorSecundario ?? "#22d3ee",
+          colorAcento: imp.colorAcento ?? "#7c3aed",
+          fuente: imp.fuente ?? "Inter",
+          plan: imp.plan,
+          negocioEstado: imp.negocioEstado,
+          fechaFin: imp.fechaFin,
+        };
+      }
+    }
+  }
+  // ──────────────────────────────────────────────────────────────────────────
 
   const [profile] = await getDb()
     .select({

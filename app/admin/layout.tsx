@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import { eq } from "drizzle-orm";
 import { AppShell } from "@/components/layout/AppShell";
 import { SubmitToast } from "@/components/layout/SubmitToast";
@@ -27,6 +28,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     return <>{children}</>;
   }
 
+  const isImpersonating = !!cookies().get("barberlab_sa_imp")?.value;
+
   const [alerts, configRow] = await Promise.all([
     profile.negocioId ? getAlerts(profile.negocioId).catch(() => []) : Promise.resolve([]),
     profile.negocioId
@@ -46,6 +49,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <AppShell
         alerts={alerts}
         configVisual={configVisual}
+        isImpersonating={isImpersonating}
         profile={profile}
         role="admin"
         title={profile.negocioNombre || "Administracion"}

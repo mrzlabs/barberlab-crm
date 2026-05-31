@@ -1,14 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient, createSupabaseAdminClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getDb } from "@/lib/db";
-import { usuarios } from "@/lib/db/schema";
+import { impersonationTokens, usuarios } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
+import { randomBytes } from "crypto";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { negocioId: string } },
 ) {
-  // 1. Verify the requester is a super_admin via their active session
+  // 1. Verify requester is super_admin via active session
   const supabase = createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -16,7 +17,7 @@ export async function GET(
   }
 
   const [requester] = await getDb()
-    .select({ superAdmin: usuarios.superAdmin })
+    .select({ superAdmin: usuarios.superAdmin, id: usuarios.id })
     .from(usuarios)
     .where(eq(usuarios.id, user.id))
     .limit(1);
@@ -27,9 +28,9 @@ export async function GET(
 
   const { negocioId } = params;
 
-  // 2. Find the active admin user for the target negocio
+  // 2. Verify negocio has an active admin
   const [adminUser] = await getDb()
-    .select({ email: usuarios.email })
+    .select({ id: usuarios.id })
     .from(usuarios)
     .where(
       and(
@@ -47,24 +48,17 @@ export async function GET(
     );
   }
 
-  // 3. Generate a one-time magic link using the service role key.
-  //    The link authenticates as the negocio's admin and redirects to their dashboard.
-  //    Note: loading this link in an iframe will replace the browser's active session.
-  const admin = createSupabaseAdminClient();
-  const origin = request.nextUrl.origin;
+  // 3. Create single-use token valid for 2 hours
+  const token = randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000);
 
-  const { data, error } = await admin.auth.admin.generateLink({
-    type: "magiclink",
-    email: adminUser.email,
-    options: { redirectTo: `${origin}/auth/callback?next=/admin/dashboard` },
+  await getDb().insert(impersonationTokens).values({
+    negocioId,
+    createdBy: requester.id,
+    token,
+    expiresAt,
   });
 
-  if (error || !data?.properties?.action_link) {
-    return NextResponse.json(
-      { error: error?.message ?? "Error al generar el acceso temporal" },
-      { status: 500 },
-    );
-  }
-
-  return NextResponse.json({ url: data.properties.action_link });
+  const origin = request.nextUrl.origin;
+  return NextResponse.json({ url: `${origin}/api/sa-enter?tok=${token}` });
 }
