@@ -385,7 +385,7 @@ export function AppChrome({
 
   return (
     <div
-      className="crm-shell min-h-dvh overflow-x-hidden text-slate-950"
+      className="crm-shell min-h-dvh overflow-x-hidden text-white"
       style={{
         ["--brand-primary" as string]: primaryColor,
         ["--brand-secondary" as string]: secondaryColor,
@@ -400,52 +400,35 @@ export function AppChrome({
         fuente={brand?.fuente ?? "Outfit"}
       />
 
-      {/* ── Brand photo aura. The image remains logo-first, not a page wallpaper. */}
+      {/* ── Capa 1: Base oscura — glow de marca sobre negro profundo ── */}
+      <div
+        className="pointer-events-none fixed inset-0 -z-30"
+        style={{
+          background: [
+            `radial-gradient(ellipse 55% 40% at 18% 25%, ${hexAlpha(primaryColor, 0.28)}, transparent 65%)`,
+            `radial-gradient(ellipse 42% 36% at 82% 74%, ${hexAlpha(accentColor, 0.22)}, transparent 60%)`,
+            "#050709",
+          ].join(", "),
+        }}
+      />
+
+      {/* ── Capa 2: Foto del comercio (ambiente de color, no reemplaza el patrón) */}
       {bgPhotoUrl && (
         <div
           className="pointer-events-none fixed inset-0 -z-20"
           style={{
-            backgroundImage: [
-              `radial-gradient(circle at 14% 10%, ${hexAlpha(secondaryColor, 0.18)}, transparent 18rem)`,
-              `radial-gradient(circle at 86% 18%, ${hexAlpha(accentColor, 0.14)}, transparent 20rem)`,
-              `url(${bgPhotoUrl})`,
-            ].join(", "),
-            backgroundSize: "auto, auto, 28rem",
-            backgroundPosition: "center, center, 92% 8%",
-            backgroundRepeat: "no-repeat",
-            opacity: 0.16,
-            filter: "blur(34px) saturate(1.12)",
-          }}
-        />
-      )}
-
-      {/* ── Static gradient + logo blur (behind grid) ───────────── */}
-      {brand?.logoUrl && !bgPhotoUrl && (
-        <div
-          className="pointer-events-none fixed inset-0 -z-20"
-          style={{
-            backgroundImage: `url(${brand.logoUrl})`,
+            backgroundImage: `url(${bgPhotoUrl})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-            opacity: 0.07,
-            filter: "blur(40px)",
+            opacity: 0.12,
+            filter: "blur(80px)",
           }}
         />
       )}
 
-      {/* ── Background gradient + AnimatedGrid ──────────────────── */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div
-          className="absolute inset-0"
-          style={{
-            background: [
-              "linear-gradient(155deg,#eef7fb 0%,#f7f4ff 46%,#fbfdff 100%)",
-              `radial-gradient(circle at 72% 18%, ${hexAlpha(secondaryColor, 0.12)}, transparent 24rem)`,
-              `radial-gradient(circle at 12% 82%, ${hexAlpha(accentColor, 0.1)}, transparent 26rem)`,
-            ].join(", "),
-          }}
-        />
-        <AnimatedGrid className="absolute inset-0" lineOpacity={0.1} accentOpacity={0.32} />
+      {/* ── Capa 3: Neural canvas — grid + destellos, siempre encima ─ */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <AnimatedGrid className="absolute inset-0" dark lineOpacity={0.07} accentOpacity={0.28} />
       </div>
 
       {/* ── Mobile overlay ──────────────────────────────────────── */}
@@ -601,7 +584,7 @@ export function AppChrome({
               </button>
               <div>
                 <Breadcrumb />
-                <h2 className="text-xl font-black tracking-tight text-slate-950 sm:text-2xl">{title}</h2>
+                <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">{title}</h2>
               </div>
             </div>
             <div className="relative hidden items-center gap-2 md:flex">
