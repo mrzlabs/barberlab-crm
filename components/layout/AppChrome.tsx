@@ -400,17 +400,21 @@ export function AppChrome({
         fuente={brand?.fuente ?? "Outfit"}
       />
 
-      {/* ── Negocio background photo (blur layer) ───────────────── */}
+      {/* ── Brand photo aura. The image remains logo-first, not a page wallpaper. */}
       {bgPhotoUrl && (
         <div
-          className="pointer-events-none fixed inset-0 -z-30"
+          className="pointer-events-none fixed inset-0 -z-20"
           style={{
-            backgroundImage: `url(${bgPhotoUrl})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            opacity: 0.24,
-            filter: "blur(26px)",
-            transform: "scale(1.04)",
+            backgroundImage: [
+              `radial-gradient(circle at 14% 10%, ${hexAlpha(secondaryColor, 0.18)}, transparent 18rem)`,
+              `radial-gradient(circle at 86% 18%, ${hexAlpha(accentColor, 0.14)}, transparent 20rem)`,
+              `url(${bgPhotoUrl})`,
+            ].join(", "),
+            backgroundSize: "auto, auto, 28rem",
+            backgroundPosition: "center, center, 92% 8%",
+            backgroundRepeat: "no-repeat",
+            opacity: 0.16,
+            filter: "blur(34px) saturate(1.12)",
           }}
         />
       )}
@@ -434,12 +438,14 @@ export function AppChrome({
         <div
           className="absolute inset-0"
           style={{
-            background: bgPhotoUrl
-              ? "linear-gradient(155deg, rgba(248,250,252,.82) 0%, rgba(245,243,255,.76) 46%, rgba(236,254,255,.82) 100%)"
-              : "linear-gradient(155deg,#eef7fb 0%,#f7f4ff 46%,#fbfdff 100%)",
+            background: [
+              "linear-gradient(155deg,#eef7fb 0%,#f7f4ff 46%,#fbfdff 100%)",
+              `radial-gradient(circle at 72% 18%, ${hexAlpha(secondaryColor, 0.12)}, transparent 24rem)`,
+              `radial-gradient(circle at 12% 82%, ${hexAlpha(accentColor, 0.1)}, transparent 26rem)`,
+            ].join(", "),
           }}
         />
-        <AnimatedGrid className="absolute inset-0" lineOpacity={0.12} accentOpacity={0.22} />
+        <AnimatedGrid className="absolute inset-0" lineOpacity={0.1} accentOpacity={0.32} />
       </div>
 
       {/* ── Mobile overlay ──────────────────────────────────────── */}

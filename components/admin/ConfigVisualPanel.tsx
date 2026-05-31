@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { ImagePlus, Trash2, Moon, Sun } from "lucide-react";
 import { uploadNegocioBgPhoto, removeNegocioBgPhoto, updateConfigVisual } from "@/app/admin/configuracion/actions";
@@ -11,6 +12,7 @@ export function ConfigVisualPanel({
   darkMode?: boolean;
   bgPhotoUrl?: string | null;
 }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isDark, setIsDark] = useState(!!initialDark);
   const [bgUrl, setBgUrl] = useState(initialBg ?? null);
@@ -40,23 +42,34 @@ export function ConfigVisualPanel({
     if (!file) return;
     const fd = new FormData();
     fd.set("bgPhoto", file);
+    setError(null);
     startTransition(async () => {
-      const res = await uploadNegocioBgPhoto(fd);
-      if (res && "error" in res && typeof res.error === "string") {
-        setError(res.error);
-      } else if (res && "url" in res && res.url) {
-        setBgUrl(res.url);
-        setPreview(null);
-        if (fileRef.current) fileRef.current.value = "";
+      try {
+        const res = await uploadNegocioBgPhoto(fd);
+        if (res && "error" in res && typeof res.error === "string") {
+          setError(res.error);
+        } else if (res && "url" in res && res.url) {
+          setBgUrl(res.url);
+          setPreview(null);
+          if (fileRef.current) fileRef.current.value = "";
+          router.refresh();
+        }
+      } catch {
+        setError("Error al guardar la foto. Verifica tu conexión e intenta de nuevo.");
       }
     });
   }
 
   function handleRemove() {
     startTransition(async () => {
-      await removeNegocioBgPhoto();
-      setBgUrl(null);
-      setPreview(null);
+      try {
+        await removeNegocioBgPhoto();
+        setBgUrl(null);
+        setPreview(null);
+        router.refresh();
+      } catch {
+        setError("Error al eliminar la foto. Intenta de nuevo.");
+      }
     });
   }
 
@@ -66,7 +79,7 @@ export function ConfigVisualPanel({
     <div className="mt-6 rounded-[1.5rem] border bg-white p-5">
       <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Identidad visual avanzada</p>
       <p className="mt-1 text-sm text-slate-500">
-        La foto se usa como logo de perfil, marca del negocio y fondo visual del CRM con blur controlado.
+        La foto se usa como logo de perfil y marca del negocio. El fondo mantiene el grid y las conexiones neuronales con la paleta activa.
       </p>
 
       {/* Dark / Light toggle */}
@@ -94,7 +107,7 @@ export function ConfigVisualPanel({
 
       {/* Foto de fondo */}
       <div className="mt-4">
-        <p className="mb-3 text-sm font-bold text-slate-700">Foto de perfil y fondo del negocio</p>
+        <p className="mb-3 text-sm font-bold text-slate-700">Logo y foto de perfil del negocio</p>
 
         {/* preview strip */}
         {displayUrl && (
@@ -102,7 +115,7 @@ export function ConfigVisualPanel({
             <img src={displayUrl} alt="Preview fondo" className="h-full w-full object-cover" style={{ filter: "blur(8px)", transform: "scale(1.05)" }} />
             <div className="absolute inset-0 flex items-center justify-center bg-slate-950/30">
               <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-black text-slate-700">
-                Preview con blur + 15% opacity
+                Preview de logo y aura de marca
               </span>
             </div>
             {!preview && bgUrl && (
@@ -146,7 +159,7 @@ export function ConfigVisualPanel({
         {error && (
           <p className="mt-2 text-sm font-bold text-red-600">{error}</p>
         )}
-        <p className="mt-2 text-xs text-slate-400">JPG, PNG, WebP o AVIF. Máximo 5 MB. Se aplica al logo, perfil y background del CRM.</p>
+        <p className="mt-2 text-xs text-slate-400">JPG, PNG, WebP o AVIF. Máximo 5 MB. Se aplica al logo, perfil y aura visual del CRM.</p>
       </div>
     </div>
   );

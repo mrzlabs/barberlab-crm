@@ -28,7 +28,6 @@ export async function updateMiNegocio(formData: FormData) {
     contactoPrincipal: payload.contactoPrincipal || null,
     descripcion: payload.descripcion || null,
     slogan: payload.slogan || payload.descripcion?.slice(0, 150) || null,
-    logoUrl: payload.logoUrl || null,
     colorPrimario: payload.colorPrimario,
     colorSecundario: payload.colorSecundario,
     colorAcento: payload.colorAcento,
@@ -39,7 +38,9 @@ export async function updateMiNegocio(formData: FormData) {
   }).where(eq(negocios.id, payload.negocioId));
 
   revalidatePath("/admin/configuracion");
+  revalidatePath("/admin", "layout");
   revalidatePath("/admin/dashboard");
+  revalidatePath("/perfil");
 }
 
 export async function updateConfigVisual(formData: FormData) {
@@ -63,7 +64,9 @@ export async function updateConfigVisual(formData: FormData) {
     .where(eq(negocios.id, negocioId));
 
   revalidatePath("/admin/configuracion");
+  revalidatePath("/admin", "layout");
   revalidatePath("/admin/dashboard");
+  revalidatePath("/perfil");
 }
 
 export async function uploadNegocioBgPhoto(formData: FormData) {
@@ -108,7 +111,9 @@ export async function uploadNegocioBgPhoto(formData: FormData) {
     .where(eq(negocios.id, negocioId));
 
   revalidatePath("/admin/configuracion");
+  revalidatePath("/admin", "layout");
   revalidatePath("/admin/dashboard");
+  revalidatePath("/perfil");
   return { ok: true, url: publicUrl };
 }
 
@@ -143,5 +148,7 @@ export async function removeNegocioBgPhoto() {
     .where(eq(negocios.id, negocioId));
 
   revalidatePath("/admin/configuracion");
+  revalidatePath("/admin", "layout");
   revalidatePath("/admin/dashboard");
+  revalidatePath("/perfil");
 }
