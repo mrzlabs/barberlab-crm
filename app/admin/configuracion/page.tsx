@@ -36,7 +36,7 @@ export default async function ConfiguracionPage() {
           <p className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Mi barberia</p>
           <h2 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">{negocio.nombre}</h2>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300">
-            Personaliza colores, logo, datos comerciales y slogan visible en el CRM.
+            Personaliza colores, foto de perfil, fondo, datos comerciales y slogan visible en el CRM.
           </p>
         </div>
       </section>
@@ -81,7 +81,7 @@ export default async function ConfiguracionPage() {
           <label className="grid gap-2 text-sm font-bold">Numero documento<input className={input} name="numeroDocumento" defaultValue={negocio.numeroDocumento || ""} /></label>
           <label className="grid gap-2 text-sm font-bold">Indicativo ciudad<input className={input} name="ciudadIndicativo" defaultValue={negocio.ciudadIndicativo || ""} /></label>
           <label className="grid gap-2 text-sm font-bold">Contacto principal<input className={input} name="contactoPrincipal" defaultValue={negocio.contactoPrincipal || ""} /></label>
-          <label className="grid gap-2 text-sm font-bold">Logo URL<input className={input} name="logoUrl" defaultValue={negocio.logoUrl || ""} /></label>
+          <label className="grid gap-2 text-sm font-bold">Logo URL manual<input className={input} name="logoUrl" defaultValue={negocio.logoUrl || ""} placeholder="Opcional. Tambien puedes subir foto abajo." /></label>
           <label className="grid gap-2 text-sm font-bold md:col-span-2">Descripcion<textarea className={input} name="descripcion" defaultValue={negocio.descripcion || ""} rows={4} /></label>
           <label className="grid gap-2 text-sm font-bold md:col-span-2">Slogan dashboard<input className={input} name="slogan" defaultValue={negocio.slogan || ""} /></label>
           <label className="grid gap-2 text-sm font-bold">Fuente<input className={input} name="fuente" defaultValue={negocio.fuente} /></label>

@@ -6,7 +6,7 @@ import { requireRole } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { negocios } from "@/lib/db/schema";
 import { negocioSelfSchema } from "@/lib/validations/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
 export async function updateMiNegocio(formData: FormData) {
   const profile = await requireRole(["admin", "super_admin"]);
@@ -78,9 +78,9 @@ export async function uploadNegocioBgPhoto(formData: FormData) {
   if (!allowedTypes.includes(file.type)) return { error: "Formato no permitido. Usa JPG, PNG, WebP o AVIF." };
   if (file.size > 5 * 1024 * 1024) return { error: "La imagen no puede superar 5 MB." };
 
-  const supabase = createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const path = `${negocioId}/bg.${ext}`;
+  const path = `${negocioId}/brand.${ext}`;
 
   const { error: uploadError } = await supabase.storage
     .from("negocio-assets")
@@ -101,6 +101,7 @@ export async function uploadNegocioBgPhoto(formData: FormData) {
   await getDb()
     .update(negocios)
     .set({
+      logoUrl: publicUrl,
       configVisual: { ...existing, bgPhotoUrl: publicUrl, bgPhotoStoragePath: path },
       updatedAt: new Date(),
     })
@@ -117,7 +118,7 @@ export async function removeNegocioBgPhoto() {
   if (!negocioId) throw new Error("Sin negocio asignado");
 
   const [current] = await getDb()
-    .select({ configVisual: negocios.configVisual })
+    .select({ configVisual: negocios.configVisual, logoUrl: negocios.logoUrl })
     .from(negocios)
     .where(eq(negocios.id, negocioId))
     .limit(1);
@@ -126,13 +127,16 @@ export async function removeNegocioBgPhoto() {
   const storagePath = existing.bgPhotoStoragePath as string | null;
 
   if (storagePath) {
-    const supabase = createSupabaseServerClient();
+    const supabase = createSupabaseAdminClient();
     await supabase.storage.from("negocio-assets").remove([storagePath]).catch(() => null);
   }
+
+  const nextLogoUrl = current?.logoUrl === existing.bgPhotoUrl ? null : current?.logoUrl ?? null;
 
   await getDb()
     .update(negocios)
     .set({
+      logoUrl: nextLogoUrl,
       configVisual: { ...existing, bgPhotoUrl: null, bgPhotoStoragePath: null },
       updatedAt: new Date(),
     })

@@ -408,8 +408,9 @@ export function AppChrome({
             backgroundImage: `url(${bgPhotoUrl})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-            opacity: 0.15,
-            filter: "blur(60px)",
+            opacity: 0.24,
+            filter: "blur(26px)",
+            transform: "scale(1.04)",
           }}
         />
       )}
@@ -430,7 +431,14 @@ export function AppChrome({
 
       {/* ── Background gradient + AnimatedGrid ──────────────────── */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(155deg,#eef7fb_0%,#f7f4ff_46%,#fbfdff_100%)]" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background: bgPhotoUrl
+              ? "linear-gradient(155deg, rgba(248,250,252,.82) 0%, rgba(245,243,255,.76) 46%, rgba(236,254,255,.82) 100%)"
+              : "linear-gradient(155deg,#eef7fb 0%,#f7f4ff 46%,#fbfdff 100%)",
+          }}
+        />
         <AnimatedGrid className="absolute inset-0" lineOpacity={0.12} accentOpacity={0.22} />
       </div>
 

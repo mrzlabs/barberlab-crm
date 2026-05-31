@@ -66,7 +66,7 @@ export function ConfigVisualPanel({
     <div className="mt-6 rounded-[1.5rem] border bg-white p-5">
       <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Identidad visual avanzada</p>
       <p className="mt-1 text-sm text-slate-500">
-        La foto de fondo aparece detrás del grid con blur fuerte. El modo oscuro afecta cards y paneles del dashboard.
+        La foto se usa como logo de perfil, marca del negocio y fondo visual del CRM con blur controlado.
       </p>
 
       {/* Dark / Light toggle */}
@@ -94,7 +94,7 @@ export function ConfigVisualPanel({
 
       {/* Foto de fondo */}
       <div className="mt-4">
-        <p className="mb-3 text-sm font-bold text-slate-700">Foto de fondo del negocio</p>
+        <p className="mb-3 text-sm font-bold text-slate-700">Foto de perfil y fondo del negocio</p>
 
         {/* preview strip */}
         {displayUrl && (
@@ -112,7 +112,7 @@ export function ConfigVisualPanel({
                 disabled={isPending}
                 className="absolute right-3 top-3 flex items-center gap-1.5 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-bold text-white shadow-lg transition hover:bg-red-700"
               >
-                <Trash2 className="size-3.5" /> Quitar
+                <Trash2 className="size-3.5" /> Quitar foto
               </button>
             )}
           </div>
@@ -123,7 +123,7 @@ export function ConfigVisualPanel({
             className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:border-violet-400 hover:bg-white"
           >
             <ImagePlus className="size-4 text-violet-500" />
-            <span>{preview ? "Foto seleccionada" : "Seleccionar imagen"}</span>
+            <span>{preview ? "Foto seleccionada" : "Subir foto de marca"}</span>
             <input
               ref={fileRef}
               type="file"
@@ -138,7 +138,7 @@ export function ConfigVisualPanel({
               disabled={isPending}
               className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-violet-950 disabled:opacity-60"
             >
-              {isPending ? "Subiendo…" : "Guardar foto"}
+              {isPending ? "Subiendo..." : "Guardar foto"}
             </button>
           )}
         </form>
@@ -146,7 +146,7 @@ export function ConfigVisualPanel({
         {error && (
           <p className="mt-2 text-sm font-bold text-red-600">{error}</p>
         )}
-        <p className="mt-2 text-xs text-slate-400">JPG, PNG, WebP o AVIF. Máximo 5 MB. Requiere bucket &quot;negocio-assets&quot; en Supabase Storage.</p>
+        <p className="mt-2 text-xs text-slate-400">JPG, PNG, WebP o AVIF. Máximo 5 MB. Se aplica al logo, perfil y background del CRM.</p>
       </div>
     </div>
   );
