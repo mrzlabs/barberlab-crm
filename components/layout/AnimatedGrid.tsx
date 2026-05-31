@@ -1,6 +1,6 @@
 "use client";
 
-let idCounter = 0;
+import { useId } from "react";
 
 export function AnimatedGrid({
   className = "",
@@ -13,8 +13,7 @@ export function AnimatedGrid({
   accentOpacity?: number;
   dark?: boolean;
 }) {
-  // stable id per component instance (SSR-safe via module counter)
-  const id = `agrid-${++idCounter}`;
+  const id = useId();
 
   const lineColor = dark
     ? `rgba(255,255,255,${lineOpacity})`
