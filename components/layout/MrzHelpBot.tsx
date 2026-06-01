@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Search, X } from "lucide-react";
 
 type HelpTopic = {
@@ -19,6 +19,7 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
   const [active, setActive] = useState(0);
   const [pos, setPos] = useState({ x: "8vw", y: "0px" });
   const [hop, setHop] = useState(false);
+  const hopTimeoutRef = useRef<number>();
 
   useEffect(() => {
     if (open) return;
@@ -34,9 +35,12 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
       index = (index + 1) % targets.length;
       setPos(targets[index]);
       setHop(true);
-      window.setTimeout(() => setHop(false), 430);
+      hopTimeoutRef.current = window.setTimeout(() => setHop(false), 430);
     }, 5200);
-    return () => window.clearInterval(id);
+    return () => {
+      window.clearInterval(id);
+      if (hopTimeoutRef.current) window.clearTimeout(hopTimeoutRef.current);
+    };
   }, [open]);
 
   const filtered = useMemo(() => {

@@ -71,9 +71,8 @@ export function AnimatedGrid({
             <path
               d={d}
               key={d}
-              stroke={i % 2 === 0 ? "rgba(var(--brand-secondary-rgb,34,211,238),0.28)" : "rgba(var(--brand-accent-rgb,124,58,237),0.24)"}
-              strokeWidth={i % 2 === 0 ? "1.35" : "1"}
-              strokeDasharray="4 18"
+              stroke={i % 2 === 0 ? "rgba(var(--brand-secondary-rgb,34,211,238),0.32)" : "rgba(var(--brand-accent-rgb,124,58,237),0.26)"}
+              strokeWidth={i % 2 === 0 ? "1.5" : "1.1"}
             >
               <animate attributeName="stroke-dashoffset" dur={`${16 + i * 3}s`} from="0" repeatCount="indefinite" to="-220" />
             </path>

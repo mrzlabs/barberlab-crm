@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ThemeApplier } from "@/components/layout/ThemeApplier";
-import { AnimatedGrid } from "@/components/layout/AnimatedGrid";
+import { NeuralCanvas } from "@/components/layout/NeuralCanvas";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { BottomTabBar } from "@/components/layout/BottomTabBar";
 import { BackButton } from "@/components/layout/BackButton";
@@ -410,10 +410,8 @@ export function AppChrome({
         />
       )}
 
-      {/* ── Capa 3: Neural canvas — grid + destellos, siempre encima ─ */}
-      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <AnimatedGrid className="absolute inset-0" dark lineOpacity={0.07} accentOpacity={0.28} />
-      </div>
+      {/* ── Capa 3: Neural canvas — partículas continuas con destellos ─ */}
+      <NeuralCanvas className="fixed inset-0 -z-10 h-full w-full opacity-55" />
 
       {/* ── Mobile overlay ──────────────────────────────────────── */}
       {mobileOpen && (
