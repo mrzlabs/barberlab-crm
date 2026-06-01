@@ -1,5 +1,5 @@
 import { loginAction } from "./actions";
-import { isDemoMode } from "@/lib/demo";
+import { demoUsers, isDemoMode } from "@/lib/demo";
 
 const errorMsg: Record<string, string> = {
   invalid: "Datos incompletos o formato invalido.",
@@ -60,8 +60,14 @@ export default function LoginPage({
             {isDemoMode() ? (
               <div className="mt-4 rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-sm text-cyan-950">
                 <p className="font-black">Acceso demo local</p>
-                <p className="mt-1">Email: admin@barberlab.local</p>
-                <p>Password: BarberLab2026!</p>
+                <div className="mt-2 grid gap-1 text-xs">
+                  {demoUsers.map((user) => (
+                    <p key={user.email}>
+                      <span className="font-black capitalize">{user.role.replace("_", " ")}:</span> {user.email}
+                    </p>
+                  ))}
+                </div>
+                <p className="mt-2 text-xs font-bold">Password: BarberLab2026!</p>
               </div>
             ) : null}
             {searchParams.error ? (

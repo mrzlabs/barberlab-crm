@@ -2,27 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ThemeApplier } from "@/components/layout/ThemeApplier";
 import { AnimatedGrid } from "@/components/layout/AnimatedGrid";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { BottomTabBar } from "@/components/layout/BottomTabBar";
 import { BackButton } from "@/components/layout/BackButton";
 import { PageTransition } from "@/components/layout/PageTransition";
+import { CursorGlow } from "@/components/layout/CursorGlow";
+import { FontLoader } from "@/components/layout/FontLoader";
+import { MrzHelpBot } from "@/components/layout/MrzHelpBot";
+import { MrzSignature } from "@/components/layout/MrzSignature";
+import { SignOutButton } from "@/components/layout/SignOutButton";
 import { navStyles } from "@/components/layout/nav-config";
 import {
   Bell,
   ChevronLeft,
   ChevronRight,
-  CircleHelp,
-  LogOut,
   Menu,
   Search,
-  Sparkles,
   X,
-  TrendingUp,
-  ArrowRight,
-  Lightbulb,
   UserCircle,
 } from "lucide-react";
 import type { UserRole } from "@/lib/auth/roles";
@@ -287,23 +286,6 @@ const helpTopics: Record<UserRole, HelpTopic[]> = {
 
 type AppAlert = { label: string; tone: string; href: string; detail: string };
 
-// ─── BotIcon ──────────────────────────────────────────────────────────────────
-
-function BotIcon() {
-  return (
-    <span className="relative flex h-9 w-8 items-end justify-center" aria-hidden="true">
-      <span className="absolute left-1/2 top-0 h-2 w-px -translate-x-1/2 rounded-full bg-violet-300" />
-      <span className="absolute left-1/2 top-0 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-400 shadow-[0_0_10px_3px_rgba(167,139,250,.85)]" />
-      <span className="absolute left-0 top-2.5 h-[22px] w-8 rounded-xl border border-violet-300/60 bg-slate-950 shadow-[0_0_16px_rgba(124,58,237,.55)]">
-        <span className="absolute left-1.5 top-[7px] size-1 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,.95)]" />
-        <span className="absolute right-1.5 top-[7px] size-1 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,.95)]" />
-        <span className="absolute bottom-1 left-1/2 h-px w-3 -translate-x-1/2 rounded-full bg-cyan-300/70" />
-      </span>
-      <span className="absolute bottom-0 left-1/2 h-3.5 w-5 -translate-x-1/2 rounded-b-lg rounded-t-sm border border-violet-300/40 bg-violet-950/80" />
-    </span>
-  );
-}
-
 // ─── LogoMark ─────────────────────────────────────────────────────────────────
 
 function LogoMark({ brand }: { brand?: CurrentProfile }) {
@@ -349,39 +331,20 @@ export function AppChrome({
 }) {
   const [open, setOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [botOpen, setBotOpen] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [alertsHidden, setAlertsHidden] = useState(false);
-  const [topicIndex, setTopicIndex] = useState(0);
   const [profileOpen, setProfileOpen] = useState(false);
-
-  const [botSide, setBotSide] = useState<"right" | "left">("right");
-  const [botVisible, setBotVisible] = useState(true);
 
   const pathname = usePathname();
   const topics = helpTopics[role];
-  const topic = topics[topicIndex] ?? topics[0];
 
   const primaryColor  = brand?.colorPrimario  || "#111827";
   const secondaryColor = brand?.colorSecundario || "#22d3ee";
   const accentColor   = brand?.colorAcento    || "#7c3aed";
   const bgPhotoUrl    = configVisual?.bgPhotoUrl;
-
-  useEffect(() => {
-    if (botOpen) return;
-    const id = window.setInterval(() => {
-      setBotVisible(false);
-      window.setTimeout(() => {
-        setBotSide((s) => (s === "right" ? "left" : "right"));
-        setBotVisible(true);
-      }, 600);
-    }, 8000);
-    return () => window.clearInterval(id);
-  }, [botOpen]);
-
-  const botPosClass   = botSide === "right" ? "right-4" : "left-4";
-  const panelPosClass = botSide === "right" ? "right-4" : "left-4";
+  const fontFamily = configVisual?.fontFamily || brand?.fuente || "Inter";
+  const roleLabel = role === "super_admin" ? "Super Admin" : role === "admin" ? "Admin" : role === "empleado" ? "Empleado" : "Cliente";
+  const headerIdentity = `${brand?.nombre ?? "Usuario"} / ${roleLabel}`;
 
   return (
     <div
@@ -390,15 +353,17 @@ export function AppChrome({
         ["--brand-primary" as string]: primaryColor,
         ["--brand-secondary" as string]: secondaryColor,
         ["--brand-accent" as string]: accentColor,
-        fontFamily: `${brand?.fuente || "Inter"}, Inter, Segoe UI, Roboto, Arial, sans-serif`,
+        fontFamily: `${fontFamily}, Inter, Segoe UI, Roboto, Arial, sans-serif`,
       }}
     >
       <ThemeApplier
         primary={primaryColor}
         secondary={secondaryColor}
         accent={accentColor}
-        fuente={brand?.fuente ?? "Outfit"}
+        fuente={fontFamily}
       />
+      <FontLoader fontFamily={fontFamily} />
+      <CursorGlow />
 
       {/* ── Capa 1: Base oscura — glow de marca sobre negro profundo ── */}
       <div
@@ -438,7 +403,7 @@ export function AppChrome({
 
       {/* ── Sidebar ─────────────────────────────────────────────── */}
       <aside
-        className={`glass-sidebar fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-[350ms] [transition-timing-function:cubic-bezier(0.4,0,0.2,1.2)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(19rem,86vw)] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}
+        className={`glass-sidebar fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 [transition-timing-function:cubic-bezier(0.4,0,0.2,1.2)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(19rem,86vw)] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}
         style={{ background: hexAlpha(primaryColor, 0.88) }}
       >
         {/* header */}
@@ -485,30 +450,33 @@ export function AppChrome({
             </label>
           )}
 
-          <nav className="grid gap-0.5">
-            {nav.map((item) => {
+          <nav className="grid gap-1">
+            {nav.map((item, index) => {
               const style = navStyles[item.label] ?? navStyles.Dashboard;
               const Icon = style.icon;
               const shapeClass = style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-xl" : "rounded-[14px]";
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`group flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-all duration-150 ${open ? "justify-start" : "justify-center"} ${isActive ? "text-white shadow-sm" : "text-white/70 hover:text-white"}`}
-                  style={isActive
-                    ? { background: `linear-gradient(135deg, ${hexAlpha(primaryColor, 0.6)}, ${hexAlpha(secondaryColor, 0.4)})`, boxShadow: `inset 0 0 0 1px ${hexAlpha(secondaryColor, 0.3)}` }
-                    : undefined}
-                  onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.10)"; }}
-                  onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = ""; }}
-                >
-                  <span className={`grid size-9 shrink-0 place-items-center shadow-sm transition-transform group-hover:scale-105 ${isActive ? "scale-105 shadow-md" : ""} ${shapeClass} ${style.tone}`}>
-                    <Icon className="size-[17px]" />
-                  </span>
-                  {open && <span className="flex-1 truncate text-[13.5px] leading-none">{item.label}</span>}
-                  {open && isActive && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white opacity-70" />}
-                </Link>
+                <div key={item.href}>
+                  {[3, 6].includes(index) && <div className="my-2 h-px bg-white/10" />}
+                  <Link
+                    href={item.href}
+                    title={!open ? item.label : undefined}
+                    onClick={() => setMobileOpen(false)}
+                    className={`group flex w-full items-center gap-3 rounded-full px-3 py-2.5 text-sm font-medium transition-all duration-150 ${open ? "justify-start" : "justify-center"} ${isActive ? "text-white shadow-sm" : "text-white/70 hover:text-white"}`}
+                    style={isActive
+                      ? { background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`, boxShadow: `0 14px 28px ${hexAlpha(primaryColor, 0.22)}` }
+                      : undefined}
+                    onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = hexAlpha(primaryColor, 0.34); }}
+                    onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = ""; }}
+                  >
+                    <span className={`grid size-11 shrink-0 place-items-center shadow-sm transition-transform group-hover:scale-105 ${isActive ? "scale-105 shadow-md" : ""} ${shapeClass} ${style.tone}`}>
+                      <Icon className="size-6" />
+                    </span>
+                    {open && <span className="flex-1 truncate text-[14px] leading-none">{item.label}</span>}
+                    {open && isActive && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white opacity-80" />}
+                  </Link>
+                </div>
               );
             })}
           </nav>
@@ -543,11 +511,12 @@ export function AppChrome({
         </div>
 
         {/* profile */}
-        <div className={`border-t border-white/10 p-3 ${open ? "" : "flex justify-center"}`}>
+        <div className={`grid gap-2 border-t border-white/10 p-3 ${open ? "" : "justify-items-center"}`}>
           <button
             className={`flex w-full items-center gap-3 rounded-2xl p-2 text-left transition hover:bg-white/12 ${open ? "" : "justify-center"}`}
             onClick={() => setProfileOpen(true)}
             type="button"
+            title={!open ? "Perfil" : undefined}
           >
             {brand?.logoUrl ? (
               <img src={brand.logoUrl} alt="" className="size-9 shrink-0 rounded-full border-2 border-white/30 object-cover shadow-md" />
@@ -567,6 +536,10 @@ export function AppChrome({
               </>
             )}
           </button>
+          <SignOutButton
+            collapsed={!open}
+            className={`flex w-full items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/8 px-3 py-2.5 text-xs font-bold text-rose-100 transition hover:bg-rose-500/18 hover:text-white ${open ? "" : "size-11 p-0"}`}
+          />
         </div>
       </aside>
 
@@ -585,6 +558,7 @@ export function AppChrome({
               <div>
                 <Breadcrumb />
                 <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">{title}</h2>
+                <p className="mt-0.5 text-xs font-bold text-white/62">{headerIdentity}</p>
               </div>
             </div>
             <div className="relative hidden items-center gap-2 md:flex">
@@ -596,14 +570,6 @@ export function AppChrome({
               >
                 <Bell className="size-4.5" />
                 {!alertsHidden && alerts.length > 0 && <span className="absolute right-2 top-2 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,.9)]" />}
-              </button>
-              <button
-                className="rounded-2xl px-4 py-2.5 text-sm font-black text-white shadow-lg transition hover:opacity-90"
-                style={{ background: accentColor }}
-                onClick={() => setBotOpen(true)}
-                type="button"
-              >
-                Ayuda
               </button>
               <button
                 className="grid size-10 place-items-center rounded-2xl border border-slate-900/10 bg-white text-slate-700 shadow-sm transition hover:border-violet-300 hover:text-violet-700"
@@ -634,8 +600,8 @@ export function AppChrome({
                 </div>
               )}
             </div>
-            <button className="grid size-10 place-items-center rounded-2xl bg-slate-950 text-white md:hidden" onClick={() => setBotOpen(true)} type="button" aria-label="Abrir ayuda">
-              <CircleHelp className="size-4.5" />
+            <button className="grid size-10 place-items-center rounded-2xl bg-white text-slate-700 md:hidden" onClick={() => setProfileOpen(true)} type="button" aria-label="Ver perfil">
+              <UserCircle className="size-5" />
             </button>
           </div>
         </header>
@@ -694,126 +660,14 @@ export function AppChrome({
               <Link href="/perfil" onClick={() => setProfileOpen(false)} className="flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-black text-white transition hover:opacity-90" style={{ background: primaryColor }}>
                 <UserCircle className="size-4" /> Ver perfil completo
               </Link>
-              <Link href="/login" className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-600 transition hover:border-red-200 hover:text-red-600">
-                <LogOut className="size-4" /> Cerrar sesión
-              </Link>
+              <SignOutButton className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-600 transition hover:border-red-200 hover:text-red-600" />
             </div>
           </div>
         </>
       )}
 
-      {/* ── About panel ─────────────────────────────────────────── */}
-      {aboutOpen && (
-        <div className={`fixed bottom-16 z-40 w-[min(92vw,360px)] rounded-3xl border border-violet-200 bg-white/97 p-5 shadow-2xl shadow-violet-950/16 backdrop-blur-2xl ${panelPosClass}`}>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-600">MRZLABS</p>
-              <h3 className="mt-1 text-lg font-black">CRM adaptable para negocios reales</h3>
-            </div>
-            <button className="rounded-xl border border-slate-200 p-2 text-slate-400 hover:text-slate-700" onClick={() => setAboutOpen(false)} type="button" aria-label="Cerrar"><X className="size-4" /></button>
-          </div>
-          <p className="mt-3 text-sm leading-6 text-slate-600">Diseñamos sistemas con agenda, caja, inventario, reportes y roles para que el comercio pueda operar, medir y vender mejor.</p>
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            {["Agenda inteligente", "Caja y turnos", "Control de stock", "Reportes en tiempo real"].map((f) => (
-              <span key={f} className="rounded-xl bg-violet-50 px-3 py-2 text-[11px] font-black text-violet-700">{f}</span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Bot help panel ──────────────────────────────────────── */}
-      {botOpen && (
-        <div className={`fixed bottom-16 z-40 max-h-[78dvh] w-[min(95vw,480px)] overflow-y-auto rounded-[2rem] border border-violet-200 bg-white/97 shadow-2xl shadow-slate-950/18 backdrop-blur-2xl ${panelPosClass}`}>
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 rounded-t-[2rem] border-b border-slate-100 bg-white/95 px-5 py-4 backdrop-blur-xl">
-            <div className="flex items-center gap-3">
-              <span className="grid size-9 place-items-center rounded-2xl bg-slate-950"><Sparkles className="size-4 text-cyan-300" /></span>
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-600">Bot MRZLABS</p>
-                <h3 className="text-base font-black">Guía BarberLab</h3>
-              </div>
-            </div>
-            <button className="rounded-xl border border-slate-200 p-2 text-slate-400 hover:text-slate-700" onClick={() => setBotOpen(false)} type="button" aria-label="Cerrar"><X className="size-4" /></button>
-          </div>
-          <div className="p-5">
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-              {topics.map((item, i) => (
-                <button
-                  className={`shrink-0 rounded-2xl px-4 py-2.5 text-xs font-black transition ${i === topicIndex ? "bg-violet-700 text-white shadow-lg shadow-violet-700/30" : "border border-slate-200 bg-white text-slate-600 hover:border-violet-200 hover:text-violet-700"}`}
-                  key={item.title}
-                  onClick={() => setTopicIndex(i)}
-                  type="button"
-                >
-                  {item.title}
-                </button>
-              ))}
-            </div>
-            <div className="mt-4 rounded-3xl bg-slate-950 p-5 text-white">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="size-4 text-cyan-300" />
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-200">Módulo activo</p>
-              </div>
-              <h4 className="mt-2.5 text-xl font-black">{topic.title}</h4>
-              <p className="mt-2 text-sm leading-6 text-slate-300">{topic.body}</p>
-            </div>
-            <div className="mt-4">
-              <p className="mb-2.5 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Paso a paso</p>
-              <div className="grid gap-2">
-                {topic.steps.map((step, i) => (
-                  <div className="flex gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-3.5 text-sm text-slate-700" key={step}>
-                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-violet-100 text-[11px] font-black text-violet-700">{i + 1}</span>
-                    <span className="leading-5">{step}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {topic.tips && topic.tips.length > 0 && (
-              <div className="mt-4">
-                <p className="mb-2.5 text-[10px] font-black uppercase tracking-[0.18em] text-amber-600">Tips pro</p>
-                <div className="grid gap-2">
-                  {topic.tips.map((tip) => (
-                    <div className="flex gap-3 rounded-2xl border border-amber-100 bg-amber-50 p-3.5 text-sm text-amber-800" key={tip}>
-                      <Lightbulb className="mt-0.5 size-4 shrink-0 text-amber-500" />
-                      <span className="leading-5">{tip}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {topic.href && topic.cta && (
-              <Link className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-violet-950" href={topic.href}>
-                {topic.cta} <ArrowRight className="size-4" />
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ── Signature bar ───────────────────────────────────────── */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 h-14 overflow-hidden border-t border-violet-400/15 bg-slate-950/94">
-        <div className="relative flex h-full items-center justify-between px-4 sm:px-6">
-          <span className="text-[10px] font-semibold tracking-wide text-violet-400/50">© {new Date().getFullYear()} MRZLABS · Todos los derechos reservados</span>
-          <span className="absolute left-1/2 hidden -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.18em] text-violet-400/40 sm:block">BarberLab CRM</span>
-          <button className="rounded-full border border-violet-400/25 bg-violet-950/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-violet-300/80 transition hover:bg-violet-900/70" onClick={() => setAboutOpen((v) => !v)} type="button">
-            Built by MRZLABS
-          </button>
-        </div>
-      </div>
-
-      {/* ── Bot roaming button ──────────────────────────────────── */}
-      <div
-        className={`fixed z-40 flex flex-col items-center gap-2 transition-all duration-500 ${botPosClass} ${botVisible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"}`}
-        style={{ bottom: "3.75rem" }}
-      >
-        <button
-          className="bot-pulse relative grid size-10 place-items-center rounded-full border border-violet-400/50 bg-slate-950 shadow-xl shadow-violet-950/50 transition-transform hover:scale-110"
-          onClick={() => setBotOpen((v) => !v)}
-          type="button"
-          aria-label="Abrir ayuda BarberLab"
-        >
-          <BotIcon />
-          <span className="absolute inset-0 rounded-full border border-violet-400/30 animate-[ping_2.4s_ease-out_infinite]" />
-        </button>
-      </div>
+      <MrzHelpBot topics={topics} />
+      <MrzSignature />
     </div>
   );
 }

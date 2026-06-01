@@ -19,11 +19,11 @@ const commissionBaseLabel: Record<string, string> = {
 
 function KpiCard({ label, value, detail, accent, icon }: { label: string; value: string; detail: string; accent: string; icon: string }) {
   return (
-    <article className={`relative overflow-hidden rounded-2xl border bg-white p-5 shadow-sm ${accent}`}>
+    <article className={`report-kpi relative overflow-hidden rounded-2xl border bg-white p-5 shadow-sm ${accent}`}>
       <span className="absolute right-4 top-4 text-2xl opacity-20 select-none">{icon}</span>
-      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
-      <strong className="mt-2 block truncate text-xl font-black tracking-tight sm:text-2xl">{value}</strong>
-      <p className="mt-1 truncate text-xs text-slate-500">{detail}</p>
+      <p className="report-kpi-label text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <strong className="report-kpi-value mt-2 block truncate text-xl font-bold tracking-tight sm:text-2xl">{value}</strong>
+      <p className="report-kpi-detail mt-1 truncate text-xs text-slate-500">{detail}</p>
     </article>
   );
 }

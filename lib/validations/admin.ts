@@ -16,10 +16,12 @@ export const inventarioSchema = z.object({
   nombre: z.string().min(2).max(120),
   categoria: z.string().min(2).max(80),
   unidad: z.string().min(1).max(30),
+  descripcion: z.string().max(600).optional().or(z.literal("")),
   stock: money,
   costoUnitario: money,
   stockMinimo: money,
   precioVenta: money.default(0),
+  fotoUrl: z.string().url().optional().or(z.literal("")),
   visibleCliente: z.coerce.boolean().default(false),
   activo: z.coerce.boolean().default(true),
 });
@@ -113,6 +115,18 @@ export const negocioUpdateSchema = negocioSchema.omit({
   id: z.string().uuid(),
 });
 
+export const negocioSuperAdminSchema = z.object({
+  id: z.string().uuid(),
+  nombre: z.string().min(2).max(120),
+  slug: z.string().min(2).max(80).regex(/^[a-z0-9-]+$/),
+  telefono: z.string().max(30).optional().or(z.literal("")),
+  correo: z.string().email().optional().or(z.literal("")),
+  direccion: z.string().max(180).optional().or(z.literal("")),
+  plan: z.enum(["starter", "pro", "enterprise"]),
+  estado: z.enum(["activo", "suspendido"]),
+  fechaFin: z.string().min(10).optional().or(z.literal("")),
+});
+
 export const negocioUserSchema = z.object({
   negocioId: z.string().uuid(),
   rol: z.enum(["admin", "empleado", "cliente"]),
@@ -133,4 +147,9 @@ export const negocioSelfSchema = negocioUpdateSchema.omit({
   fechaFin: true,
 }).extend({
   negocioId: z.string().uuid(),
+});
+
+export const configVisualSchema = z.object({
+  darkMode: z.coerce.boolean().default(false),
+  fontFamily: z.enum(["Inter", "Poppins", "Montserrat", "Raleway", "DM Sans", "Playfair Display", "Space Grotesk"]).default("Inter"),
 });

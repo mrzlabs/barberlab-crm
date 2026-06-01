@@ -15,6 +15,7 @@ export function AppShell({
   profile,
   alerts = [],
   configVisual,
+  isImpersonating: _isImpersonating,
 }: {
   role: UserRole;
   title: string;
@@ -23,6 +24,7 @@ export function AppShell({
   profile?: CurrentProfile;
   alerts?: AppAlert[];
   configVisual?: ConfigVisual | null;
+  isImpersonating?: boolean;
 }) {
   const mode = isDemoMode() ? "DEMO" : "PRODUCCION";
 

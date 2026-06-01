@@ -16,6 +16,7 @@ import { negocios } from "@/lib/db/schema";
 export const dynamic = "force-dynamic";
 
 const input = "w-full rounded-xl border bg-white px-3 py-2.5 text-sm outline-none focus:border-cyan-500";
+const fontOptions = ["Inter", "Poppins", "Montserrat", "Raleway", "DM Sans", "Playfair Display", "Space Grotesk"];
 
 export default async function ConfiguracionPage() {
   const profile = await requireRole(["admin", "super_admin"]);
@@ -84,7 +85,11 @@ export default async function ConfiguracionPage() {
           <label className="grid gap-2 text-sm font-bold">Contacto principal<input className={input} name="contactoPrincipal" defaultValue={negocio.contactoPrincipal || ""} /></label>
           <label className="grid gap-2 text-sm font-bold md:col-span-2">Descripcion<textarea className={input} name="descripcion" defaultValue={negocio.descripcion || ""} rows={4} /></label>
           <label className="grid gap-2 text-sm font-bold md:col-span-2">Slogan dashboard<input className={input} name="slogan" defaultValue={negocio.slogan || ""} /></label>
-          <label className="grid gap-2 text-sm font-bold">Fuente<input className={input} name="fuente" defaultValue={negocio.fuente} /></label>
+          <label className="grid gap-2 text-sm font-bold">Fuente
+            <select className={input} name="fuente" defaultValue={configVisual.fontFamily || negocio.fuente || "Inter"}>
+              {fontOptions.map((font) => <option key={font} value={font}>{font}</option>)}
+            </select>
+          </label>
         </div>
 
         {/* ── Paleta de colores ─────────────────────────────────── */}
@@ -172,6 +177,7 @@ export default async function ConfiguracionPage() {
       <ConfigVisualPanel
         darkMode={!!configVisual.darkMode}
         bgPhotoUrl={configVisual.bgPhotoUrl}
+        fontFamily={configVisual.fontFamily || negocio.fuente}
       />
     </div>
   );

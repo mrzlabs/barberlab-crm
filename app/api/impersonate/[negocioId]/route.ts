@@ -59,6 +59,10 @@ export async function GET(
     expiresAt,
   });
 
-  const origin = request.nextUrl.origin;
+  // Use the Host header so the URL matches the origin the browser used
+  // (request.nextUrl.origin normalises to "localhost" internally in Next.js dev)
+  const proto = request.headers.get("x-forwarded-proto") ?? "http";
+  const host  = request.headers.get("host") ?? request.nextUrl.host;
+  const origin = `${proto}://${host}`;
   return NextResponse.json({ url: `${origin}/api/sa-enter?tok=${token}` });
 }

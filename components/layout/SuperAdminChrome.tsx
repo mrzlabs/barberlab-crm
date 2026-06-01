@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { AnimatedGrid } from "@/components/layout/AnimatedGrid";
+import { SignOutButton } from "@/components/layout/SignOutButton";
 import {
   Activity,
   BarChart3,
@@ -12,7 +13,6 @@ import {
   ChevronRight,
   CreditCard,
   LayoutDashboard,
-  LogOut,
   Menu,
   Receipt,
   Settings,
@@ -184,14 +184,9 @@ export function SuperAdminChrome({
             )}
           </div>
           {open && (
-            <Link
-              href="/login"
+            <SignOutButton
               className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-rose-400 transition hover:bg-rose-950/40 hover:text-rose-300"
-              style={{ borderColor: "rgba(255,60,60,0.15)", border: "1px solid rgba(255,60,60,0.15)" }}
-            >
-              <LogOut className="size-3.5" />
-              Cerrar sesión
-            </Link>
+            />
           )}
         </div>
       </aside>
@@ -228,14 +223,10 @@ export function SuperAdminChrome({
               <BarChart3 className="mr-1 inline size-3" />
               Sistema activo
             </span>
-            <Link
-              href="/login"
+            <SignOutButton
+              collapsed
               className="grid size-9 place-items-center rounded-xl border text-white/50 transition hover:text-white"
-              style={{ borderColor: "rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)" }}
-              aria-label="Cerrar sesión"
-            >
-              <LogOut className="size-4" />
-            </Link>
+            />
           </div>
         </header>
 

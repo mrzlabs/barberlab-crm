@@ -6,7 +6,7 @@ import { requireRole } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { clientes, empleados, negocios, usuarios } from "@/lib/db/schema";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
-import { negocioSchema, negocioUpdateSchema, negocioUserSchema } from "@/lib/validations/admin";
+import { negocioSchema, negocioSuperAdminSchema, negocioUpdateSchema, negocioUserSchema } from "@/lib/validations/admin";
 
 export async function createNegocio(formData: FormData) {
   await requireRole(["super_admin"]);
@@ -107,6 +107,26 @@ export async function updateNegocio(formData: FormData) {
     modoAislamiento: payload.modoAislamiento,
     comisionBase: payload.comisionBase,
     propinaEnComision: payload.propinaEnComision,
+    fechaFin: payload.fechaFin || null,
+    updatedAt: new Date(),
+  }).where(eq(negocios.id, payload.id));
+
+  revalidatePath("/super-admin/negocios");
+  revalidatePath(`/super-admin/negocios/${payload.id}`);
+}
+
+export async function updateNegocioSuperAdmin(formData: FormData) {
+  await requireRole(["super_admin"]);
+  const payload = negocioSuperAdminSchema.parse(Object.fromEntries(formData));
+
+  await getDb().update(negocios).set({
+    nombre: payload.nombre.trim(),
+    slug: payload.slug.trim().toLowerCase(),
+    telefono: payload.telefono || null,
+    correo: payload.correo || null,
+    direccion: payload.direccion || null,
+    plan: payload.plan,
+    estado: payload.estado,
     fechaFin: payload.fechaFin || null,
     updatedAt: new Date(),
   }).where(eq(negocios.id, payload.id));

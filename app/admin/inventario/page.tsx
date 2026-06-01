@@ -76,6 +76,8 @@ export default async function InventarioPage({ searchParams }: PageProps) {
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <label className="text-xs font-bold uppercase text-muted-foreground">SKU<input className={input} name="sku" required /></label>
             <label className="text-xs font-bold uppercase text-muted-foreground">Nombre<input className={input} name="nombre" required /></label>
+            <label className="text-xs font-bold uppercase text-muted-foreground sm:col-span-2">Descripción<textarea className={input} name="descripcion" rows={3} placeholder="Uso, beneficio, recomendación o nota interna" /></label>
+            <label className="text-xs font-bold uppercase text-muted-foreground sm:col-span-2">Foto<input className={input} name="foto" type="file" accept="image/jpeg,image/png,image/webp,image/avif" /></label>
             <label className="text-xs font-bold uppercase text-muted-foreground">Categoria<input className={input} name="categoria" required /></label>
             <label className="text-xs font-bold uppercase text-muted-foreground">Unidad<input className={input} name="unidad" placeholder="ml, unidad, caja" required /></label>
             <label className="text-xs font-bold uppercase text-muted-foreground">Stock<input className={input} defaultValue="0" min="0" name="stock" type="number" /></label>
@@ -146,9 +148,17 @@ export default async function InventarioPage({ searchParams }: PageProps) {
             return (
               <div className="p-5" key={item.id}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="font-black">{item.nombre} <span className="ml-1 font-mono text-xs text-muted-foreground">{item.sku}</span></p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">{item.categoria} · {item.unidad}</p>
+                  <div className="flex min-w-0 gap-3">
+                    {item.fotoUrl ? (
+                      <img src={item.fotoUrl} alt={item.nombre} className="size-10 shrink-0 rounded-xl object-cover ring-1 ring-slate-200" />
+                    ) : (
+                      <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-[10px] font-black text-slate-400">IMG</div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="font-black">{item.nombre} <span className="ml-1 font-mono text-xs text-muted-foreground">{item.sku}</span></p>
+                      <p className="mt-0.5 text-sm text-muted-foreground">{item.categoria} · {item.unidad}</p>
+                      {item.descripcion && <p className="mt-1 max-w-xl text-xs leading-5 text-slate-500">{item.descripcion}</p>}
+                    </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-black">Stock: {item.stock}</span>
@@ -167,7 +177,10 @@ export default async function InventarioPage({ searchParams }: PageProps) {
                   </summary>
                   <form action={updateInventario} className="mt-4 grid gap-3 border-t pt-4 sm:grid-cols-2">
                     <input name="inventarioId" type="hidden" value={item.id} />
+                    <input name="fotoUrl" type="hidden" value={item.fotoUrl || ""} />
                     <label className="text-xs font-bold uppercase text-muted-foreground sm:col-span-2">Nombre<input className={input} name="nombre" defaultValue={item.nombre} required /></label>
+                    <label className="text-xs font-bold uppercase text-muted-foreground sm:col-span-2">Descripción<textarea className={input} name="descripcion" rows={3} defaultValue={item.descripcion || ""} /></label>
+                    <label className="text-xs font-bold uppercase text-muted-foreground sm:col-span-2">Cambiar foto<input className={input} name="foto" type="file" accept="image/jpeg,image/png,image/webp,image/avif" /></label>
                     <label className="text-xs font-bold uppercase text-muted-foreground">Categoria<input className={input} name="categoria" defaultValue={item.categoria} required /></label>
                     <label className="text-xs font-bold uppercase text-muted-foreground">Unidad<input className={input} name="unidad" defaultValue={item.unidad} required /></label>
                     <label className="text-xs font-bold uppercase text-muted-foreground">Stock minimo<input className={input} name="stockMinimo" type="number" min="0" defaultValue={String(item.stockMinimo)} /></label>

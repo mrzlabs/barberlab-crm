@@ -8,15 +8,13 @@ type NavItem = { href: string; label: string };
 
 export function BottomTabBar({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
-  const visible = items.slice(0, 5);
 
   return (
     <nav
-      className="fixed bottom-14 left-0 right-0 z-30 border-t border-white/10 backdrop-blur-2xl lg:hidden"
-      style={{ background: "rgba(var(--brand-primary-rgb,17,24,39),0.92)" }}
+      className="fixed bottom-[54px] left-0 right-0 z-30 overflow-x-auto bg-white/76 pb-[env(safe-area-inset-bottom)] shadow-[0_-18px_50px_rgba(15,23,42,.12)] backdrop-blur-2xl dark:bg-slate-950/76 lg:hidden"
     >
-      <div className="flex h-14 items-center justify-around px-1">
-        {visible.map((item) => {
+      <div className="flex h-16 min-w-max items-center gap-1 px-2">
+        {items.map((item) => {
           const style = navStyles[item.label] ?? navStyles.Dashboard;
           const Icon = style.icon;
           const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
@@ -25,16 +23,16 @@ export function BottomTabBar({ items }: { items: NavItem[] }) {
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-col items-center gap-0.5 px-2 py-1"
+              className="flex min-w-[74px] flex-col items-center gap-0.5 rounded-2xl px-2 py-1.5"
             >
               <span
-                className={`grid size-9 place-items-center rounded-xl transition-all duration-150 ${
-                  isActive ? `${style.tone} shadow-lg scale-110` : "text-white/50"
+                className={`grid size-10 place-items-center rounded-2xl transition-all duration-150 ${
+                  isActive ? `${style.tone} scale-105 shadow-lg` : "bg-slate-950/5 text-slate-500 dark:bg-white/8 dark:text-white/50"
                 } ${isActive ? style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-xl" : "rounded-[14px]" : ""}`}
               >
-                <Icon className="size-[17px]" />
+                <Icon className={`size-5 ${isActive ? "fill-current" : ""}`} />
               </span>
-              <span className={`truncate text-[9px] font-bold ${isActive ? "text-white" : "text-white/40"}`}>
+              <span className={`max-w-[68px] truncate text-[9px] font-bold ${isActive ? "text-slate-950 dark:text-white" : "text-slate-500 dark:text-white/45"}`}>
                 {item.label}
               </span>
             </Link>

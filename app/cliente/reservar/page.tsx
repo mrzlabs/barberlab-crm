@@ -128,10 +128,15 @@ export default async function ReservarPage({ searchParams }: PageProps) {
         </div>
         <div className="mt-5 flex gap-3 overflow-x-auto pb-2 scrollbar-soft">
           {products.map((item) => (
-            <article className="min-w-[230px] rounded-[1.4rem] border bg-white p-4 shadow-sm" key={item.id}>
-              <div className="h-24 rounded-2xl bg-[radial-gradient(circle_at_24%_28%,rgba(34,211,238,.35),transparent_5rem),linear-gradient(135deg,#0f172a,#312e81)]" />
+            <article className="min-w-[250px] rounded-[1.4rem] border bg-white p-4 shadow-sm" key={item.id}>
+              {item.fotoUrl ? (
+                <img src={item.fotoUrl} alt={item.nombre} className="h-28 w-full rounded-2xl object-cover" />
+              ) : (
+                <div className="h-28 rounded-2xl bg-[radial-gradient(circle_at_24%_28%,rgba(34,211,238,.35),transparent_5rem),linear-gradient(135deg,#0f172a,#312e81)]" />
+              )}
               <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-cyan-700">{item.categoria}</p>
               <h4 className="mt-1 text-lg font-black">{item.nombre}</h4>
+              {item.descripcion && <p className="mt-2 line-clamp-3 text-xs leading-5 text-slate-500">{item.descripcion}</p>}
               <p className="mt-2 text-sm font-black text-slate-600">{fmtMoney(item.precioVenta)} · stock {item.stock} {item.unidad}</p>
             </article>
           ))}

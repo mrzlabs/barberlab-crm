@@ -15,6 +15,7 @@ import {
 
 export type ConfigVisual = {
   darkMode?: boolean;
+  fontFamily?: string | null;
   bgPhotoUrl?: string | null;
   bgPhotoStoragePath?: string | null;
 };
@@ -174,6 +175,8 @@ export const inventario = pgTable("inventario", {
   stockMinimo: numeric("stock_minimo", { precision: 12, scale: 2 }).notNull().default("0"),
   precioVenta: numeric("precio_venta", { precision: 12, scale: 2 }).notNull().default("0"),
   visibleCliente: boolean("visible_cliente").notNull().default(false),
+  descripcion: text("descripcion"),
+  fotoUrl: text("foto_url"),
   activo: boolean("activo").notNull().default(true),
   ...timestamps,
 }, (table) => ({

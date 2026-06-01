@@ -48,7 +48,7 @@ function KpiCard({
         <strong className="break-words text-[clamp(1.05rem,3.8vw,1.85rem)] font-black leading-tight tracking-tight [overflow-wrap:anywhere]">{value}</strong>
         <DeltaBadge delta={delta} />
       </div>
-      <p className="mt-1.5 truncate text-xs font-semibold text-slate-500 sm:text-sm">{detail}</p>
+      <p className="mt-1.5 truncate text-xs font-semibold text-slate-500">{detail}</p>
     </Link>
   );
 }
@@ -70,12 +70,12 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
-        <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-5 text-white shadow-2xl shadow-violet-950/20 sm:p-8">
+        <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-4 text-white shadow-2xl shadow-violet-950/20 sm:p-8">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(34,211,238,.34),transparent_18rem),radial-gradient(circle_at_84%_65%,rgba(168,85,247,.38),transparent_20rem)]" />
           <div className="relative">
             <div className="mac-dots" />
-            <p className="mt-6 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-200 sm:mt-8">Resumen operativo</p>
-            <h2 className="mt-3 text-2xl font-black tracking-tight sm:text-4xl lg:text-5xl">
+            <p className="mt-5 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-200 sm:mt-8">Resumen operativo</p>
+            <h2 className="mt-3 text-xl font-black tracking-tight sm:text-4xl lg:text-5xl">
               Control diario de agenda, caja, inventario y rentabilidad.
             </h2>
             <p className="mt-3 text-sm leading-6 text-slate-300 sm:mt-5">

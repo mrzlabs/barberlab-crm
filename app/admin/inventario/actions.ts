@@ -6,6 +6,25 @@ import { requireRole } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { inventario, movInventario } from "@/lib/db/schema";
 import { inventarioSchema, movInventarioSchema } from "@/lib/validations/admin";
+import { createSupabaseAdminClient } from "@/lib/supabase/server";
+
+async function uploadInventarioFoto(file: File | null, negocioId: string, itemId?: string) {
+  if (!file || file.size === 0) return null;
+  const allowed = ["image/jpeg", "image/png", "image/webp", "image/avif"];
+  if (!allowed.includes(file.type)) throw new Error("Formato de foto no permitido");
+  if (file.size > 5 * 1024 * 1024) throw new Error("La foto no puede superar 5 MB");
+
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const key = itemId || crypto.randomUUID();
+  const path = `${negocioId}/inventario/${key}.${ext}`;
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase.storage.from("negocio-assets").upload(path, file, {
+    upsert: true,
+    contentType: file.type,
+  });
+  if (error) throw new Error(error.message);
+  return supabase.storage.from("negocio-assets").getPublicUrl(path).data.publicUrl;
+}
 
 export async function createItem(formData: FormData) {
   const profile = await requireRole(["admin"]);
@@ -17,6 +36,7 @@ export async function createItem(formData: FormData) {
     activo: formData.get("activo") === "on",
     visibleCliente: formData.get("visibleCliente") === "on",
   });
+  const fotoUrl = await uploadInventarioFoto(formData.get("foto") as File | null, negocioId);
 
   await getDb().insert(inventario).values({
     negocioId,
@@ -29,6 +49,8 @@ export async function createItem(formData: FormData) {
     stockMinimo: String(payload.stockMinimo),
     precioVenta: String(payload.precioVenta),
     visibleCliente: payload.visibleCliente,
+    descripcion: payload.descripcion || null,
+    fotoUrl,
     activo: payload.activo,
   });
 
@@ -86,12 +108,27 @@ export async function updateInventario(formData: FormData) {
   const stockMinimo = String(Math.max(0, Number(formData.get("stockMinimo"))));
   const costoUnitario = String(Math.max(0, Number(formData.get("costoUnitario"))));
   const precioVenta = String(Math.max(0, Number(formData.get("precioVenta"))));
+  const descripcion = String(formData.get("descripcion") || "").trim();
+  const currentFotoUrl = String(formData.get("fotoUrl") || "");
+  const nextFotoUrl = await uploadInventarioFoto(formData.get("foto") as File | null, negocioId, inventarioId);
   const visibleCliente = formData.get("visibleCliente") === "on";
   const activo = formData.get("activo") === "on";
 
   await getDb()
     .update(inventario)
-    .set({ nombre, categoria, unidad, stockMinimo, costoUnitario, precioVenta, visibleCliente, activo, updatedAt: new Date() })
+    .set({
+      nombre,
+      categoria,
+      unidad,
+      stockMinimo,
+      costoUnitario,
+      precioVenta,
+      descripcion: descripcion || null,
+      fotoUrl: nextFotoUrl || currentFotoUrl || null,
+      visibleCliente,
+      activo,
+      updatedAt: new Date(),
+    })
     .where(and(eq(inventario.id, inventarioId), eq(inventario.negocioId, negocioId)));
 
   revalidatePath("/admin/inventario");

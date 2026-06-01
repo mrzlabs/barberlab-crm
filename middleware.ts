@@ -1,10 +1,29 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { getRoleFromClaims, protectedPrefixes, roleHome } from "@/lib/auth/roles";
+import { getRoleFromClaims, isRole, protectedPrefixes, roleHome } from "@/lib/auth/roles";
 import { isDemoMode } from "@/lib/demo";
 
 export async function middleware(request: NextRequest) {
   const demoRole = request.cookies.get("barberlab_demo_role")?.value;
+  const pathname = request.nextUrl.pathname;
+  const matched = protectedPrefixes.find((item) => pathname.startsWith(item.prefix));
+
+  if (isDemoMode()) {
+    if (!matched) {
+      if (pathname === "/login" && isRole(demoRole)) {
+        return NextResponse.redirect(new URL(roleHome[demoRole], request.url));
+      }
+      return NextResponse.next({ request });
+    }
+
+    if (isRole(demoRole) && matched.roles.includes(demoRole)) {
+      return NextResponse.next({ request });
+    }
+
+    const url = new URL("/login", request.url);
+    url.searchParams.set("next", pathname);
+    return NextResponse.redirect(url);
+  }
 
   const supabaseResponse = NextResponse.next({ request });
 
@@ -29,21 +48,12 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname;
-  const matched = protectedPrefixes.find((item) => pathname.startsWith(item.prefix));
   const role = user ? getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata) : null;
 
   if (!matched) {
-    if (isDemoMode() && pathname === "/login" && demoRole === "admin") {
-      return NextResponse.redirect(new URL(roleHome.admin, request.url));
-    }
     if (pathname === "/login" && user) {
       if (role) return NextResponse.redirect(new URL(roleHome[role], request.url));
     }
-    return supabaseResponse;
-  }
-
-  if (isDemoMode() && demoRole === "admin" && matched.roles.includes("admin")) {
     return supabaseResponse;
   }
 

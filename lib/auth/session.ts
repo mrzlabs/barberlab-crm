@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { and, eq } from "drizzle-orm";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleFromClaims, type UserRole } from "@/lib/auth/roles";
-import { demoCreds, isDemoMode } from "@/lib/demo";
+import { getDemoUserByRole, isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
 import { negocios, usuarios } from "@/lib/db/schema";
 
@@ -32,20 +32,21 @@ export type CurrentProfile = {
 
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
   const demoRole = cookies().get("barberlab_demo_role")?.value;
-  if (isDemoMode() && demoRole === "admin") {
+  const demoUser = getDemoUserByRole(demoRole);
+  if (isDemoMode() && demoUser) {
     return {
-      id: "00000000-0000-0000-0000-000000000001",
-      email: demoCreds.email,
-      rol: "admin",
-      nombre: "Admin BarberLab",
+      id: demoUser.role === "super_admin" ? "00000000-0000-0000-0000-000000000099" : demoUser.role === "empleado" ? "00000000-0000-0000-0000-000000000002" : demoUser.role === "cliente" ? "00000000-0000-0000-0000-000000000003" : "00000000-0000-0000-0000-000000000001",
+      email: demoUser.email,
+      rol: demoUser.role,
+      nombre: demoUser.nombre,
       telefono: "3503803010",
-      negocioId: "00000000-0000-0000-0000-000000000010",
-      negocioNombre: "BarberLab Demo",
-      negocioSlug: "barberlab-demo",
-      negocioCorreo: "demo@barberlab.local",
-      representante: "Admin Demo",
+      negocioId: demoUser.role === "super_admin" ? null : "00000000-0000-0000-0000-000000000010",
+      negocioNombre: demoUser.role === "super_admin" ? "MRZLABS SaaS" : "Smart Style",
+      negocioSlug: demoUser.role === "super_admin" ? "mrzlabs-saas" : "smart-style",
+      negocioCorreo: demoUser.role === "super_admin" ? "crm@mrzlabs.dev" : "smartstyle@barberlab.local",
+      representante: demoUser.role === "super_admin" ? "MRZLABS" : "Admin Smart Style",
       descripcion: "CRM demo para validar agenda, turnos, inventario y reportes.",
-      slogan: "Opera tu barberia con control total.",
+      slogan: "Controla agenda, caja y rentabilidad con una operación clara.",
       logoUrl: null,
       colorPrimario: "#111827",
       colorSecundario: "#22d3ee",

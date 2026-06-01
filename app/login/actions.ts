@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { demoCreds, isDemoMode } from "@/lib/demo";
+import { getDemoUser, isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
 import { negocios, usuarios } from "@/lib/db/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -26,13 +26,14 @@ export async function loginAction(formData: FormData) {
   if (!parsed.success) redirect("/login?error=invalid");
 
   if (isDemoMode()) {
-    if (parsed.data.email === demoCreds.email && parsed.data.password === demoCreds.password) {
-      cookies().set("barberlab_demo_role", demoCreds.role, {
+    const demoUser = getDemoUser(parsed.data.email, parsed.data.password);
+    if (demoUser) {
+      cookies().set("barberlab_demo_role", demoUser.role, {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
       });
-      redirect(parsed.data.next || "/admin/dashboard");
+      redirect(parsed.data.next || roleHome[demoUser.role]);
     }
     redirect("/login?error=auth");
   }

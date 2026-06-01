@@ -10,6 +10,20 @@ export type Slot = {
 };
 
 export async function getClienteByUsr(userId: string) {
+  if (isDemoMode()) {
+    return {
+      id: "cliente-demo-1",
+      negocioId: "00000000-0000-0000-0000-000000000010",
+      usuarioId: userId,
+      nombre: "Laura Cliente",
+      telefono: "3104567890",
+      email: "cliente@barberlab.local",
+      notas: "Cliente demo",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+  }
+
   const [cliente] = await getDb().select().from(clientes).where(eq(clientes.usuarioId, userId)).limit(1);
   return cliente ?? null;
 }
@@ -35,6 +49,21 @@ export async function ensureCliente(user: { id: string; nombre: string; email: s
 }
 
 export async function getReservaCatalog() {
+  if (isDemoMode()) {
+    return {
+      servicios: [
+        { id: "11111111-1111-1111-1111-111111111111", categoria: "barberia", nombre: "Corte + barba", duracionMin: 45, precio: "65000" },
+        { id: "22222222-2222-2222-2222-222222222222", categoria: "peluqueria", nombre: "Color + brushing", duracionMin: 120, precio: "180000" },
+        { id: "33333333-3333-3333-3333-333333333333", categoria: "spa_unas", nombre: "Manicure semipermanente", duracionMin: 70, precio: "90000" },
+      ],
+      empleados: [
+        { id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", especialidad: "barberia", nombre: "Mateo Barber" },
+        { id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", especialidad: "peluqueria", nombre: "Sofia Stylist" },
+        { id: "cccccccc-cccc-cccc-cccc-cccccccccccc", especialidad: "spa_unas", nombre: "Valen Nails" },
+      ],
+    };
+  }
+
   const db = getDb();
   const profile = await getCurrentProfile();
   const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
@@ -68,9 +97,9 @@ export async function getReservaCatalog() {
 export async function getProductosCliente() {
   if (isDemoMode()) {
     return [
-      { id: "prod-1", nombre: "Pomada premium", categoria: "Styling", stock: "12", unidad: "unidad", precioVenta: "32000" },
-      { id: "prod-2", nombre: "Aceite barba", categoria: "Cuidado", stock: "8", unidad: "unidad", precioVenta: "38000" },
-      { id: "prod-3", nombre: "Kit unas", categoria: "Spa", stock: "6", unidad: "unidad", precioVenta: "45000" },
+      { id: "prod-1", nombre: "Pomada premium", categoria: "Styling", stock: "12", unidad: "unidad", precioVenta: "32000", descripcion: "Fijación media con acabado natural.", fotoUrl: null },
+      { id: "prod-2", nombre: "Aceite barba", categoria: "Cuidado", stock: "8", unidad: "unidad", precioVenta: "38000", descripcion: "Hidratación y brillo para barba.", fotoUrl: null },
+      { id: "prod-3", nombre: "Kit uñas", categoria: "Spa", stock: "6", unidad: "unidad", precioVenta: "45000", descripcion: "Cuidado básico para mantenimiento.", fotoUrl: null },
     ];
   }
 
@@ -84,6 +113,8 @@ export async function getProductosCliente() {
       stock: inventario.stock,
       unidad: inventario.unidad,
       precioVenta: inventario.precioVenta,
+      descripcion: inventario.descripcion,
+      fotoUrl: inventario.fotoUrl,
     })
     .from(inventario)
     .where(and(eq(inventario.negocioId, profile?.negocioId || "00000000-0000-0000-0000-000000000000"), eq(inventario.activo, true), eq(inventario.visibleCliente, true), sql`${inventario.stock} > 0`))
@@ -93,6 +124,14 @@ export async function getProductosCliente() {
 
 export async function getSlots(empleadoId?: string, fecha?: string, servicioId?: string) {
   if (!empleadoId || !fecha || !servicioId) return [];
+  if (isDemoMode()) {
+    const base = new Date(`${fecha}T09:00:00-05:00`);
+    return [0, 1, 2, 4, 6].map((offset) => {
+      const inicio = new Date(base.getTime() + offset * 60 * 60000);
+      const fin = new Date(inicio.getTime() + 45 * 60000);
+      return { inicio, fin };
+    });
+  }
 
   const rows = await getDb().execute(sql`
     select inicio, fin
@@ -111,6 +150,39 @@ export async function slotDisponible(params: { empleadoId: string; fecha: string
 }
 
 export async function getMisCitas(userId: string) {
+  if (isDemoMode()) {
+    const now = new Date();
+    return {
+      cliente: await getClienteByUsr(userId),
+      citas: [
+        {
+          id: "cita-demo-cliente-1",
+          inicio: new Date(now.getTime() + 24 * 60 * 60000),
+          fin: new Date(now.getTime() + 24 * 60 * 60000 + 45 * 60000),
+          estado: "confirmada",
+          servicioId: "11111111-1111-1111-1111-111111111111",
+          empleadoId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          servicio: "Corte + barba",
+          precio: "65000",
+          duracionMin: 45,
+          empleado: "Mateo Barber",
+        },
+        {
+          id: "cita-demo-cliente-2",
+          inicio: new Date(now.getTime() - 72 * 60 * 60000),
+          fin: new Date(now.getTime() - 72 * 60 * 60000 + 70 * 60000),
+          estado: "realizada",
+          servicioId: "33333333-3333-3333-3333-333333333333",
+          empleadoId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+          servicio: "Manicure semipermanente",
+          precio: "90000",
+          duracionMin: 70,
+          empleado: "Valen Nails",
+        },
+      ],
+    };
+  }
+
   const cliente = await getClienteByUsr(userId);
   if (!cliente) return { cliente: null, citas: [] };
 
@@ -139,6 +211,32 @@ export async function getMisCitas(userId: string) {
 }
 
 export async function getHistorialCliente(userId: string) {
+  if (isDemoMode()) {
+    const now = new Date();
+    return [
+      {
+        id: "hist-demo-1",
+        citaId: "cita-demo-cliente-1",
+        accion: "confirmacion",
+        detalle: "Smart Style confirmó la cita.",
+        estadoAnterior: "reservada",
+        estadoNuevo: "confirmada",
+        createdAt: new Date(now.getTime() - 2 * 60 * 60000),
+        servicio: "Corte + barba",
+      },
+      {
+        id: "hist-demo-2",
+        citaId: "cita-demo-cliente-2",
+        accion: "cierre",
+        detalle: "Servicio atendido y cerrado.",
+        estadoAnterior: "confirmada",
+        estadoNuevo: "realizada",
+        createdAt: new Date(now.getTime() - 70 * 60 * 60000),
+        servicio: "Manicure semipermanente",
+      },
+    ];
+  }
+
   const cliente = await getClienteByUsr(userId);
   if (!cliente) return [];
 

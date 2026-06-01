@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { negocios } from "@/lib/db/schema";
-import { negocioSelfSchema } from "@/lib/validations/admin";
+import { configVisualSchema, negocioSelfSchema } from "@/lib/validations/admin";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
 export async function updateMiNegocio(formData: FormData) {
@@ -15,6 +15,13 @@ export async function updateMiNegocio(formData: FormData) {
   if (profile.rol !== "super_admin" && profile.negocioId !== payload.negocioId) {
     throw new Error("No puedes editar otro negocio");
   }
+
+  const [current] = await getDb()
+    .select({ configVisual: negocios.configVisual })
+    .from(negocios)
+    .where(eq(negocios.id, payload.negocioId))
+    .limit(1);
+  const existingVisual = (current?.configVisual ?? {}) as Record<string, unknown>;
 
   await getDb().update(negocios).set({
     nombre: payload.nombre.trim(),
@@ -32,6 +39,7 @@ export async function updateMiNegocio(formData: FormData) {
     colorSecundario: payload.colorSecundario,
     colorAcento: payload.colorAcento,
     fuente: payload.fuente,
+    configVisual: { ...existingVisual, fontFamily: payload.fuente },
     comisionBase: payload.comisionBase,
     propinaEnComision: payload.propinaEnComision,
     updatedAt: new Date(),
@@ -48,7 +56,10 @@ export async function updateConfigVisual(formData: FormData) {
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
 
-  const darkMode = formData.get("darkMode") === "true";
+  const payload = configVisualSchema.parse({
+    darkMode: formData.get("darkMode") === "true" || formData.get("darkMode") === "on",
+    fontFamily: formData.get("fontFamily") || "Inter",
+  });
 
   const [current] = await getDb()
     .select({ configVisual: negocios.configVisual })
@@ -60,7 +71,11 @@ export async function updateConfigVisual(formData: FormData) {
 
   await getDb()
     .update(negocios)
-    .set({ configVisual: { ...existing, darkMode }, updatedAt: new Date() })
+    .set({
+      configVisual: { ...existing, darkMode: payload.darkMode, fontFamily: payload.fontFamily },
+      fuente: payload.fontFamily,
+      updatedAt: new Date(),
+    })
     .where(eq(negocios.id, negocioId));
 
   revalidatePath("/admin/configuracion");

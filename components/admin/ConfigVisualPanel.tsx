@@ -4,17 +4,21 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { ImagePlus, Trash2, Moon, Sun } from "lucide-react";
 import { uploadNegocioBgPhoto, removeNegocioBgPhoto, updateConfigVisual } from "@/app/admin/configuracion/actions";
+import { FONT_OPTIONS } from "@/components/layout/FontLoader";
 
 export function ConfigVisualPanel({
   darkMode: initialDark,
   bgPhotoUrl: initialBg,
+  fontFamily: initialFont = "Inter",
 }: {
   darkMode?: boolean;
   bgPhotoUrl?: string | null;
+  fontFamily?: string | null;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isDark, setIsDark] = useState(!!initialDark);
+  const [fontFamily, setFontFamily] = useState(initialFont ?? "Inter");
   const [bgUrl, setBgUrl] = useState(initialBg ?? null);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -25,6 +29,16 @@ export function ConfigVisualPanel({
     setIsDark(next);
     const fd = new FormData();
     fd.set("darkMode", String(next));
+    fd.set("fontFamily", fontFamily);
+    startTransition(() => updateConfigVisual(fd));
+  }
+
+  function handleFontChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const next = e.target.value;
+    setFontFamily(next);
+    const fd = new FormData();
+    fd.set("darkMode", String(isDark));
+    fd.set("fontFamily", next);
     startTransition(() => updateConfigVisual(fd));
   }
 
@@ -103,6 +117,25 @@ export function ConfigVisualPanel({
             {isDark ? <Moon className="size-3 text-slate-900" /> : <Sun className="size-3 text-amber-500" />}
           </span>
         </button>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4">
+        <label className="grid gap-2 text-sm font-bold text-slate-800">
+          Fuente del CRM
+          <select
+            className="w-full rounded-xl border bg-white px-3 py-2.5 text-sm outline-none focus:border-violet-500"
+            value={fontFamily}
+            onChange={handleFontChange}
+            disabled={isPending}
+          >
+            {FONT_OPTIONS.map((font) => (
+              <option key={font} value={font}>{font}</option>
+            ))}
+          </select>
+        </label>
+        <p className="mt-2 text-xs text-slate-500">
+          Se guarda en config_visual.fontFamily y se aplica al shell del CRM.
+        </p>
       </div>
 
       {/* Foto de fondo */}
