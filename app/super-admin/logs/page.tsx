@@ -1,8 +1,25 @@
 import { getActivityLogs } from "@/lib/super-admin/queries";
+import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 type PageProps = { searchParams?: Record<string, string | string[] | undefined> };
+
+async function getRecentAccesses() {
+  try {
+    const supabase = createSupabaseAdminClient();
+    const { data } = await supabase.auth.admin.listUsers({ perPage: 20, page: 1 });
+    return (data?.users ?? [])
+      .filter((u) => u.last_sign_in_at)
+      .sort((a, b) => new Date(b.last_sign_in_at!).getTime() - new Date(a.last_sign_in_at!).getTime())
+      .slice(0, 10)
+      .map((u) => ({
+        email: u.email ?? "—",
+        lastSignIn: u.last_sign_in_at!,
+        id: u.id,
+      }));
+  } catch { return []; }
+}
 
 function fmtDate(d: Date | string) {
   return new Intl.DateTimeFormat("es-CO", {
@@ -14,7 +31,10 @@ function fmtDate(d: Date | string) {
 
 export default async function LogsPage({ searchParams }: PageProps) {
   const page = Math.max(1, Number(searchParams?.page ?? 1));
-  const { rows, total, limit } = await getActivityLogs(page, 50);
+  const [{ rows, total, limit }, recentAccesses] = await Promise.all([
+    getActivityLogs(page, 50),
+    getRecentAccesses(),
+  ]);
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
   return (
@@ -30,6 +50,31 @@ export default async function LogsPage({ searchParams }: PageProps) {
           </p>
         </div>
       </section>
+
+      {/* ── Últimos accesos ── */}
+      {recentAccesses.length > 0 && (
+        <div className="overflow-hidden rounded-[2rem] border" style={{ background: "rgba(17,17,24,0.95)", borderColor: "rgba(255,255,255,0.09)" }}>
+          <div className="border-b px-5 py-4" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+            <h3 className="font-black text-white">Últimos accesos</h3>
+            <p className="text-xs text-slate-400">Obtenido desde Supabase Auth</p>
+          </div>
+          <div className="overflow-x-auto scrollbar-soft">
+            <table className="w-full min-w-[500px] text-left text-sm">
+              <thead className="text-[10px] uppercase tracking-wide" style={{ background: "#0d0d14", color: "#67e8f9" }}>
+                <tr><th className="px-5 py-3">Email</th><th className="px-5 py-3">Último acceso</th></tr>
+              </thead>
+              <tbody>
+                {recentAccesses.map((u, i) => (
+                  <tr key={u.id} className="border-t" style={{ borderColor: "rgba(255,255,255,0.05)", background: i % 2 !== 0 ? "rgba(255,255,255,0.022)" : "transparent" }}>
+                    <td className="px-5 py-3 text-slate-300">{u.email}</td>
+                    <td className="px-5 py-3 font-mono text-xs text-slate-400">{fmtDate(u.lastSignIn)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       <div
         className="overflow-hidden rounded-[2rem] border"

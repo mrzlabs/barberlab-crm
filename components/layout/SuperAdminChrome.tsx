@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { AnimatedGrid } from "@/components/layout/AnimatedGrid";
+import { NeuralCanvas } from "@/components/layout/NeuralCanvas";
 import { SignOutButton } from "@/components/layout/SignOutButton";
 import {
   Activity,
@@ -47,7 +47,7 @@ export function SuperAdminChrome({
 
       {/* ── Fixed background ─────────────────────────────────────── */}
       <div className="fixed inset-0 -z-10" style={{ background: "#0a0a0f" }}>
-        <AnimatedGrid className="absolute inset-0" dark lineOpacity={0.07} accentOpacity={0.18} />
+        <NeuralCanvas className="absolute inset-0 h-full w-full opacity-45" />
       </div>
 
       {/* Mobile overlay */}

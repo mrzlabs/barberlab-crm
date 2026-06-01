@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { fmtMoney } from "@/lib/admin/format";
-import { getInventario } from "@/lib/admin/queries";
+import { getCategoriasInventario, getInventario } from "@/lib/admin/queries";
 import { requireRole } from "@/lib/auth/session";
 import { InventarioCreateButton, InventarioEditButton } from "@/components/admin/InventarioModal";
 import { createItem, createMov, updateInventario } from "./actions";
@@ -17,7 +17,10 @@ export default async function InventarioPage({ searchParams }: PageProps) {
   const negocioId = profile?.negocioId ?? "00000000-0000-0000-0000-000000000000";
   const q = param(searchParams?.q);
   const soloAlertas = param(searchParams?.alertas) === "1";
-  const items = await getInventario(negocioId, q, soloAlertas);
+  const [items, categorias] = await Promise.all([
+    getInventario(negocioId, q, soloAlertas),
+    getCategoriasInventario(negocioId),
+  ]);
   const alertas = items.filter((item) => Number(item.stock) <= Number(item.stockMinimo) && Number(item.stockMinimo) > 0);
 
   return (
@@ -28,7 +31,7 @@ export default async function InventarioPage({ searchParams }: PageProps) {
           <p className="text-xs font-semibold uppercase tracking-wide text-primary">Catálogo</p>
           <h2 className="text-2xl font-black">Inventario</h2>
         </div>
-        <InventarioCreateButton createAction={createItem} />
+        <InventarioCreateButton createAction={createItem} categorias={categorias} />
       </div>
 
       {/* ── Stats ── */}
@@ -160,6 +163,7 @@ export default async function InventarioPage({ searchParams }: PageProps) {
                     <InventarioEditButton
                       item={{ id: item.id, nombre: item.nombre, sku: item.sku, categoria: item.categoria, unidad: item.unidad, stock: item.stock, stockMinimo: item.stockMinimo, costoUnitario: item.costoUnitario, precioVenta: item.precioVenta, descripcion: item.descripcion, fotoUrl: item.fotoUrl, activo: item.activo, visibleCliente: item.visibleCliente }}
                       updateAction={updateInventario}
+                      categorias={categorias}
                     />
                   </div>
                 </div>

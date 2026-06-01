@@ -37,14 +37,14 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
 
       <div className="grid gap-4 md:grid-cols-2">
         {clientes.map((item) => (
-          <article className="rounded-2xl border bg-white p-5 shadow-sm" key={item.id}>
-            <h3 className="text-xl font-black">{item.nombre}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{item.email || "Sin email"}</p>
+          <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" key={item.id}>
+            <h3 className="text-xl font-black text-slate-900">{item.nombre}</h3>
+            <p className="mt-1 text-sm text-slate-500">{item.email || "Sin email"}</p>
             <dl className="mt-5 grid gap-3 text-sm">
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Teléfono</dt><dd className="font-semibold">{item.telefono}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Origen</dt><dd className="font-semibold">{item.usuarioId ? "Cuenta auth" : "Registro manual"}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Teléfono</dt><dd className="font-semibold text-slate-900">{item.telefono}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Origen</dt><dd className="font-semibold text-slate-900">{item.usuarioId ? "Cuenta auth" : "Registro manual"}</dd></div>
             </dl>
-            <p className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-muted-foreground">{item.notas || "Sin notas"}</p>
+            <p className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-600">{item.notas || "Sin notas"}</p>
             <div className="mt-4 flex items-center gap-2">
               <Link className="rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-xs font-bold text-cyan-700 hover:bg-cyan-100" href={`/admin/clientes/${item.id}`}>
                 Ver historial

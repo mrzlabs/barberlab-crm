@@ -5,6 +5,7 @@ import { DonutChart } from "@/components/reports/DonutChart";
 import { TrendChart } from "@/components/reports/TrendChart";
 import { DndReportLayout } from "@/components/reports/DndReportLayout";
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
+import { SelectableKpiGrid } from "@/components/reports/SelectableKpiGrid";
 
 export const dynamic = "force-dynamic";
 
@@ -260,17 +261,17 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
         </div>
       </section>
 
-      {/* ── KPIs fijos (no reordenables) ─── */}
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <KpiCard label="Ingresos" value={fmtMoney(r.kpis.ingresos)} detail={`${r.kpis.turnos} turnos cerrados`} accent="border-l-4 border-l-cyan-400" icon="$" />
-        <KpiCard label="Utilidad neta" value={fmtMoney(r.kpis.utilidadNeta)} detail="Luego de insumos, gastos y comisiones" accent="border-l-4 border-l-emerald-400" icon="UN" />
-        <KpiCard label="Margen bruto" value={fmtMoney(r.kpis.margenBruto)} detail={`${fmtMoney(r.kpis.costoInsumo)} costo insumo`} accent="border-l-4 border-l-violet-400" icon="MB" />
-        <KpiCard label="Comisiones" value={fmtMoney(r.kpis.comisiones)} detail={commissionBaseLabel[r.settings.comisionBase] || "Precio final"} accent="border-l-4 border-l-amber-400" icon="%" />
-        <KpiCard label="Ticket promedio" value={fmtMoney(r.kpis.ticket)} detail={`${fmtMoney(r.kpis.propinas)} propinas`} accent="border-l-4 border-l-sky-400" icon="TP" />
-        <KpiCard label="Gastos" value={fmtMoney(r.kpis.gastos)} detail="Operación del periodo" accent="border-l-4 border-l-rose-400" icon="G" />
-        <KpiCard label="Costo insumo" value={fmtMoney(r.kpis.costoInsumo)} detail="Descuento por servicio cerrado" accent="border-l-4 border-l-teal-400" icon="CI" />
-        <KpiCard label="No asistencia" value={pct(r.kpis.tasaNoAsistencia)} detail="Citas no asistidas sobre citas totales" accent="border-l-4 border-l-orange-400" icon="NA" />
-      </section>
+      {/* ── KPIs fijos (seleccionables) ─── */}
+      <SelectableKpiGrid kpis={[
+        { id: "ingresos",    label: "Ingresos",        value: fmtMoney(r.kpis.ingresos),      detail: `${r.kpis.turnos} turnos cerrados`,                     accentClass: "border-l-4 border-l-cyan-400",   icon: "$"  },
+        { id: "utilidad",    label: "Utilidad neta",   value: fmtMoney(r.kpis.utilidadNeta),  detail: "Luego de insumos, gastos y comisiones",                accentClass: "border-l-4 border-l-emerald-400", icon: "UN" },
+        { id: "margen",      label: "Margen bruto",    value: fmtMoney(r.kpis.margenBruto),   detail: `${fmtMoney(r.kpis.costoInsumo)} costo insumo`,        accentClass: "border-l-4 border-l-violet-400",  icon: "MB" },
+        { id: "comisiones",  label: "Comisiones",      value: fmtMoney(r.kpis.comisiones),    detail: commissionBaseLabel[r.settings.comisionBase] || "Precio final", accentClass: "border-l-4 border-l-amber-400", icon: "%" },
+        { id: "ticket",      label: "Ticket promedio", value: fmtMoney(r.kpis.ticket),        detail: `${fmtMoney(r.kpis.propinas)} propinas`,               accentClass: "border-l-4 border-l-sky-400",    icon: "TP" },
+        { id: "gastos",      label: "Gastos",          value: fmtMoney(r.kpis.gastos),        detail: "Operación del periodo",                               accentClass: "border-l-4 border-l-rose-400",   icon: "G"  },
+        { id: "costo",       label: "Costo insumo",    value: fmtMoney(r.kpis.costoInsumo),   detail: "Descuento por servicio cerrado",                      accentClass: "border-l-4 border-l-teal-400",   icon: "CI" },
+        { id: "noasistencia",label: "No asistencia",   value: pct(r.kpis.tasaNoAsistencia),   detail: "Citas no asistidas sobre citas totales",              accentClass: "border-l-4 border-l-orange-400", icon: "NA" },
+      ]} />
 
       {/* regla contable */}
       <section className="grid gap-3 rounded-2xl border bg-white p-4 shadow-sm sm:grid-cols-3">

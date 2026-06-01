@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { impersonationTokens } from "@/lib/db/schema";
 import { and, eq, gt, isNull } from "drizzle-orm";
+import { logActivity } from "@/lib/activity/log";
 
 export async function GET(request: NextRequest) {
   const tok = request.nextUrl.searchParams.get("tok");
@@ -28,6 +29,8 @@ export async function GET(request: NextRequest) {
   if (!used) {
     return NextResponse.redirect(new URL("/login?error=token_invalid", request.url));
   }
+
+  await logActivity({ negocioId: used.negocioId, accion: "sa_impersonacion_iniciada", detalle: { negocioId: used.negocioId } });
 
   const response = NextResponse.redirect(new URL("/admin/dashboard", request.url));
   response.cookies.set("barberlab_sa_imp", used.negocioId, {

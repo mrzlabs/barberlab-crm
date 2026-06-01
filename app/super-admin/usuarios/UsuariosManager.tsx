@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { toggleUsuarioActivo, deleteUsuario } from "./actions";
 
 type UsuarioRow = {
   id: string;
@@ -49,6 +50,7 @@ export function UsuariosManager({
 }) {
   const router = useRouter();
   const [selected, setSelected] = useState<UsuarioRow | null>(null);
+  const [pending, startTransition] = useTransition();
 
   function buildUrl(overrides: Record<string, string | number>) {
     const p = new URLSearchParams({
@@ -131,6 +133,7 @@ export function UsuariosManager({
                 <th className="px-4 py-3">Comercio</th>
                 <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3">Registro</th>
+                <th className="px-4 py-3">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -165,11 +168,31 @@ export function UsuariosManager({
                     </span>
                   </td>
                   <td className="px-4 py-3.5 text-xs text-slate-500">{fmtDate(u.createdAt)}</td>
+                  <td className="px-4 py-3.5">
+                    <div className="flex gap-1.5">
+                      <button
+                        className={`rounded-lg px-2 py-1 text-[11px] font-bold transition ${u.activo ? "bg-amber-900/40 text-amber-300 hover:bg-amber-900/60" : "bg-emerald-900/40 text-emerald-300 hover:bg-emerald-900/60"}`}
+                        disabled={pending}
+                        onClick={() => startTransition(async () => { await toggleUsuarioActivo(u.id, !u.activo); router.refresh(); })}
+                        type="button"
+                      >
+                        {u.activo ? "Inactivar" : "Activar"}
+                      </button>
+                      <button
+                        className="rounded-lg bg-rose-900/40 px-2 py-1 text-[11px] font-bold text-rose-300 transition hover:bg-rose-900/70"
+                        disabled={pending}
+                        onClick={() => { if (window.confirm(`¿Eliminar a ${u.nombre}? Esta acción es irreversible.`)) startTransition(async () => { await deleteUsuario(u.id); router.refresh(); }); }}
+                        type="button"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
               {usuarios.length === 0 && (
                 <tr>
-                  <td className="px-5 py-8 text-center text-slate-500" colSpan={6}>
+                  <td className="px-5 py-8 text-center text-slate-500" colSpan={7}>
                     Sin usuarios con ese filtro.
                   </td>
                 </tr>

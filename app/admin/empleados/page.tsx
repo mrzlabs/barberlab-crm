@@ -40,11 +40,11 @@ export default async function AdminEmpleadosPage({ searchParams }: PageProps) {
       {/* ── List ── */}
       <div className="grid gap-4 md:grid-cols-2">
         {empleados.map((item) => (
-          <article className="rounded-2xl border bg-white p-5 shadow-sm" key={item.id}>
+          <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" key={item.id}>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-xl font-black">{item.nombre}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{item.email}</p>
+                <h3 className="text-xl font-black text-slate-900">{item.nombre}</h3>
+                <p className="mt-1 text-sm text-slate-500">{item.email}</p>
               </div>
               <form action={toggleEmpleado}>
                 <input name="empleadoId" type="hidden" value={item.id} />
@@ -58,9 +58,9 @@ export default async function AdminEmpleadosPage({ searchParams }: PageProps) {
               </form>
             </div>
             <dl className="mt-5 grid gap-3 text-sm">
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Especialidad</dt><dd className="font-semibold capitalize">{item.especialidad.replace("_", " ")}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Comisión</dt><dd className="font-semibold">{item.comisionPct}%</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Teléfono</dt><dd className="font-semibold">{item.telefono}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Especialidad</dt><dd className="font-semibold text-slate-900 capitalize">{item.especialidad.replace("_", " ")}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Comisión</dt><dd className="font-semibold text-slate-900">{item.comisionPct}%</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Teléfono</dt><dd className="font-semibold text-slate-900">{item.telefono}</dd></div>
             </dl>
             <div className="mt-4">
               <EmpleadoEditButton

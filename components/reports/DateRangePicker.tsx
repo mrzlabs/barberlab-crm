@@ -46,7 +46,9 @@ export function DateRangePicker({ from, to }: Props) {
     router.push(`/admin/reportes?from=${f}&to=${t}`);
   }
 
-  const activePreset = presets.find((p) => p.from === from && p.to === to);
+  // Preset is active only when URL params AND custom inputs match
+  const customChanged = customFrom !== from || customTo !== to;
+  const activePreset = customChanged ? undefined : presets.find((p) => p.from === from && p.to === to);
 
   return (
     <div className="mt-5 space-y-3 no-print">

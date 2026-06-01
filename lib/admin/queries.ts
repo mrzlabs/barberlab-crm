@@ -258,6 +258,16 @@ export async function getInventario(negocioId: string, search?: string, soloAler
   return db.select().from(inventario).where(and(...conditions)).orderBy(desc(inventario.activo), inventario.nombre);
 }
 
+export async function getCategoriasInventario(negocioId: string): Promise<string[]> {
+  if (isDemoMode()) return ["Styling", "Cuidado", "Barbería", "Herramientas"];
+  const rows = await getDb()
+    .selectDistinct({ categoria: inventario.categoria })
+    .from(inventario)
+    .where(eq(inventario.negocioId, negocioId))
+    .orderBy(inventario.categoria);
+  return rows.map((r) => r.categoria).filter(Boolean) as string[];
+}
+
 export async function getArqueoCaja(negocioId: string) {
   if (isDemoMode()) {
     return {

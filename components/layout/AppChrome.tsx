@@ -362,8 +362,11 @@ export function AppChrome({
   const accentColor   = brand?.colorAcento    || "#7c3aed";
   const bgPhotoUrl    = configVisual?.bgPhotoUrl;
   const fontFamily = configVisual?.fontFamily || brand?.fuente || "Inter";
-  const roleLabel = role === "super_admin" ? "Super Admin" : role === "admin" ? "Admin" : role === "empleado" ? "Empleado" : "Cliente";
-  const headerIdentity = `${brand?.nombre ?? "Usuario"} / ${roleLabel}`;
+  const roleLabel = role === "super_admin" ? "Super Admin MRZLABS" : role === "admin" ? "Administrador" : role === "empleado" ? "Empleado" : "Cliente";
+  // In header: show negocioNombre for admin/empleado/cliente, brand name for super_admin
+  const headerIdentity = role === "super_admin"
+    ? `${brand?.nombre ?? "Super Admin"} / ${roleLabel}`
+    : `${brand?.negocioNombre ?? brand?.nombre ?? "Negocio"} / ${roleLabel}`;
 
   return (
     <div
@@ -676,24 +679,43 @@ export function AppChrome({
               )}
               <div className="text-center">
                 <p className="text-lg font-black text-slate-900">{brand?.nombre ?? "Usuario"}</p>
-                <p className="mt-0.5 text-sm capitalize text-slate-500">{role} · {brand?.negocioNombre ?? "BarberLab"}</p>
+                <p className="mt-0.5 text-sm text-slate-500">{roleLabel}</p>
                 {brand?.email && <p className="mt-0.5 text-xs text-slate-400">{brand.email}</p>}
               </div>
             </div>
             <div className="flex-1 overflow-y-auto px-5 pb-4">
               <div className="grid gap-2">
-                {brand?.plan && <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Plan</p><p className="mt-1 font-black capitalize text-slate-900">{brand.plan}</p></div>}
-                {brand?.negocioNombre && <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Comercio</p><p className="mt-1 font-black text-slate-900">{brand.negocioNombre}</p></div>}
-                {brand?.negocioEstado && <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Estado</p><p className="mt-1 font-black capitalize text-slate-900">{brand.negocioEstado}</p></div>}
+                {/* super_admin: nombre, email, rol */}
+                {role === "super_admin" && <>
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Plataforma</p><p className="mt-1 font-black text-slate-900">BarberLab SaaS</p></div>
+                  {brand?.email && <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Email</p><p className="mt-1 font-black text-slate-900">{brand.email}</p></div>}
+                </>}
+                {/* admin: nombre negocio, plan, estado */}
+                {role === "admin" && <>
+                  {brand?.negocioNombre && <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Comercio</p><p className="mt-1 font-black text-slate-900">{brand.negocioNombre}</p></div>}
+                  {brand?.plan && <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Plan</p><p className="mt-1 font-black capitalize text-slate-900">{brand.plan}</p></div>}
+                  {brand?.negocioEstado && <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Estado</p><p className="mt-1 font-black capitalize text-slate-900">{brand.negocioEstado}</p></div>}
+                </>}
+                {/* empleado: nombre, teléfono */}
+                {role === "empleado" && <>
+                  {brand?.telefono && <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Teléfono</p><p className="mt-1 font-black text-slate-900">{brand.telefono}</p></div>}
+                  {brand?.negocioNombre && <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Comercio</p><p className="mt-1 font-black text-slate-900">{brand.negocioNombre}</p></div>}
+                </>}
+                {/* cliente: solo nombre */}
+                {role === "cliente" && <>
+                  {brand?.negocioNombre && <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Comercio</p><p className="mt-1 font-black text-slate-900">{brand.negocioNombre}</p></div>}
+                </>}
               </div>
-              <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Paleta del negocio</p>
-                <div className="flex gap-2">
-                  <span className="h-8 flex-1 rounded-xl shadow-sm" style={{ background: primaryColor }} />
-                  <span className="h-8 flex-1 rounded-xl shadow-sm" style={{ background: secondaryColor }} />
-                  <span className="h-8 flex-1 rounded-xl shadow-sm" style={{ background: accentColor }} />
+              {(role === "admin") && (
+                <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Paleta del negocio</p>
+                  <div className="flex gap-2">
+                    <span className="h-8 flex-1 rounded-xl shadow-sm" style={{ background: primaryColor }} />
+                    <span className="h-8 flex-1 rounded-xl shadow-sm" style={{ background: secondaryColor }} />
+                    <span className="h-8 flex-1 rounded-xl shadow-sm" style={{ background: accentColor }} />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
             <div className="grid gap-2 border-t border-slate-100 p-5">
               <Link href="/perfil" onClick={() => setProfileOpen(false)} className="flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-black text-white transition hover:opacity-90" style={{ background: primaryColor }}>
