@@ -24,29 +24,29 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
 
       <form className="flex gap-2" method="get">
         <input
-          className="flex-1 rounded-xl border bg-white px-3 py-2 text-sm outline-none focus:border-cyan-500"
+          className="flex-1 rounded-xl border bg-white/10 border-white/15 text-white placeholder:text-slate-500 px-3 py-2 text-sm outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20"
           defaultValue={q ?? ""}
           name="q"
           placeholder="Buscar por nombre o teléfono…"
           type="search"
         />
         <button className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-black text-white" type="submit">Buscar</button>
-        {q && <a className="rounded-xl border px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-50" href="/admin/clientes">Limpiar</a>}
+        {q && <a className="rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-slate-400 hover:bg-white/8" href="/admin/clientes">Limpiar</a>}
       </form>
       <p className="text-xs text-slate-400">{clientes.length} cliente{clientes.length !== 1 ? "s" : ""}{q ? ` para "${q}"` : ""}</p>
 
       <div className="grid gap-4 md:grid-cols-2">
         {clientes.map((item) => (
-          <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" key={item.id}>
-            <h3 className="text-xl font-black text-slate-900">{item.nombre}</h3>
-            <p className="mt-1 text-sm text-slate-500">{item.email || "Sin email"}</p>
+          <article className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-md p-5 shadow-black/20" key={item.id}>
+            <h3 className="text-xl font-black text-white">{item.nombre}</h3>
+            <p className="mt-1 text-sm text-slate-400">{item.email || "Sin email"}</p>
             <dl className="mt-5 grid gap-3 text-sm">
-              <div className="flex justify-between gap-4"><dt className="text-slate-500">Teléfono</dt><dd className="font-semibold text-slate-900">{item.telefono}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-slate-500">Origen</dt><dd className="font-semibold text-slate-900">{item.usuarioId ? "Cuenta auth" : "Registro manual"}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-400">Teléfono</dt><dd className="font-semibold text-slate-200">{item.telefono}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-400">Origen</dt><dd className="font-semibold text-slate-200">{item.usuarioId ? "Cuenta auth" : "Registro manual"}</dd></div>
             </dl>
-            <p className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-600">{item.notas || "Sin notas"}</p>
+            <p className="mt-4 rounded-xl bg-white/5 p-3 text-sm text-slate-300">{item.notas || "Sin notas"}</p>
             <div className="mt-4 flex items-center gap-2">
-              <Link className="rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-xs font-bold text-cyan-700 hover:bg-cyan-100" href={`/admin/clientes/${item.id}`}>
+              <Link className="rounded-xl border border-cyan-500/30 bg-cyan-500/20 px-3 py-1.5 text-xs font-bold text-cyan-300 hover:bg-cyan-500/30" href={`/admin/clientes/${item.id}`}>
                 Ver historial
               </Link>
               <ClienteEditButton
@@ -57,7 +57,7 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
           </article>
         ))}
         {clientes.length === 0 && (
-          <p className="col-span-2 rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">Sin clientes registrados.</p>
+          <p className="col-span-2 rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-slate-400">Sin clientes registrados.</p>
         )}
       </div>
     </div>

@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/Modal";
 import { Plus, Pencil } from "lucide-react";
 
-const input = "w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none focus:border-cyan-500";
-const lbl   = "text-xs font-bold uppercase text-muted-foreground";
+const input = "w-full rounded-xl border bg-white/10 border-white/15 text-white placeholder:text-slate-500 px-3 py-2 text-sm outline-none focus:border-cyan-400";
+const lbl   = "text-xs font-bold uppercase tracking-widest text-slate-400 mb-1";
 
 type Item = {
   id: string; usuarioId: string; nombre: string; telefono: string | null;
@@ -68,7 +68,7 @@ function EmpleadoForm({ action, item, onDone }: FormProps) {
       <label className="flex items-center gap-2 text-sm font-semibold">
         <input name="activo" type="checkbox" defaultChecked={item?.activo ?? true} /> Activo
       </label>
-      {err && <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-bold text-red-600">{err}</p>}
+      {err && <p className="rounded-xl bg-red-500/20 px-3 py-2 text-xs font-bold text-red-300">{err}</p>}
       <div className="flex gap-3 pt-1">
         <button
           className="flex-1 rounded-xl bg-slate-950 py-3 text-sm font-black text-white disabled:opacity-50"
@@ -105,7 +105,7 @@ export function EmpleadoEditButton({ item, updateAction }: { item: Item; updateA
   return (
     <>
       <button
-        className="inline-flex items-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-bold text-violet-700 hover:bg-violet-100 transition"
+        className="inline-flex items-center gap-1.5 rounded-xl border border-violet-500/30 bg-violet-500/20 px-3 py-1.5 text-xs font-bold text-violet-300 hover:bg-violet-500/30 transition"
         onClick={() => setOpen(true)}
         type="button"
       >

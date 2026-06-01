@@ -24,7 +24,7 @@ function DeltaBadge({ delta }: { delta: number | null | undefined }) {
   if (delta == null) return null;
   const up = delta >= 0;
   return (
-    <span className={`ml-1.5 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-black ${up ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
+    <span className={`ml-1.5 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-black ${up ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-red-500/20 text-red-300"}`}>
       {up ? "▲" : "▼"} {Math.abs(delta)}%
     </span>
   );
@@ -93,18 +93,18 @@ export default async function DashboardPage() {
         <aside className="glass-panel rounded-[2rem] p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-violet-700">Next steps</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-violet-400">Next steps</p>
               <h3 className="mt-1 text-2xl font-black">Flujo del dia</h3>
             </div>
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">Activo</span>
+            <span className="rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 text-xs font-black">Activo</span>
           </div>
           <div className="mt-5 grid gap-3">
             {flow.map((item, index) => (
-              <Link className="group flex items-center gap-3 rounded-2xl border bg-white p-3 transition hover:border-violet-300 hover:shadow-lg" href={item.href} key={item.href}>
+              <Link className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/8 p-3 transition hover:border-violet-500/40 hover:bg-white/12 hover:shadow-lg" href={item.href} key={item.href}>
                 <span className="grid size-9 place-items-center rounded-xl bg-slate-950 text-sm font-black text-cyan-200 group-hover:bg-violet-700">{index + 1}</span>
                 <span>
-                  <strong className="block text-sm">{item.label}</strong>
-                  <span className="text-xs font-semibold text-slate-500">{item.text}</span>
+                  <strong className="block text-sm text-white">{item.label}</strong>
+                  <span className="text-xs font-semibold text-slate-400">{item.text}</span>
                 </span>
               </Link>
             ))}
@@ -131,9 +131,9 @@ export default async function DashboardPage() {
         </div>
 
         <section className="glass-panel overflow-hidden rounded-[2rem]">
-          <div className="flex items-center justify-between border-b border-slate-200/70 p-5">
+          <div className="flex items-center justify-between border-b border-white/10 p-5">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-violet-700">Caja</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-violet-400">Caja</p>
               <h3 className="text-2xl font-black">Ultimos turnos</h3>
             </div>
             <Link className="rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white" href="/admin/turnos">Ver todo</Link>
@@ -149,9 +149,9 @@ export default async function DashboardPage() {
                   <th className="px-5 py-3 text-right">Ingreso</th>
                 </tr>
               </thead>
-              <tbody className="bg-white/78">
+              <tbody className="bg-transparent">
                 {recentTurnos.map((turno) => (
-                  <tr className="border-t" key={turno.id}>
+                  <tr className="border-t border-white/10 hover:bg-white/5" key={turno.id}>
                     <td className="px-5 py-4 font-black">{turno.cliente}</td>
                     <td className="px-5 py-4">{turno.servicio}</td>
                     <td className="px-5 py-4">{turno.empleado}</td>

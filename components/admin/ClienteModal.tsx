@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/Modal";
 import { Plus, Pencil } from "lucide-react";
 
-const input = "w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none focus:border-cyan-500";
-const lbl   = "text-xs font-bold uppercase text-muted-foreground";
+const input = "w-full rounded-xl border bg-white/10 border-white/15 text-white placeholder:text-slate-500 px-3 py-2 text-sm outline-none focus:border-cyan-400";
+const lbl   = "text-xs font-bold uppercase tracking-widest text-slate-400 mb-1";
 
 type Item = { id: string; nombre: string; telefono: string; email: string | null; notas: string | null };
 
@@ -39,7 +39,7 @@ function ClienteForm({ action, item, onDone }: { action: (fd: FormData) => Promi
         </>
       )}
       <label className={lbl}>Notas<textarea className={input} name="notas" rows={3} defaultValue={item?.notas ?? ""} /></label>
-      {err && <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-bold text-red-600">{err}</p>}
+      {err && <p className="rounded-xl bg-red-500/20 px-3 py-2 text-xs font-bold text-red-300">{err}</p>}
       <button className="rounded-xl bg-slate-950 py-3 text-sm font-black text-white disabled:opacity-50" type="submit" disabled={pending}>
         {pending ? "Guardando…" : item ? "Guardar cambios" : "Crear cliente"}
       </button>
@@ -65,7 +65,7 @@ export function ClienteEditButton({ item, updateAction }: { item: Item; updateAc
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button className="inline-flex items-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-bold text-violet-700 hover:bg-violet-100 transition" onClick={() => setOpen(true)} type="button">
+      <button className="inline-flex items-center gap-1.5 rounded-xl border border-violet-500/30 bg-violet-500/20 px-3 py-1.5 text-xs font-bold text-violet-300 hover:bg-violet-500/30 transition" onClick={() => setOpen(true)} type="button">
         <Pencil className="size-3" /> Editar
       </button>
       <Modal open={open} onClose={() => setOpen(false)} title={`Editar: ${item.nombre}`}>

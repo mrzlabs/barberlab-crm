@@ -26,14 +26,14 @@ export default async function GastosPage({ searchParams }: PageProps) {
         <GastoCreateButton createAction={createGasto} />
       </div>
 
-      <section className="rounded-2xl border bg-white shadow-sm">
-        <div className="border-b p-5">
+      <section className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-md shadow-black/20">
+        <div className="border-b border-white/10 p-5">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <h2 className="text-2xl font-black">Gastos registrados</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Últimos 40 movimientos operativos.</p>
+              <p className="mt-1 text-sm text-slate-400">Últimos 40 movimientos operativos.</p>
             </div>
-            <strong className="rounded-xl bg-cyan-50 px-4 py-2 text-cyan-900">{fmtMoney(total)}</strong>
+            <strong className="rounded-xl bg-cyan-500/20 px-4 py-2 text-cyan-300 border border-cyan-500/30">{fmtMoney(total)}</strong>
           </div>
           <form className="mt-3 flex flex-wrap gap-2" method="get">
             {["", "arriendo", "servicios_publicos", "nomina", "insumos", "marketing", "otros"].map((c) => (
@@ -42,20 +42,20 @@ export default async function GastosPage({ searchParams }: PageProps) {
                 name="cat"
                 value={c}
                 type="submit"
-                className={`rounded-xl px-3 py-1.5 text-xs font-bold capitalize transition ${cat === c || (!cat && !c) ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-600 hover:border-violet-300 hover:text-violet-700"}`}
+                className={`rounded-xl px-3 py-1.5 text-xs font-bold capitalize transition ${cat === c || (!cat && !c) ? "bg-slate-950 text-white" : "border border-white/10 bg-white/8 text-slate-300 hover:border-violet-500/40 hover:text-violet-400"}`}
               >
                 {c ? c.replace("_", " ") : "Todas"}
               </button>
             ))}
           </form>
         </div>
-        <div className="divide-y">
+        <div className="divide-y divide-white/10">
           {gastos.map((gasto) => (
             <div className="p-5" key={gasto.id}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="font-semibold capitalize">{gasto.categoria.replace("_", " ")}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{fmtDate(gasto.fecha)} · {gasto.descripcion || "Sin detalle"}</p>
+                  <p className="mt-0.5 text-xs text-slate-400">{fmtDate(gasto.fecha)} · {gasto.descripcion || "Sin detalle"}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <strong className="text-sm font-black">{fmtMoney(gasto.monto)}</strong>
@@ -68,7 +68,7 @@ export default async function GastosPage({ searchParams }: PageProps) {
             </div>
           ))}
           {gastos.length === 0 && (
-            <p className="p-8 text-center text-sm text-muted-foreground">Sin gastos registrados.</p>
+            <p className="p-8 text-center text-sm text-slate-400">Sin gastos registrados.</p>
           )}
         </div>
       </section>
