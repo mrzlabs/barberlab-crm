@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ThemeApplier } from "@/components/layout/ThemeApplier";
 import { AnimatedGrid } from "@/components/layout/AnimatedGrid";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -336,8 +336,25 @@ export function AppChrome({
   const [alertsHidden, setAlertsHidden] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [expandedPhoto, setExpandedPhoto] = useState<string | null>(null);
+  const [moduleSearch, setModuleSearch] = useState("");
+  const alertsRef = useRef<HTMLDivElement>(null);
 
   const pathname = usePathname();
+
+  // Close alerts dropdown on click-outside or Escape
+  useEffect(() => {
+    if (!alertsOpen) return;
+    function handleKey(e: KeyboardEvent) { if (e.key === "Escape") setAlertsOpen(false); }
+    function handleClick(e: MouseEvent) {
+      if (alertsRef.current && !alertsRef.current.contains(e.target as Node)) setAlertsOpen(false);
+    }
+    document.addEventListener("keydown", handleKey);
+    document.addEventListener("mousedown", handleClick);
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [alertsOpen]);
   const topics = helpTopics[role];
 
   const primaryColor  = brand?.colorPrimario  || "#111827";
@@ -448,12 +465,25 @@ export function AppChrome({
           {open && (
             <label className="mb-3 flex items-center gap-2 rounded-2xl border border-white/15 bg-white/8 px-3 py-2.5 text-sm font-semibold text-white/70 backdrop-blur-sm focus-within:border-white/30 focus-within:bg-white/15">
               <Search className="size-4 shrink-0 text-white/50" />
-              <input className="w-full bg-transparent text-white outline-none placeholder:text-white/40" placeholder="Buscar módulo" />
+              <input
+                className="w-full bg-transparent text-white outline-none placeholder:text-white/40"
+                placeholder="Buscar módulo"
+                value={moduleSearch}
+                onChange={(e) => setModuleSearch(e.target.value)}
+              />
+              {moduleSearch && (
+                <button
+                  type="button"
+                  className="text-white/40 hover:text-white/70"
+                  onClick={() => setModuleSearch("")}
+                  aria-label="Limpiar búsqueda"
+                >✕</button>
+              )}
             </label>
           )}
 
           <nav className="grid gap-1">
-            {nav.map((item, index) => {
+            {nav.filter((item) => !moduleSearch || item.label.toLowerCase().includes(moduleSearch.toLowerCase())).map((item, index) => {
               const style = navStyles[item.label] ?? navStyles.Dashboard;
               const Icon = style.icon;
               const shapeClass = style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-xl" : "rounded-[14px]";
@@ -584,7 +614,7 @@ export function AppChrome({
                 <UserCircle className="size-5" />
               </button>
               {alertsOpen && (
-                <div className="absolute right-20 top-14 z-50 w-80 rounded-[1.6rem] border border-violet-100 bg-white/97 p-4 shadow-2xl shadow-slate-950/14 backdrop-blur-2xl">
+                <div ref={alertsRef} className="absolute right-20 top-14 z-50 w-80 rounded-[1.6rem] border border-violet-100 bg-white/97 p-4 shadow-2xl shadow-slate-950/14 backdrop-blur-2xl">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-600">Alarmas activas</p>
                     <button className="text-xs font-black text-slate-400 hover:text-violet-600" onClick={() => setAlertsHidden((v) => !v)} type="button">

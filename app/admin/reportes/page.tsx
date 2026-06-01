@@ -4,6 +4,7 @@ import { ExportButtons } from "@/components/reports/ExportButtons";
 import { DonutChart } from "@/components/reports/DonutChart";
 import { TrendChart } from "@/components/reports/TrendChart";
 import { DndReportLayout } from "@/components/reports/DndReportLayout";
+import { DateRangePicker } from "@/components/reports/DateRangePicker";
 
 export const dynamic = "force-dynamic";
 
@@ -254,12 +255,8 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
               </div>
             </div>
           </div>
-          <form className="mt-5 flex flex-wrap items-end gap-3 no-print">
-            <label className="grid gap-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-400">Desde<input className={inputCls} defaultValue={range.from} name="from" type="date" /></label>
-            <label className="grid gap-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-400">Hasta<input className={inputCls} defaultValue={range.to} name="to" type="date" /></label>
-            <button className="rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-black text-slate-950 hover:bg-cyan-300 transition" type="submit">Aplicar</button>
-          </form>
-          <p className="mt-4 text-[11px] font-semibold text-slate-500">Periodo: {range.from} — {range.to}</p>
+          <DateRangePicker from={range.from} to={range.to} />
+          <p className="mt-3 text-[11px] font-semibold text-slate-500">Periodo activo: {range.from} — {range.to}</p>
         </div>
       </section>
 

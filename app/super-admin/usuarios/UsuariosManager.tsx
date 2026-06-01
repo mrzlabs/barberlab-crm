@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 type UsuarioRow = {
   id: string;
@@ -30,19 +31,37 @@ function fmtDate(d: Date | string) {
 export function UsuariosManager({
   usuarios,
   negocios,
+  page,
+  totalPages,
+  total,
+  currentQ,
+  currentNegocio,
+  currentRol,
 }: {
   usuarios: UsuarioRow[];
   negocios: NegocioOption[];
+  page: number;
+  totalPages: number;
+  total: number;
+  currentQ: string;
+  currentNegocio: string;
+  currentRol: string;
 }) {
-  const [negocioFilter, setNegocioFilter] = useState("");
-  const [rolFilter, setRolFilter] = useState("");
+  const router = useRouter();
   const [selected, setSelected] = useState<UsuarioRow | null>(null);
 
-  const filtered = usuarios.filter((u) => {
-    if (negocioFilter && u.negocioId !== negocioFilter) return false;
-    if (rolFilter && u.rol !== rolFilter) return false;
-    return true;
-  });
+  function buildUrl(overrides: Record<string, string | number>) {
+    const p = new URLSearchParams({
+      page: String(page),
+      q: currentQ,
+      negocio: currentNegocio,
+      rol: currentRol,
+      ...overrides,
+    });
+    // Remove empty params
+    for (const [k, v] of Array.from(p.entries())) if (!v || v === "1") p.delete(k);
+    return `/super-admin/usuarios?${p}`;
+  }
 
   const inputCls =
     "rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-cyan-400/40 transition";
@@ -60,31 +79,43 @@ export function UsuariosManager({
         >
           <div>
             <h3 className="font-black text-white">Usuarios registrados</h3>
-            <p className="text-xs text-slate-400">{filtered.length} de {usuarios.length} usuarios</p>
+            <p className="text-xs text-slate-400">{total} usuarios · página {page}/{Math.max(1, totalPages)}</p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <select
-              className={inputCls}
-              value={negocioFilter}
-              onChange={(e) => setNegocioFilter(e.target.value)}
-            >
+          <form
+            className="flex flex-wrap gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const fd = new FormData(e.currentTarget);
+              router.push(buildUrl({ q: String(fd.get("q") ?? ""), negocio: String(fd.get("negocio") ?? ""), rol: String(fd.get("rol") ?? ""), page: 1 }));
+            }}
+          >
+            <input
+              className={`${inputCls} w-40`}
+              defaultValue={currentQ}
+              name="q"
+              placeholder="Buscar…"
+              type="search"
+            />
+            <select className={inputCls} defaultValue={currentNegocio} name="negocio">
               <option value="">Todos los comercios</option>
               {negocios.map((n) => (
                 <option key={n.id} value={n.id}>{n.nombre}</option>
               ))}
             </select>
-            <select
-              className={inputCls}
-              value={rolFilter}
-              onChange={(e) => setRolFilter(e.target.value)}
-            >
+            <select className={inputCls} defaultValue={currentRol} name="rol">
               <option value="">Todos los roles</option>
               <option value="super_admin">Super Admin</option>
               <option value="admin">Admin</option>
               <option value="empleado">Empleado</option>
               <option value="cliente">Cliente</option>
             </select>
-          </div>
+            <button
+              className="rounded-xl bg-cyan-500/20 px-3 py-2 text-xs font-black text-cyan-300 hover:bg-cyan-500/30 transition"
+              type="submit"
+            >
+              Filtrar
+            </button>
+          </form>
         </div>
 
         <div className="overflow-x-auto scrollbar-soft">
@@ -103,7 +134,7 @@ export function UsuariosManager({
               </tr>
             </thead>
             <tbody>
-              {filtered.map((u, i) => (
+              {usuarios.map((u, i) => (
                 <tr
                   className="cursor-pointer border-t transition"
                   key={u.id}
@@ -136,7 +167,7 @@ export function UsuariosManager({
                   <td className="px-4 py-3.5 text-xs text-slate-500">{fmtDate(u.createdAt)}</td>
                 </tr>
               ))}
-              {filtered.length === 0 && (
+              {usuarios.length === 0 && (
                 <tr>
                   <td className="px-5 py-8 text-center text-slate-500" colSpan={6}>
                     Sin usuarios con ese filtro.
@@ -146,6 +177,32 @@ export function UsuariosManager({
             </tbody>
           </table>
         </div>
+
+        {/* ── Paginación ─────────────────────────────────────────── */}
+        {totalPages > 1 && (
+          <div
+            className="flex items-center justify-between border-t px-5 py-3"
+            style={{ borderColor: "rgba(255,255,255,0.08)" }}
+          >
+            <button
+              className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-white/60 transition hover:text-white disabled:opacity-30"
+              disabled={page <= 1}
+              onClick={() => router.push(buildUrl({ page: page - 1 }))}
+              type="button"
+            >
+              <ChevronLeft className="size-4" /> Anterior
+            </button>
+            <span className="text-xs text-slate-500">Página {page} de {totalPages}</span>
+            <button
+              className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-white/60 transition hover:text-white disabled:opacity-30"
+              disabled={page >= totalPages}
+              onClick={() => router.push(buildUrl({ page: page + 1 }))}
+              type="button"
+            >
+              Siguiente <ChevronRight className="size-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ── Detail panel ────────────────────────────────────────── */}
@@ -174,7 +231,7 @@ export function UsuariosManager({
                 onClick={() => setSelected(null)}
                 style={{ borderColor: "rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)" }}
                 type="button"
-                aria-label="Cerrar"
+                aria-label="Cerrar detalle"
               >
                 <X className="size-4" />
               </button>

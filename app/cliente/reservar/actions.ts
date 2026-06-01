@@ -16,7 +16,7 @@ export async function reservarCita(formData: FormData) {
   const inicio = new Date(payload.inicio);
   const fin = new Date(payload.fin);
   const fecha = payload.inicio.slice(0, 10);
-  const cliente = await ensureCliente(profile);
+  const cliente = await ensureCliente(profile, negocioId);
   const disponible = await slotDisponible({
     empleadoId: payload.empleadoId,
     servicioId: payload.servicioId,

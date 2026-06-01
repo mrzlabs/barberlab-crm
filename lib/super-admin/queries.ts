@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, ilike, or, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import {
   activityLogs,
@@ -68,29 +68,46 @@ export async function getNegocioUsers(negocioId: string) {
   }).from(usuarios).where(eq(usuarios.negocioId, negocioId)).orderBy(desc(usuarios.createdAt)).limit(100);
 }
 
-export async function getAllUsuarios(opts: { negocioId?: string; rol?: string } = {}) {
+export async function getAllUsuarios(
+  opts: { negocioId?: string; rol?: string; q?: string; page?: number; limit?: number } = {},
+) {
   const db = getDb();
-  const rows = await db
-    .select({
-      id: usuarios.id,
-      nombre: usuarios.nombre,
-      email: usuarios.email,
-      rol: usuarios.rol,
-      activo: usuarios.activo,
-      createdAt: usuarios.createdAt,
-      negocioId: usuarios.negocioId,
-      negocioNombre: negocios.nombre,
-    })
-    .from(usuarios)
-    .leftJoin(negocios, eq(usuarios.negocioId, negocios.id))
-    .orderBy(desc(usuarios.createdAt))
-    .limit(300);
+  const pg = Math.max(1, opts.page ?? 1);
+  const lim = Math.min(100, Math.max(1, opts.limit ?? 50));
+  const offset = (pg - 1) * lim;
 
-  return rows.filter((r) => {
-    if (opts.negocioId && r.negocioId !== opts.negocioId) return false;
-    if (opts.rol && r.rol !== opts.rol) return false;
-    return true;
-  });
+  const conditions = [];
+  if (opts.negocioId) conditions.push(eq(usuarios.negocioId, opts.negocioId));
+  if (opts.rol)       conditions.push(sql`${usuarios.rol} = ${opts.rol}`);
+  if (opts.q?.trim()) {
+    const term = `%${opts.q.trim()}%`;
+    conditions.push(or(ilike(usuarios.nombre, term), ilike(usuarios.email, term))!);
+  }
+
+  const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const [rows, [countRow]] = await Promise.all([
+    db
+      .select({
+        id: usuarios.id,
+        nombre: usuarios.nombre,
+        email: usuarios.email,
+        rol: usuarios.rol,
+        activo: usuarios.activo,
+        createdAt: usuarios.createdAt,
+        negocioId: usuarios.negocioId,
+        negocioNombre: negocios.nombre,
+      })
+      .from(usuarios)
+      .leftJoin(negocios, eq(usuarios.negocioId, negocios.id))
+      .where(where)
+      .orderBy(desc(usuarios.createdAt))
+      .limit(lim)
+      .offset(offset),
+    db.select({ total: sql<number>`count(*)::int` }).from(usuarios).where(where),
+  ]);
+
+  return { rows, total: countRow?.total ?? 0, page: pg, limit: lim, totalPages: Math.ceil((countRow?.total ?? 0) / lim) };
 }
 
 export async function getActivityLogs(page = 1, limit = 50) {

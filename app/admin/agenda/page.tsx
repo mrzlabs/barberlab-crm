@@ -76,6 +76,20 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
             Admin crea citas, configura disponibilidad, bloquea espacios y controla toda la agenda del comercio.
           </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <a
+              href="#nueva-cita"
+              className="inline-flex items-center gap-2 rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 hover:bg-cyan-200 transition"
+            >
+              + Nueva cita
+            </a>
+            <a
+              href="#slots"
+              className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-black text-white hover:bg-white/15 transition"
+            >
+              Ver disponibilidad
+            </a>
+          </div>
         </div>
       </section>
 
@@ -116,9 +130,9 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
       {/* ── Vista lista ── */}
       {vista !== "calendario" && <section className="grid gap-4 xl:grid-cols-[410px_1fr]">
         <div className="space-y-4">
-          <form className="glass-panel rounded-[2rem] p-5">
+          <form className="glass-panel rounded-[2rem] p-5" id="nueva-cita">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Crear cita admin</p>
-            <h3 className="mt-1 text-2xl font-black">Buscar disponibilidad</h3>
+            <h3 className="mt-1 text-2xl font-black">Nueva cita</h3>
             <div className="mt-5 grid gap-4">
               <label className="text-xs font-bold uppercase text-slate-500">
                 Cliente
@@ -192,7 +206,7 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
         </div>
 
         <div className="space-y-4 overflow-hidden">
-          <section className="glass-panel rounded-[2rem] p-5">
+          <section className="glass-panel rounded-[2rem] p-5" id="slots">
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
               <div>
                 <p className={`text-xs font-black uppercase tracking-[0.18em] ${citaMover ? "text-amber-600" : "text-cyan-700"}`}>

@@ -28,24 +28,33 @@ export async function getClienteByUsr(userId: string) {
   return cliente ?? null;
 }
 
-export async function ensureCliente(user: { id: string; nombre: string; email: string; telefono: string | null }) {
+export async function ensureCliente(
+  user: { id: string; nombre: string; email: string; telefono: string | null },
+  negocioId: string,
+) {
   const existing = await getClienteByUsr(user.id);
   if (existing) return existing;
 
-  const profile = await getCurrentProfile();
-
-  const [created] = await getDb()
+  // Use INSERT … ON CONFLICT DO NOTHING + re-select to prevent duplicate race condition
+  await getDb()
     .insert(clientes)
     .values({
-      negocioId: profile?.negocioId,
+      negocioId,
       usuarioId: user.id,
       nombre: user.nombre,
       email: user.email,
       telefono: user.telefono || "0000000000",
     })
-    .returning();
+    .onConflictDoNothing();
 
-  return created;
+  const [record] = await getDb()
+    .select()
+    .from(clientes)
+    .where(eq(clientes.usuarioId, user.id))
+    .limit(1);
+
+  if (!record) throw new Error("No se pudo crear el perfil de cliente");
+  return record;
 }
 
 export async function getReservaCatalog() {
