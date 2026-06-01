@@ -12,10 +12,10 @@ export async function GET(request: NextRequest) {
   const db = getDb();
   const now = new Date();
 
-  // Validate token: exists, not expired, not used
-  const [record] = await db
-    .select({ id: impersonationTokens.id, negocioId: impersonationTokens.negocioId })
-    .from(impersonationTokens)
+  // Atomic validate + mark used in one UPDATE … RETURNING to eliminate TOCTOU race condition
+  const [used] = await db
+    .update(impersonationTokens)
+    .set({ usedAt: now })
     .where(
       and(
         eq(impersonationTokens.token, tok),
@@ -23,22 +23,16 @@ export async function GET(request: NextRequest) {
         isNull(impersonationTokens.usedAt),
       ),
     )
-    .limit(1);
+    .returning({ id: impersonationTokens.id, negocioId: impersonationTokens.negocioId });
 
-  if (!record) {
+  if (!used) {
     return NextResponse.redirect(new URL("/login?error=token_invalid", request.url));
   }
 
-  // Mark token as used (single-use)
-  await db
-    .update(impersonationTokens)
-    .set({ usedAt: now })
-    .where(eq(impersonationTokens.id, record.id));
-
-  // Set impersonation cookie and redirect to admin dashboard
   const response = NextResponse.redirect(new URL("/admin/dashboard", request.url));
-  response.cookies.set("barberlab_sa_imp", record.negocioId, {
+  response.cookies.set("barberlab_sa_imp", used.negocioId, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 60 * 60 * 2, // 2 hours
     path: "/",

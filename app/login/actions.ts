@@ -25,6 +25,10 @@ export async function loginAction(formData: FormData) {
 
   if (!parsed.success) redirect("/login?error=invalid");
 
+  const safeNext = parsed.data.next?.startsWith("/") && !parsed.data.next.startsWith("//")
+    ? parsed.data.next
+    : undefined;
+
   if (isDemoMode()) {
     const demoUser = getDemoUser(parsed.data.email, parsed.data.password);
     if (demoUser) {
@@ -33,7 +37,7 @@ export async function loginAction(formData: FormData) {
         sameSite: "lax",
         path: "/",
       });
-      redirect(parsed.data.next || roleHome[demoUser.role]);
+      redirect(safeNext || roleHome[demoUser.role]);
     }
     redirect("/login?error=auth");
   }
@@ -67,5 +71,5 @@ export async function loginAction(formData: FormData) {
   const negocioActivo = role === "super_admin" || !profile.negocioEstado || profile.negocioEstado === "activo";
   if (!profile.activo || !negocioActivo) redirect("/login?error=inactive");
 
-  redirect(parsed.data.next || roleHome[role]);
+  redirect(safeNext || roleHome[role]);
 }

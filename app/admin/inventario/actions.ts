@@ -78,7 +78,7 @@ export async function createMov(formData: FormData) {
       await tx
         .update(inventario)
         .set({ stock: String(payload.cantidad), updatedAt: new Date() })
-        .where(eq(inventario.id, payload.inventarioId));
+        .where(and(eq(inventario.id, payload.inventarioId), eq(inventario.negocioId, negocioId)));
       return;
     }
 
@@ -89,7 +89,7 @@ export async function createMov(formData: FormData) {
         stock: sql`${inventario.stock} + ${String(payload.cantidad * sign)}`,
         updatedAt: new Date(),
       })
-      .where(eq(inventario.id, payload.inventarioId));
+      .where(and(eq(inventario.id, payload.inventarioId), eq(inventario.negocioId, negocioId)));
   });
 
   revalidatePath("/admin/inventario");

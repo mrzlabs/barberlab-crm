@@ -181,18 +181,26 @@ export async function deleteBloqueo(formData: FormData) {
 
 export async function updateCitaAdmin(formData: FormData) {
   const profile = await requireRole(["admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
   if (isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
   }
 
   const payload = estadoCitaSchema.parse(Object.fromEntries(formData));
-  const [current] = await getDb().select({ estado: citas.estado }).from(citas).where(eq(citas.id, payload.citaId)).limit(1);
+  const [current] = await getDb()
+    .select({ estado: citas.estado })
+    .from(citas)
+    .where(and(eq(citas.id, payload.citaId), eq(citas.negocioId, negocioId)))
+    .limit(1);
+
+  if (!current) throw new Error("Cita no encontrada");
 
   await getDb().update(citas).set({
     estado: payload.estado,
     updatedAt: new Date(),
-  }).where(eq(citas.id, payload.citaId));
+  }).where(and(eq(citas.id, payload.citaId), eq(citas.negocioId, negocioId)));
 
   await addCitaHistory({
     citaId: payload.citaId,

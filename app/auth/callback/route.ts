@@ -42,9 +42,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    const safeNext = next?.startsWith("/") && !next.startsWith("//") ? next : undefined;
     const role = getRoleFromClaims(data.user?.app_metadata) ?? getRoleFromClaims(data.user?.user_metadata) ?? "cliente";
     if (role) {
-      return NextResponse.redirect(new URL(next || roleHome[role], request.url));
+      return NextResponse.redirect(new URL(safeNext || roleHome[role], request.url));
     }
   }
 

@@ -7,14 +7,20 @@ import { addCitaHistory } from "@/lib/citas/history";
 import { getDb } from "@/lib/db";
 import { citas, turnos } from "@/lib/db/schema";
 import { turnoSchema } from "@/lib/validations/admin";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export async function closeTurno(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
   const payload = turnoSchema.parse(Object.fromEntries(formData));
-  const [current] = await getDb().select({ estado: citas.estado }).from(citas).where(eq(citas.id, payload.citaId)).limit(1);
+  const [current] = await getDb()
+    .select({ estado: citas.estado })
+    .from(citas)
+    .where(and(eq(citas.id, payload.citaId), eq(citas.negocioId, negocioId)))
+    .limit(1);
+
+  if (!current) throw new Error("Cita no encontrada o no pertenece a este negocio");
 
   await getDb().insert(turnos).values({
     negocioId,
