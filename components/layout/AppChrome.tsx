@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -292,7 +293,7 @@ function LogoMark({ brand }: { brand?: CurrentProfile }) {
   if (brand?.logoUrl) {
     return (
       <div className="relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/50 bg-white shadow-xl shadow-violet-950/15">
-        <img alt={brand.negocioNombre || "Logo"} className="h-full w-full object-cover" src={brand.logoUrl} />
+        <Image alt={brand.negocioNombre || "Logo"} className="object-cover" fill sizes="48px" src={brand.logoUrl} unoptimized />
       </div>
     );
   }
@@ -334,6 +335,7 @@ export function AppChrome({
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [alertsHidden, setAlertsHidden] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [expandedPhoto, setExpandedPhoto] = useState<string | null>(null);
 
   const pathname = usePathname();
   const topics = helpTopics[role];
@@ -519,7 +521,9 @@ export function AppChrome({
             title={!open ? "Perfil" : undefined}
           >
             {brand?.logoUrl ? (
-              <img src={brand.logoUrl} alt="" className="size-9 shrink-0 rounded-full border-2 border-white/30 object-cover shadow-md" />
+              <span className="relative size-9 shrink-0 overflow-hidden rounded-full border-2 border-white/30 shadow-md">
+                <Image src={brand.logoUrl} alt="" className="object-cover" fill sizes="36px" unoptimized />
+              </span>
             ) : (
               <div className="grid size-9 shrink-0 place-items-center rounded-full text-sm font-black text-white shadow-md"
                 style={{ background: `linear-gradient(135deg, ${accentColor}, ${hexAlpha(accentColor, 0.5)})` }}>
@@ -629,7 +633,14 @@ export function AppChrome({
             </div>
             <div className="flex flex-col items-center gap-3 p-6">
               {brand?.logoUrl ? (
-                <img src={brand.logoUrl} alt={brand.nombre} className="size-20 rounded-full border-4 border-white object-cover shadow-xl" />
+                <button
+                  aria-label="Expandir foto de perfil"
+                  className="relative size-20 overflow-hidden rounded-full border-4 border-white shadow-xl transition hover:scale-[1.03] focus:outline-none focus:ring-4 focus:ring-violet-200"
+                  onClick={() => setExpandedPhoto(brand.logoUrl)}
+                  type="button"
+                >
+                  <Image src={brand.logoUrl} alt={brand.nombre} className="object-cover" fill sizes="80px" unoptimized />
+                </button>
               ) : (
                 <div className="grid size-20 place-items-center rounded-full text-2xl font-black text-white shadow-xl" style={{ background: `linear-gradient(135deg, ${accentColor}, ${primaryColor})` }}>
                   {(brand?.nombre ?? role).slice(0, 1).toUpperCase()}
@@ -668,6 +679,16 @@ export function AppChrome({
 
       <MrzHelpBot topics={topics} />
       <MrzSignature />
+      {expandedPhoto && (
+        <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/72 p-4 backdrop-blur-xl" onClick={() => setExpandedPhoto(null)}>
+          <button className="absolute right-4 top-4 rounded-full border border-white/20 bg-white/10 p-3 text-white transition hover:bg-white/20" onClick={() => setExpandedPhoto(null)} type="button" aria-label="Cerrar foto">
+            <X className="size-5" />
+          </button>
+          <div className="relative aspect-square w-[min(86vw,560px)] overflow-hidden rounded-[2rem] border border-white/20 bg-white/10 shadow-2xl shadow-violet-950/40" onClick={(event) => event.stopPropagation()}>
+            <Image src={expandedPhoto} alt="Foto de perfil ampliada" className="object-cover" fill sizes="(max-width: 640px) 86vw, 560px" unoptimized priority />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

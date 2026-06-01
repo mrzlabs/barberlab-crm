@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { fmtMoney } from "@/lib/admin/format";
 import { getInventario } from "@/lib/admin/queries";
 import { SubmitButton } from "@/components/layout/SubmitButton";
@@ -150,7 +151,9 @@ export default async function InventarioPage({ searchParams }: PageProps) {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex min-w-0 gap-3">
                     {item.fotoUrl ? (
-                      <img src={item.fotoUrl} alt={item.nombre} className="size-10 shrink-0 rounded-xl object-cover ring-1 ring-slate-200" />
+                      <span className="relative size-10 shrink-0 overflow-hidden rounded-xl ring-1 ring-slate-200">
+                        <Image src={item.fotoUrl} alt={item.nombre} className="object-cover" fill sizes="40px" unoptimized />
+                      </span>
                     ) : (
                       <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-[10px] font-black text-slate-400">IMG</div>
                     )}

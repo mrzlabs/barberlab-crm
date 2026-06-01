@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { fmtDateTime, fmtMoney, toDateInput } from "@/lib/admin/format";
 import { getProductosCliente, getReservaCatalog, getSlots } from "@/lib/cliente/queries";
 import { buscarSlotsSchema } from "@/lib/validations/cliente";
@@ -130,7 +131,9 @@ export default async function ReservarPage({ searchParams }: PageProps) {
           {products.map((item) => (
             <article className="min-w-[250px] rounded-[1.4rem] border bg-white p-4 shadow-sm" key={item.id}>
               {item.fotoUrl ? (
-                <img src={item.fotoUrl} alt={item.nombre} className="h-28 w-full rounded-2xl object-cover" />
+                <span className="relative block h-28 w-full overflow-hidden rounded-2xl">
+                  <Image src={item.fotoUrl} alt={item.nombre} className="object-cover" fill sizes="250px" unoptimized />
+                </span>
               ) : (
                 <div className="h-28 rounded-2xl bg-[radial-gradient(circle_at_24%_28%,rgba(34,211,238,.35),transparent_5rem),linear-gradient(135deg,#0f172a,#312e81)]" />
               )}

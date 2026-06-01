@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { ImagePlus, Trash2, Moon, Sun } from "lucide-react";
@@ -145,7 +146,7 @@ export function ConfigVisualPanel({
         {/* preview strip */}
         {displayUrl && (
           <div className="relative mb-4 h-36 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
-            <img src={displayUrl} alt="Preview fondo" className="h-full w-full object-cover" style={{ filter: "blur(8px)", transform: "scale(1.05)" }} />
+            <Image src={displayUrl} alt="Preview fondo" className="object-cover" fill sizes="(max-width: 768px) 100vw, 640px" style={{ filter: "blur(8px)", transform: "scale(1.05)" }} unoptimized />
             <div className="absolute inset-0 flex items-center justify-center bg-slate-950/30">
               <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-black text-slate-700">
                 Preview de logo y aura de marca
