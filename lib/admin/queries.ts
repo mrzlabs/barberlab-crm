@@ -14,7 +14,6 @@ import {
   usuarios,
 } from "@/lib/db/schema";
 import { toDateInput } from "@/lib/admin/format";
-import { getCurrentProfile } from "@/lib/auth/session";
 
 function startOfDay(date = new Date()) {
   const value = new Date(date);
@@ -37,7 +36,7 @@ function calcDelta(current: number, previous: number): number | null {
   return Math.round(((current - previous) / previous) * 100);
 }
 
-export async function getDashboard() {
+export async function getDashboard(negocioId: string) {
   if (isDemoMode()) {
     return {
       today: { turnos: 18, citas: 24, ingresos: 2450000, gastos: 420000, costoInsumo: 180000, margen: 1850000, propinas: 85000, ticket: 72000 },
@@ -49,8 +48,6 @@ export async function getDashboard() {
   }
 
   const db = getDb();
-  const profile = await getCurrentProfile();
-  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
   const now = new Date();
   const todayStart = startOfDay();
   const todayEnd = endOfDay();
@@ -179,12 +176,10 @@ export async function getDashboard() {
   };
 }
 
-export async function getRecentTurnos() {
+export async function getRecentTurnos(negocioId: string) {
   if (isDemoMode()) return mockTurnos;
 
   const db = getDb();
-  const profile = await getCurrentProfile();
-  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
   return db
     .select({
       id: turnos.id,
@@ -207,12 +202,10 @@ export async function getRecentTurnos() {
     .limit(12);
 }
 
-export async function getPendingCitas() {
+export async function getPendingCitas(negocioId: string) {
   if (isDemoMode()) return mockCitas;
 
   const db = getDb();
-  const profile = await getCurrentProfile();
-  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
   return db
     .select({
       id: citas.id,
@@ -238,12 +231,10 @@ export async function getPendingCitas() {
     .limit(20);
 }
 
-export async function getGastos(categoria?: string) {
+export async function getGastos(negocioId: string, categoria?: string) {
   if (isDemoMode()) return mockGastos;
 
   const db = getDb();
-  const profile = await getCurrentProfile();
-  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
   const conditions = [eq(gastos.negocioId, negocioId)];
   if (categoria?.trim()) {
     conditions.push(sql`${gastos.categoria} = ${categoria.trim()}`);
@@ -251,12 +242,10 @@ export async function getGastos(categoria?: string) {
   return db.select().from(gastos).where(and(...conditions)).orderBy(desc(gastos.fecha), desc(gastos.createdAt)).limit(40);
 }
 
-export async function getInventario(search?: string, soloAlertas?: boolean) {
+export async function getInventario(negocioId: string, search?: string, soloAlertas?: boolean) {
   if (isDemoMode()) return mockInventario;
 
   const db = getDb();
-  const profile = await getCurrentProfile();
-  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
   const conditions = [eq(inventario.negocioId, negocioId)];
   if (search?.trim()) {
     const term = `%${search.trim()}%`;
@@ -269,7 +258,7 @@ export async function getInventario(search?: string, soloAlertas?: boolean) {
   return db.select().from(inventario).where(and(...conditions)).orderBy(desc(inventario.activo), inventario.nombre);
 }
 
-export async function getArqueoCaja() {
+export async function getArqueoCaja(negocioId: string) {
   if (isDemoMode()) {
     return {
       porMetodo: [
@@ -282,8 +271,6 @@ export async function getArqueoCaja() {
   }
 
   const db = getDb();
-  const profile = await getCurrentProfile();
-  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
   const todayStart = startOfDay();
   const todayEnd = endOfDay();
 

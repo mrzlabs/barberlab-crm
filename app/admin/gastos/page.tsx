@@ -1,5 +1,6 @@
 import { fmtDate, fmtMoney, toDateInput } from "@/lib/admin/format";
 import { getGastos } from "@/lib/admin/queries";
+import { requireRole } from "@/lib/auth/session";
 import { SubmitButton } from "@/components/layout/SubmitButton";
 import { createGasto, updateGasto } from "./actions";
 
@@ -12,8 +13,10 @@ type PageProps = { searchParams?: Record<string, string | string[] | undefined> 
 function param(v: string | string[] | undefined) { return Array.isArray(v) ? v[0] : v; }
 
 export default async function GastosPage({ searchParams }: PageProps) {
+  const profile = await requireRole(["admin", "super_admin"]).catch(() => null);
+  const negocioId = profile?.negocioId ?? "00000000-0000-0000-0000-000000000000";
   const cat = param(searchParams?.cat);
-  const gastos = await getGastos(cat);
+  const gastos = await getGastos(negocioId, cat);
   const total = gastos.reduce((sum, gasto) => sum + Number(gasto.monto), 0);
 
   return (

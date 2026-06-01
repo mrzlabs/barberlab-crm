@@ -11,6 +11,12 @@ export default async function UsuariosPage() {
 
   const negocioOptions = negocios.map((n) => ({ id: n.id, nombre: n.nombre }));
 
+  // Serialize Date → string before crossing the Server→Client Component boundary
+  const usuariosSerial = usuarios.map((u) => ({
+    ...u,
+    createdAt: u.createdAt instanceof Date ? u.createdAt.toISOString() : String(u.createdAt),
+  }));
+
   return (
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-5 text-white shadow-2xl sm:p-8">
@@ -20,12 +26,12 @@ export default async function UsuariosPage() {
           <p className="mt-6 text-[11px] font-bold uppercase tracking-[0.22em] text-cyan-300 sm:mt-8">MRZLABS · Directorio</p>
           <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-4xl">Usuarios globales</h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-            {usuarios.length} usuarios registrados en {negocios.length} comercios. Haz clic en cualquier fila para ver detalle.
+            {usuariosSerial.length} usuarios registrados en {negocios.length} comercios. Haz clic en cualquier fila para ver detalle.
           </p>
         </div>
       </section>
 
-      <UsuariosManager usuarios={usuarios} negocios={negocioOptions} />
+      <UsuariosManager usuarios={usuariosSerial} negocios={negocioOptions} />
     </div>
   );
 }

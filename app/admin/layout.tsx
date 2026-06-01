@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { eq } from "drizzle-orm";
 import { AppShell } from "@/components/layout/AppShell";
@@ -26,6 +27,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (!profile || !["admin", "super_admin"].includes(profile.rol)) {
     return <>{children}</>;
+  }
+
+  // Defense-in-depth: block access if negocio is suspended/cancelled
+  if (profile.negocioEstado && profile.negocioEstado !== "activo" && profile.rol !== "super_admin") {
+    redirect("/login?error=negocio_inactivo");
   }
 
   const isImpersonating = !!cookies().get("barberlab_sa_imp")?.value;

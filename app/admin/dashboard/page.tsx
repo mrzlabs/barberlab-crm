@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { fmtMoney } from "@/lib/admin/format";
 import { getDashboard, getRecentTurnos } from "@/lib/admin/queries";
-import { getCurrentProfile } from "@/lib/auth/session";
+import { requireRole } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -61,10 +61,12 @@ const flow = [
 ];
 
 export default async function DashboardPage() {
-  const [dashboard, recentTurnos, profile] = await Promise.all([
-    safeQuery(getDashboard(), emptyDashboard),
-    safeQuery(getRecentTurnos(), []),
-    safeQuery(getCurrentProfile(), null),
+  const profile = await requireRole(["admin", "super_admin"]).catch(() => null);
+  const negocioId = profile?.negocioId ?? "00000000-0000-0000-0000-000000000000";
+
+  const [dashboard, recentTurnos] = await Promise.all([
+    safeQuery(getDashboard(negocioId), emptyDashboard),
+    safeQuery(getRecentTurnos(negocioId), []),
   ]);
 
   return (

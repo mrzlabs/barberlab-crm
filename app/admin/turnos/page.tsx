@@ -1,5 +1,6 @@
 import { fmtDateTime, fmtMoney } from "@/lib/admin/format";
 import { getArqueoCaja, getPendingCitas, getRecentTurnos } from "@/lib/admin/queries";
+import { requireRole } from "@/lib/auth/session";
 import { SubmitButton } from "@/components/layout/SubmitButton";
 import { closeTurno } from "./actions";
 
@@ -14,10 +15,13 @@ const metodoColor: Record<string, string> = {
 };
 
 export default async function TurnosPage() {
+  const profile = await requireRole(["admin", "super_admin"]).catch(() => null);
+  const negocioId = profile?.negocioId ?? "00000000-0000-0000-0000-000000000000";
+
   const [citas, turnos, arqueo] = await Promise.all([
-    getPendingCitas(),
-    getRecentTurnos(),
-    getArqueoCaja(),
+    getPendingCitas(negocioId),
+    getRecentTurnos(negocioId),
+    getArqueoCaja(negocioId),
   ]);
 
   return (

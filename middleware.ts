@@ -74,6 +74,28 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/unauthorized", request.url));
   }
 
+  // Verify negocio is active for non-super-admin users accessing tenant routes.
+  // Uses Supabase REST (edge-compatible) since Drizzle cannot run in Edge Runtime.
+  if (role !== "super_admin") {
+    const { data: tenantRow } = await supabase
+      .from("usuarios")
+      .select("negocios(estado)")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const negocioEstado =
+      // PostgREST returns the related row as object or array depending on cardinality
+      Array.isArray(tenantRow?.negocios)
+        ? (tenantRow.negocios[0] as { estado?: string } | undefined)?.estado
+        : (tenantRow?.negocios as unknown as { estado?: string } | null)?.estado;
+
+    if (negocioEstado && negocioEstado !== "activo") {
+      const url = new URL("/login", request.url);
+      url.searchParams.set("error", "negocio_inactivo");
+      return NextResponse.redirect(url);
+    }
+  }
+
   return supabaseResponse;
 }
 

@@ -9,7 +9,7 @@ type UsuarioRow = {
   email: string;
   rol: string;
   activo: boolean;
-  createdAt: Date;
+  createdAt: string;
   negocioId: string | null;
   negocioNombre: string | null;
 };

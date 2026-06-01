@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { fmtMoney } from "@/lib/admin/format";
 import { getInventario } from "@/lib/admin/queries";
+import { requireRole } from "@/lib/auth/session";
 import { SubmitButton } from "@/components/layout/SubmitButton";
 import { createItem, createMov, updateInventario } from "./actions";
 
@@ -13,9 +14,11 @@ type PageProps = { searchParams?: Record<string, string | string[] | undefined> 
 function param(v: string | string[] | undefined) { return Array.isArray(v) ? v[0] : v; }
 
 export default async function InventarioPage({ searchParams }: PageProps) {
+  const profile = await requireRole(["admin", "super_admin"]).catch(() => null);
+  const negocioId = profile?.negocioId ?? "00000000-0000-0000-0000-000000000000";
   const q = param(searchParams?.q);
   const soloAlertas = param(searchParams?.alertas) === "1";
-  const items = await getInventario(q, soloAlertas);
+  const items = await getInventario(negocioId, q, soloAlertas);
   const alertas = items.filter((item) => Number(item.stock) <= Number(item.stockMinimo) && Number(item.stockMinimo) > 0);
 
   return (
