@@ -77,7 +77,7 @@ export async function createMov(formData: FormData) {
     if (payload.tipo === "ajuste") {
       await tx
         .update(inventario)
-        .set({ stock: String(payload.cantidad), updatedAt: new Date() })
+        .set({ stock: String(payload.cantidad), updatedAt: new Date().toISOString() })
         .where(and(eq(inventario.id, payload.inventarioId), eq(inventario.negocioId, negocioId)));
       return;
     }
@@ -87,7 +87,7 @@ export async function createMov(formData: FormData) {
       .update(inventario)
       .set({
         stock: sql`${inventario.stock} + ${String(payload.cantidad * sign)}`,
-        updatedAt: new Date(),
+        updatedAt: new Date().toISOString(),
       })
       .where(and(eq(inventario.id, payload.inventarioId), eq(inventario.negocioId, negocioId)));
   });
@@ -127,7 +127,7 @@ export async function updateInventario(formData: FormData) {
       fotoUrl: nextFotoUrl || currentFotoUrl || null,
       visibleCliente,
       activo,
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     })
     .where(and(eq(inventario.id, inventarioId), eq(inventario.negocioId, negocioId)));
 

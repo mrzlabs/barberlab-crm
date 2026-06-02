@@ -9,7 +9,9 @@ const input = "w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none 
 
 export default async function CerrarTurnoPage() {
   const profile = await requireRole(["empleado"]);
-  const [citas, turnos] = await Promise.all([getCitasParaCerrar(profile.id), getMisTurnos(profile.id)]);
+  const [citasRaw, turnosRaw] = await Promise.all([getCitasParaCerrar(profile.id), getMisTurnos(profile.id)]);
+  const citas  = JSON.parse(JSON.stringify(citasRaw))  as typeof citasRaw;
+  const turnos = JSON.parse(JSON.stringify(turnosRaw)) as typeof turnosRaw;
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">

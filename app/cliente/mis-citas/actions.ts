@@ -18,7 +18,7 @@ export async function cancelarCita(formData: FormData) {
     throw new Error("La cita no se puede cancelar");
   }
 
-  await getDb().update(citas).set({ estado: "cancelada", updatedAt: new Date() }).where(eq(citas.id, payload.citaId));
+  await getDb().update(citas).set({ estado: "cancelada", updatedAt: new Date().toISOString() }).where(eq(citas.id, payload.citaId));
   await addCitaHistory({
     citaId: payload.citaId,
     actorId: profile.id,
@@ -42,15 +42,17 @@ export async function reprogramarCita(formData: FormData) {
     throw new Error("La cita no se puede reprogramar");
   }
 
-  const inicio = new Date(payload.inicio);
-  const fin = new Date(payload.fin);
+  const inicioDate = new Date(payload.inicio);
+  const finDate = new Date(payload.fin);
+  const inicio = inicioDate.toISOString();
+  const fin = finDate.toISOString();
   const fecha = payload.inicio.slice(0, 10);
   const disponible = await slotDisponible({
     empleadoId: payload.empleadoId,
     servicioId: payload.servicioId,
     fecha,
-    inicio,
-    fin,
+    inicio: inicioDate,
+    fin: finDate,
   });
 
   if (!disponible) {
@@ -65,7 +67,7 @@ export async function reprogramarCita(formData: FormData) {
       inicio,
       fin,
       estado: "reservada",
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     })
     .where(eq(citas.id, payload.citaId));
 

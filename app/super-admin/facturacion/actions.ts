@@ -24,7 +24,7 @@ export async function updateBilling(formData: FormData) {
       plan: payload.plan,
       estado: payload.estado,
       fechaFin: payload.fechaFin || null,
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     })
     .where(eq(negocios.id, payload.negocioId));
 

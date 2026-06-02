@@ -6,6 +6,13 @@ import { getRoleFromClaims, type UserRole } from "@/lib/auth/roles";
 import { getDemoUserByRole, isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
 import { negocios, usuarios } from "@/lib/db/schema";
+import { serializeDates } from "@/lib/utils";
+
+function toStr(v: unknown): string | null {
+  if (v == null) return null;
+  if (v instanceof Date) return v.toISOString();
+  return String(v);
+}
 
 export type CurrentProfile = {
   id: string;
@@ -108,7 +115,7 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
         .limit(1);
 
       if (imp) {
-        return {
+        return serializeDates({
           id: imp.id,
           email: imp.email,
           rol: "admin" as UserRole,
@@ -128,8 +135,8 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
           fuente: imp.fuente ?? "Inter",
           plan: imp.plan,
           negocioEstado: imp.negocioEstado,
-          fechaFin: imp.fechaFin,
-        };
+          fechaFin: toStr(imp.fechaFin),
+        });
       }
     }
   }
@@ -166,7 +173,7 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
 
   if (!profile) return null;
 
-  return {
+  return serializeDates({
     id: profile.id,
     email: profile.email,
     rol: (profile.superAdmin ? "super_admin" : claimRole ?? profile.rol) as UserRole,
@@ -186,8 +193,8 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
     fuente: profile.fuente ?? "Inter",
     plan: profile.plan,
     negocioEstado: profile.negocioEstado,
-    fechaFin: profile.fechaFin,
-  };
+    fechaFin: toStr(profile.fechaFin),
+  });
 }
 
 function renewalDate(days: number) {

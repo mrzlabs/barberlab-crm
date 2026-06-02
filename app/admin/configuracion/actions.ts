@@ -42,7 +42,7 @@ export async function updateMiNegocio(formData: FormData) {
     configVisual: { ...existingVisual, fontFamily: payload.fuente },
     comisionBase: payload.comisionBase,
     propinaEnComision: payload.propinaEnComision,
-    updatedAt: new Date(),
+    updatedAt: new Date().toISOString(),
   }).where(eq(negocios.id, payload.negocioId));
 
   revalidatePath("/admin/configuracion");
@@ -74,7 +74,7 @@ export async function updateConfigVisual(formData: FormData) {
     .set({
       configVisual: { ...existing, darkMode: payload.darkMode, fontFamily: payload.fontFamily },
       fuente: payload.fontFamily,
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     })
     .where(eq(negocios.id, negocioId));
 
@@ -121,7 +121,7 @@ export async function uploadNegocioBgPhoto(formData: FormData) {
     .set({
       logoUrl: publicUrl,
       configVisual: { ...existing, bgPhotoUrl: publicUrl, bgPhotoStoragePath: path },
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     })
     .where(eq(negocios.id, negocioId));
 
@@ -154,7 +154,7 @@ export async function updateWhatsAppConfig(formData: FormData) {
   const nextConfig = { ...existing, whatsapp_phone: phone, whatsapp_enabled: enabled, whatsapp_templates: templates } as Record<string, unknown>;
   await getDb()
     .update(negocios)
-    .set({ configVisual: nextConfig, updatedAt: new Date() })
+    .set({ configVisual: nextConfig, updatedAt: new Date().toISOString() })
     .where(eq(negocios.id, negocioId));
 
   revalidatePath("/admin/configuracion");
@@ -186,7 +186,7 @@ export async function removeNegocioBgPhoto() {
     .set({
       logoUrl: nextLogoUrl,
       configVisual: { ...existing, bgPhotoUrl: null, bgPhotoStoragePath: null },
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     })
     .where(eq(negocios.id, negocioId));
 

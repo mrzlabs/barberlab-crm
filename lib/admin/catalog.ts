@@ -126,8 +126,8 @@ export async function getAgendaDia(fecha: string) {
   const profile = await getCurrentProfile();
   const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
   const db = getDb();
-  const inicio = new Date(`${fecha}T00:00:00-05:00`);
-  const fin = new Date(`${fecha}T23:59:59-05:00`);
+  const inicio = new Date(`${fecha}T00:00:00-05:00`).toISOString();
+  const fin = new Date(`${fecha}T23:59:59-05:00`).toISOString();
 
   const rows = await db
     .select({
@@ -148,7 +148,7 @@ export async function getAgendaDia(fecha: string) {
     .where(and(eq(citas.negocioId, negocioId), gte(citas.inicio, inicio), lte(citas.inicio, fin)))
     .orderBy(asc(citas.inicio));
 
-  return rows.map((r) => ({ ...r, inicio: r.inicio.toISOString(), fin: r.fin.toISOString() }));
+  return rows.map((r) => ({ ...r, inicio: String(r.inicio), fin: String(r.fin) }));
 }
 
 export async function getClienteDetalle(clienteId: string, negocioId: string) {

@@ -4,21 +4,22 @@ import postgres from "postgres";
 import * as schema from "./schema";
 
 // OIDs de tipos temporales en PostgreSQL
-// 1082 = date, 1114 = timestamp, 1184 = timestamptz, 1266 = timetz
+// 1082 = date, 1114 = timestamp without tz, 1184 = timestamptz, 1266 = timetz
 const DATE_OIDS = [1082, 1114, 1184, 1266];
 
+function serializeDate(x: Date | string | unknown): string {
+  if (x instanceof Date) return x.toISOString();
+  return String(x);
+}
+
 const postgresTypes = {
-  date: {
-    to: 1082,
+  dates_as_string: {
+    to: 1184,
     from: DATE_OIDS,
-    serialize: (x: string) => x,
-    parse: (x: string) => x,   // retorna string, nunca Date nativo
-  },
-  timestamp: {
-    to: 1114,
-    from: [1114, 1184],
-    serialize: (x: string) => x,
-    parse: (x: string) => x,   // retorna string, nunca Date nativo
+    // serialize: Date (from JS WHERE clauses) → ISO string for Postgres
+    serialize: serializeDate,
+    // parse: string from Postgres wire → string (never Date)
+    parse: (x: string) => x,
   },
 };
 

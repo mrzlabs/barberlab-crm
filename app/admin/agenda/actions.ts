@@ -20,15 +20,17 @@ export async function createCitaAdmin(formData: FormData) {
   }
 
   const payload = citaAdminSchema.parse(Object.fromEntries(formData));
-  const inicio = new Date(payload.inicio);
-  const fin = new Date(payload.fin);
+  const inicioDate = new Date(payload.inicio);
+  const finDate = new Date(payload.fin);
+  const inicio = inicioDate.toISOString();
+  const fin = finDate.toISOString();
   const fecha = payload.inicio.slice(0, 10);
   const disponible = await slotDisponible({
     empleadoId: payload.empleadoId,
     servicioId: payload.servicioId,
     fecha,
-    inicio,
-    fin,
+    inicio: inicioDate,
+    fin: finDate,
   });
 
   if (!disponible) {
@@ -95,8 +97,8 @@ export async function createBloqueoEmpleado(formData: FormData) {
   await getDb().insert(bloqueosEmpleado).values({
     negocioId,
     empleadoId: payload.empleadoId,
-    fechaInicio: new Date(payload.fechaInicio),
-    fechaFin: new Date(payload.fechaFin),
+    fechaInicio: new Date(payload.fechaInicio).toISOString(),
+    fechaFin: new Date(payload.fechaFin).toISOString(),
     motivo: payload.motivo || null,
   });
 
@@ -113,11 +115,13 @@ export async function reagendarCita(formData: FormData) {
   const citaId = formData.get("citaId") as string;
   const empleadoId = formData.get("empleadoId") as string;
   const servicioId = formData.get("servicioId") as string;
-  const inicio = new Date(formData.get("inicio") as string);
-  const fin = new Date(formData.get("fin") as string);
+  const inicioDate = new Date(formData.get("inicio") as string);
+  const finDate = new Date(formData.get("fin") as string);
+  const inicio = inicioDate.toISOString();
+  const fin = finDate.toISOString();
   const fecha = (formData.get("inicio") as string).slice(0, 10);
 
-  const disponible = await slotDisponible({ empleadoId, servicioId, fecha, inicio, fin });
+  const disponible = await slotDisponible({ empleadoId, servicioId, fecha, inicio: inicioDate, fin: finDate });
   if (!disponible) throw new Error("El horario seleccionado ya no está disponible");
 
   const [current] = await getDb()
@@ -130,7 +134,7 @@ export async function reagendarCita(formData: FormData) {
 
   await getDb()
     .update(citas)
-    .set({ inicio, fin, updatedAt: new Date() })
+    .set({ inicio, fin, updatedAt: new Date().toISOString() })
     .where(and(eq(citas.id, citaId), eq(citas.negocioId, negocioId)));
 
   await addCitaHistory({
@@ -140,7 +144,7 @@ export async function reagendarCita(formData: FormData) {
     estadoAnterior: current.estado,
     estadoNuevo: current.estado,
     accion: "cita_reagendada",
-    detalle: `Reagendada de ${current.inicio.toISOString()} a ${inicio.toISOString()}`,
+    detalle: `Reagendada de ${current.inicio} a ${inicio}`,
   });
 
   revalidatePath("/admin/agenda");
@@ -199,7 +203,7 @@ export async function updateCitaAdmin(formData: FormData) {
 
   await getDb().update(citas).set({
     estado: payload.estado,
-    updatedAt: new Date(),
+    updatedAt: new Date().toISOString(),
   }).where(and(eq(citas.id, payload.citaId), eq(citas.negocioId, negocioId)));
 
   await addCitaHistory({

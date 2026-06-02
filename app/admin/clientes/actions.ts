@@ -95,7 +95,7 @@ export async function updateCliente(formData: FormData) {
 
   await getDb()
     .update(clientes)
-    .set({ nombre, telefono, email, notas, updatedAt: new Date() })
+    .set({ nombre, telefono, email, notas, updatedAt: new Date().toISOString() })
     .where(and(eq(clientes.id, clienteId), eq(clientes.negocioId, negocioId)));
 
   revalidatePath("/admin/clientes");

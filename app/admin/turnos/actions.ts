@@ -38,7 +38,7 @@ export async function closeTurno(formData: FormData) {
   // Actualizar estado de la cita a "realizada"
   await db
     .update(citas)
-    .set({ estado: "realizada", updatedAt: new Date() })
+    .set({ estado: "realizada", updatedAt: new Date().toISOString() })
     .where(and(eq(citas.id, payload.citaId), eq(citas.negocioId, negocioId)));
 
   await addCitaHistory({

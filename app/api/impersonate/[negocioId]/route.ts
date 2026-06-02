@@ -50,7 +50,7 @@ export async function GET(
 
   // 3. Create single-use token valid for 2 hours
   const token = randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000);
+  const expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
 
   await getDb().insert(impersonationTokens).values({
     negocioId,

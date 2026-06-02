@@ -24,10 +24,13 @@ function DeltaBadge({ delta }: { delta: number | null }) {
 
 export default async function MiAgendaPage() {
   const profile = await requireRole(["empleado"]);
-  const [agenda, stats] = await Promise.all([
+  const [agendaRaw, statsRaw] = await Promise.all([
     getMiAgenda(profile.id),
     getStatsEmpleado(profile.id),
   ]);
+  // Nuclear: garantiza que no llegue ningún Date al árbol RSC
+  const agenda = JSON.parse(JSON.stringify(agendaRaw)) as typeof agendaRaw;
+  const stats  = JSON.parse(JSON.stringify(statsRaw))  as typeof statsRaw;
 
   if (!agenda.empleado) {
     return (

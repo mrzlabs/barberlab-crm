@@ -48,7 +48,7 @@ export async function toggleServicio(formData: FormData) {
 
   await getDb()
     .update(servicios)
-    .set({ activo, updatedAt: new Date() })
+    .set({ activo, updatedAt: new Date().toISOString() })
     .where(and(eq(servicios.id, servicioId), eq(servicios.negocioId, negocioId)));
 
   revalidatePath("/admin/servicios");
@@ -76,7 +76,7 @@ export async function updateServicio(formData: FormData) {
       precio: String(payload.precio),
       costoInsumo: String(payload.costoInsumo),
       activo: payload.activo,
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     })
     .where(and(eq(servicios.id, servicioId), eq(servicios.negocioId, negocioId)));
 

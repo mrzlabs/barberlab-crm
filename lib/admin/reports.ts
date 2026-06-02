@@ -39,8 +39,8 @@ export function parseRange(params?: Record<string, string | string[] | undefined
 }
 
 function rangeDates(range: ReportRange) {
-  const from = new Date(`${range.from}T00:00:00-05:00`);
-  const to = new Date(`${range.to}T23:59:59-05:00`);
+  const from = new Date(`${range.from}T00:00:00-05:00`).toISOString();
+  const to = new Date(`${range.to}T23:59:59-05:00`).toISOString();
   return { from, to };
 }
 

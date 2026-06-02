@@ -84,10 +84,10 @@ export async function toggleEmpleado(formData: FormData) {
 
   await getDb().transaction(async (tx) => {
     await tx.update(usuarios)
-      .set({ activo, updatedAt: new Date() })
+      .set({ activo, updatedAt: new Date().toISOString() })
       .where(and(eq(usuarios.id, usuarioId), eq(usuarios.negocioId, negocioId)));
     await tx.update(empleados)
-      .set({ activo, updatedAt: new Date() })
+      .set({ activo, updatedAt: new Date().toISOString() })
       .where(and(eq(empleados.id, empleadoId), eq(empleados.negocioId, negocioId)));
   });
 
@@ -111,10 +111,10 @@ export async function updateEmpleado(formData: FormData) {
 
   await getDb().transaction(async (tx) => {
     await tx.update(usuarios)
-      .set({ nombre, telefono, activo, updatedAt: new Date() })
+      .set({ nombre, telefono, activo, updatedAt: new Date().toISOString() })
       .where(and(eq(usuarios.id, usuarioId), eq(usuarios.negocioId, negocioId)));
     await tx.update(empleados)
-      .set({ especialidad, comisionPct, activo, updatedAt: new Date() })
+      .set({ especialidad, comisionPct, activo, updatedAt: new Date().toISOString() })
       .where(and(eq(empleados.id, empleadoId), eq(empleados.negocioId, negocioId)));
   });
 

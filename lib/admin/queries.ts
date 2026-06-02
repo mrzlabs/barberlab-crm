@@ -19,17 +19,17 @@ import { serializeDates } from "@/lib/utils";
 function startOfDay(date = new Date()) {
   const value = new Date(date);
   value.setHours(0, 0, 0, 0);
-  return value;
+  return value.toISOString();
 }
 
 function endOfDay(date = new Date()) {
   const value = new Date(date);
   value.setHours(23, 59, 59, 999);
-  return value;
+  return value.toISOString();
 }
 
 function startOfMonth(date = new Date()) {
-  return new Date(date.getFullYear(), date.getMonth(), 1);
+  return new Date(date.getFullYear(), date.getMonth(), 1).toISOString();
 }
 
 function calcDelta(current: number, previous: number): number | null {
@@ -58,8 +58,8 @@ export async function getDashboard(negocioId: string) {
   const yesterday = new Date(now.getTime() - 86400000);
   const yesterdayStart = startOfDay(yesterday);
   const yesterdayEnd = endOfDay(yesterday);
-  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+  const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59).toISOString();
 
   const costByTurn = sql<string>`(
     select coalesce(sum(si.cantidad * i.costo_unitario), 0)
@@ -97,7 +97,7 @@ export async function getDashboard(negocioId: string) {
     db
       .select({ total: sql<string>`coalesce(sum(${gastos.monto}), 0)` })
       .from(gastos)
-      .where(and(eq(gastos.negocioId, negocioId), gte(gastos.fecha, toDateInput(monthStart)))),
+      .where(and(eq(gastos.negocioId, negocioId), gte(gastos.fecha, toDateInput(new Date(monthStart))))),
     db
       .select({ count: sql<number>`count(*)::int` })
       .from(inventario)

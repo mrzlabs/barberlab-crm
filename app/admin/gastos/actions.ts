@@ -42,7 +42,7 @@ export async function updateGasto(formData: FormData) {
       fecha: payload.fecha,
       descripcion: payload.descripcion || null,
       comprobanteUrl: payload.comprobanteUrl || null,
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     })
     .where(and(eq(gastos.id, gastoId), eq(gastos.negocioId, negocioId)));
 

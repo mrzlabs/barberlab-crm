@@ -31,7 +31,7 @@ export async function updateMiCita(formData: FormData) {
 
   await getDb().update(citas).set({
     estado: payload.estado,
-    updatedAt: new Date(),
+    updatedAt: new Date().toISOString(),
   }).where(and(eq(citas.id, payload.citaId), eq(citas.empleadoId, empleado.id)));
 
   await addCitaHistory({

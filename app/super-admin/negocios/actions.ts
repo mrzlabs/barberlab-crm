@@ -108,7 +108,7 @@ export async function updateNegocio(formData: FormData) {
     comisionBase: payload.comisionBase,
     propinaEnComision: payload.propinaEnComision,
     fechaFin: payload.fechaFin || null,
-    updatedAt: new Date(),
+    updatedAt: new Date().toISOString(),
   }).where(eq(negocios.id, payload.id));
 
   revalidatePath("/super-admin/negocios");
@@ -128,7 +128,7 @@ export async function updateNegocioSuperAdmin(formData: FormData) {
     plan: payload.plan,
     estado: payload.estado,
     fechaFin: payload.fechaFin || null,
-    updatedAt: new Date(),
+    updatedAt: new Date().toISOString(),
   }).where(eq(negocios.id, payload.id));
 
   revalidatePath("/super-admin/negocios");
@@ -152,12 +152,12 @@ export async function toggleNegocio(formData: FormData) {
   const active = nextEstado === "activo";
   await getDb().update(negocios).set({
     estado: nextEstado,
-    updatedAt: new Date(),
+    updatedAt: new Date().toISOString(),
   }).where(eq(negocios.id, id));
 
   await getDb().update(usuarios).set({
     activo: active,
-    updatedAt: new Date(),
+    updatedAt: new Date().toISOString(),
   }).where(eq(usuarios.negocioId, id));
 
   revalidatePath("/super-admin/negocios");

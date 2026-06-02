@@ -21,7 +21,7 @@ export default async function UsuariosPage({ searchParams }: PageProps) {
 
   const usuarios = usuariosRaw.map((u) => ({
     ...u,
-    createdAt: u.createdAt instanceof Date ? u.createdAt.toISOString() : String(u.createdAt),
+    createdAt: String(u.createdAt),
   }));
 
   return (

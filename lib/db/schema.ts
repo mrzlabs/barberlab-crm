@@ -36,8 +36,8 @@ export const categoriaGasto = pgEnum("categoria_gasto", ["arriendo", "servicios_
 export const tipoMovInventario = pgEnum("tipo_mov_inventario", ["entrada", "salida", "ajuste"]);
 
 const timestamps = {
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
 };
 
 export const negocios = pgTable("negocios", {
@@ -65,8 +65,8 @@ export const negocios = pgTable("negocios", {
   modoAislamiento: text("modo_aislamiento").notNull().default("multi_tenant"),
   comisionBase: text("comision_base").notNull().default("precio_final"),
   propinaEnComision: boolean("propina_en_comision").notNull().default(false),
-  fechaInicio: date("fecha_inicio").notNull(),
-  fechaFin: date("fecha_fin"),
+  fechaInicio: date("fecha_inicio", { mode: "string" }).notNull(),
+  fechaFin: date("fecha_fin", { mode: "string" }),
   ...timestamps,
 });
 
@@ -130,8 +130,8 @@ export const bloqueosEmpleado = pgTable("bloqueos_empleado", {
   id: uuid("id").primaryKey().defaultRandom(),
   negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   empleadoId: uuid("empleado_id").notNull().references(() => empleados.id, { onDelete: "cascade" }),
-  fechaInicio: timestamp("fecha_inicio", { withTimezone: true }).notNull(),
-  fechaFin: timestamp("fecha_fin", { withTimezone: true }).notNull(),
+  fechaInicio: timestamp("fecha_inicio", { withTimezone: true, mode: "string" }).notNull(),
+  fechaFin: timestamp("fecha_fin", { withTimezone: true, mode: "string" }).notNull(),
   motivo: text("motivo"),
   ...timestamps,
 });
@@ -142,8 +142,8 @@ export const citas = pgTable("citas", {
   clienteId: uuid("cliente_id").notNull().references(() => clientes.id),
   empleadoId: uuid("empleado_id").notNull().references(() => empleados.id),
   servicioId: uuid("servicio_id").notNull().references(() => servicios.id),
-  inicio: timestamp("inicio", { withTimezone: true }).notNull(),
-  fin: timestamp("fin", { withTimezone: true }).notNull(),
+  inicio: timestamp("inicio", { withTimezone: true, mode: "string" }).notNull(),
+  fin: timestamp("fin", { withTimezone: true, mode: "string" }).notNull(),
   estado: estadoCita("estado").notNull().default("reservada"),
   ...timestamps,
 });
@@ -165,7 +165,7 @@ export const gastos = pgTable("gastos", {
   negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
   categoria: categoriaGasto("categoria").notNull(),
   monto: numeric("monto", { precision: 12, scale: 2 }).notNull(),
-  fecha: date("fecha").notNull(),
+  fecha: date("fecha", { mode: "string" }).notNull(),
   descripcion: text("descripcion"),
   comprobanteUrl: text("comprobante_url"),
   ...timestamps,
@@ -199,7 +199,7 @@ export const movInventario = pgTable("mov_inventario", {
   cantidad: numeric("cantidad", { precision: 12, scale: 2 }).notNull(),
   motivo: text("motivo").notNull(),
   citaId: uuid("cita_id").references(() => citas.id, { onDelete: "set null" }),
-  fecha: timestamp("fecha", { withTimezone: true }).notNull().defaultNow(),
+  fecha: timestamp("fecha", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
   ...timestamps,
 });
 
@@ -224,7 +224,7 @@ export const citaHistorial = pgTable("cita_historial", {
   estadoNuevo: estadoCita("estado_nuevo"),
   accion: text("accion").notNull(),
   detalle: text("detalle"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
 });
 
 export const activityLogs = pgTable("activity_logs", {
@@ -233,7 +233,7 @@ export const activityLogs = pgTable("activity_logs", {
   usuarioId: uuid("usuario_id").references(() => usuarios.id, { onDelete: "set null" }),
   accion: text("accion").notNull(),
   detalle: json("detalle").$type<Record<string, unknown>>(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
 });
 
 export const impersonationTokens = pgTable("impersonation_tokens", {
@@ -241,7 +241,7 @@ export const impersonationTokens = pgTable("impersonation_tokens", {
   negocioId: uuid("negocio_id").notNull().references(() => negocios.id, { onDelete: "cascade" }),
   createdBy: uuid("created_by").notNull().references(() => usuarios.id, { onDelete: "cascade" }),
   token: text("token").notNull().unique(),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  usedAt: timestamp("used_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  expiresAt: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true, mode: "string" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
 });

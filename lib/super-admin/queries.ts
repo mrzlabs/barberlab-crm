@@ -74,9 +74,10 @@ export async function getNegocioStats(negocioId: string) {
 }
 
 export async function getNegocioMonthlySummary(negocioId: string) {
-  const monthStart = new Date();
-  monthStart.setDate(1);
-  monthStart.setHours(0, 0, 0, 0);
+  const monthStartDate = new Date();
+  monthStartDate.setDate(1);
+  monthStartDate.setHours(0, 0, 0, 0);
+  const monthStart = monthStartDate.toISOString();
 
   const [row] = await getDb()
     .select({

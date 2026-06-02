@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   }
 
   const db = getDb();
-  const now = new Date();
+  const now = new Date().toISOString();
 
   // Atomic validate + mark used in one UPDATE … RETURNING to eliminate TOCTOU race condition
   const [used] = await db

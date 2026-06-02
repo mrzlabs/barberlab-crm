@@ -13,16 +13,18 @@ export async function reservarCita(formData: FormData) {
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
   const payload = reservarSchema.parse(Object.fromEntries(formData));
-  const inicio = new Date(payload.inicio);
-  const fin = new Date(payload.fin);
+  const inicioDate = new Date(payload.inicio);
+  const finDate = new Date(payload.fin);
+  const inicio = inicioDate.toISOString();
+  const fin = finDate.toISOString();
   const fecha = payload.inicio.slice(0, 10);
   const cliente = await ensureCliente(profile, negocioId);
   const disponible = await slotDisponible({
     empleadoId: payload.empleadoId,
     servicioId: payload.servicioId,
     fecha,
-    inicio,
-    fin,
+    inicio: inicioDate,
+    fin: finDate,
   });
 
   if (!disponible) {
