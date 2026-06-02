@@ -231,11 +231,22 @@ a {
   bottom: 0;
   z-index: 35;
   height: 1px;
-  background: #070315;
+  background: transparent;
   color: white;
   text-align: right;
   overflow: visible;
   pointer-events: none;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+@media (min-width: 1024px) {
+  .build-sig {
+    left: var(--sidebar-w, 220px);
+  }
+}
+
+[data-theme="light"] .build-sig {
+  border-top-color: rgba(0,0,0,0.08);
 }
 
 .build-sig::before,
@@ -251,25 +262,29 @@ a {
 
 .build-sig::before {
   z-index: 0;
-  opacity: .62;
-  background:
-    radial-gradient(circle at 41% 42%, rgba(168,85,247,.54) 0 2px, transparent 4px),
-    radial-gradient(circle at 42% 43%, rgba(139,92,246,.52), rgba(139,92,246,.16) 16%, transparent 34%),
-    radial-gradient(circle at 17% 18%, rgba(99,102,241,.24), transparent 18%),
-    radial-gradient(circle at 79% 72%, rgba(192,132,252,.18), transparent 22%);
+  background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%);
+}
+
+[data-theme="light"] .build-sig::before {
+  background: linear-gradient(to top, rgba(248,250,252,0.82) 0%, transparent 100%);
 }
 
 .build-sig::after {
   z-index: 0;
-  opacity: .28;
+  opacity: .18;
   background-image:
     radial-gradient(circle, rgba(216,180,254,.72) 0 1px, transparent 1.8px),
-    radial-gradient(circle, rgba(129,140,248,.5) 0 1px, transparent 1.7px),
-    radial-gradient(circle, rgba(255,255,255,.26) 0 1px, transparent 1.5px);
-  background-position: 9% 22%, 72% 42%, 51% 78%;
-  background-size: 110px 58px, 142px 76px, 190px 96px;
+    radial-gradient(circle, rgba(129,140,248,.5) 0 1px, transparent 1.7px);
+  background-position: 9% 22%, 72% 42%;
+  background-size: 110px 58px, 142px 76px;
   mix-blend-mode: screen;
 }
+
+/* ── Footer firma texto por tema ──────────────────────────────── */
+[data-theme="dark"] .mrz-footer-text  { color: rgba(255,255,255,0.65) !important; }
+[data-theme="dark"] .mrz-footer-brand { color: #00cec9 !important; }
+[data-theme="light"] .mrz-footer-text  { color: rgba(15,23,42,0.65) !important; }
+[data-theme="light"] .mrz-footer-brand { color: #0891b2 !important; }
 
 .build-neural-canvas {
   position: absolute;
@@ -370,20 +385,18 @@ a {
 }
 
 .mrz-footer-left {
-  font-size: .6rem;
+  font-size: .7rem;
   font-weight: 600;
   letter-spacing: .08em;
-  color: rgba(255,255,255,.35);
   text-align: left;
   white-space: nowrap;
 }
 
 .mrz-footer-center {
-  font-size: .72rem;
-  font-weight: 900;
-  letter-spacing: .22em;
+  font-size: .85rem;
+  font-weight: 700;
+  letter-spacing: .15em;
   text-transform: uppercase;
-  color: #00cec9;
   text-shadow: 0 0 12px rgba(0,206,201,.6);
   background: none;
   border: none;
@@ -394,17 +407,17 @@ a {
 }
 
 .mrz-footer-center:hover {
-  text-shadow: 0 0 20px rgba(0,206,201,.9);
+  text-shadow: 0 0 22px rgba(0,206,201,.9);
 }
 
 .mrz-footer-right {
-  font-size: .6rem;
+  font-size: .7rem;
   font-weight: 700;
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: rgba(192,132,252,.7);
   text-align: right;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .build-overlay {

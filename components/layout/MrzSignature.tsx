@@ -170,18 +170,25 @@ export function MrzSignature() {
         </svg>
       </div>
       <div className="ctn build-card">
-        <p className="mrz-footer-message">Automatizamos tu negocio · Agenda, caja, inventario y reportes en un solo lugar · Built by MRZLABS</p>
+        <p className="mrz-footer-message mrz-footer-text">Automatizamos tu negocio · Agenda, caja, inventario y reportes en un solo lugar · Built by MRZLABS</p>
         <div className="mrz-footer-bar">
-          <span className="mrz-footer-left">© 2026 Todos los derechos reservados</span>
+          <span className="mrz-footer-left mrz-footer-text">© 2026 Todos los derechos reservados</span>
           <button
-            className="mrz-footer-center"
+            className="mrz-footer-center mrz-footer-brand"
             type="button"
             onClick={() => setOpen(true)}
             aria-label="Ver información de BARBERLABS"
           >
             BARBERLABS
           </button>
-          <span className="mrz-footer-right">Built by MRZLABS</span>
+          <button
+            className="mrz-footer-right mrz-footer-text"
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-label="Ver información de MRZLABS"
+          >
+            Built by MRZLABS
+          </button>
         </div>
       </div>
       <MrzModal open={open} onClose={() => setOpen(false)} />

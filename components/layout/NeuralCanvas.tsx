@@ -62,17 +62,17 @@ export function NeuralCanvas({ className = "", darkMode, primaryColor }: NeuralC
       } else {
         const root = document.documentElement;
         const p = getComputedStyle(root).getPropertyValue("--neural-primary").trim();
-        brandColor = p || "#7c3aed";
+        brandColor = p || (isDarkMode ? "#7c3aed" : "#6366f1");
       }
     }
 
     // Per-mode opacity targets
     function lineAlpha(proximity: number) {
-      const base = isDarkMode ? 0.5 : 0.3;
+      const base = isDarkMode ? 0.5 : 0.45;
       return proximity * base;
     }
     function particleAlpha(breathing: number) {
-      return breathing * (isDarkMode ? 0.6 : 0.4);
+      return breathing * (isDarkMode ? 0.6 : 0.55);
     }
     function pulseLineAlpha(bright: number) {
       return 0.38 * bright * (isDarkMode ? 1 : 0.7);

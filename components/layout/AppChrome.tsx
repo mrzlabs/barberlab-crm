@@ -312,6 +312,21 @@ function LogoMark({ brand, onExpand }: { brand?: CurrentProfile; onExpand?: (url
   );
 }
 
+// ─── Per-item icon colors ────────────────────────────────────────────────────
+const ICON_COLORS: Record<string, string> = {
+  "Dashboard":     "#60a5fa",
+  "Agenda":        "#34d399",
+  "Turnos":        "#f59e0b",
+  "Gastos":        "#f87171",
+  "Inventario":    "#a78bfa",
+  "Servicios":     "#38bdf8",
+  "Empleados":     "#fb923c",
+  "Clientes":      "#e879f9",
+  "Reportes":      "#4ade80",
+  "Configuracion": "#94a3b8",
+  "Marketing":     "#f472b6",
+};
+
 // ─── AppChrome ───────────────────────────────────────────────────────────────
 
 function hexAlpha(hex: string, alpha: number): string {
@@ -370,13 +385,18 @@ export function AppChrome({
   const fontFamily = configVisual?.fontFamily || brand?.fuente || "Inter";
   const isDark = configVisual?.darkMode !== false;
 
-  // Sync theme vars to documentElement so NeuralCanvas reads correct opacity + color
+  // Sync theme + neural vars to documentElement
   useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty("--neural-opacity", isDark ? "0.55" : "0.35");
     root.style.setProperty("--neural-line-opacity", isDark ? "0.4" : "0.22");
     root.style.setProperty("--neural-primary", isDark ? "#7c3aed" : primaryColor);
   }, [isDark, primaryColor]);
+
+  // Sync sidebar width so MrzSignature doesn't overlap sidebar
+  useEffect(() => {
+    document.documentElement.style.setProperty("--sidebar-w", open ? "220px" : "56px");
+  }, [open]);
   const roleLabel = role === "super_admin" ? "Super Admin MRZLABS" : role === "admin" ? "Administrador" : role === "empleado" ? "Empleado" : "Cliente";
 
   const homeHref = role === "admin" ? "/admin/dashboard" : role === "empleado" ? "/empleado/mi-agenda" : role === "cliente" ? "/cliente/mis-citas" : null;
@@ -534,6 +554,7 @@ export function AppChrome({
               const Icon = style.icon;
               const shapeClass = style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-lg" : "rounded-[10px]";
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+              const iconColor = ICON_COLORS[item.label] ?? "#94a3b8";
               return (
                 <div key={item.href}>
                   {[3, 6, 9].includes(index) && <div className={`my-1.5 h-px ${isDark ? "bg-white/8" : "bg-slate-200"}`} />}
@@ -555,11 +576,11 @@ export function AppChrome({
                       className={`grid size-7 shrink-0 place-items-center transition-transform group-hover:scale-105 ${isActive ? "scale-105" : ""} ${shapeClass}`}
                       style={{
                         background: isActive
-                          ? hexAlpha(primaryColor, isDark ? 0.3 : 0.15)
-                          : hexAlpha(primaryColor, isDark ? 0.14 : 0.08),
-                        color: isActive
-                          ? primaryColor
-                          : (isDark ? "rgba(255,255,255,0.65)" : "#1e293b"),
+                          ? hexAlpha(iconColor, isDark ? 0.24 : 0.16)
+                          : hexAlpha(iconColor, isDark ? 0.12 : 0.07),
+                        color: iconColor,
+                        filter: isActive ? "brightness(1.3)" : undefined,
+                        opacity: isActive ? 1 : 0.75,
                       }}
                     >
                       <Icon className="size-[15px]" />
@@ -731,7 +752,7 @@ export function AppChrome({
           <PageTransition>{children}</PageTransition>
         </main>
 
-      </div>
+      </div>{/* end main area */}
 
       {/* ── Mobile bottom tab bar ────────────────────────────────── */}
       <BottomTabBar items={nav} />
@@ -816,6 +837,7 @@ export function AppChrome({
       </div>{/* end crm shell content */}
 
       <MrzSignature />
+
       <MrzHelpBot topics={topics} />
       {expandedPhoto && (
         <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/72 p-4 backdrop-blur-xl" onClick={() => setExpandedPhoto(null)}>

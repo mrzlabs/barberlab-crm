@@ -22,13 +22,9 @@ export default function Loading() {
           <span className="rounded-xl bg-white/8 p-3">Stock</span>
         </div>
       </section>
-      <div className="absolute bottom-0 left-0 right-0 h-14 overflow-hidden border-t border-violet-400/15 bg-slate-950/94">
-        <div className="wait-grid absolute inset-0 opacity-40" />
-        <div className="relative flex h-full items-center justify-between px-5">
-          <span className="text-[10px] font-semibold tracking-wide text-violet-300/50">MRZLABS</span>
-          <span className="rounded-full border border-violet-400/25 bg-violet-950/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-violet-300/80">
-            Built by MRZLABS
-          </span>
+      <div className="absolute bottom-0 left-0 right-0 h-8 overflow-hidden border-t border-violet-400/10 bg-slate-950/80">
+        <div className="relative flex h-full items-center justify-center px-5">
+          <span className="text-[9px] font-black tracking-[0.18em] text-violet-300/40 uppercase">MRZLABS</span>
         </div>
       </div>
     </main>
