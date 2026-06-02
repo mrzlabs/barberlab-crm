@@ -4,93 +4,53 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Search, X } from "lucide-react";
 
-// ── 5 robots SVG — estilo cartoon blanco/cyan ─────────────
-const ROBOTS = [
-  // 1 — Clásico cuadrado con antena
-  <svg key="r1" viewBox="0 0 54 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <line x1="27" y1="1" x2="27" y2="9" stroke="#334155" strokeWidth="1.8" strokeLinecap="round"/>
-    <circle cx="27" cy="1" r="2.8" fill="#00cec9"/>
-    <rect x="11" y="9" width="32" height="23" rx="5" fill="white" stroke="#334155" strokeWidth="1.8"/>
-    <rect x="16" y="16" width="9" height="7" rx="2.5" fill="#00cec9"/>
-    <rect x="29" y="16" width="9" height="7" rx="2.5" fill="#00cec9"/>
-    <rect x="22" y="16" width="2.5" height="2.5" rx="1.2" fill="white" opacity="0.8"/>
-    <rect x="35" y="16" width="2.5" height="2.5" rx="1.2" fill="white" opacity="0.8"/>
-    <path d="M19 28 Q27 33 35 28" stroke="#334155" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
-    <rect x="14" y="34" width="26" height="18" rx="5" fill="white" stroke="#334155" strokeWidth="1.8"/>
-    <rect x="21" y="38" width="12" height="8" rx="2" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1"/>
-    <circle cx="24.5" cy="42" r="2" fill="#00cec9"/>
-    <circle cx="29.5" cy="42" r="2" fill="#00cec9"/>
-    <rect x="15" y="52" width="10" height="10" rx="4" fill="#334155"/>
-    <rect x="29" y="52" width="10" height="10" rx="4" fill="#334155"/>
-  </svg>,
-
-  // 2 — Casco redondo estilo astronauta
-  <svg key="r2" viewBox="0 0 54 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <circle cx="27" cy="22" r="21" fill="white" stroke="#334155" strokeWidth="1.8"/>
-    <ellipse cx="27" cy="23" rx="15" ry="13" fill="#f1f5f9"/>
-    <circle cx="20" cy="21" r="6" fill="#00cec9"/>
-    <circle cx="34" cy="21" r="6" fill="#00cec9"/>
-    <circle cx="21.5" cy="19" r="2" fill="white"/>
-    <circle cx="35.5" cy="19" r="2" fill="white"/>
-    <path d="M20 32 Q27 37 34 32" stroke="#334155" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
-    <rect x="22" y="42" width="10" height="5" rx="2.5" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1"/>
-    <ellipse cx="27" cy="55" rx="14" ry="8" fill="white" stroke="#334155" strokeWidth="1.8"/>
-    <ellipse cx="27" cy="55" rx="6" ry="3" fill="#e2e8f0"/>
-  </svg>,
-
-  // 3 — Doble antena estilo alien cute
-  <svg key="r3" viewBox="0 0 54 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <line x1="18" y1="3" x2="22" y2="11" stroke="#334155" strokeWidth="1.8" strokeLinecap="round"/>
-    <line x1="36" y1="3" x2="32" y2="11" stroke="#334155" strokeWidth="1.8" strokeLinecap="round"/>
-    <circle cx="18" cy="2.5" r="3" fill="#00cec9"/>
-    <circle cx="36" cy="2.5" r="3" fill="#00cec9"/>
-    <ellipse cx="27" cy="22" rx="16" ry="13" fill="white" stroke="#334155" strokeWidth="1.8"/>
-    <circle cx="20.5" cy="21" r="5.5" fill="#00cec9"/>
-    <circle cx="33.5" cy="21" r="5.5" fill="#00cec9"/>
-    <circle cx="22" cy="19" r="1.8" fill="white"/>
-    <circle cx="35" cy="19" r="1.8" fill="white"/>
-    <path d="M20 30 Q27 35 34 30" stroke="#334155" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
-    <rect x="13" y="38" width="28" height="19" rx="7" fill="white" stroke="#334155" strokeWidth="1.8"/>
-    <rect x="5" y="40" width="9" height="6" rx="3" fill="white" stroke="#334155" strokeWidth="1.8"/>
-    <rect x="40" y="40" width="9" height="6" rx="3" fill="white" stroke="#334155" strokeWidth="1.8"/>
-    <rect x="17" y="57" width="8" height="7" rx="3" fill="#334155"/>
-    <rect x="29" y="57" width="8" height="7" rx="3" fill="#334155"/>
-  </svg>,
-
-  // 4 — Robot con ruedas
-  <svg key="r4" viewBox="0 0 54 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <line x1="27" y1="1" x2="27" y2="9" stroke="#334155" strokeWidth="1.8" strokeLinecap="round"/>
-    <rect x="23" y="0" width="8" height="5" rx="2.5" fill="#00cec9" stroke="#334155" strokeWidth="1"/>
-    <ellipse cx="27" cy="20" rx="17" ry="14" fill="white" stroke="#334155" strokeWidth="1.8"/>
-    <circle cx="20" cy="19" r="6" fill="#00cec9"/>
-    <circle cx="34" cy="19" r="6" fill="#00cec9"/>
-    <circle cx="21.5" cy="17" r="2" fill="white"/>
-    <circle cx="35.5" cy="17" r="2" fill="white"/>
-    <path d="M19 29 Q27 34 35 29" stroke="#334155" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
-    <rect x="13" y="36" width="28" height="14" rx="5" fill="white" stroke="#334155" strokeWidth="1.8"/>
-    <circle cx="14" cy="56" r="8" fill="white" stroke="#334155" strokeWidth="2"/>
-    <circle cx="40" cy="56" r="8" fill="white" stroke="#334155" strokeWidth="2"/>
-    <circle cx="14" cy="56" r="3.5" fill="#334155"/>
-    <circle cx="40" cy="56" r="3.5" fill="#334155"/>
-    <circle cx="14" cy="56" r="1.5" fill="#00cec9"/>
-    <circle cx="40" cy="56" r="1.5" fill="#00cec9"/>
-  </svg>,
-
-  // 5 — Regordete simpático
-  <svg key="r5" viewBox="0 0 54 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <line x1="27" y1="1" x2="27" y2="8" stroke="#334155" strokeWidth="1.8" strokeLinecap="round"/>
-    <circle cx="27" cy="1" r="3" fill="#00cec9"/>
-    <rect x="23" y="8" width="8" height="5" rx="2" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1"/>
-    <ellipse cx="27" cy="37" rx="22" ry="24" fill="white" stroke="#334155" strokeWidth="1.8"/>
-    <circle cx="19.5" cy="30" r="6.5" fill="#00cec9"/>
-    <circle cx="34.5" cy="30" r="6.5" fill="#00cec9"/>
-    <circle cx="21" cy="27.5" r="2" fill="white"/>
-    <circle cx="36" cy="27.5" r="2" fill="white"/>
-    <path d="M18 43 Q27 51 36 43" stroke="#334155" strokeWidth="2" strokeLinecap="round" fill="none"/>
-    <ellipse cx="6" cy="37" rx="6" ry="4" fill="white" stroke="#334155" strokeWidth="1.5" transform="rotate(-15 6 37)"/>
-    <ellipse cx="48" cy="37" rx="6" ry="4" fill="white" stroke="#334155" strokeWidth="1.5" transform="rotate(15 48 37)"/>
-  </svg>,
-];
+// ── Robot violeta oscuro — estilo referencia ──────────────────
+const BotRobot = () => (
+  <svg viewBox="0 0 80 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="bot-robot-svg">
+    {/* antena */}
+    <line x1="44" y1="2" x2="40" y2="14" stroke="#3d2f7a" strokeWidth="2.5" strokeLinecap="round"/>
+    <circle cx="46" cy="1" r="4" fill="#4fc3f7" stroke="#2a1f5e" strokeWidth="1.2"/>
+    {/* cabeza */}
+    <rect x="18" y="13" width="40" height="32" rx="8" fill="#4c3a91" stroke="#2a1f5e" strokeWidth="1.5"/>
+    {/* brillo cabeza */}
+    <rect x="22" y="15" width="18" height="8" rx="4" fill="rgba(255,255,255,0.12)"/>
+    {/* ojos */}
+    <circle cx="31" cy="29" r="7" fill="#f5c518"/>
+    <circle cx="49" cy="29" r="7" fill="#f5c518"/>
+    <circle cx="31" cy="29" r="4" fill="#1a1230"/>
+    <circle cx="49" cy="29" r="4" fill="#1a1230"/>
+    <circle cx="33" cy="27" r="1.5" fill="white" opacity="0.9"/>
+    <circle cx="51" cy="27" r="1.5" fill="white" opacity="0.9"/>
+    {/* cuello */}
+    <rect x="32" y="45" width="16" height="7" rx="3" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1.2"/>
+    {/* cuerpo */}
+    <rect x="14" y="52" width="40" height="32" rx="8" fill="#4c3a91" stroke="#2a1f5e" strokeWidth="1.5"/>
+    {/* panel pecho */}
+    <rect x="24" y="59" width="20" height="14" rx="4" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1"/>
+    <circle cx="31" cy="65" r="3" fill="#4fc3f7" opacity="0.85"/>
+    <rect x="36" y="63" width="5" height="5" rx="1.5" fill="#f5c518" opacity="0.7"/>
+    {/* brillo cuerpo */}
+    <rect x="17" y="54" width="15" height="7" rx="3.5" fill="rgba(255,255,255,0.1)"/>
+    {/* brazo izquierdo — bajado */}
+    <rect x="2" y="54" width="13" height="8" rx="4" fill="#4c3a91" stroke="#2a1f5e" strokeWidth="1.5" transform="rotate(10 2 54)"/>
+    <circle cx="4" cy="67" r="4" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1.2"/>
+    {/* brazo derecho — levantado saludando */}
+    <rect x="63" y="42" width="13" height="8" rx="4" fill="#4c3a91" stroke="#2a1f5e" strokeWidth="1.5" transform="rotate(-35 63 46)"/>
+    {/* mano/pinza */}
+    <circle cx="74" cy="35" r="5" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1.2"/>
+    <line x1="74" y1="29" x2="71" y2="24" stroke="#3d2f7a" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="74" y1="29" x2="77" y2="24" stroke="#3d2f7a" strokeWidth="2.5" strokeLinecap="round"/>
+    {/* líneas de saludo */}
+    <line x1="79" y1="22" x2="81" y2="18" stroke="#4fc3f7" strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+    <line x1="76" y1="20" x2="75" y2="15" stroke="#4fc3f7" strokeWidth="1.5" strokeLinecap="round" opacity="0.5"/>
+    {/* piernas */}
+    <rect x="22" y="84" width="12" height="10" rx="4" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1.2"/>
+    <rect x="38" y="84" width="12" height="10" rx="4" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1.2"/>
+    {/* pies */}
+    <rect x="19" y="91" width="18" height="5" rx="3" fill="#2a1f5e"/>
+    <rect x="35" y="91" width="18" height="5" rx="3" fill="#2a1f5e"/>
+  </svg>
+);
 
 type HelpTopic = {
   title: string;
@@ -107,11 +67,8 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
   const [active, setActive] = useState(0);
   const [pos, setPos] = useState({ x: "8vw", y: "0px" });
   const [hop, setHop] = useState(false);
-  const [botIdx, setBotIdx] = useState(0);
-  const [botFade, setBotFade] = useState(true);
   const hopTimeoutRef = useRef<number>();
 
-  // Movimiento del bot
   useEffect(() => {
     if (open) return;
     const targets = [
@@ -134,18 +91,6 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
     };
   }, [open]);
 
-  // Ciclo de robots — cambia con fade
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      setBotFade(false);
-      window.setTimeout(() => {
-        setBotIdx((i) => (i + 1) % ROBOTS.length);
-        setBotFade(true);
-      }, 200);
-    }, 3800);
-    return () => window.clearInterval(id);
-  }, []);
-
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
     if (!term) return topics;
@@ -159,9 +104,7 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
 
   const topic = filtered[active] ?? filtered[0] ?? topics[0];
 
-  useEffect(() => {
-    setActive(0);
-  }, [query]);
+  useEffect(() => { setActive(0); }, [query]);
 
   return (
     <>
@@ -217,12 +160,7 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
         type="button"
         aria-label="Abrir ayuda BarberLab"
       >
-        <span
-          className="bot-robot-wrap"
-          style={{ opacity: botFade ? 1 : 0, transition: "opacity 0.2s ease" }}
-        >
-          {ROBOTS[botIdx]}
-        </span>
+        <BotRobot />
       </button>
     </>
   );

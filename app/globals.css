@@ -515,59 +515,41 @@ a {
   font-weight: 800;
 }
 
-/* ── Bot flotante — robots SVG cíclicos ─────────────────────── */
+/* ── Bot flotante — robot violeta sin fondo ─────────────────── */
 .mrz-bot {
   position: fixed;
   left: 0;
-  bottom: 22px;
+  bottom: 28px;
   z-index: 48;
   padding: 0;
-  width: 52px;
-  height: 52px;
+  width: 56px;
+  height: 68px;
   border: none;
-  border-radius: 50%;
-  background: #f8fafc;
-  overflow: hidden;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
   transform: translate3d(var(--bx,8vw), calc(var(--by,0px) + var(--hop,0px)), 0);
   transition: transform 2.8s cubic-bezier(.45,.05,.25,1);
-  animation: botGlow 3.2s ease-in-out infinite;
+  animation: botBreathe 3.4s ease-in-out infinite;
   cursor: pointer;
+  filter: drop-shadow(0 4px 12px rgba(76,58,145,0.55));
 }
 
 .mrz-bot::before,
 .mrz-bot::after { content: none; }
 
-/* Contenedor del SVG robot — centrado */
-.bot-robot-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
+.bot-robot-svg {
+  width: 56px;
+  height: 68px;
+  display: block;
 }
 
-.bot-robot-wrap svg {
-  width: 46px;
-  height: 46px;
+.mrz-bot:hover {
+  filter: drop-shadow(0 6px 18px rgba(79,195,247,0.6));
 }
 
 .mrz-bot.hop {
-  animation: botGlow 3.2s ease-in-out infinite, botHop .42s cubic-bezier(.3,1.4,.5,1);
-}
-
-@keyframes botGlow {
-  0%, 100% {
-    box-shadow:
-      0 0 0 2px rgba(0,206,201,0.55),
-      0 0 0 5px rgba(0,206,201,0.14),
-      0 4px 20px rgba(0,206,201,0.32);
-  }
-  50% {
-    box-shadow:
-      0 0 0 2.5px rgba(0,206,201,0.8),
-      0 0 0 7px rgba(0,206,201,0.2),
-      0 4px 30px rgba(0,206,201,0.48);
-  }
+  animation: botBreathe 3.4s ease-in-out infinite, botHop .42s cubic-bezier(.3,1.4,.5,1);
 }
 
 .mrz-help-panel {
@@ -802,13 +784,12 @@ a {
 
   .mrz-bot {
     width: 46px;
-    height: 46px;
+    height: 56px;
   }
 
-  .bot-robot-wrap,
-  .bot-robot-wrap svg {
-    width: 42px;
-    height: 42px;
+  .bot-robot-svg {
+    width: 46px;
+    height: 56px;
   }
 
   .mrz-help-panel {

@@ -11,9 +11,9 @@ export function BottomTabBar({ items }: { items: NavItem[] }) {
 
   return (
     <nav
-      className="fixed bottom-[54px] left-0 right-0 z-30 overflow-x-auto bg-white/76 pb-[env(safe-area-inset-bottom)] shadow-[0_-18px_50px_rgba(15,23,42,.12)] backdrop-blur-2xl dark:bg-slate-950/76 lg:hidden"
+      className="fixed left-0 right-0 top-[52px] z-30 overflow-x-auto border-b border-white/8 bg-slate-950/88 pb-0 shadow-[0_4px_24px_rgba(0,0,0,0.32)] backdrop-blur-2xl lg:hidden"
     >
-      <div className="flex h-16 min-w-max items-center gap-1 px-2">
+      <div className="flex h-14 min-w-max items-center gap-0.5 px-2">
         {items.map((item) => {
           const style = navStyles[item.label] ?? navStyles.Dashboard;
           const Icon = style.icon;
@@ -23,16 +23,18 @@ export function BottomTabBar({ items }: { items: NavItem[] }) {
             <Link
               key={item.href}
               href={item.href}
-              className="flex min-w-[74px] flex-col items-center gap-0.5 rounded-2xl px-2 py-1.5"
+              className="flex min-w-[64px] flex-col items-center gap-0.5 rounded-xl px-1.5 py-1"
             >
               <span
-                className={`grid size-10 place-items-center rounded-2xl transition-all duration-150 ${
-                  isActive ? `${style.tone} scale-105 shadow-lg` : "bg-slate-950/5 text-slate-500 dark:bg-white/8 dark:text-white/50"
-                } ${isActive ? style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-xl" : "rounded-[14px]" : ""}`}
+                className={`grid size-9 place-items-center rounded-xl transition-all duration-150 ${
+                  isActive
+                    ? `${style.tone} scale-105 shadow-lg`
+                    : "bg-white/5 text-white/45"
+                } ${isActive ? style.shape === "circle" ? "rounded-full" : "rounded-xl" : ""}`}
               >
-                <Icon className={`size-5 ${isActive ? "fill-current" : ""}`} />
+                <Icon className={`size-4.5 ${isActive ? "fill-current" : ""}`} />
               </span>
-              <span className={`max-w-[68px] truncate text-[9px] font-bold ${isActive ? "text-slate-950 dark:text-white" : "text-slate-500 dark:text-white/45"}`}>
+              <span className={`max-w-[60px] truncate text-[8px] font-bold ${isActive ? "text-white" : "text-white/40"}`}>
                 {item.label}
               </span>
             </Link>

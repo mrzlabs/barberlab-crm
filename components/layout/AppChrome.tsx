@@ -664,7 +664,7 @@ export function AppChrome({
       )}
 
       {/* ── Main area ───────────────────────────────────────────── */}
-      <div className={`min-h-dvh pb-20 transition-all duration-300 lg:pb-8 ${open ? "lg:ml-[220px]" : "lg:ml-[56px]"}`}>
+      <div className={`min-h-dvh transition-all duration-300 ${open ? "lg:ml-[220px]" : "lg:ml-[56px]"}`}>
         {/* topbar */}
         <header
           className={`sticky top-0 z-20 flex h-[52px] items-center border-b px-4 ${isDark ? "border-white/8" : "border-slate-200"}`}
@@ -740,8 +740,8 @@ export function AppChrome({
           </div>
         </header>
 
-        {/* page content — pb-16 keeps content above fixed signature */}
-        <main className="mx-auto max-w-[1280px] px-4 py-5 pb-16 sm:px-5 sm:pb-20">
+        {/* page content — pt-14 mobile deja espacio bajo la nav bar top */}
+        <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-14 sm:px-5 sm:pb-16 lg:pt-5">
           <PageTransition>{children}</PageTransition>
         </main>
 
