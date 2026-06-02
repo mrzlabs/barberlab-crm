@@ -9,12 +9,9 @@ export function BottomTabBar({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed left-0 right-0 top-[52px] z-30 overflow-x-auto lg:hidden"
-      style={{
-        background: "rgba(6,6,16,0.9)",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
-        backdropFilter: "blur(14px)",
-      }}
+    <nav
+      className="overflow-x-auto lg:hidden"
+      style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
     >
       <div className="flex h-9 min-w-max items-end gap-0 px-3">
         {items.map((item) => {

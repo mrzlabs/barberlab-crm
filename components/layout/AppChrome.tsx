@@ -665,14 +665,16 @@ export function AppChrome({
 
       {/* ── Main area ───────────────────────────────────────────── */}
       <div className={`min-h-dvh transition-all duration-300 ${open ? "lg:ml-[220px]" : "lg:ml-[56px]"}`}>
+
+        {/* sticky wrapper: header + tab bar se desplazan juntos */}
+        <div
+          className="sticky top-0 z-20"
+          style={{ background: "rgba(8,8,20,0.88)", backdropFilter: "blur(14px)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+        >
         {/* topbar */}
         <header
-          className={`sticky top-0 z-20 flex h-[52px] items-center border-b px-4 ${isDark ? "border-white/8" : "border-slate-200"}`}
-          style={{
-            background: "rgba(8,8,20,0.82)",
-            borderColor: "rgba(255,255,255,0.07)",
-            backdropFilter: "blur(14px)",
-          }}
+          className={`flex h-[52px] items-center border-b px-4 ${isDark ? "border-white/8" : "border-slate-200"}`}
+          style={{ borderColor: "rgba(255,255,255,0.06)" }}
         >
           <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
@@ -740,15 +742,16 @@ export function AppChrome({
           </div>
         </header>
 
-        {/* page content — pt-10 mobile deja espacio bajo la nav tabs */}
-        <main className="mx-auto max-w-[1280px] px-4 pb-8 pt-10 sm:px-5 lg:pt-5 lg:pb-8">
+        {/* ── Tab bar móvil dentro del sticky wrapper ─────────── */}
+        <BottomTabBar items={nav} />
+        </div>{/* end sticky wrapper */}
+
+        {/* page content */}
+        <main className="mx-auto max-w-[1280px] px-4 pb-8 pt-5 sm:px-5 lg:pb-8">
           <PageTransition>{children}</PageTransition>
         </main>
 
       </div>{/* end main area */}
-
-      {/* ── Mobile bottom tab bar ────────────────────────────────── */}
-      <BottomTabBar items={nav} />
 
       {/* ── Floating back button (mobile subpages) ───────────────── */}
       <BackButton />

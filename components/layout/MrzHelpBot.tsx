@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Search, X } from "lucide-react";
 
-// ── Robot violeta — proporciones corregidas ───────────────────
+// ── Robot violeta — 2px más pequeño ──────────────────────────
 function BotRobot() {
   return (
-    <svg viewBox="0 0 64 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="bot-robot-svg" aria-hidden="true">
+    <svg viewBox="0 0 64 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="bot-robot-svg" aria-hidden="true" style={{ width: 46, height: 57 }}>
       {/* antena */}
       <line x1="35" y1="3" x2="32" y2="10" stroke="#3d2f7a" strokeWidth="2.2" strokeLinecap="round"/>
       <circle cx="36.5" cy="2" r="3.5" fill="#4fc3f7" stroke="#2a1f5e" strokeWidth="1"/>
@@ -68,7 +68,20 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
+  const [botX, setBotX] = useState(0);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  // Movimiento suave horizontal dentro del footer
+  useEffect(() => {
+    if (open) return;
+    const targets = [0, -28, -10, -42, -18, -6, -34];
+    let idx = 0;
+    const id = window.setInterval(() => {
+      idx = (idx + 1) % targets.length;
+      setBotX(targets[idx]);
+    }, 4200);
+    return () => window.clearInterval(id);
+  }, [open]);
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
@@ -149,12 +162,16 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
         </div>
       )}
 
-      {/* Botón del bot */}
+      {/* Botón del bot — se mueve suavemente en el footer */}
       <button
         className={`mrz-bot-btn ${open ? "active" : ""}`}
         onClick={() => setOpen((v) => !v)}
         type="button"
         aria-label="Abrir ayuda BarberLab"
+        style={{
+          transform: `translateX(${botX}px)`,
+          transition: open ? "none" : "transform 3.2s cubic-bezier(0.45,0.05,0.25,1)",
+        }}
       >
         <BotRobot />
       </button>
