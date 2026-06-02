@@ -10,10 +10,21 @@ function dayBounds(date = new Date()) {
   return { start, end };
 }
 
+function toStr(v: unknown): string | null {
+  if (v == null) return null;
+  if (v instanceof Date) return v.toISOString();
+  return String(v);
+}
+
 export async function getEmpleadoByUsr(userId: string) {
   const db = getDb();
   const [empleado] = await db.select().from(empleados).where(eq(empleados.usuarioId, userId)).limit(1);
-  return empleado ?? null;
+  if (!empleado) return null;
+  return {
+    ...empleado,
+    createdAt: toStr(empleado.createdAt) as string,
+    updatedAt: toStr(empleado.updatedAt) as string,
+  };
 }
 
 export async function getMiAgenda(userId: string) {
@@ -55,9 +66,15 @@ export async function getMiAgenda(userId: string) {
   return {
     empleado,
     citas: items.map((item) => ({
-      ...item,
-      inicio: item.inicio instanceof Date ? item.inicio.toISOString() : String(item.inicio),
-      fin: item.fin instanceof Date ? item.fin.toISOString() : String(item.fin),
+      id: item.id,
+      estado: item.estado,
+      cliente: item.cliente,
+      telefono: item.telefono,
+      servicio: item.servicio,
+      precio: item.precio,
+      duracionMin: item.duracionMin,
+      inicio: toStr(item.inicio) as string,
+      fin: toStr(item.fin) as string,
     })),
     stats: {
       hoy: stats[0]?.hoy ?? 0,
@@ -71,7 +88,7 @@ export async function getCitasParaCerrar(userId: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return [];
 
-  return getDb()
+  const rows = await getDb()
     .select({
       id: citas.id,
       inicio: citas.inicio,
@@ -86,20 +103,24 @@ export async function getCitasParaCerrar(userId: string) {
     .innerJoin(servicios, eq(citas.servicioId, servicios.id))
     .where(and(eq(citas.empleadoId, empleado.id), sql`${citas.estado} in ('reservada', 'confirmada')`))
     .orderBy(desc(citas.inicio))
-    .limit(20)
-    .then((rows) =>
-      rows.map((r) => ({
-        ...r,
-        inicio: r.inicio instanceof Date ? r.inicio.toISOString() : String(r.inicio),
-      }))
-    );
+    .limit(20);
+
+  return rows.map((r) => ({
+    id: r.id,
+    estado: r.estado,
+    cliente: r.cliente,
+    telefono: r.telefono,
+    servicio: r.servicio,
+    precio: r.precio,
+    inicio: toStr(r.inicio) as string,
+  }));
 }
 
 export async function getMisTurnos(userId: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return [];
 
-  return getDb()
+  const rows = await getDb()
     .select({
       id: turnos.id,
       createdAt: turnos.createdAt,
@@ -115,13 +136,17 @@ export async function getMisTurnos(userId: string) {
     .innerJoin(servicios, eq(citas.servicioId, servicios.id))
     .where(eq(citas.empleadoId, empleado.id))
     .orderBy(desc(turnos.createdAt))
-    .limit(12)
-    .then((rows) =>
-      rows.map((r) => ({
-        ...r,
-        createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : String(r.createdAt),
-      }))
-    );
+    .limit(12);
+
+  return rows.map((r) => ({
+    id: r.id,
+    precioFinal: r.precioFinal,
+    propina: r.propina,
+    metodoPago: r.metodoPago,
+    cliente: r.cliente,
+    servicio: r.servicio,
+    createdAt: toStr(r.createdAt) as string,
+  }));
 }
 
 export async function getStatsEmpleado(userId: string) {
