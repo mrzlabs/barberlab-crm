@@ -413,27 +413,27 @@ export function AppChrome({
       className={`crm-shell min-h-dvh overflow-x-hidden ${isDark ? "text-white" : "text-slate-900"}`}
       data-theme={isDark ? "dark" : "light"}
       style={{
+        // Brand vars — used ONLY in card accents (left border + subtle tint)
         ["--brand-primary" as string]: primaryColor,
         ["--brand-secondary" as string]: secondaryColor,
         ["--brand-accent" as string]: accentColor,
-        ["--shell-panel" as string]: isDark ? hexAlpha(primaryColor, 0.92) : hexAlpha(primaryColor, 0.05),
-        ["--shell-header" as string]: isDark ? hexAlpha(primaryColor, 0.88) : hexAlpha(primaryColor, 0.08),
-        ["--shell-border" as string]: isDark ? hexAlpha(secondaryColor, 0.2) : hexAlpha(primaryColor, 0.14),
-        ["--shell-muted" as string]: isDark ? hexAlpha(secondaryColor, 0.14) : hexAlpha(secondaryColor, 0.1),
-        ["--card-bg" as string]: isDark
-          ? `linear-gradient(135deg, ${hexAlpha(primaryColor, 0.72)}, ${hexAlpha(accentColor, 0.2)})`
-          : `linear-gradient(135deg, rgba(255,255,255,.78), ${hexAlpha(secondaryColor, 0.16)}, ${hexAlpha(accentColor, 0.12)})`,
-        ["--card-bg-strong" as string]: isDark
-          ? `linear-gradient(135deg, ${hexAlpha(primaryColor, 0.9)}, ${hexAlpha(accentColor, 0.34)})`
-          : `linear-gradient(135deg, rgba(255,255,255,.86), ${hexAlpha(primaryColor, 0.09)}, ${hexAlpha(secondaryColor, 0.14)})`,
-        ["--card-border" as string]: isDark ? hexAlpha(secondaryColor, 0.22) : hexAlpha(primaryColor, 0.16),
-        ["--card-shadow" as string]: isDark ? hexAlpha(accentColor, 0.18) : hexAlpha(accentColor, 0.12),
-        ["--report-bar" as string]: isDark ? "#00cec9" : "#3b82f6",
-        ["--report-axis" as string]: isDark ? "#cbd5e1" : "#475569",
-        ["--report-grid" as string]: isDark ? "rgba(148,163,184,.25)" : "#e2e8f0",
-        ["--report-tooltip-bg" as string]: isDark ? "#1e293b" : "#ffffff",
-        ["--report-tooltip-text" as string]: isDark ? "#ffffff" : "#0f172a",
-        ["--report-tooltip-border" as string]: isDark ? "rgba(255,255,255,.14)" : "#e2e8f0",
+        // Shell chrome — fixed neutral dark, never tinted by brand color
+        ["--shell-panel" as string]: "rgba(255,255,255,0.04)",
+        ["--shell-header" as string]: "rgba(0,0,0,0.35)",
+        ["--shell-border" as string]: "rgba(255,255,255,0.08)",
+        ["--shell-muted" as string]: "rgba(255,255,255,0.05)",
+        // Cards — neutral glass + accent uses brand color only as subtle tint
+        ["--card-bg" as string]: `linear-gradient(135deg, rgba(255,255,255,0.06), ${hexAlpha(accentColor, 0.07)})`,
+        ["--card-bg-strong" as string]: `linear-gradient(135deg, rgba(255,255,255,0.09), ${hexAlpha(accentColor, 0.11)})`,
+        ["--card-border" as string]: "rgba(255,255,255,0.09)",
+        ["--card-shadow" as string]: "rgba(0,0,0,0.28)",
+        // Reports — fixed readable colors
+        ["--report-bar" as string]: secondaryColor,
+        ["--report-axis" as string]: "#cbd5e1",
+        ["--report-grid" as string]: "rgba(148,163,184,0.2)",
+        ["--report-tooltip-bg" as string]: "#1e293b",
+        ["--report-tooltip-text" as string]: "#ffffff",
+        ["--report-tooltip-border" as string]: "rgba(255,255,255,0.12)",
         fontFamily: `${fontFamily}, Inter, Segoe UI, Roboto, Arial, sans-serif`,
       }}
     >
@@ -446,22 +446,16 @@ export function AppChrome({
       <FontLoader fontFamily={fontFamily} />
       {isDark && <CursorGlow />}
 
-      {/* ── Fixed background layer ────────────────────────────── */}
+      {/* ── Fixed background layer — neutral dark, no brand tint ── */}
       <div
         className="pointer-events-none fixed inset-0"
         style={{
           zIndex: -2,
-          background: isDark
-            ? [
-                `radial-gradient(ellipse 55% 40% at 18% 25%, ${hexAlpha(primaryColor, 0.28)}, transparent 65%)`,
-                `radial-gradient(ellipse 42% 36% at 82% 74%, ${hexAlpha(accentColor, 0.22)}, transparent 60%)`,
-                "#050709",
-              ].join(", ")
-            : [
-                `radial-gradient(ellipse 48% 32% at 18% 20%, ${hexAlpha(secondaryColor, 0.12)}, transparent 60%)`,
-                `radial-gradient(ellipse 38% 30% at 82% 74%, ${hexAlpha(accentColor, 0.10)}, transparent 58%)`,
-                "linear-gradient(135deg, #eef2f7 0%, #e8edf5 50%, #ede8f5 100%)",
-              ].join(", "),
+          background: [
+            "radial-gradient(ellipse 55% 40% at 18% 25%, rgba(99,58,180,0.18), transparent 65%)",
+            "radial-gradient(ellipse 42% 36% at 82% 74%, rgba(30,20,80,0.22), transparent 60%)",
+            "#060810",
+          ].join(", "),
         }}
       />
       {isDark && bgPhotoUrl && (
@@ -471,12 +465,12 @@ export function AppChrome({
         />
       )}
 
-      {/* ── Neural canvas — full-screen fixed backdrop ────────── */}
+      {/* ── Neural canvas — fixed violet/purple, never brand tinted ── */}
       <div className="pointer-events-none fixed inset-0" style={{ zIndex: 0 }}>
         <NeuralCanvas
           className="h-full w-full"
           darkMode={isDark}
-          primaryColor={primaryColor}
+          primaryColor="#7c3aed"
         />
       </div>
 
@@ -491,9 +485,7 @@ export function AppChrome({
       {/* ── Sidebar ─────────────────────────────────────────────── */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 [transition-timing-function:cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(220px,86vw)] lg:w-[220px]" : "w-[220px] lg:w-[56px]"}`}
-        style={isDark
-          ? { background: `linear-gradient(180deg, ${hexAlpha(primaryColor, 0.95)}, ${hexAlpha(accentColor, 0.18)}), #0f0f1a`, borderRight: `1px solid ${hexAlpha(secondaryColor, 0.18)}` }
-          : { background: "rgba(248,250,252,0.97)", borderRight: "1px solid #e2e8f0" }}
+        style={{ background: "linear-gradient(180deg, #0e0e1e, #0a0a16)", borderRight: "1px solid rgba(255,255,255,0.07)" }}
       >
         {/* header */}
         <div className={`flex items-center justify-between gap-3 border-b p-4 ${isDark ? "border-white/10" : "border-slate-200"}`}>
@@ -512,7 +504,7 @@ export function AppChrome({
             type="button"
             aria-label={open ? "Contraer menú" : "Mostrar menú"}
             title={open ? "Contraer menú" : "Mostrar menú"}
-            style={{ borderColor: hexAlpha(secondaryColor, 0.3), background: open ? hexAlpha(secondaryColor, 0.08) : hexAlpha(secondaryColor, 0.18), color: isDark ? "#e2e8f0" : primaryColor }}
+            style={{ borderColor: "rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.08)", color: "#e2e8f0" }}
           >
             {open ? <ChevronLeft className="size-3.5" /> : <ChevronRight className="size-3.5" />}
           </button>
@@ -677,9 +669,9 @@ export function AppChrome({
         <header
           className={`sticky top-0 z-20 flex h-[52px] items-center border-b px-4 ${isDark ? "border-white/8" : "border-slate-200"}`}
           style={{
-            background: isDark ? hexAlpha(primaryColor, 0.86) : "rgba(255,255,255,0.92)",
-            borderColor: isDark ? hexAlpha(secondaryColor, 0.12) : "#e2e8f0",
-            backdropFilter: "blur(12px)",
+            background: "rgba(8,8,20,0.82)",
+            borderColor: "rgba(255,255,255,0.07)",
+            backdropFilter: "blur(14px)",
           }}
         >
           <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between gap-3">
