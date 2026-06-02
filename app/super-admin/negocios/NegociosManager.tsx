@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Loader2, X } from "lucide-react";
+import { Check, Copy, Loader2, X } from "lucide-react";
 import { updateNegocioSuperAdmin } from "./actions";
 
 type NegocioRow = {
@@ -19,7 +19,31 @@ type NegocioRow = {
   correo: string | null;
   direccion: string | null;
   fechaFin: string | null;
+  createdAt?: Date | string | null;
+  adminEmail?: string | null;
 };
+
+function CopyBtn({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  function handleCopy(e: React.MouseEvent) {
+    e.stopPropagation();
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }
+  return (
+    <button className="ml-1 inline-flex items-center rounded-md p-0.5 text-slate-500 transition hover:text-cyan-400" onClick={handleCopy} type="button" title="Copiar">
+      {copied ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
+    </button>
+  );
+}
+
+function fmtDate(d: Date | string | null | undefined) {
+  if (!d) return "—";
+  try { return new Intl.DateTimeFormat("es-CO", { dateStyle: "short" }).format(new Date(d as string)); }
+  catch { return "—"; }
+}
 
 const planStyles: Record<string, string> = {
   starter:    "bg-slate-700/60 text-slate-300",
@@ -88,11 +112,13 @@ export function NegociosManager({ negocios }: { negocios: NegocioRow[] }) {
               style={{ background: "#0d0d14", color: "#67e8f9" }}
             >
               <tr>
+                <th className="px-5 py-3">ID</th>
                 <th className="px-5 py-3">Negocio</th>
                 <th className="px-5 py-3">Slug</th>
                 <th className="px-4 py-3">Plan</th>
                 <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3">Modo</th>
+                <th className="px-4 py-3">Admin email</th>
+                <th className="px-4 py-3">Registro</th>
                 <th className="px-4 py-3">Marca</th>
                 <th className="px-4 py-3">Acciones</th>
               </tr>
@@ -114,8 +140,19 @@ export function NegociosManager({ negocios }: { negocios: NegocioRow[] }) {
                       i % 2 !== 0 ? "rgba(255,255,255,0.022)" : "transparent";
                   }}
                 >
+                  <td className="px-5 py-3.5">
+                    <span className="flex items-center font-mono text-[10px] text-slate-500">
+                      {n.id.slice(0, 8)}…
+                      <CopyBtn text={n.id} />
+                    </span>
+                  </td>
                   <td className="px-5 py-3.5 font-semibold text-white">{n.nombre}</td>
-                  <td className="px-5 py-3.5 font-mono text-xs text-slate-500">{n.slug}</td>
+                  <td className="px-5 py-3.5">
+                    <span className="flex items-center font-mono text-xs text-slate-400">
+                      {n.slug}
+                      <CopyBtn text={n.slug} />
+                    </span>
+                  </td>
                   <td className="px-4 py-3.5">
                     <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold capitalize ${planStyles[n.plan] ?? "bg-slate-700/60 text-slate-300"}`}>
                       {n.plan}
@@ -126,23 +163,12 @@ export function NegociosManager({ negocios }: { negocios: NegocioRow[] }) {
                       {n.estado}
                     </span>
                   </td>
-                  <td className="px-4 py-3.5 text-xs">
-                    {n.modoAislamiento === "dedicado" ? (
-                      <span className="rounded-full bg-indigo-900/50 px-2 py-0.5 text-[11px] font-bold text-indigo-300">
-                        Dedicado
-                      </span>
-                    ) : (
-                      <span className="text-slate-500">Multi</span>
-                    )}
-                  </td>
+                  <td className="px-4 py-3.5 text-xs text-slate-400">{(n as { adminEmail?: string | null }).adminEmail ?? <span className="text-slate-600">—</span>}</td>
+                  <td className="px-4 py-3.5 text-xs text-slate-500">{fmtDate((n as { createdAt?: Date | string | null }).createdAt)}</td>
                   <td className="px-4 py-3.5">
                     <div className="flex gap-1">
                       {[n.colorPrimario, n.colorSecundario, n.colorAcento].map((c) => (
-                        <span
-                          className="size-4 rounded-full border border-white/20"
-                          key={c}
-                          style={{ backgroundColor: c }}
-                        />
+                        <span className="size-4 rounded-full border border-white/20" key={c} style={{ backgroundColor: c }} />
                       ))}
                     </div>
                   </td>
@@ -178,7 +204,7 @@ export function NegociosManager({ negocios }: { negocios: NegocioRow[] }) {
               ))}
               {negocios.length === 0 && (
                 <tr>
-                  <td className="px-5 py-8 text-center text-slate-500" colSpan={7}>
+                  <td className="px-5 py-8 text-center text-slate-500" colSpan={9}>
                     Sin negocios registrados aún.
                   </td>
                 </tr>

@@ -72,7 +72,7 @@ export default async function ClienteDetallePage({ params }: PageProps) {
           { label: "Ultima visita", value: ultimaVisita ? fmtDateTime(ultimaVisita) : "—", sub: "cita realizada" },
           { label: "Tasa inasistencia", value: `${tasaInasistencia}%`, sub: `${noAsistio} no asistio` },
         ].map((kpi) => (
-          <article className="rounded-2xl border bg-white p-4 shadow-sm" key={kpi.label}>
+          <article className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md p-4 shadow-sm" key={kpi.label}>
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{kpi.label}</p>
             <strong className="mt-2 block truncate text-lg font-black tracking-tight">{kpi.value}</strong>
             <p className="mt-1 truncate text-xs text-slate-400">{kpi.sub}</p>
@@ -81,7 +81,7 @@ export default async function ClienteDetallePage({ params }: PageProps) {
       </section>
 
       {/* ── Historial de citas ── */}
-      <section className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+      <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md shadow-sm">
         <div className="flex items-center justify-between border-b px-5 py-4">
           <div>
             <h3 className="font-black">Historial completo</h3>

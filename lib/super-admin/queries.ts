@@ -12,7 +12,42 @@ import {
 } from "@/lib/db/schema";
 
 export async function getNegocios() {
-  return getDb().select().from(negocios).orderBy(desc(negocios.createdAt)).limit(100);
+  const rows = await getDb()
+    .select({
+      id: negocios.id,
+      nombre: negocios.nombre,
+      slug: negocios.slug,
+      telefono: negocios.telefono,
+      correo: negocios.correo,
+      direccion: negocios.direccion,
+      representante: negocios.representante,
+      tipoDocumento: negocios.tipoDocumento,
+      numeroDocumento: negocios.numeroDocumento,
+      ciudadIndicativo: negocios.ciudadIndicativo,
+      contactoPrincipal: negocios.contactoPrincipal,
+      descripcion: negocios.descripcion,
+      slogan: negocios.slogan,
+      logoUrl: negocios.logoUrl,
+      colorPrimario: negocios.colorPrimario,
+      colorSecundario: negocios.colorSecundario,
+      colorAcento: negocios.colorAcento,
+      fuente: negocios.fuente,
+      configVisual: negocios.configVisual,
+      plan: negocios.plan,
+      estado: negocios.estado,
+      modoAislamiento: negocios.modoAislamiento,
+      comisionBase: negocios.comisionBase,
+      propinaEnComision: negocios.propinaEnComision,
+      fechaInicio: negocios.fechaInicio,
+      fechaFin: negocios.fechaFin,
+      createdAt: negocios.createdAt,
+      updatedAt: negocios.updatedAt,
+      adminEmail: sql<string | null>`(SELECT email FROM usuarios WHERE negocio_id = ${negocios.id} AND rol = 'admin' AND activo = true ORDER BY created_at ASC LIMIT 1)`,
+    })
+    .from(negocios)
+    .orderBy(desc(negocios.createdAt))
+    .limit(100);
+  return rows;
 }
 
 export async function getNegocioById(id: string) {
@@ -97,6 +132,7 @@ export async function getAllUsuarios(
         createdAt: usuarios.createdAt,
         negocioId: usuarios.negocioId,
         negocioNombre: negocios.nombre,
+        lastSignIn: sql<string | null>`(SELECT last_sign_in_at::text FROM auth.users WHERE id = ${usuarios.id})`,
       })
       .from(usuarios)
       .leftJoin(negocios, eq(usuarios.negocioId, negocios.id))
@@ -135,6 +171,45 @@ export async function getActivityLogs(page = 1, limit = 50) {
     db.select({ total: sql<number>`count(*)::int` }).from(activityLogs),
   ]);
   return { rows, total: countRow?.total ?? 0, page, limit };
+}
+
+export type PlanPermiso = { feature: string; habilitado: boolean; detalle: string };
+
+export function getPlanPermisos(plan: string): PlanPermiso[] {
+  const permisos: Record<string, PlanPermiso[]> = {
+    starter: [
+      { feature: "Empleados",          habilitado: true,  detalle: "Máximo 3 empleados activos" },
+      { feature: "Reportes básicos",   habilitado: true,  detalle: "KPIs esenciales y tendencia diaria" },
+      { feature: "Agenda",             habilitado: true,  detalle: "Citas y turnos ilimitados" },
+      { feature: "Inventario",         habilitado: true,  detalle: "Gestión básica de stock" },
+      { feature: "Inventario avanzado",habilitado: false, detalle: "No incluye categorías ni movimientos avanzados" },
+      { feature: "Configuración visual",habilitado: false, detalle: "Branding limitado al plan Pro+" },
+      { feature: "Multi-sucursal",     habilitado: false, detalle: "Solo disponible en Enterprise" },
+      { feature: "API access",         habilitado: false, detalle: "No disponible en Starter" },
+    ],
+    pro: [
+      { feature: "Empleados",          habilitado: true,  detalle: "Máximo 10 empleados activos" },
+      { feature: "Reportes completos", habilitado: true,  detalle: "KPIs, DnD modules, exportar CSV" },
+      { feature: "Agenda",             habilitado: true,  detalle: "Citas y turnos ilimitados" },
+      { feature: "Inventario",         habilitado: true,  detalle: "Gestión completa con categorías y movimientos" },
+      { feature: "Inventario avanzado",habilitado: true,  detalle: "Categorías, costos y movimientos avanzados" },
+      { feature: "Configuración visual",habilitado: true, detalle: "Colores, fuente, logo y foto de fondo" },
+      { feature: "Multi-sucursal",     habilitado: false, detalle: "Solo disponible en Enterprise" },
+      { feature: "API access",         habilitado: false, detalle: "No disponible en Pro" },
+    ],
+    enterprise: [
+      { feature: "Empleados",          habilitado: true,  detalle: "Sin límite de empleados" },
+      { feature: "Reportes completos", habilitado: true,  detalle: "Todos los reportes + exportación avanzada" },
+      { feature: "Agenda",             habilitado: true,  detalle: "Citas y turnos ilimitados" },
+      { feature: "Inventario",         habilitado: true,  detalle: "Gestión completa sin restricciones" },
+      { feature: "Inventario avanzado",habilitado: true,  detalle: "Categorías, costos, alertas y movimientos" },
+      { feature: "Configuración visual",habilitado: true, detalle: "Branding completo y modo dedicado" },
+      { feature: "Multi-sucursal",     habilitado: true,  detalle: "Múltiples sucursales con negocio_id compartido" },
+      { feature: "API access",         habilitado: true,  detalle: "API REST con token de acceso" },
+      { feature: "Soporte prioritario",habilitado: true,  detalle: "Canal dedicado de soporte y SLA garantizado" },
+    ],
+  };
+  return permisos[plan] ?? permisos.starter;
 }
 
 export async function getFacturacion() {

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 
-const sa = "bg-slate-800/50 border border-white/10 rounded-2xl p-5";
-const lbl = "block text-xs font-bold uppercase tracking-widest text-slate-400 mb-1.5";
-const inp = "w-full rounded-xl bg-white/8 border border-white/10 px-3 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-cyan-400/60";
+const sa = "bg-white/10 border border-white/10 rounded-2xl p-5";
+const lbl = "block text-xs font-bold uppercase tracking-widest text-slate-300 mb-1.5";
+const inp = "w-full rounded-xl bg-white/10 border border-white/10 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-400/60 transition";
 
 export default function SuperAdminConfiguracionPage() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);

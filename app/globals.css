@@ -305,6 +305,59 @@ a {
   pointer-events: auto;
 }
 
+/* ── Footer de firma 3 columnas ──────────────────────────── */
+.mrz-footer-bar {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  pointer-events: auto;
+  z-index: 4;
+}
+
+.mrz-footer-left {
+  font-size: .6rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: rgba(255,255,255,.35);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.mrz-footer-center {
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #00cec9;
+  text-shadow: 0 0 12px rgba(0,206,201,.6);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 999px;
+  transition: text-shadow .2s;
+}
+
+.mrz-footer-center:hover {
+  text-shadow: 0 0 20px rgba(0,206,201,.9);
+}
+
+.mrz-footer-right {
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(192,132,252,.7);
+  text-align: right;
+  white-space: nowrap;
+}
+
 .build-overlay {
   position: fixed;
   inset: 0;

@@ -59,6 +59,7 @@ export async function loginAction(formData: FormData) {
       superAdmin: usuarios.superAdmin,
       activo: usuarios.activo,
       negocioEstado: negocios.estado,
+      mustChangePassword: usuarios.mustChangePassword,
     })
     .from(usuarios)
     .leftJoin(negocios, eq(usuarios.negocioId, negocios.id))
@@ -70,6 +71,8 @@ export async function loginAction(formData: FormData) {
 
   const negocioActivo = role === "super_admin" || !profile.negocioEstado || profile.negocioEstado === "activo";
   if (!profile.activo || !negocioActivo) redirect("/login?error=inactive");
+
+  if (profile.mustChangePassword) redirect("/cambiar-clave");
 
   redirect(safeNext || roleHome[role]);
 }

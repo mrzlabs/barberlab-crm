@@ -72,6 +72,7 @@ export const usuarios = pgTable("usuarios", {
   telefono: text("telefono"),
   superAdmin: boolean("super_admin").notNull().default(false),
   activo: boolean("activo").notNull().default(true),
+  mustChangePassword: boolean("must_change_password").notNull().default(false),
   ...timestamps,
 });
 

@@ -15,7 +15,7 @@ import { negocios } from "@/lib/db/schema";
 
 export const dynamic = "force-dynamic";
 
-const input = "w-full rounded-xl border bg-white px-3 py-2.5 text-sm outline-none focus:border-cyan-500";
+const input = "w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-500 transition";
 const fontOptions = ["Inter", "Poppins", "Montserrat", "Raleway", "DM Sans", "Playfair Display", "Space Grotesk"];
 
 export default async function ConfiguracionPage() {
@@ -47,7 +47,7 @@ export default async function ConfiguracionPage() {
         <input name="logoUrl" type="hidden" value={negocio.logoUrl || ""} />
 
         {/* Plan info */}
-        <div className="mb-5 grid gap-3 rounded-[1.5rem] border bg-white p-4 sm:grid-cols-3">
+        <div className="mb-5 grid gap-3 rounded-[1.5rem] border border-white/10 bg-white/10 backdrop-blur-md p-4 sm:grid-cols-3">
           <article>
             <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Plan</p>
             <strong className="mt-1 block capitalize">{negocio.plan}</strong>
@@ -93,7 +93,7 @@ export default async function ConfiguracionPage() {
         </div>
 
         {/* ── Paleta de colores ─────────────────────────────────── */}
-        <div className="mt-6 rounded-[1.5rem] border bg-white p-5">
+        <div className="mt-6 rounded-[1.5rem] border border-white/10 bg-white/10 backdrop-blur-md p-5">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Identidad visual</p>
           <p className="mt-1 text-sm text-slate-500">
             Estos colores se aplican al sidebar, header, KPIs y botones del CRM en tiempo real.
@@ -107,7 +107,7 @@ export default async function ConfiguracionPage() {
           </div>
 
           <div className="mt-5 grid gap-6 md:grid-cols-1 lg:grid-cols-3">
-            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
                 Color principal — Sidebar &amp; Fondo
               </p>
@@ -119,7 +119,7 @@ export default async function ConfiguracionPage() {
               />
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
                 Color secundario — KPI Cards &amp; Highlights
               </p>
@@ -131,7 +131,7 @@ export default async function ConfiguracionPage() {
               />
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
               <p className="mb-3 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
                 Color acento — Botones CTA &amp; Badges
               </p>
@@ -146,7 +146,7 @@ export default async function ConfiguracionPage() {
         </div>
 
         {/* ── Reglas contables ─────────────────────────────────── */}
-        <div className="mt-5 rounded-[1.5rem] border bg-white p-4">
+        <div className="mt-5 rounded-[1.5rem] border border-white/10 bg-white/10 backdrop-blur-md p-4">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-violet-700">Reglas contables</p>
           <div className="mt-3 grid gap-4 md:grid-cols-2">
             <label className="grid gap-2 text-sm font-bold">

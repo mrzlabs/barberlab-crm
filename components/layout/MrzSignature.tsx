@@ -170,7 +170,19 @@ export function MrzSignature() {
         </svg>
       </div>
       <div className="ctn build-card">
-        <button className="build-chip" type="button" onClick={() => setOpen(true)}>Built by mrzlabs</button>
+        {/* Firma de tres columnas */}
+        <div className="mrz-footer-bar">
+          <span className="mrz-footer-left">© 2026 Todos los derechos reservados</span>
+          <button
+            className="mrz-footer-center"
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-label="Ver información de BARBERLABS"
+          >
+            BARBERLABS
+          </button>
+          <span className="mrz-footer-right">Built by MRZLABS</span>
+        </div>
         <div className="build-overlay" aria-hidden={!open}>
           <div className="build-modal">
             <button className="build-close" type="button" onClick={() => setOpen(false)} aria-label="Cerrar"><X className="size-4" /></button>

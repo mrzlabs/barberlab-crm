@@ -17,6 +17,7 @@ import { MrzSignature } from "@/components/layout/MrzSignature";
 import { SignOutButton } from "@/components/layout/SignOutButton";
 import { navStyles } from "@/components/layout/nav-config";
 import {
+  ArrowLeft,
   Bell,
   ChevronLeft,
   ChevronRight,
@@ -363,6 +364,10 @@ export function AppChrome({
   const bgPhotoUrl    = configVisual?.bgPhotoUrl;
   const fontFamily = configVisual?.fontFamily || brand?.fuente || "Inter";
   const roleLabel = role === "super_admin" ? "Super Admin MRZLABS" : role === "admin" ? "Administrador" : role === "empleado" ? "Empleado" : "Cliente";
+
+  const homeHref = role === "admin" ? "/admin/dashboard" : role === "empleado" ? "/empleado/mi-agenda" : role === "cliente" ? "/cliente/mis-citas" : null;
+  const homeLabel = role === "admin" ? "Dashboard" : role === "empleado" ? "Mi agenda" : role === "cliente" ? "Mis citas" : null;
+  const isHome = homeHref ? pathname === homeHref : false;
   // In header: show negocioNombre for admin/empleado/cliente, brand name for super_admin
   const headerIdentity = role === "super_admin"
     ? `${brand?.nombre ?? "Super Admin"} / ${roleLabel}`
@@ -590,6 +595,16 @@ export function AppChrome({
               <button className="rounded-2xl border border-slate-900/10 bg-white p-3 text-slate-700 lg:hidden" onClick={() => setMobileOpen(true)} type="button" aria-label="Abrir menú">
                 <Menu className="size-4" />
               </button>
+              {homeHref && !isHome && (
+                <Link
+                  href={homeHref}
+                  className="hidden items-center gap-1.5 rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-black text-white/80 backdrop-blur-sm transition hover:bg-white/20 hover:text-white md:flex"
+                  title={`Ir a ${homeLabel}`}
+                >
+                  <ArrowLeft className="size-3.5" />
+                  {homeLabel}
+                </Link>
+              )}
               <div>
                 <Breadcrumb />
                 <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">{title}</h2>

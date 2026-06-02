@@ -129,13 +129,13 @@ export default async function ReservarPage({ searchParams }: PageProps) {
         </div>
         <div className="mt-5 flex gap-3 overflow-x-auto pb-2 scrollbar-soft">
           {products.map((item) => (
-            <article className="min-w-[250px] rounded-[1.4rem] border bg-white p-4 shadow-sm" key={item.id}>
+            <article className="min-w-[250px] rounded-[1.4rem] border border-white/10 bg-white/8 backdrop-blur-md p-4 shadow-sm" key={item.id}>
               {item.fotoUrl ? (
-                <span className="relative block h-28 w-full overflow-hidden rounded-2xl">
-                  <Image src={item.fotoUrl} alt={item.nombre} className="object-cover" fill sizes="250px" unoptimized />
+                <span className="relative block size-20 overflow-hidden rounded-xl">
+                  <Image src={item.fotoUrl} alt={item.nombre} className="object-cover" fill sizes="80px" unoptimized />
                 </span>
               ) : (
-                <div className="h-28 rounded-2xl bg-[radial-gradient(circle_at_24%_28%,rgba(34,211,238,.35),transparent_5rem),linear-gradient(135deg,#0f172a,#312e81)]" />
+                <div className="size-20 rounded-xl bg-[radial-gradient(circle_at_24%_28%,rgba(34,211,238,.35),transparent_5rem),linear-gradient(135deg,#0f172a,#312e81)]" />
               )}
               <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-cyan-700">{item.categoria}</p>
               <h4 className="mt-1 text-lg font-black">{item.nombre}</h4>

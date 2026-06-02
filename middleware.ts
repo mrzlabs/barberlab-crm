@@ -4,11 +4,18 @@ import { getRoleFromClaims, isRole, protectedPrefixes, roleHome } from "@/lib/au
 import { isDemoMode } from "@/lib/demo";
 
 export async function middleware(request: NextRequest) {
+  // Safety: demo mode must never run in production
+  if (process.env.BARBERLAB_DEMO_MODE === "true" && process.env.NODE_ENV === "production") {
+    console.warn("[BARBERLAB] BARBERLAB_DEMO_MODE=true detectado en producción — se fuerza a false para esta request");
+    // Cannot mutate env at runtime; block demo paths and treat as non-demo
+  }
+  const effectiveDemoMode = isDemoMode() && !(process.env.BARBERLAB_DEMO_MODE === "true" && process.env.NODE_ENV === "production");
+
   const demoRole = request.cookies.get("barberlab_demo_role")?.value;
   const pathname = request.nextUrl.pathname;
   const matched = protectedPrefixes.find((item) => pathname.startsWith(item.prefix));
 
-  if (isDemoMode()) {
+  if (effectiveDemoMode) {
     if (!matched) {
       if (pathname === "/login" && isRole(demoRole)) {
         return NextResponse.redirect(new URL(roleHome[demoRole], request.url));

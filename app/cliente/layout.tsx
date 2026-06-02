@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { requireRole } from "@/lib/auth/session";
 
@@ -7,6 +8,10 @@ const nav = [
 ];
 
 export default async function ClienteLayout({ children }: { children: React.ReactNode }) {
-  const profile = await requireRole(["cliente"]);
-  return <AppShell profile={profile} role="cliente" title={profile.negocioNombre || "Cliente"} nav={nav}>{children}</AppShell>;
+  try {
+    const profile = await requireRole(["cliente"]);
+    return <AppShell profile={profile} role="cliente" title={profile.negocioNombre || "Cliente"} nav={nav}>{children}</AppShell>;
+  } catch {
+    redirect("/login");
+  }
 }
