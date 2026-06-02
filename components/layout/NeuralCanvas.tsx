@@ -15,7 +15,13 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-export function NeuralCanvas({ className = "" }: { className?: string }) {
+interface NeuralCanvasProps {
+  className?: string;
+  darkMode?: boolean;
+  primaryColor?: string;
+}
+
+export function NeuralCanvas({ className = "", darkMode, primaryColor }: NeuralCanvasProps) {
   const cvRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -24,33 +30,55 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
     const ctxRaw = cvEl.getContext("2d");
     if (!ctxRaw) return;
 
-    // Non-nullable aliases for closures
     const cv: HTMLCanvasElement = cvEl;
     const ctx: CanvasRenderingContext2D = ctxRaw;
 
-    const dpr   = Math.min(window.devicePixelRatio || 1, 2);
-    const QTY   = 52;
-    const DIST  = 140;
+    const dpr  = Math.min(window.devicePixelRatio || 1, 2);
+    const QTY  = 52;
+    const DIST = 140;
     const parts: Particle[] = [];
     const pulses: Pulse[]   = [];
-    let raf  = 0;
-    let last = performance.now();
+    let raf    = 0;
+    let last   = performance.now();
     let pTimer = 0;
     let W = 0, H = 0;
-    let neuralOpacity = 0.55;
-    let neuralLineOpacity = 0.4;
-    let neuralPrimary = "#7c3aed";
     let frameCount = 0;
 
+    // Theme vars — prefer props, fall back to CSS custom props on documentElement
+    let isDarkMode = darkMode ?? true;
+    let brandColor = primaryColor ?? "#7c3aed";
+
     function readThemeVars() {
-      const root = document.documentElement;
-      const cs = getComputedStyle(root);
-      const o = cs.getPropertyValue("--neural-opacity").trim();
-      const l = cs.getPropertyValue("--neural-line-opacity").trim();
-      const p = cs.getPropertyValue("--neural-primary").trim();
-      neuralOpacity = o ? parseFloat(o) : 0.55;
-      neuralLineOpacity = l ? parseFloat(l) : 0.4;
-      neuralPrimary = p || "#7c3aed";
+      if (darkMode !== undefined) {
+        isDarkMode = darkMode;
+      } else {
+        const root = document.documentElement;
+        const cs = getComputedStyle(root);
+        const opacity = cs.getPropertyValue("--neural-opacity").trim();
+        isDarkMode = opacity ? parseFloat(opacity) >= 0.5 : true;
+      }
+      if (primaryColor !== undefined) {
+        brandColor = primaryColor;
+      } else {
+        const root = document.documentElement;
+        const p = getComputedStyle(root).getPropertyValue("--neural-primary").trim();
+        brandColor = p || "#7c3aed";
+      }
+    }
+
+    // Per-mode opacity targets
+    function lineAlpha(proximity: number) {
+      const base = isDarkMode ? 0.5 : 0.3;
+      return proximity * base;
+    }
+    function particleAlpha(breathing: number) {
+      return breathing * (isDarkMode ? 0.6 : 0.4);
+    }
+    function pulseLineAlpha(bright: number) {
+      return 0.38 * bright * (isDarkMode ? 1 : 0.7);
+    }
+    function pulseDotAlpha(bright: number) {
+      return 0.88 * bright * (isDarkMode ? 1 : 0.7);
     }
 
     function resize() {
@@ -99,24 +127,21 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
 
       ctx.clearRect(0, 0, W, H);
 
-      // Global opacity from CSS var — dark: 0.55, light: 0.35
-      ctx.globalAlpha = neuralOpacity;
-
       for (const p of parts) {
         p.x += p.vx; p.y += p.vy; p.phase += 0.01;
         if (p.x < 0 || p.x > W) p.vx *= -1;
         if (p.y < 0 || p.y > H) p.vy *= -1;
       }
 
-      // Lines — use brand color, scale by neuralLineOpacity
+      // Lines — brand color, per-mode opacity
       for (let i = 0; i < parts.length; i++) {
         for (let j = i + 1; j < parts.length; j++) {
           const dx = parts[i].x - parts[j].x, dy = parts[i].y - parts[j].y;
           const d2 = dx * dx + dy * dy;
           if (d2 > DIST * DIST) continue;
-          const alpha = (1 - Math.sqrt(d2) / DIST) * 0.22 * (neuralLineOpacity / 0.4);
-          ctx.strokeStyle = hexToRgba(neuralPrimary, alpha);
-          ctx.lineWidth = 0.6;
+          const proximity = 1 - Math.sqrt(d2) / DIST;
+          ctx.strokeStyle = hexToRgba(brandColor, lineAlpha(proximity));
+          ctx.lineWidth = 0.7;
           ctx.beginPath();
           ctx.moveTo(parts[i].x, parts[i].y);
           ctx.lineTo(parts[j].x, parts[j].y);
@@ -124,7 +149,7 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
         }
       }
 
-      // Pulses
+      // Pulses — brand-tinted cyan
       for (let i = pulses.length - 1; i >= 0; i--) {
         const pu = pulses[i]; pu.t += dt;
         const g = pu.t / pu.dur;
@@ -133,31 +158,30 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
         const px = pa.x + (pb.x - pa.x) * g;
         const py = pa.y + (pb.y - pa.y) * g;
         const bright = Math.sin(g * Math.PI);
-        ctx.strokeStyle = `rgba(34,211,238,${0.30 * bright})`;
+        ctx.strokeStyle = hexToRgba(brandColor, pulseLineAlpha(bright));
         ctx.lineWidth = 1.1;
         ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
-        ctx.fillStyle = `rgba(56,248,214,${0.86 * bright})`;
+        ctx.fillStyle = `rgba(56,248,214,${pulseDotAlpha(bright)})`;
         ctx.shadowColor = "rgba(56,248,214,.8)"; ctx.shadowBlur = 10;
         ctx.beginPath(); ctx.arc(px, py, 2.1, 0, Math.PI * 2); ctx.fill();
         ctx.shadowBlur = 0;
       }
 
-      // Particles — use brand color, breathing via phase
+      // Particles — brand color, per-mode opacity, breathing
       for (const p of parts) {
         const b = 0.5 + Math.sin(p.phase) * 0.25;
-        ctx.fillStyle = hexToRgba(neuralPrimary, b * 0.9);
-        ctx.shadowColor = hexToRgba(neuralPrimary, 0.6); ctx.shadowBlur = 6;
+        ctx.fillStyle = hexToRgba(brandColor, particleAlpha(b));
+        ctx.shadowColor = hexToRgba(brandColor, 0.5); ctx.shadowBlur = 6;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
         ctx.shadowBlur = 0;
       }
 
-      ctx.globalAlpha = 1;
       raf = requestAnimationFrame(tick);
     }
 
     raf = requestAnimationFrame(tick);
     return () => { cancelAnimationFrame(raf); ro.disconnect(); };
-  }, []);
+  }, [darkMode, primaryColor]);
 
   return (
     <canvas

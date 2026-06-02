@@ -424,47 +424,43 @@ export function AppChrome({
       />
       <FontLoader fontFamily={fontFamily} />
       {isDark && <CursorGlow />}
-      {isDark ? (
-        <>
-          <div
-            className="pointer-events-none fixed inset-0 -z-30"
-            style={{
-              background: [
+
+      {/* ── Fixed background layer ────────────────────────────── */}
+      <div
+        className="pointer-events-none fixed inset-0"
+        style={{
+          zIndex: -2,
+          background: isDark
+            ? [
                 `radial-gradient(ellipse 55% 40% at 18% 25%, ${hexAlpha(primaryColor, 0.28)}, transparent 65%)`,
                 `radial-gradient(ellipse 42% 36% at 82% 74%, ${hexAlpha(accentColor, 0.22)}, transparent 60%)`,
                 "#050709",
-              ].join(", "),
-            }}
-          />
-          {bgPhotoUrl && (
-            <div
-              className="pointer-events-none fixed inset-0 -z-20"
-              style={{
-                backgroundImage: `url(${bgPhotoUrl})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                opacity: 0.12,
-                filter: "blur(80px)",
-              }}
-            />
-          )}
-          <NeuralCanvas className="fixed inset-0 -z-10 h-full w-full opacity-55" />
-        </>
-      ) : (
-        <>
-          <div
-            className="pointer-events-none fixed inset-0 -z-30"
-            style={{
-              background: [
+              ].join(", ")
+            : [
                 `radial-gradient(ellipse 48% 32% at 18% 20%, ${hexAlpha(secondaryColor, 0.12)}, transparent 60%)`,
                 `radial-gradient(ellipse 38% 30% at 82% 74%, ${hexAlpha(accentColor, 0.10)}, transparent 58%)`,
                 "linear-gradient(135deg, #eef2f7 0%, #e8edf5 50%, #ede8f5 100%)",
               ].join(", "),
-            }}
-          />
-          <NeuralCanvas className="fixed inset-0 -z-10 h-full w-full opacity-25" />
-        </>
+        }}
+      />
+      {isDark && bgPhotoUrl && (
+        <div
+          className="pointer-events-none fixed inset-0"
+          style={{ zIndex: -1, backgroundImage: `url(${bgPhotoUrl})`, backgroundSize: "cover", backgroundPosition: "center", opacity: 0.12, filter: "blur(80px)" }}
+        />
       )}
+
+      {/* ── Neural canvas — full-screen fixed backdrop ────────── */}
+      <div className="pointer-events-none fixed inset-0" style={{ zIndex: 0 }}>
+        <NeuralCanvas
+          className="h-full w-full"
+          darkMode={isDark}
+          primaryColor={primaryColor}
+        />
+      </div>
+
+      {/* ── CRM shell content — sits above neural canvas ─────────── */}
+      <div className="relative" style={{ zIndex: 1 }}>
 
       {/* ── Mobile overlay ──────────────────────────────────────── */}
       {mobileOpen && (
@@ -545,17 +541,25 @@ export function AppChrome({
                     href={item.href}
                     title={!open ? item.label : undefined}
                     onClick={() => setMobileOpen(false)}
-                    className={`group flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150 ${open ? "justify-start" : "justify-center"} ${isActive ? "bg-white/12 crm-text-primary" : "crm-text-secondary hover:bg-white/8 hover:crm-text-primary"}`}
+                    className={`group flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150 ${open ? "justify-start" : "justify-center"}`}
                     style={{
-                      background: isActive ? `linear-gradient(135deg, ${hexAlpha(secondaryColor, 0.22)}, ${hexAlpha(accentColor, 0.18)})` : undefined,
-                      color: isActive ? (isDark ? "#ffffff" : primaryColor) : undefined,
+                      background: isActive
+                        ? hexAlpha(primaryColor, isDark ? 0.19 : 0.12)
+                        : undefined,
+                      color: isActive
+                        ? (isDark ? "#ffffff" : primaryColor)
+                        : (isDark ? "rgba(255,255,255,0.75)" : "#1e293b"),
                     }}
                   >
                     <span
                       className={`grid size-7 shrink-0 place-items-center transition-transform group-hover:scale-105 ${isActive ? "scale-105" : ""} ${shapeClass}`}
                       style={{
-                        background: isActive ? hexAlpha(primaryColor, isDark ? 0.22 : 0.12) : hexAlpha(secondaryColor, isDark ? 0.16 : 0.06),
-                        color: isActive ? primaryColor : (isDark ? "rgba(255,255,255,0.6)" : "#64748b"),
+                        background: isActive
+                          ? hexAlpha(primaryColor, isDark ? 0.3 : 0.15)
+                          : hexAlpha(primaryColor, isDark ? 0.14 : 0.08),
+                        color: isActive
+                          ? primaryColor
+                          : (isDark ? "rgba(255,255,255,0.65)" : "#1e293b"),
                       }}
                     >
                       <Icon className="size-[15px]" />
@@ -808,6 +812,8 @@ export function AppChrome({
           </div>
         </>
       )}
+
+      </div>{/* end crm shell content */}
 
       <MrzSignature />
       <MrzHelpBot topics={topics} />

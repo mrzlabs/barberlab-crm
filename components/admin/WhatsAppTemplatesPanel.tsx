@@ -59,7 +59,7 @@ function TemplateField({
             key={v}
             type="button"
             onClick={() => insertVar(v)}
-            className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-medium text-cyan-400 transition hover:bg-cyan-500/20"
+            className="wa-var-chip rounded-full border px-2 py-0.5 text-[10px] font-bold transition"
           >
             {v}
           </button>

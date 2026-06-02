@@ -32,10 +32,10 @@ export function getDb() {
 
   const client = postgres(url, {
     prepare: false,        // required for Supabase connection pooling (pgBouncer)
-    max: 3,                // small pool for serverless
-    idle_timeout: 20,      // close idle before pgBouncer's 30s timeout
-    connect_timeout: 10,
-    max_lifetime: 60 * 10,
+    max: 1,                // single connection for serverless cold starts
+    idle_timeout: 30,      // close idle before pgBouncer's timeout
+    connect_timeout: 8,
+    max_lifetime: 300,
     types: postgresTypes,  // force all date/timestamp fields to return as strings
   });
 
