@@ -515,19 +515,19 @@ a {
   font-weight: 800;
 }
 
-/* ── Bot flotante — criatura sobre panel holográfico ────────── */
+/* ── Bot flotante — robots SVG cíclicos ─────────────────────── */
 .mrz-bot {
   position: fixed;
   left: 0;
   bottom: 22px;
   z-index: 48;
   padding: 0;
-  width: 54px;
-  height: 54px;
+  width: 52px;
+  height: 52px;
   border: none;
   border-radius: 50%;
-  background: #0c0c1c;
-  overflow: visible;           /* glow ring visible fuera del círculo */
+  background: #f8fafc;
+  overflow: hidden;
   transform: translate3d(var(--bx,8vw), calc(var(--by,0px) + var(--hop,0px)), 0);
   transition: transform 2.8s cubic-bezier(.45,.05,.25,1);
   animation: botGlow 3.2s ease-in-out infinite;
@@ -537,35 +537,18 @@ a {
 .mrz-bot::before,
 .mrz-bot::after { content: none; }
 
-/* Panel oscuro circular con puntos del patrón neural */
-.bot-bg {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(0,206,201,0.12) 0%, #0c0c1c 68%),
-    #0c0c1c;
-  background-image:
-    radial-gradient(circle at 50% 50%, rgba(0,206,201,0.12) 0%, transparent 68%),
-    radial-gradient(circle, rgba(0,206,201,0.25) 1px, transparent 1px);
-  background-size: 100% 100%, 7px 7px;
+/* Contenedor del SVG robot — centrado */
+.bot-robot-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
 }
 
-/* La criatura — object-contain con padding para que "flote" sobre el panel */
-.bot-avatar-img {
-  position: relative;
-  z-index: 2;
-  display: block;
-  width: 54px !important;
-  height: 54px !important;
-  object-fit: contain;
-  padding: 4px;
-  border-radius: 50%;
-  pointer-events: none;
-  /* mezcla el fondo blanco de la imagen con el fondo oscuro */
-  mix-blend-mode: multiply;
-  filter: drop-shadow(0 2px 6px rgba(0,206,201,0.45));
+.bot-robot-wrap svg {
+  width: 46px;
+  height: 46px;
 }
 
 .mrz-bot.hop {
@@ -575,15 +558,15 @@ a {
 @keyframes botGlow {
   0%, 100% {
     box-shadow:
-      0 0 0 2px rgba(0,206,201,0.45),
-      0 0 0 4px rgba(0,206,201,0.12),
-      0 4px 22px rgba(0,206,201,0.3);
+      0 0 0 2px rgba(0,206,201,0.55),
+      0 0 0 5px rgba(0,206,201,0.14),
+      0 4px 20px rgba(0,206,201,0.32);
   }
   50% {
     box-shadow:
-      0 0 0 2.5px rgba(0,206,201,0.7),
-      0 0 0 6px rgba(0,206,201,0.18),
-      0 4px 32px rgba(0,206,201,0.45);
+      0 0 0 2.5px rgba(0,206,201,0.8),
+      0 0 0 7px rgba(0,206,201,0.2),
+      0 4px 30px rgba(0,206,201,0.48);
   }
 }
 
@@ -822,9 +805,10 @@ a {
     height: 46px;
   }
 
-  .bot-avatar-img {
-    width: 46px !important;
-    height: 46px !important;
+  .bot-robot-wrap,
+  .bot-robot-wrap svg {
+    width: 42px;
+    height: 42px;
   }
 
   .mrz-help-panel {
