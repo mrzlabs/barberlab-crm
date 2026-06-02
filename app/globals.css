@@ -515,91 +515,45 @@ a {
   font-weight: 800;
 }
 
+/* ── Bot flotante con avatar personalizado ──────────────────── */
 .mrz-bot {
   position: fixed;
   left: 0;
   bottom: 22px;
   z-index: 48;
   padding: 0;
-  width: 30px;
-  height: 24px;
-  border: 2px solid rgba(233,220,255,.72);
-  border-radius: 13px 13px 10px 10px;
-  background: rgba(233,220,255,.92);
-  box-shadow: 0 0 22px rgba(111,66,193,.46);
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  overflow: hidden;
   transform: translate3d(var(--bx,8vw), calc(var(--by,0px) + var(--hop,0px)), 0);
   transition: transform 2.8s cubic-bezier(.45,.05,.25,1);
-  animation: botBreathe 3.4s ease-in-out infinite;
+  animation: botGlow 3s ease-in-out infinite;
   cursor: pointer;
+  box-shadow: 0 0 0 2px rgba(0,206,201,0.4), 0 0 18px rgba(0,206,201,0.28);
 }
 
-.mrz-bot::before {
-  content: "";
-  position: absolute;
-  left: 13px;
-  top: -12px;
-  width: 3px;
-  height: 11px;
-  background: #2b154f;
-  border-radius: 99px;
-}
+.mrz-bot::before,
+.mrz-bot::after { content: none; }
 
-.mrz-bot::after {
-  content: "";
-  position: absolute;
-  left: 9px;
-  top: -18px;
-  width: 9px;
-  height: 9px;
-  background: #c084fc;
+.bot-avatar-img {
+  display: block;
+  width: 44px !important;
+  height: 44px !important;
+  object-fit: cover;
   border-radius: 50%;
-  box-shadow: 0 0 14px #c084fc;
-  animation: botEye 2.2s ease-in-out infinite;
-}
-
-.mrz-bot span {
-  position: absolute;
-  left: 5px;
-  top: 9px;
-  width: 22px;
-  height: 11px;
-  border-radius: 9px;
-  background: #1b1033;
-}
-
-.mrz-bot span::before,
-.mrz-bot span::after {
-  content: "";
-  position: absolute;
-  top: 3px;
-  width: 5px;
-  height: 5px;
-  background: #38f8d6;
-  border-radius: 50%;
-  box-shadow: 0 0 8px #38f8d6;
-}
-
-.mrz-bot span::before {
-  left: 4px;
-}
-
-.mrz-bot span::after {
-  right: 4px;
-}
-
-.mrz-bot i {
-  position: absolute;
-  left: 7px;
-  bottom: -5px;
-  width: 7px;
-  height: 5px;
-  background: #1b1033;
-  border-radius: 0 0 4px 4px;
-  box-shadow: 11px 0 0 #1b1033;
+  pointer-events: none;
 }
 
 .mrz-bot.hop {
-  animation: botBreathe 3.4s ease-in-out infinite, botHop .42s cubic-bezier(.3,1.4,.5,1);
+  animation: botGlow 3s ease-in-out infinite, botHop .42s cubic-bezier(.3,1.4,.5,1);
+}
+
+@keyframes botGlow {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(0,206,201,0.4), 0 0 18px rgba(0,206,201,0.28); }
+  50%       { box-shadow: 0 0 0 3px rgba(0,206,201,0.65), 0 0 28px rgba(0,206,201,0.42); }
 }
 
 .mrz-help-panel {
@@ -833,23 +787,13 @@ a {
   }
 
   .mrz-bot {
-    width: 36px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
   }
 
-  .mrz-bot span {
-    left: 6px;
-    top: 10px;
-    width: 24px;
-    height: 12px;
-  }
-
-  .mrz-bot::before {
-    left: 16px;
-  }
-
-  .mrz-bot::after {
-    left: 12px;
+  .bot-avatar-img {
+    width: 40px !important;
+    height: 40px !important;
   }
 
   .mrz-help-panel {

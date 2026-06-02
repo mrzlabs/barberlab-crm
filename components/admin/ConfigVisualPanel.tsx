@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
-import { ImagePlus, Trash2, Moon, Sun, X } from "lucide-react";
-import { uploadNegocioBgPhoto, removeNegocioBgPhoto, updateConfigVisual } from "@/app/admin/configuracion/actions";
+import { ImagePlus, RotateCcw, Trash2, Moon, Sun, X } from "lucide-react";
+import { uploadNegocioBgPhoto, removeNegocioBgPhoto, updateConfigVisual, resetConfigVisual } from "@/app/admin/configuracion/actions";
 import { FONT_OPTIONS } from "@/components/layout/FontLoader";
 
 export function ConfigVisualPanel({
@@ -205,6 +205,28 @@ export function ConfigVisualPanel({
           <p className="mt-2 text-sm font-bold text-red-600">{error}</p>
         )}
         <p className="mt-2 text-xs text-slate-400">JPG, PNG, WebP o AVIF. Máximo 5 MB. Se aplica al logo, perfil y aura visual del CRM.</p>
+      </div>
+
+      {/* Restablecer colores estándar */}
+      <div className="mt-4 flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4">
+        <div>
+          <p className="text-sm font-bold text-slate-800">Restablecer colores estándar</p>
+          <p className="mt-0.5 text-xs text-slate-500">Vuelve a la paleta predeterminada: cyan, violeta y rosa.</p>
+        </div>
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() => {
+            startTransition(async () => {
+              await resetConfigVisual();
+              router.refresh();
+            });
+          }}
+          className="flex items-center gap-2 rounded-xl bg-slate-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-slate-500 disabled:opacity-60"
+        >
+          <RotateCcw className="size-4" />
+          Restablecer estándar
+        </button>
       </div>
       {expandedPhoto && (
         <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/72 p-4 backdrop-blur-xl" onClick={() => setExpandedPhoto(null)}>

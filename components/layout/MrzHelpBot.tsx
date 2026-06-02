@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Search, X } from "lucide-react";
@@ -114,8 +115,15 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
         type="button"
         aria-label="Abrir ayuda BarberLab"
       >
-        <span />
-        <i />
+        <Image
+          src="/bot-avatar.png"
+          alt="Bot MRZLABS"
+          width={44}
+          height={44}
+          className="bot-avatar-img"
+          priority
+          unoptimized
+        />
       </button>
     </>
   );

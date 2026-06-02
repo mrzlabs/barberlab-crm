@@ -166,6 +166,51 @@ export async function updateWhatsAppConfig(formData: FormData) {
   revalidatePath("/admin/configuracion");
 }
 
+export async function resetConfigVisual() {
+  const profile = await requireRole(["admin", "super_admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
+
+  const defaults = {
+    colorPrimario: "#00cec9",
+    colorSecundario: "#6c5ce7",
+    colorAcento: "#fd79a8",
+    darkMode: true,
+    fontFamily: "Inter",
+  };
+
+  const [current] = await getDb()
+    .select({ configVisual: negocios.configVisual })
+    .from(negocios)
+    .where(eq(negocios.id, negocioId))
+    .limit(1);
+
+  const existing = (current?.configVisual ?? {}) as Record<string, unknown>;
+
+  await getDb()
+    .update(negocios)
+    .set({
+      colorPrimario: defaults.colorPrimario,
+      colorSecundario: defaults.colorSecundario,
+      colorAcento: defaults.colorAcento,
+      fuente: defaults.fontFamily,
+      configVisual: {
+        ...existing,
+        darkMode: defaults.darkMode,
+        fontFamily: defaults.fontFamily,
+      },
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(negocios.id, negocioId));
+
+  revalidatePath("/admin/configuracion");
+  revalidatePath("/admin", "layout");
+  revalidatePath("/empleado", "layout");
+  revalidatePath("/cliente", "layout");
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/perfil");
+}
+
 export async function removeNegocioBgPhoto() {
   const profile = await requireRole(["admin", "super_admin"]);
   const negocioId = profile.negocioId;
