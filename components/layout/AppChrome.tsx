@@ -370,12 +370,13 @@ export function AppChrome({
   const fontFamily = configVisual?.fontFamily || brand?.fuente || "Inter";
   const isDark = configVisual?.darkMode !== false;
 
-  // Sync theme vars to documentElement so NeuralCanvas reads correct opacity
+  // Sync theme vars to documentElement so NeuralCanvas reads correct opacity + color
   useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty("--neural-opacity", isDark ? "0.55" : "0.35");
     root.style.setProperty("--neural-line-opacity", isDark ? "0.4" : "0.22");
-  }, [isDark]);
+    root.style.setProperty("--neural-primary", isDark ? "#7c3aed" : primaryColor);
+  }, [isDark, primaryColor]);
   const roleLabel = role === "super_admin" ? "Super Admin MRZLABS" : role === "admin" ? "Administrador" : role === "empleado" ? "Empleado" : "Cliente";
 
   const homeHref = role === "admin" ? "/admin/dashboard" : role === "empleado" ? "/empleado/mi-agenda" : role === "cliente" ? "/cliente/mis-citas" : null;
@@ -455,9 +456,9 @@ export function AppChrome({
             className="pointer-events-none fixed inset-0 -z-30"
             style={{
               background: [
-                `radial-gradient(ellipse 54% 36% at 18% 20%, ${hexAlpha(secondaryColor, 0.18)}, transparent 64%)`,
-                `radial-gradient(ellipse 42% 34% at 82% 74%, ${hexAlpha(accentColor, 0.14)}, transparent 62%)`,
-                `linear-gradient(135deg, ${hexAlpha(primaryColor, 0.05)}, #f8fafc 48%, ${hexAlpha(secondaryColor, 0.06)})`,
+                `radial-gradient(ellipse 48% 32% at 18% 20%, ${hexAlpha(secondaryColor, 0.12)}, transparent 60%)`,
+                `radial-gradient(ellipse 38% 30% at 82% 74%, ${hexAlpha(accentColor, 0.10)}, transparent 58%)`,
+                "linear-gradient(135deg, #eef2f7 0%, #e8edf5 50%, #ede8f5 100%)",
               ].join(", "),
             }}
           />
@@ -475,10 +476,10 @@ export function AppChrome({
         className={`fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 [transition-timing-function:cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(220px,86vw)] lg:w-[220px]" : "w-[220px] lg:w-[56px]"}`}
         style={isDark
           ? { background: `linear-gradient(180deg, ${hexAlpha(primaryColor, 0.95)}, ${hexAlpha(accentColor, 0.18)}), #0f0f1a`, borderRight: `1px solid ${hexAlpha(secondaryColor, 0.18)}` }
-          : { background: `linear-gradient(180deg, #ffffff, ${hexAlpha(secondaryColor, 0.08)} 58%, ${hexAlpha(accentColor, 0.08)})`, borderRight: `1px solid ${hexAlpha(primaryColor, 0.14)}` }}
+          : { background: "rgba(248,250,252,0.97)", borderRight: "1px solid #e2e8f0" }}
       >
         {/* header */}
-        <div className="flex items-center justify-between gap-3 border-b border-white/10 p-4">
+        <div className={`flex items-center justify-between gap-3 border-b p-4 ${isDark ? "border-white/10" : "border-slate-200"}`}>
           <div className="flex min-w-0 items-center gap-3">
             <LogoMark brand={brand} onExpand={setExpandedPhoto} />
             <div className={open ? "block" : "hidden"}>
@@ -511,22 +512,22 @@ export function AppChrome({
         {/* nav body */}
         <div className="flex-1 overflow-y-auto px-2 py-2">
           <div className={`mb-3 flex flex-wrap gap-2 ${open ? "justify-start px-1" : "justify-center"}`}>
-            <span className="rounded-full border border-white/15 bg-white/8 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-white/60">
+            <span className={`rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-wide ${isDark ? "border-white/15 bg-white/8 text-white/60" : "border-slate-200 bg-slate-100 text-slate-500"}`}>
               {open ? role.replace("_", " ") : role.slice(0, 1)}
             </span>
           </div>
 
           {open && (
-            <label className="mb-2 flex items-center gap-2 rounded-lg border border-white/10 bg-white/6 px-2.5 py-2 text-xs text-white/60 focus-within:border-white/20 focus-within:text-white/80">
-              <Search className="size-3.5 shrink-0 text-white/40" />
+            <label className={`mb-2 flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs ${isDark ? "border-white/10 bg-white/6 text-white/60 focus-within:border-white/20" : "border-slate-200 bg-white text-slate-500 focus-within:border-slate-400"}`}>
+              <Search className={`size-3.5 shrink-0 ${isDark ? "text-white/40" : "text-slate-400"}`} />
               <input
-                className="w-full bg-transparent text-white outline-none placeholder:text-white/35 text-xs"
+                className={`w-full bg-transparent outline-none text-xs ${isDark ? "text-white placeholder:text-white/35" : "text-slate-700 placeholder:text-slate-400"}`}
                 placeholder="Buscar…"
                 value={moduleSearch}
                 onChange={(e) => setModuleSearch(e.target.value)}
               />
               {moduleSearch && (
-                <button type="button" className="text-white/35 hover:text-white/60" onClick={() => setModuleSearch("")} aria-label="Limpiar">✕</button>
+                <button type="button" className={isDark ? "text-white/35 hover:text-white/60" : "text-slate-400 hover:text-slate-600"} onClick={() => setModuleSearch("")} aria-label="Limpiar">✕</button>
               )}
             </label>
           )}
@@ -539,7 +540,7 @@ export function AppChrome({
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
               return (
                 <div key={item.href}>
-                  {[3, 6, 9].includes(index) && <div className="my-1.5 h-px bg-white/8" />}
+                  {[3, 6, 9].includes(index) && <div className={`my-1.5 h-px ${isDark ? "bg-white/8" : "bg-slate-200"}`} />}
                   <Link
                     href={item.href}
                     title={!open ? item.label : undefined}
@@ -551,10 +552,10 @@ export function AppChrome({
                     }}
                   >
                     <span
-                      className={`grid size-7 shrink-0 place-items-center transition-transform group-hover:scale-105 ${isActive ? "scale-105" : ""} ${shapeClass} ${style.tone}`}
+                      className={`grid size-7 shrink-0 place-items-center transition-transform group-hover:scale-105 ${isActive ? "scale-105" : ""} ${shapeClass}`}
                       style={{
-                        background: isActive ? `linear-gradient(135deg, ${secondaryColor}, ${accentColor})` : hexAlpha(secondaryColor, isDark ? 0.16 : 0.1),
-                        color: isActive ? "#ffffff" : secondaryColor,
+                        background: isActive ? hexAlpha(primaryColor, isDark ? 0.22 : 0.12) : hexAlpha(secondaryColor, isDark ? 0.16 : 0.06),
+                        color: isActive ? primaryColor : (isDark ? "rgba(255,255,255,0.6)" : "#64748b"),
                       }}
                     >
                       <Icon className="size-[15px]" />
@@ -569,10 +570,10 @@ export function AppChrome({
 
           {/* alerts in sidebar */}
           {open && !alertsHidden && alerts.length > 0 && (
-            <section className="mt-5 rounded-3xl border border-white/15 bg-white/10 p-4 shadow-sm">
+            <section className={`mt-5 rounded-3xl border p-4 shadow-sm ${isDark ? "border-white/15 bg-white/10" : "border-slate-200 bg-white/80"}`}>
               <div className="flex items-center justify-between">
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/60">Alarmas</p>
-                <button className="rounded-lg p-1 text-white/40 hover:text-white/80" onClick={() => setAlertsHidden(true)} type="button" aria-label="Ocultar alarmas">
+                <p className={`text-[10px] font-black uppercase tracking-[0.18em] ${isDark ? "text-white/60" : "text-slate-500"}`}>Alarmas</p>
+                <button className={`rounded-lg p-1 ${isDark ? "text-white/40 hover:text-white/80" : "text-slate-400 hover:text-slate-700"}`} onClick={() => setAlertsHidden(true)} type="button" aria-label="Ocultar alarmas">
                   <X className="size-3.5" />
                 </button>
               </div>
@@ -597,7 +598,7 @@ export function AppChrome({
         </div>
 
         {/* profile */}
-        <div className={`border-t border-white/8 p-2 ${open ? "" : "flex flex-col items-center gap-1"}`}>
+        <div className={`border-t p-2 ${isDark ? "border-white/8" : "border-slate-200"} ${open ? "" : "flex flex-col items-center gap-1"}`}>
           <button
             className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition hover:bg-white/8 ${open ? "" : "justify-center"}`}
             onClick={() => setProfileOpen(true)}
@@ -650,21 +651,20 @@ export function AppChrome({
         <header
           className={`sticky top-0 z-20 flex h-[52px] items-center border-b px-4 ${isDark ? "border-white/8" : "border-slate-200"}`}
           style={{
-            background: isDark
-              ? hexAlpha(primaryColor, 0.86)
-              : `linear-gradient(90deg, #ffffff, ${hexAlpha(secondaryColor, 0.08)}, ${hexAlpha(accentColor, 0.08)})`,
-            borderColor: isDark ? hexAlpha(secondaryColor, 0.12) : hexAlpha(primaryColor, 0.12),
+            background: isDark ? hexAlpha(primaryColor, 0.86) : "rgba(255,255,255,0.92)",
+            borderColor: isDark ? hexAlpha(secondaryColor, 0.12) : "#e2e8f0",
+            backdropFilter: "blur(12px)",
           }}
         >
           <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <button className="rounded-lg border border-white/10 bg-white/8 p-2 text-white/70 hover:bg-white/15 lg:hidden" onClick={() => setMobileOpen(true)} type="button" aria-label="Abrir menú">
+              <button className={`rounded-lg border p-2 lg:hidden ${isDark ? "border-white/10 bg-white/8 text-white/70 hover:bg-white/15" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`} onClick={() => setMobileOpen(true)} type="button" aria-label="Abrir menú">
                 <Menu className="size-4" />
               </button>
               {homeHref && !isHome && (
                 <Link
                   href={homeHref}
-                  className="hidden items-center gap-1 rounded-lg border border-white/10 bg-white/6 px-2.5 py-1.5 text-xs font-medium text-white/70 transition hover:bg-white/12 hover:text-white md:flex"
+                  className={`hidden items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition md:flex ${isDark ? "border-white/10 bg-white/6 text-white/70 hover:bg-white/12 hover:text-white" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
                   title={`Ir a ${homeLabel}`}
                 >
                   <ArrowLeft className="size-3" />
@@ -678,7 +678,7 @@ export function AppChrome({
             </div>
             <div className="relative hidden items-center gap-1.5 md:flex">
               <button
-                className="relative grid size-8 place-items-center rounded-lg border border-white/10 bg-white/6 text-white/60 hover:bg-white/12 hover:text-white"
+                className={`relative grid size-8 place-items-center rounded-lg border transition ${isDark ? "border-white/10 bg-white/6 text-white/60 hover:bg-white/12 hover:text-white" : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-700"}`}
                 onClick={() => setAlertsOpen((v) => !v)}
                 type="button"
                 aria-label="Ver alarmas"
@@ -687,7 +687,7 @@ export function AppChrome({
                 {!alertsHidden && alerts.length > 0 && <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,.9)]" />}
               </button>
               <button
-                className="grid size-8 place-items-center rounded-lg border border-white/10 bg-white/6 text-white/60 transition hover:bg-white/12 hover:text-white"
+                className={`grid size-8 place-items-center rounded-lg border transition ${isDark ? "border-white/10 bg-white/6 text-white/60 hover:bg-white/12 hover:text-white" : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-700"}`}
                 onClick={() => setProfileOpen(true)}
                 type="button"
                 aria-label="Ver perfil"
@@ -716,7 +716,7 @@ export function AppChrome({
                 </div>
               )}
             </div>
-            <button className="grid size-8 place-items-center rounded-lg border border-white/10 bg-white/6 text-white/60 md:hidden" onClick={() => setProfileOpen(true)} type="button" aria-label="Ver perfil">
+            <button className={`grid size-8 place-items-center rounded-lg border md:hidden ${isDark ? "border-white/10 bg-white/6 text-white/60" : "border-slate-200 bg-white text-slate-500"}`} onClick={() => setProfileOpen(true)} type="button" aria-label="Ver perfil">
               <UserCircle className="size-4" />
             </button>
           </div>
@@ -727,12 +727,6 @@ export function AppChrome({
           <PageTransition>{children}</PageTransition>
         </main>
 
-        {/* ── Footer firma ────────────────────────────────────────── */}
-        <footer className={`mx-auto flex max-w-[1280px] items-center justify-between gap-2 border-t px-5 py-3 text-[10px] ${isDark ? "border-white/6 text-white/25" : "border-slate-200 text-slate-500"}`}>
-          <span>© 2026 Todos los derechos reservados</span>
-          <span className="font-black tracking-widest text-cyan-500/60">BARBERLABS</span>
-          <span>Built by MRZLABS</span>
-        </footer>
       </div>
 
       {/* ── Mobile bottom tab bar ────────────────────────────────── */}

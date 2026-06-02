@@ -176,6 +176,27 @@ export async function getActivityLogs(page = 1, limit = 50) {
   return serializeDates({ rows, total: countRow?.total ?? 0, page, limit });
 }
 
+export async function getRenewalRequests(limit = 8) {
+  const rows = await getDb()
+    .select({
+      id: activityLogs.id,
+      createdAt: activityLogs.createdAt,
+      detalle: activityLogs.detalle,
+      negocioId: activityLogs.negocioId,
+      negocioNombre: negocios.nombre,
+      usuarioNombre: usuarios.nombre,
+      usuarioEmail: usuarios.email,
+    })
+    .from(activityLogs)
+    .leftJoin(negocios, eq(activityLogs.negocioId, negocios.id))
+    .leftJoin(usuarios, eq(activityLogs.usuarioId, usuarios.id))
+    .where(eq(activityLogs.accion, "suscripcion_renovacion_solicitada"))
+    .orderBy(desc(activityLogs.createdAt))
+    .limit(limit);
+
+  return serializeDates(rows);
+}
+
 export type PlanPermiso = { feature: string; habilitado: boolean; detalle: string };
 
 export function getPlanPermisos(plan: string): PlanPermiso[] {

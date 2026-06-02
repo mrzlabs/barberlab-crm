@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "postinstall": "patch-package",
     "dev": "next dev",
     "dev:prod": "node scripts/dev-prod.mjs",
     "dev:demo": "node scripts/dev-demo.mjs",

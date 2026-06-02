@@ -1,4 +1,4 @@
-import { getNegocios } from "@/lib/super-admin/queries";
+import { getNegocios, getRenewalRequests } from "@/lib/super-admin/queries";
 import { OperarButton } from "@/components/super-admin/OperarButton";
 import { fmtMoney } from "@/lib/admin/format";
 
@@ -23,7 +23,10 @@ function calcMRR(plan: string, estado: string) {
 }
 
 export default async function SuperAdminDashboardPage() {
-  const negocios = await getNegocios();
+  const [negocios, renewalRequests] = await Promise.all([
+    getNegocios(),
+    getRenewalRequests(),
+  ]);
   const activos     = negocios.filter((n) => n.estado === "activo").length;
   const suspendidos = negocios.filter((n) => n.estado === "suspendido").length;
   const mrr         = negocios.reduce((s, n) => s + calcMRR(n.plan, n.estado), 0);
@@ -60,6 +63,47 @@ export default async function SuperAdminDashboardPage() {
           </article>
         ))}
       </section>
+
+      {renewalRequests.length > 0 && (
+        <section className="rounded-[1.6rem] border border-amber-400/30 bg-amber-500/10 p-5 shadow-xl shadow-amber-950/10">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-amber-300">Alertas de renovación</p>
+              <h3 className="mt-1 text-xl font-black text-white">Solicitudes pendientes de actualización</h3>
+            </div>
+            <span className="rounded-full bg-amber-400/20 px-3 py-1 text-xs font-black text-amber-200">
+              {renewalRequests.length} recientes
+            </span>
+          </div>
+          <div className="mt-4 grid gap-3">
+            {renewalRequests.map((item) => {
+              const detail = (item.detalle ?? {}) as Record<string, unknown>;
+              const negocioNombre = item.negocioNombre || String(detail.negocioNombre || "Negocio sin nombre");
+              return (
+                <article className="grid gap-3 rounded-2xl border border-white/10 bg-slate-950/70 p-4 sm:grid-cols-[1fr_auto] sm:items-center" key={item.id}>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-black text-white">{negocioNombre}</p>
+                    <p className="mt-1 truncate text-xs text-slate-400">
+                      Solicitado por {item.usuarioNombre || String(detail.usuarioNombre || "usuario")} · {item.usuarioEmail || String(detail.email || "sin email")}
+                    </p>
+                    <p className="mt-1 text-xs text-amber-200">
+                      Plan {String(detail.plan || "sin plan")} · Renovación actual {String(detail.fechaFin || "sin fecha")}
+                    </p>
+                  </div>
+                  {item.negocioId && (
+                    <a
+                      className="rounded-xl bg-amber-300 px-4 py-2 text-center text-xs font-black text-slate-950 transition hover:bg-amber-200"
+                      href={`/super-admin/negocios/${item.negocioId}`}
+                    >
+                      Actualizar
+                    </a>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Negocios grid */}
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

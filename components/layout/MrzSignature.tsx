@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { MrzModal } from "@/components/layout/MrzModal";
 
 export function MrzSignature() {
   const sigRef = useRef<HTMLDivElement>(null);
@@ -170,9 +170,8 @@ export function MrzSignature() {
         </svg>
       </div>
       <div className="ctn build-card">
-        {/* Firma de tres columnas */}
         <p className="mrz-footer-message">Automatizamos tu negocio · Agenda, caja, inventario y reportes en un solo lugar · Built by MRZLABS</p>
-        <div className="mrz-footer-bar" aria-label="Automatizamos tu negocio · Agenda, caja, inventario y reportes en un solo lugar · Built by MRZLABS">
+        <div className="mrz-footer-bar">
           <span className="mrz-footer-left">© 2026 Todos los derechos reservados</span>
           <button
             className="mrz-footer-center"
@@ -184,38 +183,8 @@ export function MrzSignature() {
           </button>
           <span className="mrz-footer-right">Built by MRZLABS</span>
         </div>
-        <div className="build-overlay" aria-hidden={!open}>
-          <div className="build-modal">
-            <button className="build-close" type="button" onClick={() => setOpen(false)} aria-label="Cerrar"><X className="size-4" /></button>
-            <div>
-              <strong>Arquitectura progresiva</strong>
-              <p>Infraestructura digital escalable para comercios que quieren operar con datos, roles y evidencia.</p>
-              <ol>
-                <li>Analizamos operación, agenda, caja e inventario.</li>
-                <li>Diseñamos flujos por rol y permisos.</li>
-                <li>Construimos módulos medibles.</li>
-                <li>Dejamos reportes para decidir con margen real.</li>
-              </ol>
-            </div>
-            <div>
-              <strong>MRZLABS</strong>
-              <p>Producto CRM modular para barberías, salones y comercios de atención por agenda.</p>
-              <div className="build-links">
-                <a href="https://github.com/mrzlabs" target="_blank" rel="noreferrer">GitHub</a>
-                <a href="https://mrzlabs.github.io/web-mrz-portfolio/" target="_blank" rel="noreferrer">Portafolio</a>
-                <a
-                  href="#"
-                  aria-disabled="true"
-                  onClick={(e) => e.preventDefault()}
-                  style={{ opacity: 0.6, cursor: "not-allowed", background: "#25d366", color: "#fff" }}
-                >
-                  WhatsApp — Próximamente
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
+      <MrzModal open={open} onClose={() => setOpen(false)} />
     </div>
   );
 }

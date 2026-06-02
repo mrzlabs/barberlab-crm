@@ -85,7 +85,7 @@ export default async function DashboardPage() {
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link className="rounded-2xl bg-cyan-300 px-4 py-2.5 text-sm font-black text-slate-950 sm:px-5 sm:py-3" href="/admin/agenda">Agendar turno</Link>
-              <Link className="rounded-2xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-black text-white sm:px-5 sm:py-3" href="/admin/turnos">Cerrar caja</Link>
+              <Link className="rounded-2xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-black crm-text-primary sm:px-5 sm:py-3" href="/admin/turnos">Cerrar caja</Link>
             </div>
           </div>
         </div>

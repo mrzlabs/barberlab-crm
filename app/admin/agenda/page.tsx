@@ -73,7 +73,7 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
           <div className="mac-dots" />
           <p className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Agenda completa</p>
           <h2 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">Operacion por especialista</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
+          <p className="mt-3 max-w-3xl text-sm leading-6 crm-text-secondary">
             Admin crea citas, configura disponibilidad, bloquea espacios y controla toda la agenda del comercio.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">

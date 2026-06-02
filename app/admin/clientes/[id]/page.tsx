@@ -43,7 +43,7 @@ export default async function ClienteDetallePage({ params }: PageProps) {
               <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">{cliente.nombre}</h2>
               <p className="mt-1 text-sm text-slate-400">{cliente.email || "Sin email"} · {cliente.telefono}</p>
               {cliente.notas && (
-                <p className="mt-2 max-w-xl rounded-xl border border-white/10 bg-white/8 px-3 py-2 text-sm leading-6 text-slate-300">{cliente.notas}</p>
+                <p className="mt-2 max-w-xl rounded-xl crm-card px-3 py-2 text-sm leading-6 crm-text-secondary">{cliente.notas}</p>
               )}
             </div>
             <div className="flex gap-2">

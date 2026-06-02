@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
-import { ImagePlus, Trash2, Moon, Sun } from "lucide-react";
+import { ImagePlus, Trash2, Moon, Sun, X } from "lucide-react";
 import { uploadNegocioBgPhoto, removeNegocioBgPhoto, updateConfigVisual } from "@/app/admin/configuracion/actions";
 import { FONT_OPTIONS } from "@/components/layout/FontLoader";
 
@@ -23,6 +23,7 @@ export function ConfigVisualPanel({
   const [bgUrl, setBgUrl] = useState(initialBg ?? null);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [expandedPhoto, setExpandedPhoto] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function handleDarkToggle() {
@@ -154,9 +155,13 @@ export function ConfigVisualPanel({
           <div className="relative mb-4 h-36 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
             <Image src={displayUrl} alt="Preview fondo" className="object-cover" fill sizes="(max-width: 768px) 100vw, 640px" style={{ filter: "blur(8px)", transform: "scale(1.05)" }} unoptimized />
             <div className="absolute inset-0 flex items-center justify-center bg-slate-950/30">
-              <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-black text-slate-700">
+              <button
+                className="rounded-full bg-white/90 px-3 py-1 text-xs font-black text-slate-700 transition hover:bg-white"
+                onClick={() => setExpandedPhoto(displayUrl)}
+                type="button"
+              >
                 Preview de logo y aura de marca
-              </span>
+              </button>
             </div>
             {!preview && bgUrl && (
               <button
@@ -201,6 +206,16 @@ export function ConfigVisualPanel({
         )}
         <p className="mt-2 text-xs text-slate-400">JPG, PNG, WebP o AVIF. Máximo 5 MB. Se aplica al logo, perfil y aura visual del CRM.</p>
       </div>
+      {expandedPhoto && (
+        <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/72 p-4 backdrop-blur-xl" onClick={() => setExpandedPhoto(null)}>
+          <button className="absolute right-4 top-4 rounded-full border border-white/20 bg-white/10 p-3 text-white transition hover:bg-white/20" onClick={() => setExpandedPhoto(null)} type="button" aria-label="Cerrar foto">
+            <X className="size-5" />
+          </button>
+          <div className="relative aspect-square w-[min(86vw,560px)] overflow-hidden rounded-[2rem] border border-white/20 bg-white/10 shadow-2xl shadow-violet-950/40" onClick={(event) => event.stopPropagation()}>
+            <Image src={expandedPhoto} alt="Foto de marca ampliada" className="object-cover" fill sizes="(max-width: 640px) 86vw, 560px" unoptimized priority />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

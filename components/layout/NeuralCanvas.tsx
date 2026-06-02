@@ -5,6 +5,16 @@ import { useEffect, useRef } from "react";
 type Particle = { x: number; y: number; vx: number; vy: number; r: number; phase: number };
 type Pulse    = { a: number; b: number; t: number; dur: number };
 
+function hexToRgba(hex: string, alpha: number): string {
+  const clean = hex.replace("#", "");
+  const full = clean.length === 3 ? clean.split("").map(c => c + c).join("") : clean;
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return `rgba(124,58,237,${alpha})`;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 export function NeuralCanvas({ className = "" }: { className?: string }) {
   const cvRef = useRef<HTMLCanvasElement>(null);
 
@@ -29,14 +39,18 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
     let W = 0, H = 0;
     let neuralOpacity = 0.55;
     let neuralLineOpacity = 0.4;
+    let neuralPrimary = "#7c3aed";
     let frameCount = 0;
 
     function readThemeVars() {
       const root = document.documentElement;
-      const o = getComputedStyle(root).getPropertyValue("--neural-opacity").trim();
-      const l = getComputedStyle(root).getPropertyValue("--neural-line-opacity").trim();
+      const cs = getComputedStyle(root);
+      const o = cs.getPropertyValue("--neural-opacity").trim();
+      const l = cs.getPropertyValue("--neural-line-opacity").trim();
+      const p = cs.getPropertyValue("--neural-primary").trim();
       neuralOpacity = o ? parseFloat(o) : 0.55;
       neuralLineOpacity = l ? parseFloat(l) : 0.4;
+      neuralPrimary = p || "#7c3aed";
     }
 
     function resize() {
@@ -94,14 +108,14 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
         if (p.y < 0 || p.y > H) p.vy *= -1;
       }
 
-      // Lines — scale by neuralLineOpacity relative to default 0.4
+      // Lines — use brand color, scale by neuralLineOpacity
       for (let i = 0; i < parts.length; i++) {
         for (let j = i + 1; j < parts.length; j++) {
           const dx = parts[i].x - parts[j].x, dy = parts[i].y - parts[j].y;
           const d2 = dx * dx + dy * dy;
           if (d2 > DIST * DIST) continue;
-          const alpha = (1 - Math.sqrt(d2) / DIST) * 0.18 * (neuralLineOpacity / 0.4);
-          ctx.strokeStyle = `rgba(124,58,237,${alpha})`;
+          const alpha = (1 - Math.sqrt(d2) / DIST) * 0.22 * (neuralLineOpacity / 0.4);
+          ctx.strokeStyle = hexToRgba(neuralPrimary, alpha);
           ctx.lineWidth = 0.6;
           ctx.beginPath();
           ctx.moveTo(parts[i].x, parts[i].y);
@@ -128,11 +142,11 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
         ctx.shadowBlur = 0;
       }
 
-      // Particles — breathing via phase, globalAlpha handles theme intensity
+      // Particles — use brand color, breathing via phase
       for (const p of parts) {
         const b = 0.5 + Math.sin(p.phase) * 0.25;
-        ctx.fillStyle = `rgba(192,132,252,${b})`;
-        ctx.shadowColor = "rgba(192,132,252,.6)"; ctx.shadowBlur = 6;
+        ctx.fillStyle = hexToRgba(neuralPrimary, b * 0.9);
+        ctx.shadowColor = hexToRgba(neuralPrimary, 0.6); ctx.shadowBlur = 6;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
         ctx.shadowBlur = 0;
       }

@@ -21,7 +21,7 @@ export default async function AdminPerfilPage({
             <div className="mac-dots" />
             <p className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Configuracion</p>
             <h1 className="mt-3 text-4xl font-black tracking-tight">Cambiar contraseña</h1>
-            <p className="mt-3 text-sm leading-6 text-slate-300">
+            <p className="mt-3 text-sm leading-6 crm-text-secondary">
               {profile.nombre} · {profile.email}
             </p>
           </div>
