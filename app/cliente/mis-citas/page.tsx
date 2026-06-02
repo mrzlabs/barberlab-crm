@@ -99,12 +99,12 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
           </form>
           <div className="grid gap-3 p-5 pt-0 sm:grid-cols-2 lg:grid-cols-3">
             {slots.map((slot) => (
-              <form action={reprogramarCita} className="rounded-2xl border bg-slate-50 p-4" key={slot.inicio.toISOString()}>
+              <form action={reprogramarCita} className="rounded-2xl border bg-slate-50 p-4" key={slot.inicio}>
                 <input name="citaId" type="hidden" value={citaReprogramar} />
                 <input name="servicioId" type="hidden" value={params.servicioId} />
                 <input name="empleadoId" type="hidden" value={params.empleadoId} />
-                <input name="inicio" type="hidden" value={slot.inicio.toISOString()} />
-                <input name="fin" type="hidden" value={slot.fin.toISOString()} />
+                <input name="inicio" type="hidden" value={slot.inicio} />
+                <input name="fin" type="hidden" value={slot.fin} />
                 <strong className="block text-lg">{fmtDateTime(slot.inicio)}</strong>
                 <p className="mt-1 text-sm text-muted-foreground">Finaliza {fmtDateTime(slot.fin)}</p>
                 <button className="mt-4 w-full rounded-2xl bg-cyan-500 px-4 py-3 text-sm font-black text-white" type="submit">

@@ -3,10 +3,11 @@ import { getDb } from "@/lib/db";
 import { citaHistorial, citas, clientes, empleados, inventario, servicios, usuarios } from "@/lib/db/schema";
 import { isDemoMode } from "@/lib/demo";
 import { getCurrentProfile } from "@/lib/auth/session";
+import { serializeDates } from "@/lib/utils";
 
 export type Slot = {
-  inicio: Date;
-  fin: Date;
+  inicio: string;
+  fin: string;
 };
 
 export async function getClienteByUsr(userId: string) {
@@ -25,7 +26,7 @@ export async function getClienteByUsr(userId: string) {
   }
 
   const [cliente] = await getDb().select().from(clientes).where(eq(clientes.usuarioId, userId)).limit(1);
-  return cliente ?? null;
+  return cliente ? serializeDates(cliente) : null;
 }
 
 export async function ensureCliente(
@@ -54,7 +55,7 @@ export async function ensureCliente(
     .limit(1);
 
   if (!record) throw new Error("No se pudo crear el perfil de cliente");
-  return record;
+  return serializeDates(record);
 }
 
 export async function getReservaCatalog() {
@@ -138,7 +139,7 @@ export async function getSlots(empleadoId?: string, fecha?: string, servicioId?:
     return [0, 1, 2, 4, 6].map((offset) => {
       const inicio = new Date(base.getTime() + offset * 60 * 60000);
       const fin = new Date(inicio.getTime() + 45 * 60000);
-      return { inicio, fin };
+      return { inicio: inicio.toISOString(), fin: fin.toISOString() };
     });
   }
 
@@ -148,14 +149,16 @@ export async function getSlots(empleadoId?: string, fecha?: string, servicioId?:
   `) as Array<{ inicio: string | Date; fin: string | Date }>;
 
   return rows.map((slot) => ({
-    inicio: new Date(slot.inicio),
-    fin: new Date(slot.fin),
+    inicio: slot.inicio instanceof Date ? slot.inicio.toISOString() : String(slot.inicio),
+    fin: slot.fin instanceof Date ? slot.fin.toISOString() : String(slot.fin),
   }));
 }
 
 export async function slotDisponible(params: { empleadoId: string; fecha: string; servicioId: string; inicio: Date; fin: Date }) {
   const slots = await getSlots(params.empleadoId, params.fecha, params.servicioId);
-  return slots.some((slot) => slot.inicio.getTime() === params.inicio.getTime() && slot.fin.getTime() === params.fin.getTime());
+  const inicioIso = params.inicio instanceof Date ? params.inicio.toISOString() : String(params.inicio);
+  const finIso = params.fin instanceof Date ? params.fin.toISOString() : String(params.fin);
+  return slots.some((slot) => slot.inicio === inicioIso && slot.fin === finIso);
 }
 
 export async function getMisCitas(userId: string) {
@@ -216,7 +219,7 @@ export async function getMisCitas(userId: string) {
     .orderBy(desc(citas.inicio))
     .limit(40);
 
-  return { cliente, citas: rows };
+  return serializeDates({ cliente, citas: rows });
 }
 
 export async function getHistorialCliente(userId: string) {
@@ -249,7 +252,7 @@ export async function getHistorialCliente(userId: string) {
   const cliente = await getClienteByUsr(userId);
   if (!cliente) return [];
 
-  return getDb()
+  const rows = await getDb()
     .select({
       id: citaHistorial.id,
       citaId: citaHistorial.citaId,
@@ -266,6 +269,7 @@ export async function getHistorialCliente(userId: string) {
     .where(eq(citas.clienteId, cliente.id))
     .orderBy(desc(citaHistorial.createdAt))
     .limit(30);
+  return serializeDates(rows);
 }
 
 export async function citaPerteneceCliente(userId: string, citaId: string) {

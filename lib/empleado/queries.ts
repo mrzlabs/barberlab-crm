@@ -1,6 +1,7 @@
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { citas, clientes, empleados, servicios, turnos } from "@/lib/db/schema";
+import { serializeDates } from "@/lib/utils";
 
 function dayBounds(date = new Date()) {
   const start = new Date(date);
@@ -10,26 +11,15 @@ function dayBounds(date = new Date()) {
   return { start, end };
 }
 
-function toStr(v: unknown): string | null {
-  if (v == null) return null;
-  if (v instanceof Date) return v.toISOString();
-  return String(v);
-}
-
 export async function getEmpleadoByUsr(userId: string) {
   const db = getDb();
-  const [empleado] = await db.select().from(empleados).where(eq(empleados.usuarioId, userId)).limit(1);
-  if (!empleado) return null;
-  return {
-    ...empleado,
-    createdAt: toStr(empleado.createdAt) as string,
-    updatedAt: toStr(empleado.updatedAt) as string,
-  };
+  const [row] = await db.select().from(empleados).where(eq(empleados.usuarioId, userId)).limit(1);
+  return row ? serializeDates(row) : null;
 }
 
 export async function getMiAgenda(userId: string) {
   const empleado = await getEmpleadoByUsr(userId);
-  if (!empleado) return { empleado: null, citas: [], stats: { hoy: 0, pendientes: 0, realizadas: 0 } };
+  if (!empleado) return serializeDates({ empleado: null, citas: [], stats: { hoy: 0, pendientes: 0, realizadas: 0 } });
 
   const db = getDb();
   const { start, end } = dayBounds();
@@ -63,25 +53,15 @@ export async function getMiAgenda(userId: string) {
       .where(eq(citas.empleadoId, empleado.id)),
   ]);
 
-  return {
+  return serializeDates({
     empleado,
-    citas: items.map((item) => ({
-      id: item.id,
-      estado: item.estado,
-      cliente: item.cliente,
-      telefono: item.telefono,
-      servicio: item.servicio,
-      precio: item.precio,
-      duracionMin: item.duracionMin,
-      inicio: toStr(item.inicio) as string,
-      fin: toStr(item.fin) as string,
-    })),
+    citas: items,
     stats: {
       hoy: stats[0]?.hoy ?? 0,
       pendientes: stats[0]?.pendientes ?? 0,
       realizadas: stats[0]?.realizadas ?? 0,
     },
-  };
+  });
 }
 
 export async function getCitasParaCerrar(userId: string) {
@@ -105,15 +85,7 @@ export async function getCitasParaCerrar(userId: string) {
     .orderBy(desc(citas.inicio))
     .limit(20);
 
-  return rows.map((r) => ({
-    id: r.id,
-    estado: r.estado,
-    cliente: r.cliente,
-    telefono: r.telefono,
-    servicio: r.servicio,
-    precio: r.precio,
-    inicio: toStr(r.inicio) as string,
-  }));
+  return serializeDates(rows);
 }
 
 export async function getMisTurnos(userId: string) {
@@ -138,15 +110,7 @@ export async function getMisTurnos(userId: string) {
     .orderBy(desc(turnos.createdAt))
     .limit(12);
 
-  return rows.map((r) => ({
-    id: r.id,
-    precioFinal: r.precioFinal,
-    propina: r.propina,
-    metodoPago: r.metodoPago,
-    cliente: r.cliente,
-    servicio: r.servicio,
-    createdAt: toStr(r.createdAt) as string,
-  }));
+  return serializeDates(rows);
 }
 
 export async function getStatsEmpleado(userId: string) {
@@ -186,7 +150,7 @@ export async function getStatsEmpleado(userId: string) {
     ? Math.round(((ingresosMes - ingresosPrevMes) / ingresosPrevMes) * 100)
     : null;
 
-  return {
+  return serializeDates({
     comisionPct,
     especialidad: empleado.especialidad,
     mes: {
@@ -197,7 +161,7 @@ export async function getStatsEmpleado(userId: string) {
       ticket: Number(mesStats[0]?.ticket ?? 0),
     },
     delta,
-  };
+  });
 }
 
 export async function citaPerteneceEmpleado(userId: string, citaId: string) {

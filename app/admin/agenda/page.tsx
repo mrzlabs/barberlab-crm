@@ -227,24 +227,24 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
             <div className="mt-5 flex gap-3 overflow-x-auto pb-2 scrollbar-soft">
               {slots.map((slot) => (
                 citaMover ? (
-                  <form action={reagendarCita} className="min-w-[240px] rounded-[1.4rem] border border-amber-200 bg-amber-50 p-4 shadow-sm" key={slot.inicio.toISOString()}>
+                  <form action={reagendarCita} className="min-w-[240px] rounded-[1.4rem] border border-amber-200 bg-amber-50 p-4 shadow-sm" key={slot.inicio}>
                     <input name="citaId" type="hidden" value={citaMover.id} />
                     <input name="empleadoId" type="hidden" value={empleadoId} />
                     <input name="servicioId" type="hidden" value={servicioId} />
-                    <input name="inicio" type="hidden" value={slot.inicio.toISOString()} />
-                    <input name="fin" type="hidden" value={slot.fin.toISOString()} />
+                    <input name="inicio" type="hidden" value={slot.inicio} />
+                    <input name="fin" type="hidden" value={slot.fin} />
                     <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-600">Nuevo horario</p>
                     <strong className="mt-2 block text-lg">{fmtDateTime(slot.inicio)}</strong>
                     <p className="mt-1 text-sm text-slate-500">Finaliza {fmtDateTime(slot.fin)}</p>
                     <SubmitButton label="Reagendar aquí" pendingLabel="Reagendando…" className="mt-3 w-full rounded-2xl bg-amber-500 px-4 py-3 text-sm font-black text-white hover:bg-amber-600" />
                   </form>
                 ) : (
-                  <form action={createCitaAdmin} className="min-w-[260px] rounded-[1.4rem] border bg-white p-4 shadow-sm" key={slot.inicio.toISOString()}>
+                  <form action={createCitaAdmin} className="min-w-[260px] rounded-[1.4rem] border bg-white p-4 shadow-sm" key={slot.inicio}>
                     <input name="clienteId" type="hidden" value={clienteId} />
                     <input name="servicioId" type="hidden" value={servicioId} />
                     <input name="empleadoId" type="hidden" value={empleadoId} />
-                    <input name="inicio" type="hidden" value={slot.inicio.toISOString()} />
-                    <input name="fin" type="hidden" value={slot.fin.toISOString()} />
+                    <input name="inicio" type="hidden" value={slot.inicio} />
+                    <input name="fin" type="hidden" value={slot.fin} />
                     <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Horario</p>
                     <strong className="mt-2 block text-lg">{fmtDateTime(slot.inicio)}</strong>
                     <p className="mt-1 text-sm text-slate-500">Finaliza {fmtDateTime(slot.fin)}</p>

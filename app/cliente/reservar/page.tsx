@@ -95,11 +95,11 @@ export default async function ReservarPage({ searchParams }: PageProps) {
           </div>
           <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3">
             {slots.map((slot) => (
-              <form action={reservarCita} className="rounded-[1.4rem] border bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-violet-300 hover:shadow-xl" key={slot.inicio.toISOString()}>
+              <form action={reservarCita} className="rounded-[1.4rem] border border-white/10 bg-white/8 backdrop-blur-md p-4 shadow-sm transition hover:-translate-y-1 hover:border-violet-300 hover:shadow-xl" key={slot.inicio}>
                 <input name="servicioId" type="hidden" value={params.servicioId} />
                 <input name="empleadoId" type="hidden" value={params.empleadoId} />
-                <input name="inicio" type="hidden" value={slot.inicio.toISOString()} />
-                <input name="fin" type="hidden" value={slot.fin.toISOString()} />
+                <input name="inicio" type="hidden" value={slot.inicio} />
+                <input name="fin" type="hidden" value={slot.fin} />
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Slot</p>
                 <strong className="mt-2 block text-lg">{fmtDateTime(slot.inicio)}</strong>
                 <p className="mt-1 text-sm text-muted-foreground">Finaliza {fmtDateTime(slot.fin)}</p>

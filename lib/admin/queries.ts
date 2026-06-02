@@ -14,6 +14,7 @@ import {
   usuarios,
 } from "@/lib/db/schema";
 import { toDateInput } from "@/lib/admin/format";
+import { serializeDates } from "@/lib/utils";
 
 function startOfDay(date = new Date()) {
   const value = new Date(date);
@@ -179,8 +180,7 @@ export async function getDashboard(negocioId: string) {
 export async function getRecentTurnos(negocioId: string) {
   if (isDemoMode()) return mockTurnos;
 
-  const db = getDb();
-  return db
+  const rows = await getDb()
     .select({
       id: turnos.id,
       createdAt: turnos.createdAt,
@@ -200,13 +200,13 @@ export async function getRecentTurnos(negocioId: string) {
     .where(eq(turnos.negocioId, negocioId))
     .orderBy(desc(turnos.createdAt))
     .limit(12);
+  return serializeDates(rows);
 }
 
 export async function getPendingCitas(negocioId: string) {
   if (isDemoMode()) return mockCitas;
 
-  const db = getDb();
-  return db
+  const rows = await getDb()
     .select({
       id: citas.id,
       inicio: citas.inicio,
@@ -229,6 +229,7 @@ export async function getPendingCitas(negocioId: string) {
     ))
     .orderBy(desc(citas.inicio))
     .limit(20);
+  return serializeDates(rows);
 }
 
 export async function getGastos(negocioId: string, categoria?: string) {
@@ -239,7 +240,7 @@ export async function getGastos(negocioId: string, categoria?: string) {
   if (categoria?.trim()) {
     conditions.push(sql`${gastos.categoria} = ${categoria.trim()}`);
   }
-  return db.select().from(gastos).where(and(...conditions)).orderBy(desc(gastos.fecha), desc(gastos.createdAt)).limit(40);
+  return serializeDates(await db.select().from(gastos).where(and(...conditions)).orderBy(desc(gastos.fecha), desc(gastos.createdAt)).limit(40));
 }
 
 export async function getInventario(negocioId: string, search?: string, soloAlertas?: boolean) {
@@ -255,7 +256,7 @@ export async function getInventario(negocioId: string, search?: string, soloAler
     conditions.push(sql`${inventario.stockMinimo} > 0`);
     conditions.push(sql`${inventario.stock} <= ${inventario.stockMinimo}`);
   }
-  return db.select().from(inventario).where(and(...conditions)).orderBy(desc(inventario.activo), inventario.nombre);
+  return serializeDates(await db.select().from(inventario).where(and(...conditions)).orderBy(desc(inventario.activo), inventario.nombre));
 }
 
 export async function getCategoriasInventario(negocioId: string): Promise<string[]> {
