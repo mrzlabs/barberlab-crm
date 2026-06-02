@@ -515,45 +515,76 @@ a {
   font-weight: 800;
 }
 
-/* ── Bot flotante con avatar personalizado ──────────────────── */
+/* ── Bot flotante — criatura sobre panel holográfico ────────── */
 .mrz-bot {
   position: fixed;
   left: 0;
   bottom: 22px;
   z-index: 48;
   padding: 0;
-  width: 44px;
-  height: 44px;
+  width: 54px;
+  height: 54px;
   border: none;
   border-radius: 50%;
-  background: transparent;
-  overflow: hidden;
+  background: #0c0c1c;
+  overflow: visible;           /* glow ring visible fuera del círculo */
   transform: translate3d(var(--bx,8vw), calc(var(--by,0px) + var(--hop,0px)), 0);
   transition: transform 2.8s cubic-bezier(.45,.05,.25,1);
-  animation: botGlow 3s ease-in-out infinite;
+  animation: botGlow 3.2s ease-in-out infinite;
   cursor: pointer;
-  box-shadow: 0 0 0 2px rgba(0,206,201,0.4), 0 0 18px rgba(0,206,201,0.28);
 }
 
 .mrz-bot::before,
 .mrz-bot::after { content: none; }
 
+/* Panel oscuro circular con puntos del patrón neural */
+.bot-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(0,206,201,0.12) 0%, #0c0c1c 68%),
+    #0c0c1c;
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(0,206,201,0.12) 0%, transparent 68%),
+    radial-gradient(circle, rgba(0,206,201,0.25) 1px, transparent 1px);
+  background-size: 100% 100%, 7px 7px;
+}
+
+/* La criatura — object-contain con padding para que "flote" sobre el panel */
 .bot-avatar-img {
+  position: relative;
+  z-index: 2;
   display: block;
-  width: 44px !important;
-  height: 44px !important;
-  object-fit: cover;
+  width: 54px !important;
+  height: 54px !important;
+  object-fit: contain;
+  padding: 4px;
   border-radius: 50%;
   pointer-events: none;
+  /* mezcla el fondo blanco de la imagen con el fondo oscuro */
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 2px 6px rgba(0,206,201,0.45));
 }
 
 .mrz-bot.hop {
-  animation: botGlow 3s ease-in-out infinite, botHop .42s cubic-bezier(.3,1.4,.5,1);
+  animation: botGlow 3.2s ease-in-out infinite, botHop .42s cubic-bezier(.3,1.4,.5,1);
 }
 
 @keyframes botGlow {
-  0%, 100% { box-shadow: 0 0 0 2px rgba(0,206,201,0.4), 0 0 18px rgba(0,206,201,0.28); }
-  50%       { box-shadow: 0 0 0 3px rgba(0,206,201,0.65), 0 0 28px rgba(0,206,201,0.42); }
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px rgba(0,206,201,0.45),
+      0 0 0 4px rgba(0,206,201,0.12),
+      0 4px 22px rgba(0,206,201,0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2.5px rgba(0,206,201,0.7),
+      0 0 0 6px rgba(0,206,201,0.18),
+      0 4px 32px rgba(0,206,201,0.45);
+  }
 }
 
 .mrz-help-panel {
@@ -787,13 +818,13 @@ a {
   }
 
   .mrz-bot {
-    width: 40px;
-    height: 40px;
+    width: 46px;
+    height: 46px;
   }
 
   .bot-avatar-img {
-    width: 40px !important;
-    height: 40px !important;
+    width: 46px !important;
+    height: 46px !important;
   }
 
   .mrz-help-panel {

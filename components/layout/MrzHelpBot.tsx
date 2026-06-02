@@ -115,11 +115,13 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
         type="button"
         aria-label="Abrir ayuda BarberLab"
       >
+        {/* fondo oscuro con patrón neural */}
+        <span className="bot-bg" aria-hidden="true" />
         <Image
           src="/bot-avatar.png"
           alt="Bot MRZLABS"
-          width={44}
-          height={44}
+          width={52}
+          height={52}
           className="bot-avatar-img"
           priority
           unoptimized
