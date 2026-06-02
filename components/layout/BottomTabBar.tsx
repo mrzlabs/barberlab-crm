@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navStyles } from "@/components/layout/nav-config";
 
 type NavItem = { href: string; label: string };
 
@@ -10,33 +9,27 @@ export function BottomTabBar({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav
-      className="fixed left-0 right-0 top-[52px] z-30 overflow-x-auto border-b border-white/8 bg-slate-950/88 pb-0 shadow-[0_4px_24px_rgba(0,0,0,0.32)] backdrop-blur-2xl lg:hidden"
+    <nav className="fixed left-0 right-0 top-[52px] z-30 overflow-x-auto lg:hidden"
+      style={{
+        background: "rgba(6,6,16,0.9)",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        backdropFilter: "blur(14px)",
+      }}
     >
-      <div className="flex h-14 min-w-max items-center gap-0.5 px-2">
+      <div className="flex h-9 min-w-max items-end gap-0 px-3">
         {items.map((item) => {
-          const style = navStyles[item.label] ?? navStyles.Dashboard;
-          const Icon = style.icon;
           const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
-
           return (
             <Link
               key={item.href}
               href={item.href}
-              className="flex min-w-[64px] flex-col items-center gap-0.5 rounded-xl px-1.5 py-1"
+              className="relative whitespace-nowrap px-3 pb-1.5 pt-1 text-[11px] font-semibold transition-colors"
+              style={{
+                color: isActive ? "#00cec9" : "rgba(255,255,255,0.45)",
+                borderBottom: isActive ? "2px solid #00cec9" : "2px solid transparent",
+              }}
             >
-              <span
-                className={`grid size-9 place-items-center rounded-xl transition-all duration-150 ${
-                  isActive
-                    ? `${style.tone} scale-105 shadow-lg`
-                    : "bg-white/5 text-white/45"
-                } ${isActive ? style.shape === "circle" ? "rounded-full" : "rounded-xl" : ""}`}
-              >
-                <Icon className={`size-4.5 ${isActive ? "fill-current" : ""}`} />
-              </span>
-              <span className={`max-w-[60px] truncate text-[8px] font-bold ${isActive ? "text-white" : "text-white/40"}`}>
-                {item.label}
-              </span>
+              {item.label}
             </Link>
           );
         })}

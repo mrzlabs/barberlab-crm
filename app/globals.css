@@ -515,41 +515,27 @@ a {
   font-weight: 800;
 }
 
-/* ── Bot flotante — robot violeta sin fondo ─────────────────── */
-.mrz-bot {
-  position: fixed;
-  left: 0;
-  bottom: 28px;
-  z-index: 48;
+/* ── Bot en footer — estático, sin vuelo ────────────────────── */
+.mrz-bot-btn {
+  display: block;
   padding: 0;
-  width: 56px;
-  height: 68px;
   border: none;
-  border-radius: 0;
   background: transparent;
-  overflow: visible;
-  transform: translate3d(var(--bx,8vw), calc(var(--by,0px) + var(--hop,0px)), 0);
-  transition: transform 2.8s cubic-bezier(.45,.05,.25,1);
-  animation: botBreathe 3.4s ease-in-out infinite;
   cursor: pointer;
-  filter: drop-shadow(0 4px 12px rgba(76,58,145,0.55));
+  animation: botBreathe 3.4s ease-in-out infinite;
+  filter: drop-shadow(0 3px 10px rgba(76,58,145,0.5));
+  transition: filter 0.2s;
 }
 
-.mrz-bot::before,
-.mrz-bot::after { content: none; }
+.mrz-bot-btn:hover,
+.mrz-bot-btn.active {
+  filter: drop-shadow(0 5px 16px rgba(79,195,247,0.65));
+}
 
 .bot-robot-svg {
-  width: 56px;
-  height: 68px;
+  width: 54px;
+  height: 67px;
   display: block;
-}
-
-.mrz-bot:hover {
-  filter: drop-shadow(0 6px 18px rgba(79,195,247,0.6));
-}
-
-.mrz-bot.hop {
-  animation: botBreathe 3.4s ease-in-out infinite, botHop .42s cubic-bezier(.3,1.4,.5,1);
 }
 
 .mrz-help-panel {
@@ -782,14 +768,9 @@ a {
     font-size: .55rem;
   }
 
-  .mrz-bot {
-    width: 46px;
-    height: 56px;
-  }
-
   .bot-robot-svg {
-    width: 46px;
-    height: 56px;
+    width: 44px;
+    height: 55px;
   }
 
   .mrz-help-panel {

@@ -740,8 +740,8 @@ export function AppChrome({
           </div>
         </header>
 
-        {/* page content — pt-14 mobile deja espacio bajo la nav bar top */}
-        <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-14 sm:px-5 sm:pb-16 lg:pt-5">
+        {/* page content — pt-10 mobile deja espacio bajo la nav tabs */}
+        <main className="mx-auto max-w-[1280px] px-4 pb-8 pt-10 sm:px-5 lg:pt-5 lg:pb-8">
           <PageTransition>{children}</PageTransition>
         </main>
 
@@ -827,11 +827,12 @@ export function AppChrome({
         </>
       )}
 
+        {/* ── Footer con firma y bot — en flujo del documento ──── */}
+        <footer className="relative" style={{ marginLeft: 0 }}>
+          <MrzSignature bot={<MrzHelpBot topics={topics} />} />
+        </footer>
+
       </div>{/* end crm shell content */}
-
-      <MrzSignature />
-
-      <MrzHelpBot topics={topics} />
       {expandedPhoto && (
         <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/72 p-4 backdrop-blur-xl" onClick={() => setExpandedPhoto(null)}>
           <button className="absolute right-4 top-4 rounded-full border border-white/20 bg-white/10 p-3 text-white transition hover:bg-white/20" onClick={() => setExpandedPhoto(null)} type="button" aria-label="Cerrar foto">
