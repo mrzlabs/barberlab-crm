@@ -37,12 +37,13 @@ export function SelectableKpiGrid({ kpis }: { kpis: KpiItem[] }) {
                 Seleccionado
               </span>
             )}
-            <p className="report-kpi-label mt-1 text-xs font-semibold tracking-widest text-white/70">{k.label}</p>
+            <p className="report-kpi-label report-truncate mt-1 text-xs font-semibold tracking-widest text-white/70">{k.label}</p>
             <strong className="report-kpi-value mt-2 block truncate text-2xl font-black text-white">{k.value}</strong>
-            <p className="report-kpi-detail mt-1 truncate text-xs text-white/60">{k.detail}</p>
+            <p className="report-kpi-detail report-truncate mt-1 text-xs text-white/60">{k.detail}</p>
           </article>
         );
       })}
     </section>
   );
 }
+

@@ -1,4 +1,33 @@
+"use client";
+
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { cambiarClaveAction } from "./actions";
+
+function PasswordInput({ name, placeholder }: { name: string; placeholder: string }) {
+  const [showPassword, setShowPassword] = useState(false);
+
+  return (
+    <div className="relative">
+      <input
+        className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 pr-12 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/60"
+        name={name}
+        type={showPassword ? "text" : "password"}
+        minLength={8}
+        required
+        placeholder={placeholder}
+      />
+      <button
+        aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-400 transition hover:text-white"
+        onClick={() => setShowPassword((value) => !value)}
+        type="button"
+      >
+        {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+      </button>
+    </div>
+  );
+}
 
 export default function CambiarClavePage({
   searchParams,
@@ -13,7 +42,7 @@ export default function CambiarClavePage({
         <div className="rounded-[2rem] border border-white/15 bg-white/8 p-8 shadow-2xl shadow-violet-950/30 backdrop-blur-xl">
           <div className="mb-6 flex items-center gap-3">
             <div className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-cyan-500 to-violet-600 shadow-lg shadow-violet-500/30">
-              <span className="text-lg font-black text-white">🔑</span>
+              <span className="text-lg font-black text-white">BL</span>
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-400">BarberLab CRM</p>
@@ -34,25 +63,11 @@ export default function CambiarClavePage({
           <form action={cambiarClaveAction} className="grid gap-4">
             <label className="grid gap-2 text-xs font-bold uppercase tracking-wide text-slate-300">
               Nueva contraseña
-              <input
-                className="rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-400/60 transition"
-                name="password"
-                type="password"
-                minLength={8}
-                required
-                placeholder="Mínimo 8 caracteres"
-              />
+              <PasswordInput name="password" placeholder="Mínimo 8 caracteres" />
             </label>
             <label className="grid gap-2 text-xs font-bold uppercase tracking-wide text-slate-300">
               Confirmar contraseña
-              <input
-                className="rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-400/60 transition"
-                name="passwordConfirm"
-                type="password"
-                minLength={8}
-                required
-                placeholder="Repite la contraseña"
-              />
+              <PasswordInput name="passwordConfirm" placeholder="Repite la contraseña" />
             </label>
             <button
               className="mt-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 px-4 py-3 text-sm font-black text-white shadow-lg shadow-violet-500/20 transition hover:scale-[1.02] hover:opacity-95"

@@ -18,7 +18,7 @@ export function ConfigVisualPanel({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [isDark, setIsDark] = useState(!!initialDark);
+  const [isDark, setIsDark] = useState(initialDark ?? true);
   const [fontFamily, setFontFamily] = useState(initialFont ?? "Inter");
   const [bgUrl, setBgUrl] = useState(initialBg ?? null);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +31,10 @@ export function ConfigVisualPanel({
     const fd = new FormData();
     fd.set("darkMode", String(next));
     fd.set("fontFamily", fontFamily);
-    startTransition(() => updateConfigVisual(fd));
+    startTransition(async () => {
+      await updateConfigVisual(fd);
+      router.refresh();
+    });
   }
 
   function handleFontChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -40,7 +43,10 @@ export function ConfigVisualPanel({
     const fd = new FormData();
     fd.set("darkMode", String(isDark));
     fd.set("fontFamily", next);
-    startTransition(() => updateConfigVisual(fd));
+    startTransition(async () => {
+      await updateConfigVisual(fd);
+      router.refresh();
+    });
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -198,3 +204,4 @@ export function ConfigVisualPanel({
     </div>
   );
 }
+

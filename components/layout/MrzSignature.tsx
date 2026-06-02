@@ -171,7 +171,8 @@ export function MrzSignature() {
       </div>
       <div className="ctn build-card">
         {/* Firma de tres columnas */}
-        <div className="mrz-footer-bar">
+        <p className="mrz-footer-message">Automatizamos tu negocio · Agenda, caja, inventario y reportes en un solo lugar · Built by MRZLABS</p>
+        <div className="mrz-footer-bar" aria-label="Automatizamos tu negocio · Agenda, caja, inventario y reportes en un solo lugar · Built by MRZLABS">
           <span className="mrz-footer-left">© 2026 Todos los derechos reservados</span>
           <button
             className="mrz-footer-center"
@@ -210,3 +211,5 @@ export function MrzSignature() {
     </div>
   );
 }
+
+

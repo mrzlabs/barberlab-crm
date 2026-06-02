@@ -363,6 +363,7 @@ export function AppChrome({
   const accentColor   = brand?.colorAcento    || "#7c3aed";
   const bgPhotoUrl    = configVisual?.bgPhotoUrl;
   const fontFamily = configVisual?.fontFamily || brand?.fuente || "Inter";
+  const isDark = configVisual?.darkMode !== false;
   const roleLabel = role === "super_admin" ? "Super Admin MRZLABS" : role === "admin" ? "Administrador" : role === "empleado" ? "Empleado" : "Cliente";
 
   const homeHref = role === "admin" ? "/admin/dashboard" : role === "empleado" ? "/empleado/mi-agenda" : role === "cliente" ? "/cliente/mis-citas" : null;
@@ -375,11 +376,18 @@ export function AppChrome({
 
   return (
     <div
-      className="crm-shell min-h-dvh overflow-x-hidden text-white"
+      className={`crm-shell min-h-dvh overflow-x-hidden ${isDark ? "text-white" : "text-slate-900"}`}
+      data-theme={isDark ? "dark" : "light"}
       style={{
         ["--brand-primary" as string]: primaryColor,
         ["--brand-secondary" as string]: secondaryColor,
         ["--brand-accent" as string]: accentColor,
+        ["--report-bar" as string]: isDark ? "#00cec9" : "#3b82f6",
+        ["--report-axis" as string]: isDark ? "#cbd5e1" : "#475569",
+        ["--report-grid" as string]: isDark ? "rgba(148,163,184,.25)" : "#e2e8f0",
+        ["--report-tooltip-bg" as string]: isDark ? "#1e293b" : "#ffffff",
+        ["--report-tooltip-text" as string]: isDark ? "#ffffff" : "#0f172a",
+        ["--report-tooltip-border" as string]: isDark ? "rgba(255,255,255,.14)" : "#e2e8f0",
         fontFamily: `${fontFamily}, Inter, Segoe UI, Roboto, Arial, sans-serif`,
       }}
     >
@@ -390,36 +398,36 @@ export function AppChrome({
         fuente={fontFamily}
       />
       <FontLoader fontFamily={fontFamily} />
-      <CursorGlow />
-
-      {/* ── Capa 1: Base oscura — glow de marca sobre negro profundo ── */}
-      <div
-        className="pointer-events-none fixed inset-0 -z-30"
-        style={{
-          background: [
-            `radial-gradient(ellipse 55% 40% at 18% 25%, ${hexAlpha(primaryColor, 0.28)}, transparent 65%)`,
-            `radial-gradient(ellipse 42% 36% at 82% 74%, ${hexAlpha(accentColor, 0.22)}, transparent 60%)`,
-            "#050709",
-          ].join(", "),
-        }}
-      />
-
-      {/* ── Capa 2: Foto del comercio (ambiente de color, no reemplaza el patrón) */}
-      {bgPhotoUrl && (
-        <div
-          className="pointer-events-none fixed inset-0 -z-20"
-          style={{
-            backgroundImage: `url(${bgPhotoUrl})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            opacity: 0.12,
-            filter: "blur(80px)",
-          }}
-        />
+      {isDark && <CursorGlow />}
+      {isDark ? (
+        <>
+          <div
+            className="pointer-events-none fixed inset-0 -z-30"
+            style={{
+              background: [
+                `radial-gradient(ellipse 55% 40% at 18% 25%, ${hexAlpha(primaryColor, 0.28)}, transparent 65%)`,
+                `radial-gradient(ellipse 42% 36% at 82% 74%, ${hexAlpha(accentColor, 0.22)}, transparent 60%)`,
+                "#050709",
+              ].join(", "),
+            }}
+          />
+          {bgPhotoUrl && (
+            <div
+              className="pointer-events-none fixed inset-0 -z-20"
+              style={{
+                backgroundImage: `url(${bgPhotoUrl})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                opacity: 0.12,
+                filter: "blur(80px)",
+              }}
+            />
+          )}
+          <NeuralCanvas className="fixed inset-0 -z-10 h-full w-full opacity-55" />
+        </>
+      ) : (
+        <div className="pointer-events-none fixed inset-0 -z-30 bg-[#f8fafc]" />
       )}
-
-      {/* ── Capa 3: Neural canvas — partículas continuas con destellos ─ */}
-      <NeuralCanvas className="fixed inset-0 -z-10 h-full w-full opacity-55" />
 
       {/* ── Mobile overlay ──────────────────────────────────────── */}
       {mobileOpen && (
@@ -429,7 +437,7 @@ export function AppChrome({
       {/* ── Sidebar ─────────────────────────────────────────────── */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 [transition-timing-function:cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(220px,86vw)] lg:w-[220px]" : "w-[220px] lg:w-[56px]"}`}
-        style={{ background: "#1a1a2e", borderRight: "1px solid rgba(255,255,255,0.07)" }}
+        style={isDark ? { background: "#1a1a2e", borderRight: "1px solid rgba(255,255,255,0.07)" } : { background: "#ffffff", borderRight: "1px solid #e2e8f0" }}
       >
         {/* header */}
         <div className="flex items-center justify-between gap-3 border-b border-white/10 p-4">
@@ -574,8 +582,8 @@ export function AppChrome({
       <div className={`min-h-dvh pb-20 transition-all duration-300 lg:pb-8 ${open ? "lg:ml-[220px]" : "lg:ml-[56px]"}`}>
         {/* topbar */}
         <header
-          className="sticky top-0 z-20 flex h-[52px] items-center border-b border-white/8 px-4"
-          style={{ background: "#0f0f1a" }}
+          className={`sticky top-0 z-20 flex h-[52px] items-center border-b px-4 ${isDark ? "border-white/8" : "border-slate-200"}`}
+          style={{ background: isDark ? "#0f0f1a" : "#ffffff" }}
         >
           <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
@@ -649,7 +657,7 @@ export function AppChrome({
         </main>
 
         {/* ── Footer firma ────────────────────────────────────────── */}
-        <footer className="mx-auto flex max-w-[1280px] items-center justify-between gap-2 border-t border-white/6 px-5 py-3 text-[10px] text-white/25">
+        <footer className={`mx-auto flex max-w-[1280px] items-center justify-between gap-2 border-t px-5 py-3 text-[10px] ${isDark ? "border-white/6 text-white/25" : "border-slate-200 text-slate-500"}`}>
           <span>© 2026 Todos los derechos reservados</span>
           <span className="font-black tracking-widest text-cyan-500/60">BARBERLABS</span>
           <span>Built by MRZLABS</span>
@@ -750,3 +758,8 @@ export function AppChrome({
     </div>
   );
 }
+
+
+
+
+

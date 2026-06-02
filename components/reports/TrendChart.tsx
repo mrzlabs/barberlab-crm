@@ -50,8 +50,8 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
           const y = PAD.top + INNER_H * (1 - t);
           return (
             <g key={t}>
-              <line x1={PAD.left} y1={y} x2={CHART_W - PAD.right} y2={y} stroke="#e2e8f0" strokeWidth={t === 0 ? 1.5 : 1} strokeDasharray={t === 0 ? undefined : "4 3"} />
-              <text x={PAD.left - 6} y={y + 4} textAnchor="end" fontSize="10" fill="#94a3b8" fontWeight="700">{shortMoney(maxVal * t)}</text>
+              <line x1={PAD.left} y1={y} x2={CHART_W - PAD.right} y2={y} stroke="var(--report-grid,#334155)" strokeWidth={t === 0 ? 1.5 : 1} strokeDasharray={t === 0 ? undefined : "4 3"} />
+              <text x={PAD.left - 6} y={y + 4} textAnchor="end" fontSize="10" fill="var(--report-axis,#cbd5e1)" fontWeight="700">{shortMoney(maxVal * t)}</text>
             </g>
           );
         })}
@@ -73,7 +73,7 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
               {/* bar */}
               <rect
                 x={x} y={y} width={barW} height={barH} rx="3"
-                fill={isHover ? "var(--brand-accent,#7c3aed)" : "var(--brand-secondary,#22d3ee)"}
+                fill={isHover ? "var(--brand-accent,#7c3aed)" : "var(--report-bar,#00cec9)"}
                 opacity={isHover ? 1 : 0.8}
                 style={{ transition: "fill .12s,opacity .12s" }}
               />
@@ -88,16 +88,16 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
               />
               {/* x label */}
               {i % labelEvery === 0 && (
-                <text x={cx} y={CHART_H - 10} textAnchor="middle" fontSize="9" fill="#94a3b8" fontWeight="700">
+                <text x={cx} y={CHART_H - 10} textAnchor="middle" fontSize="9" fill="var(--report-axis,#cbd5e1)" fontWeight="700">
                   {shortDate(d.fecha)}
                 </text>
               )}
               {/* tooltip */}
               {isHover && (
                 <g>
-                  <rect x={ttX} y={ttY} width={112} height={38} rx="7" fill="#0f172a" opacity="0.93" />
-                  <text x={ttX + 8} y={ttY + 14} fontSize="10" fill="#67e8f9" fontWeight="800">{d.fecha}</text>
-                  <text x={ttX + 8} y={ttY + 29} fontSize="10" fill="#f1f5f9" fontWeight="600">
+                  <rect x={ttX} y={ttY} width={112} height={38} rx="7" fill="var(--report-tooltip-bg,#1e293b)" stroke="var(--report-tooltip-border,rgba(255,255,255,.14))" opacity="0.97" />
+                  <text x={ttX + 8} y={ttY + 14} fontSize="10" fill="var(--brand-secondary,#67e8f9)" fontWeight="800">{d.fecha}</text>
+                  <text x={ttX + 8} y={ttY + 29} fontSize="10" fill="var(--report-tooltip-text,#ffffff)" fontWeight="600">
                     {shortMoney(d.ingresos)} · {d.turnos} turnos
                   </text>
                 </g>
@@ -109,3 +109,4 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
     </div>
   );
 }
+

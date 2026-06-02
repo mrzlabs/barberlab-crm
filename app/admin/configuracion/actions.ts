@@ -47,6 +47,8 @@ export async function updateMiNegocio(formData: FormData) {
 
   revalidatePath("/admin/configuracion");
   revalidatePath("/admin", "layout");
+  revalidatePath("/empleado", "layout");
+  revalidatePath("/cliente", "layout");
   revalidatePath("/admin/dashboard");
   revalidatePath("/perfil");
 }
@@ -80,6 +82,8 @@ export async function updateConfigVisual(formData: FormData) {
 
   revalidatePath("/admin/configuracion");
   revalidatePath("/admin", "layout");
+  revalidatePath("/empleado", "layout");
+  revalidatePath("/cliente", "layout");
   revalidatePath("/admin/dashboard");
   revalidatePath("/perfil");
 }
@@ -127,6 +131,8 @@ export async function uploadNegocioBgPhoto(formData: FormData) {
 
   revalidatePath("/admin/configuracion");
   revalidatePath("/admin", "layout");
+  revalidatePath("/empleado", "layout");
+  revalidatePath("/cliente", "layout");
   revalidatePath("/admin/dashboard");
   revalidatePath("/perfil");
   return { ok: true, url: publicUrl };
@@ -192,6 +198,11 @@ export async function removeNegocioBgPhoto() {
 
   revalidatePath("/admin/configuracion");
   revalidatePath("/admin", "layout");
+  revalidatePath("/empleado", "layout");
+  revalidatePath("/cliente", "layout");
   revalidatePath("/admin/dashboard");
   revalidatePath("/perfil");
 }
+
+
+

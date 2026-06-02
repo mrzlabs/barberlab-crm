@@ -1,22 +1,23 @@
 import { z } from "zod";
 
 export const buscarSlotsSchema = z.object({
-  servicioId: z.string().uuid().optional(),
-  empleadoId: z.string().uuid().optional(),
-  fecha: z.string().min(10).optional(),
+  servicioId: z.string().trim().uuid().optional(),
+  empleadoId: z.string().trim().uuid().optional(),
+  fecha: z.string().trim().min(10).optional(),
 });
 
 export const reservarSchema = z.object({
-  servicioId: z.string().uuid(),
-  empleadoId: z.string().uuid(),
-  inicio: z.string().datetime(),
-  fin: z.string().datetime(),
+  servicioId: z.string().trim().uuid(),
+  empleadoId: z.string().trim().uuid(),
+  inicio: z.string().trim().datetime(),
+  fin: z.string().trim().datetime(),
 });
 
 export const citaIdSchema = z.object({
-  citaId: z.string().uuid(),
+  citaId: z.string().trim().uuid(),
 });
 
 export const reprogramarSchema = reservarSchema.extend({
-  citaId: z.string().uuid(),
+  citaId: z.string().trim().uuid(),
 });
+

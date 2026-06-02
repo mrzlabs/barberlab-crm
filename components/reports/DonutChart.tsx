@@ -39,9 +39,9 @@ export function DonutChart({
   const segments = buildSegments(slices);
 
   return (
-    <article className="rounded-2xl border bg-white p-5 shadow-sm">
-      <h3 className="text-base font-black text-slate-800">{title}</h3>
-      <p className="text-xs text-slate-400">{total} en total</p>
+    <article className="report-card overflow-hidden rounded-2xl border bg-white p-5 shadow-sm">
+      <h3 className="report-truncate text-base font-black text-slate-800">{title}</h3>
+      <p className="report-truncate text-xs text-slate-400">{total} en total</p>
 
       <div className="mt-5 flex flex-col items-center gap-5 sm:flex-row sm:items-start">
         {/* SVG donut */}
@@ -89,7 +89,7 @@ export function DonutChart({
             <div key={seg.label} className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
               <div className="flex min-w-0 items-center gap-2">
                 <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: seg.color }} />
-                <span className="truncate text-xs font-semibold text-slate-700">{seg.label}</span>
+                <span className="report-truncate text-xs font-semibold text-slate-700">{seg.label}</span>
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <span className="text-xs font-black text-slate-900">{seg.value}</span>
@@ -104,3 +104,4 @@ export function DonutChart({
     </article>
   );
 }
+

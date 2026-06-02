@@ -176,3 +176,60 @@ export async function citaPerteneceEmpleado(userId: string, citaId: string) {
 
   return Boolean(cita);
 }
+
+export async function getReportesEmpleado(empleadoId: string, desde: string, hasta: string) {
+  const from = new Date(`${desde}T00:00:00-05:00`).toISOString();
+  const to = new Date(`${hasta}T23:59:59-05:00`).toISOString();
+  const db = getDb();
+
+  const [empleado] = await db
+    .select({ comisionPct: empleados.comisionPct })
+    .from(empleados)
+    .where(eq(empleados.id, empleadoId))
+    .limit(1);
+
+  const comisionPct = Number(empleado?.comisionPct ?? 0);
+
+  const rows = await db
+    .select({
+      id: turnos.id,
+      fecha: turnos.createdAt,
+      cliente: clientes.nombre,
+      servicio: servicios.nombre,
+      precioFinal: turnos.precioFinal,
+      propina: turnos.propina,
+    })
+    .from(turnos)
+    .innerJoin(citas, eq(turnos.citaId, citas.id))
+    .innerJoin(clientes, eq(citas.clienteId, clientes.id))
+    .innerJoin(servicios, eq(citas.servicioId, servicios.id))
+    .where(and(eq(citas.empleadoId, empleadoId), gte(turnos.createdAt, from), lte(turnos.createdAt, to)))
+    .orderBy(desc(turnos.createdAt));
+
+  const serviciosRealizados = rows.map((row) => {
+    const ingreso = Number(row.precioFinal ?? 0) + Number(row.propina ?? 0);
+    return {
+      id: row.id,
+      fecha: row.fecha,
+      cliente: row.cliente,
+      servicio: row.servicio,
+      ingreso,
+      comision: Math.round((ingreso * comisionPct) / 100),
+    };
+  });
+
+  const ingresos = serviciosRealizados.reduce((acc, row) => acc + row.ingreso, 0);
+  const comisiones = serviciosRealizados.reduce((acc, row) => acc + row.comision, 0);
+  const serviciosCount = serviciosRealizados.length;
+
+  return serializeDates({
+    comisionPct,
+    kpis: {
+      servicios: serviciosCount,
+      ingresos,
+      comisiones,
+      ticket: serviciosCount ? Math.round(ingresos / serviciosCount) : 0,
+    },
+    servicios: serviciosRealizados,
+  });
+}

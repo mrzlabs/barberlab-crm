@@ -54,8 +54,8 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md shadow-sm">
           <div className="flex items-center justify-between border-b px-5 py-4">
             <div>
-              <h3 className="font-black">Ingresos por día</h3>
-              <p className="text-xs text-slate-400">Evolución diaria de ingresos (precio final + propinas) en el período.</p>
+              <h3 className="report-truncate font-black">Ingresos por día</h3>
+              <p className="report-truncate text-xs text-slate-400">Evolución diaria de ingresos (precio final + propinas) en el período.</p>
             </div>
             <span className="rounded-full bg-cyan-50 px-2.5 py-1 text-[10px] font-bold text-cyan-700">{trend.length} días</span>
           </div>
@@ -73,12 +73,12 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
             <h3 className="mt-1 text-lg font-black">Servicio líder</h3>
             {topSvc ? (
               <>
-                <p className="mt-2 text-xs leading-5 text-slate-500">{topSvc.servicio} concentra la mayor producción del periodo.</p>
+                <p className="report-truncate mt-2 text-xs leading-5 text-slate-500">{topSvc.servicio} concentra la mayor producción del periodo.</p>
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
                   <div className="h-full rounded-full bg-cyan-400 transition-all" style={{ width: `${Math.max(8, (topSvc.ingresos / maxSvc) * 100)}%` }} />
                 </div>
-                <strong className="mt-3 block text-xl font-black text-white">{fmtMoney(topSvc.ingresos)}</strong>
-                <span className="text-xs text-slate-400">{topSvc.turnos} turnos · {pct(topSvc.rentabilidadNeta)} utilidad neta</span>
+                <strong className="report-truncate mt-3 block text-xl font-black text-white">{fmtMoney(topSvc.ingresos)}</strong>
+                <span className="report-truncate text-xs text-slate-400">{topSvc.turnos} turnos · {pct(topSvc.rentabilidadNeta)} utilidad neta</span>
               </>
             ) : <p className="mt-3 text-sm text-slate-400">Sin turnos en el periodo.</p>}
           </article>
@@ -87,12 +87,12 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
             <h3 className="mt-1 text-lg font-black">Especialista líder</h3>
             {topEmp ? (
               <>
-                <p className="mt-2 text-xs leading-5 text-slate-500">{topEmp.empleado} marca la mayor producción del periodo.</p>
+                <p className="report-truncate mt-2 text-xs leading-5 text-slate-500">{topEmp.empleado} marca la mayor producción del periodo.</p>
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
                   <div className="h-full rounded-full bg-violet-500" style={{ width: `${Math.max(8, ((topEmp.ingresos + topEmp.propinas) / maxEmp) * 100)}%` }} />
                 </div>
-                <strong className="mt-3 block text-xl font-black text-white">{fmtMoney(topEmp.ingresos + topEmp.propinas)}</strong>
-                <span className="text-xs text-slate-400">{topEmp.turnos} turnos · utilidad {fmtMoney(topEmp.utilidadNegocio)}</span>
+                <strong className="report-truncate mt-3 block text-xl font-black text-white">{fmtMoney(topEmp.ingresos + topEmp.propinas)}</strong>
+                <span className="report-truncate text-xs text-slate-400">{topEmp.turnos} turnos · utilidad {fmtMoney(topEmp.utilidadNegocio)}</span>
               </>
             ) : <p className="mt-3 text-sm text-slate-400">Sin producción por empleado.</p>}
           </article>
@@ -101,9 +101,9 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
             <h3 className="mt-1 text-lg font-black">Método dominante</h3>
             {topPay ? (
               <>
-                <p className="mt-2 text-xs leading-5 text-slate-500">El método con mayor volumen facilita conciliación y arqueo.</p>
-                <strong className="mt-4 block text-2xl font-black capitalize text-white">{topPay.metodoPago}</strong>
-                <span className="text-xs text-slate-400">{fmtMoney(topPay.ingresos)} · {topPay.turnos} turnos</span>
+                <p className="report-truncate mt-2 text-xs leading-5 text-slate-500">El método con mayor volumen facilita conciliación y arqueo.</p>
+                <strong className="report-truncate mt-4 block text-2xl font-black capitalize text-white">{topPay.metodoPago}</strong>
+                <span className="report-truncate text-xs text-slate-400">{fmtMoney(topPay.ingresos)} · {topPay.turnos} turnos</span>
               </>
             ) : <p className="mt-3 text-sm text-slate-400">Sin pagos en el periodo.</p>}
           </article>
@@ -118,8 +118,8 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
           <article className="overflow-hidden rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <div>
-                <h3 className="font-black">Rentabilidad por servicio</h3>
-                <p className="text-xs text-slate-400">Ingreso, costo y margen por servicio.</p>
+                <h3 className="report-truncate font-black">Rentabilidad por servicio</h3>
+                <p className="report-truncate text-xs text-slate-400">Ingreso, costo y margen por servicio.</p>
               </div>
               <span className="rounded-full bg-cyan-50 px-2.5 py-1 text-[10px] font-bold text-cyan-700">{r.byService.length} servicios</span>
             </div>
@@ -140,8 +140,8 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
                 <tbody>
                   {r.byService.map((s, i) => (
                     <tr className={`border-t transition hover:bg-slate-800/40 ${i % 2 === 0 ? "" : "bg-slate-800/20"}`} key={`${s.servicio}-${s.categoria}`}>
-                      <td className="px-5 py-3.5 font-semibold">{s.servicio}</td>
-                      <td className="px-5 py-3.5 capitalize text-slate-500">{s.categoria.replace("_", " ")}</td>
+                      <td className="max-w-[220px] px-5 py-3.5 font-semibold"><span className="report-truncate block">{s.servicio}</span></td>
+                      <td className="max-w-[180px] px-5 py-3.5 capitalize text-slate-500"><span className="report-truncate block">{s.categoria.replace("_", " ")}</span></td>
                       <td className="px-4 py-3.5 text-right tabular-nums">{s.turnos}</td>
                       <td className="px-4 py-3.5 text-right tabular-nums font-semibold">{fmtMoney(s.ingresos)}</td>
                       <td className="px-4 py-3.5 text-right tabular-nums">{fmtMoney(s.costoInsumo)}</td>
@@ -162,8 +162,8 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
           <article className="overflow-hidden rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <div>
-                <h3 className="font-black">Producción por empleado</h3>
-                <p className="text-xs text-slate-400">Producción, costo, comisión y utilidad para el negocio.</p>
+                <h3 className="report-truncate font-black">Producción por empleado</h3>
+                <p className="report-truncate text-xs text-slate-400">Producción, costo, comisión y utilidad para el negocio.</p>
               </div>
               <span className="rounded-full bg-violet-50 px-2.5 py-1 text-[10px] font-bold text-violet-700">{r.byEmployee.length} empleados</span>
             </div>
@@ -183,8 +183,8 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
                 <tbody>
                   {r.byEmployee.map((e, i) => (
                     <tr className={`border-t transition hover:bg-slate-800/40 ${i % 2 === 0 ? "" : "bg-slate-800/20"}`} key={`${e.empleado}-${e.especialidad}`}>
-                      <td className="px-5 py-3.5 font-semibold">{e.empleado}</td>
-                      <td className="px-5 py-3.5 capitalize text-slate-500">{e.especialidad.replace("_", " ")}</td>
+                      <td className="max-w-[220px] px-5 py-3.5 font-semibold"><span className="report-truncate block">{e.empleado}</span></td>
+                      <td className="max-w-[180px] px-5 py-3.5 capitalize text-slate-500"><span className="report-truncate block">{e.especialidad.replace("_", " ")}</span></td>
                       <td className="px-4 py-3.5 text-right tabular-nums">{e.turnos}</td>
                       <td className="px-4 py-3.5 text-right tabular-nums font-semibold">{fmtMoney(e.ingresos + e.propinas)}</td>
                       <td className="px-4 py-3.5 text-right tabular-nums">{fmtMoney(e.costoInsumo)}</td>
@@ -207,8 +207,8 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
         <section className="grid gap-6 xl:grid-cols-[1fr_1.6fr]">
           <article className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md shadow-sm">
             <div className="border-b px-5 py-4">
-              <h3 className="font-black">Método de pago</h3>
-              <p className="text-xs text-slate-400">Distribución de caja por periodo.</p>
+              <h3 className="report-truncate font-black">Método de pago</h3>
+              <p className="report-truncate text-xs text-slate-400">Distribución de caja por periodo.</p>
             </div>
             <div className="grid gap-3 p-5">
               {r.byPayment.map((p) => (
@@ -300,3 +300,4 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
     </div>
   );
 }
+

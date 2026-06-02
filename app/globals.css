@@ -899,3 +899,112 @@ a {
     size: A4 landscape;
   }
 }
+
+/* Light CRM theme */
+.crm-shell[data-theme="light"] {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.crm-shell[data-theme="light"] .glass-panel,
+.crm-shell[data-theme="light"] .report-card,
+.crm-shell[data-theme="light"] .report-kpi,
+.crm-shell[data-theme="light"] article[class*="bg-slate-900"],
+.crm-shell[data-theme="light"] section[class*="bg-slate-900"] {
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .04) !important;
+}
+
+.crm-shell[data-theme="light"] header,
+.crm-shell[data-theme="light"] aside {
+  background: #ffffff !important;
+  color: #0f172a;
+}
+
+.crm-shell[data-theme="light"] aside {
+  border-right: 1px solid #e2e8f0 !important;
+}
+
+.crm-shell[data-theme="light"] header {
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.crm-shell[data-theme="light"] h1,
+.crm-shell[data-theme="light"] h2,
+.crm-shell[data-theme="light"] h3,
+.crm-shell[data-theme="light"] strong,
+.crm-shell[data-theme="light"] [class*="text-white"] {
+  color: #0f172a !important;
+}
+
+.crm-shell[data-theme="light"] [class*="text-white/"] {
+  color: #475569 !important;
+}
+
+.crm-shell[data-theme="light"] [class*="text-slate-300"],
+.crm-shell[data-theme="light"] [class*="text-slate-400"],
+.crm-shell[data-theme="light"] [class*="text-slate-500"],
+.crm-shell[data-theme="light"] .report-kpi-label,
+.crm-shell[data-theme="light"] .report-kpi-detail {
+  color: #64748b !important;
+}
+
+.crm-shell[data-theme="light"] [class*="border-white/"] {
+  border-color: #e2e8f0 !important;
+}
+
+.crm-shell[data-theme="light"] [class*="bg-white/"] {
+  background-color: #f8fafc !important;
+}
+
+.crm-shell[data-theme="light"] input,
+.crm-shell[data-theme="light"] textarea,
+.crm-shell[data-theme="light"] select {
+  border-color: #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.crm-shell[data-theme="light"] input::placeholder,
+.crm-shell[data-theme="light"] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.crm-shell[data-theme="light"] aside a:hover,
+.crm-shell[data-theme="light"] aside button:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.crm-shell[data-theme="light"] .report-truncate,
+.crm-shell[data-theme="light"] .report-card p,
+.crm-shell[data-theme="light"] .report-card span,
+.crm-shell[data-theme="light"] .report-card strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.report-truncate {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mrz-footer-message {
+  position: absolute;
+  left: 50%;
+  bottom: 42px;
+  z-index: 4;
+  width: min(90vw, 860px);
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, .52);
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-align: center;
+  text-transform: uppercase;
+  pointer-events: auto;
+}
