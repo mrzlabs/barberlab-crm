@@ -32,10 +32,9 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
     let frameCount = 0;
 
     function readThemeVars() {
-      const el = cv.closest("[data-theme]") ?? document.documentElement;
-      const s = getComputedStyle(el as Element);
-      const o = s.getPropertyValue("--neural-opacity").trim();
-      const l = s.getPropertyValue("--neural-line-opacity").trim();
+      const root = document.documentElement;
+      const o = getComputedStyle(root).getPropertyValue("--neural-opacity").trim();
+      const l = getComputedStyle(root).getPropertyValue("--neural-line-opacity").trim();
       neuralOpacity = o ? parseFloat(o) : 0.55;
       neuralLineOpacity = l ? parseFloat(l) : 0.4;
     }
@@ -86,12 +85,16 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
 
       ctx.clearRect(0, 0, W, H);
 
+      // Global opacity from CSS var — dark: 0.55, light: 0.35
+      ctx.globalAlpha = neuralOpacity;
+
       for (const p of parts) {
         p.x += p.vx; p.y += p.vy; p.phase += 0.01;
         if (p.x < 0 || p.x > W) p.vx *= -1;
         if (p.y < 0 || p.y > H) p.vy *= -1;
       }
 
+      // Lines — scale by neuralLineOpacity relative to default 0.4
       for (let i = 0; i < parts.length; i++) {
         for (let j = i + 1; j < parts.length; j++) {
           const dx = parts[i].x - parts[j].x, dy = parts[i].y - parts[j].y;
@@ -107,6 +110,7 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
         }
       }
 
+      // Pulses
       for (let i = pulses.length - 1; i >= 0; i--) {
         const pu = pulses[i]; pu.t += dt;
         const g = pu.t / pu.dur;
@@ -124,14 +128,16 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
         ctx.shadowBlur = 0;
       }
 
+      // Particles — breathing via phase, globalAlpha handles theme intensity
       for (const p of parts) {
         const b = 0.5 + Math.sin(p.phase) * 0.25;
-        ctx.fillStyle = `rgba(192,132,252,${neuralOpacity * b})`;
+        ctx.fillStyle = `rgba(192,132,252,${b})`;
         ctx.shadowColor = "rgba(192,132,252,.6)"; ctx.shadowBlur = 6;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
         ctx.shadowBlur = 0;
       }
 
+      ctx.globalAlpha = 1;
       raf = requestAnimationFrame(tick);
     }
 

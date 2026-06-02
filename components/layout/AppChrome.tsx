@@ -369,6 +369,13 @@ export function AppChrome({
   const bgPhotoUrl    = configVisual?.bgPhotoUrl;
   const fontFamily = configVisual?.fontFamily || brand?.fuente || "Inter";
   const isDark = configVisual?.darkMode !== false;
+
+  // Sync theme vars to documentElement so NeuralCanvas reads correct opacity
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--neural-opacity", isDark ? "0.55" : "0.35");
+    root.style.setProperty("--neural-line-opacity", isDark ? "0.4" : "0.22");
+  }, [isDark]);
   const roleLabel = role === "super_admin" ? "Super Admin MRZLABS" : role === "admin" ? "Administrador" : role === "empleado" ? "Empleado" : "Cliente";
 
   const homeHref = role === "admin" ? "/admin/dashboard" : role === "empleado" ? "/empleado/mi-agenda" : role === "cliente" ? "/cliente/mis-citas" : null;
