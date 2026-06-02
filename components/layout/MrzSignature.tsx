@@ -8,6 +8,7 @@ export function MrzSignature() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [open, setOpen] = useState(false);
 
+  // Neural canvas animation
   useEffect(() => {
     const sigEl = sigRef.current;
     const cvEl = canvasRef.current;
@@ -18,10 +19,10 @@ export function MrzSignature() {
     const ctx = ctxRaw;
 
     let w = 0;
-    const h = 172;
+    const h = 80;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const qty = 72;
-    const maxDist = 128;
+    const qty = 60;
+    const maxDist = 120;
     const parts: Array<{ x: number; y: number; vx: number; vy: number; r: number; p: number }> = [];
     const pulses: Array<{ a: number; b: number; t: number; d: number }> = [];
     let raf = 0;
@@ -42,9 +43,9 @@ export function MrzSignature() {
         parts.push({
           x: Math.random() * w,
           y: Math.random() * h,
-          vx: (Math.random() - 0.5) * 0.13,
-          vy: (Math.random() - 0.5) * 0.13,
-          r: 1 + Math.random() * 1.35,
+          vx: (Math.random() - 0.5) * 0.12,
+          vy: (Math.random() - 0.5) * 0.12,
+          r: 1 + Math.random() * 1.2,
           p: Math.random() * Math.PI * 2,
         });
       }
@@ -64,10 +65,7 @@ export function MrzSignature() {
 
     fit();
     seed();
-    const ro = new ResizeObserver(() => {
-      fit();
-      seed();
-    });
+    const ro = new ResizeObserver(() => { fit(); seed(); });
     ro.observe(sig);
 
     let last = performance.now();
@@ -76,16 +74,11 @@ export function MrzSignature() {
       const dt = now - last;
       last = now;
       pulseTimer += dt;
-      if (pulseTimer > 300) {
-        spawn();
-        pulseTimer = 0;
-      }
+      if (pulseTimer > 300) { spawn(); pulseTimer = 0; }
 
       ctx.clearRect(0, 0, w, h);
       parts.forEach((p) => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.p += 0.012;
+        p.x += p.vx; p.y += p.vy; p.p += 0.012;
         if (p.x < 0 || p.x > w) p.vx *= -1;
         if (p.y < 0 || p.y > h) p.vy *= -1;
       });
@@ -96,9 +89,9 @@ export function MrzSignature() {
           const dy = parts[i].y - parts[j].y;
           const d2 = dx * dx + dy * dy;
           if (d2 > maxDist * maxDist) continue;
-          const alpha = (1 - Math.sqrt(d2) / maxDist) * 0.2;
+          const alpha = (1 - Math.sqrt(d2) / maxDist) * 0.18;
           ctx.strokeStyle = `rgba(192,132,252,${alpha})`;
-          ctx.lineWidth = 0.58;
+          ctx.lineWidth = 0.5;
           ctx.beginPath();
           ctx.moveTo(parts[i].x, parts[i].y);
           ctx.lineTo(parts[j].x, parts[j].y);
@@ -110,38 +103,26 @@ export function MrzSignature() {
         const pulse = pulses[i];
         pulse.t += dt;
         const g = pulse.t / pulse.d;
-        if (g >= 1) {
-          pulses.splice(i, 1);
-          continue;
-        }
+        if (g >= 1) { pulses.splice(i, 1); continue; }
         const a = parts[pulse.a];
         const b = parts[pulse.b];
         const x = a.x + (b.x - a.x) * g;
         const y = a.y + (b.y - a.y) * g;
         const f = Math.sin(g * Math.PI);
-        ctx.strokeStyle = `rgba(216,180,254,${0.38 * f})`;
-        ctx.lineWidth = 1.15;
-        ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        ctx.lineTo(b.x, b.y);
-        ctx.stroke();
-        ctx.fillStyle = `rgba(56,248,214,${0.84 * f})`;
-        ctx.shadowColor = "rgba(56,248,214,.84)";
-        ctx.shadowBlur = 11;
-        ctx.beginPath();
-        ctx.arc(x, y, 2.2, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.strokeStyle = `rgba(216,180,254,${0.32 * f})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        ctx.fillStyle = `rgba(56,248,214,${0.8 * f})`;
+        ctx.shadowColor = "rgba(56,248,214,.8)"; ctx.shadowBlur = 9;
+        ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
         ctx.shadowBlur = 0;
       }
 
       parts.forEach((p) => {
         const b = 0.48 + Math.sin(p.p) * 0.22;
-        ctx.fillStyle = `rgba(237,224,255,${0.58 * b})`;
-        ctx.shadowColor = "rgba(192,132,252,.68)";
-        ctx.shadowBlur = 7;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillStyle = `rgba(237,224,255,${0.52 * b})`;
+        ctx.shadowColor = "rgba(192,132,252,.6)"; ctx.shadowBlur = 6;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
         ctx.shadowBlur = 0;
       });
 
@@ -149,44 +130,122 @@ export function MrzSignature() {
     }
     raf = requestAnimationFrame(tick);
 
-    return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
-    };
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
   }, []);
 
   return (
-    <div className={`build-sig ${open ? "open" : ""}`} ref={sigRef}>
-      <canvas className="build-neural-canvas" ref={canvasRef} aria-hidden="true" />
-      <div className="mrz-build-map" aria-hidden="true">
-        <svg className="net-routes" viewBox="0 0 1000 190" preserveAspectRatio="none">
-          {[
-            "M20 118 C80 28 126 175 194 86 S328 12 390 96 S514 172 590 72 S724 12 808 104 S930 178 980 54",
-            "M48 146 C132 70 196 210 270 138 S386 50 472 116 S612 174 694 84 S836 42 964 132",
-            "M18 78 C98 156 152 18 236 54 S340 150 430 40 S558 140 650 52 S772 176 862 44 S940 24 988 98",
-            "M6 48 C96 12 132 96 214 58 S338 4 414 62 S548 122 618 42 S754 14 832 82 S922 126 1000 44",
-            "M12 166 C108 98 172 184 258 128 S398 72 480 142 S616 182 708 112 S846 78 990 154",
-          ].map((d, i) => <path className="on" d={d} key={d} style={{ animationDelay: `${i * 0.9}s` }} />)}
-        </svg>
-      </div>
-      <div className="ctn build-card">
-        <p className="mrz-footer-message mrz-footer-text">Automatizamos tu negocio · Agenda, caja, inventario y reportes en un solo lugar · MRZLABS</p>
-        <div className="mrz-footer-bar">
-          <span className="mrz-footer-left mrz-footer-text">© 2026 Todos los derechos reservados</span>
-          <button
-            className="mrz-footer-center mrz-footer-brand"
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-label="Ver información de BARBERLABS"
+    <>
+      {/* ── Firma fija al fondo de pantalla ─────────────────────── */}
+      <div className="build-sig" ref={sigRef}>
+        <canvas className="build-neural-canvas" ref={canvasRef} aria-hidden="true" />
+
+        {/* Contenedor del footer — dos filas apiladas */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 4,
+            pointerEvents: "auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: 0,
+          }}
+        >
+          {/* LÍNEA 1: Eslogan */}
+          <p
+            style={{
+              margin: 0,
+              padding: "0 20px 5px",
+              textAlign: "center",
+              fontSize: "0.6rem",
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.4)",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
           >
-            BARBERLABS
-          </button>
-          <span className="mrz-footer-right mrz-footer-text">BUILT BY MRZLABS</span>
+            Automatizamos tu negocio · Agenda, caja, inventario y reportes en un solo lugar · MRZLABS
+          </p>
+
+          {/* LÍNEA 2: Separador */}
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", margin: "0 20px" }} />
+
+          {/* LÍNEA 3: Datos principales */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr auto 1fr",
+              alignItems: "center",
+              gap: "12px",
+              padding: "6px 20px 10px",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "0.7rem",
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+                color: "rgba(255,255,255,0.5)",
+                whiteSpace: "nowrap",
+                textAlign: "left",
+              }}
+            >
+              © 2026 Todos los derechos reservados
+            </span>
+
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              aria-label="Ver información de BARBERLABS"
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "0.85rem",
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: "#00cec9",
+                textShadow: "0 0 12px rgba(0,206,201,0.6)",
+                padding: "4px 10px",
+                borderRadius: "999px",
+                transition: "text-shadow 0.2s",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.textShadow = "0 0 22px rgba(0,206,201,0.9)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.textShadow = "0 0 12px rgba(0,206,201,0.6)"; }}
+            >
+              BARBERLABS
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              aria-label="Ver información de MRZLABS"
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.5)",
+                textAlign: "right",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Built by MRZLABS
+            </button>
+          </div>
         </div>
       </div>
+
       <MrzModal open={open} onClose={() => setOpen(false)} />
-    </div>
+    </>
   );
 }
-
-

@@ -1198,18 +1198,4 @@ a {
   white-space: nowrap;
 }
 
-.mrz-footer-message {
-  position: absolute;
-  left: 50%;
-  bottom: 26px;
-  z-index: 4;
-  width: min(90vw, 860px);
-  transform: translateX(-50%);
-  color: rgba(255, 255, 255, .45);
-  font-size: .58rem;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-align: center;
-  text-transform: uppercase;
-  pointer-events: auto;
-}
+/* .mrz-footer-message removed — footer now uses inline styles in MrzSignature.tsx */

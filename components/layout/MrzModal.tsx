@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { X } from "lucide-react";
 
 interface MrzModalProps {
@@ -8,26 +9,34 @@ interface MrzModalProps {
 }
 
 export function MrzModal({ open, onClose }: MrzModalProps) {
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   return (
     <div
       className="fixed inset-0 z-[300] flex items-center justify-center p-4"
-      style={{ background: "rgba(9,5,25,0.55)", backdropFilter: "blur(8px)" }}
+      style={{ background: "rgba(4,4,14,0.72)", backdropFilter: "blur(10px)" }}
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-[760px] overflow-hidden rounded-[18px] border"
+        className="relative w-full max-w-[560px] overflow-hidden rounded-[20px]"
         style={{
-          background: "rgba(9,5,25,0.92)",
-          border: "1px solid rgba(192,132,252,0.42)",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.4)",
-          animation: "mrzModalIn 0.25s ease-out",
+          background: "linear-gradient(160deg, #0d0d1e 0%, #0a0a18 100%)",
+          border: "1px solid rgba(192,132,252,0.28)",
+          boxShadow: "0 32px 96px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04)",
+          animation: "mrzModalIn 0.2s ease-out",
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Botón cerrar X */}
         <button
-          className="absolute right-2.5 top-2.5 z-10 grid size-8 place-items-center rounded-full border border-white/20 bg-white/8 text-white transition hover:bg-white/15"
+          className="absolute right-3 top-3 z-10 grid size-8 place-items-center rounded-full border border-white/15 bg-white/8 text-white/70 transition hover:bg-white/16 hover:text-white"
           onClick={onClose}
           type="button"
           aria-label="Cerrar"
@@ -35,66 +44,79 @@ export function MrzModal({ open, onClose }: MrzModalProps) {
           <X className="size-4" />
         </button>
 
-        <div className="grid gap-4 p-5 sm:grid-cols-2">
-          {/* Arquitectura */}
-          <div className="rounded-xl border border-white/14 bg-white/4 p-5">
-            <strong className="block text-[11px] font-black uppercase tracking-[0.14em] text-violet-400 mb-2">
-              Arquitectura progresiva
-            </strong>
-            <p className="text-[13px] leading-relaxed text-white/70">
-              Infraestructura digital escalable para comercios que quieren operar con datos, roles y evidencia.
-            </p>
-            <ol className="mt-3 grid gap-1.5 pl-4 text-[12px] leading-relaxed text-white/60 list-decimal">
-              <li>Analizamos operación, agenda, caja e inventario.</li>
-              <li>Diseñamos flujos por rol y permisos.</li>
-              <li>Construimos módulos medibles.</li>
-              <li>Dejamos reportes para decidir con margen real.</li>
-            </ol>
-          </div>
+        {/* Header */}
+        <div className="px-6 pb-4 pt-6">
+          <p
+            className="text-2xl font-black tracking-tight"
+            style={{
+              background: "linear-gradient(90deg, #00cec9, #7c3aed)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            MRZLABS
+          </p>
+          <p className="mt-1 text-sm text-white/55">
+            Automatizamos lo operativo para que te enfoques en crecer.
+          </p>
+        </div>
 
-          {/* MRZLABS */}
-          <div className="rounded-xl border border-white/14 bg-white/4 p-5">
-            <strong className="block text-[11px] font-black uppercase tracking-[0.14em] text-violet-400 mb-2">
-              MRZLABS
-            </strong>
-            <p className="text-[13px] leading-relaxed text-white/70">
-              Producto CRM modular para barberías, salones y comercios de atención por agenda.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <a
-                href="https://github.com/mrzlabs"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-lg bg-violet-700 px-3.5 py-2.5 text-[13px] font-black text-white transition hover:bg-violet-600"
-              >
-                GitHub
-              </a>
-              <a
-                href="https://mrzlabs.github.io/web-mrz-portfolio/"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-lg bg-violet-700 px-3.5 py-2.5 text-[13px] font-black text-white transition hover:bg-violet-600"
-              >
-                Portafolio
-              </a>
-              <a
-                href="#"
-                aria-disabled="true"
-                onClick={(e) => e.preventDefault()}
-                className="inline-flex items-center justify-center rounded-lg px-3.5 py-2.5 text-[13px] font-black text-white/60 cursor-not-allowed select-none"
-                style={{ background: "rgba(37,211,102,0.25)", opacity: 0.6 }}
-                title="Próximamente"
-              >
-                WhatsApp — Próximamente
-              </a>
-            </div>
+        {/* Separador */}
+        <div className="mx-6 border-t border-white/8" />
+
+        {/* Servicios */}
+        <ul className="grid gap-2 px-6 py-4">
+          {[
+            "CRM para negocios de agenda y caja",
+            "Sitios web y landing pages",
+            "Automatizaciones WhatsApp",
+            "Integraciones Google Workspace",
+            "Campañas Meta y Google Ads",
+            "Soporte técnico continuo",
+          ].map((s) => (
+            <li key={s} className="flex items-center gap-2.5 text-sm text-white/72">
+              <span
+                className="size-1.5 shrink-0 rounded-full"
+                style={{ background: "linear-gradient(135deg, #00cec9, #7c3aed)" }}
+              />
+              {s}
+            </li>
+          ))}
+        </ul>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between gap-3 border-t border-white/8 px-6 py-4">
+          <div className="flex gap-2">
+            <a
+              href="https://github.com/mrzlabs"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center rounded-lg bg-white/8 px-3 py-2 text-xs font-bold text-white/80 transition hover:bg-white/14 hover:text-white"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://mrzlabs.github.io/web-mrz-portfolio/"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center rounded-lg bg-white/8 px-3 py-2 text-xs font-bold text-white/80 transition hover:bg-white/14 hover:text-white"
+            >
+              Portafolio
+            </a>
           </div>
+          <span
+            className="inline-flex cursor-not-allowed select-none items-center rounded-lg px-3 py-2 text-xs font-bold opacity-50"
+            style={{ background: "rgba(37,211,102,0.18)", color: "#25d366" }}
+            title="Próximamente"
+          >
+            WhatsApp — Próximamente
+          </span>
         </div>
       </div>
 
       <style>{`
         @keyframes mrzModalIn {
-          from { opacity: 0; transform: scale(0.94); }
+          from { opacity: 0; transform: scale(0.95); }
           to   { opacity: 1; transform: scale(1); }
         }
       `}</style>
