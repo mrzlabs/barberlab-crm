@@ -383,7 +383,8 @@ export function AppChrome({
   const accentColor   = brand?.colorAcento    || "#7c3aed";
   const bgPhotoUrl    = configVisual?.bgPhotoUrl;
   const fontFamily = configVisual?.fontFamily || brand?.fuente || "Inter";
-  const isDark = configVisual?.darkMode !== false;
+  // Forced dark until production toggle is enabled
+  const isDark = true;
 
   // Sync theme + neural vars to documentElement
   useEffect(() => {
@@ -747,8 +748,8 @@ export function AppChrome({
           </div>
         </header>
 
-        {/* page content */}
-        <main className="mx-auto max-w-[1280px] px-4 py-5 sm:px-5">
+        {/* page content — pb-16 keeps content above fixed signature */}
+        <main className="mx-auto max-w-[1280px] px-4 py-5 pb-16 sm:px-5 sm:pb-20">
           <PageTransition>{children}</PageTransition>
         </main>
 

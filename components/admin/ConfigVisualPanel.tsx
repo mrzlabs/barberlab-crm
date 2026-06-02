@@ -104,8 +104,8 @@ export function ConfigVisualPanel({
         La foto se usa como logo de perfil y marca del negocio. El fondo mantiene el grid y las conexiones neuronales con la paleta activa.
       </p>
 
-      {/* Dark / Light toggle */}
-      <div className="mt-5 flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4">
+      {/* Dark / Light toggle — hidden until production */}
+      <div className="hidden mt-5 flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4">
         <div>
           <p className="text-sm font-bold text-slate-800">Modo de color</p>
           <p className="mt-0.5 text-xs text-slate-500">

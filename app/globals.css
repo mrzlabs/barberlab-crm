@@ -256,7 +256,7 @@ a {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 86px;
+  height: 52px;
   pointer-events: none;
 }
 
@@ -292,11 +292,11 @@ a {
   right: 0;
   bottom: 0;
   width: 100%;
-  height: 172px;
+  height: 80px;
   z-index: 1;
   pointer-events: none;
   mix-blend-mode: screen;
-  opacity: .74;
+  opacity: .65;
 }
 
 .mrz-build-map {
@@ -1062,6 +1062,40 @@ a {
 /* ── Shell base text follows theme token ────────────────────────── */
 .crm-shell { color: var(--text-primary, #0f172a); }
 
+/* ── Dark mode: enforce legible text regardless of brand color ──── */
+[data-theme="dark"] .crm-shell,
+.crm-shell[data-theme="dark"] {
+  color: #f1f5f9;
+}
+[data-theme="dark"] .crm-text-primary  { color: #ffffff !important; }
+[data-theme="dark"] .crm-text-secondary { color: rgba(255,255,255,0.78) !important; }
+[data-theme="dark"] .crm-text-muted    { color: rgba(255,255,255,0.52) !important; }
+[data-theme="dark"] .crm-label         { color: rgba(255,255,255,0.48) !important; }
+[data-theme="dark"] .glass-panel,
+[data-theme="dark"] .glass-panel strong,
+[data-theme="dark"] .glass-panel p,
+[data-theme="dark"] .glass-panel span {
+  color: inherit;
+}
+[data-theme="dark"] .crm-shell table td,
+[data-theme="dark"] .crm-shell table th {
+  color: #e2e8f0;
+}
+[data-theme="dark"] .crm-shell input:not([type="submit"]):not([type="button"]):not([type="hidden"]),
+[data-theme="dark"] .crm-shell textarea,
+[data-theme="dark"] .crm-shell select {
+  color: #f1f5f9;
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+}
+[data-theme="dark"] .crm-shell input::placeholder,
+[data-theme="dark"] .crm-shell textarea::placeholder {
+  color: rgba(255,255,255,0.35);
+}
+[data-theme="dark"] .crm-shell label {
+  color: rgba(255,255,255,0.72);
+}
+
 /* ── Light mode: inputs & nav text ──────────────────────────────── */
 [data-theme="light"] .crm-shell input:not([type="submit"]):not([type="button"]):not([type="hidden"]),
 [data-theme="light"] .crm-shell textarea,
@@ -1167,12 +1201,12 @@ a {
 .mrz-footer-message {
   position: absolute;
   left: 50%;
-  bottom: 42px;
+  bottom: 26px;
   z-index: 4;
   width: min(90vw, 860px);
   transform: translateX(-50%);
-  color: rgba(255, 255, 255, .52);
-  font-size: .62rem;
+  color: rgba(255, 255, 255, .45);
+  font-size: .58rem;
   font-weight: 700;
   letter-spacing: .08em;
   text-align: center;
