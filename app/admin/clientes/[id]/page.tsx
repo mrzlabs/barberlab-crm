@@ -103,7 +103,7 @@ export default async function ClienteDetallePage({ params }: PageProps) {
             </thead>
             <tbody>
               {citas.map((c, i) => (
-                <tr className={`border-t transition hover:bg-slate-50 ${i % 2 === 0 ? "" : "bg-slate-50/40"}`} key={c.citaId}>
+                <tr className={`border-t transition hover:bg-slate-800/40 ${i % 2 === 0 ? "" : "bg-slate-800/20"}`} key={c.citaId}>
                   <td className="px-5 py-3.5 tabular-nums">{fmtDateTime(c.inicio)}</td>
                   <td className="px-5 py-3.5 font-semibold">{c.servicio}</td>
                   <td className="px-5 py-3.5 text-slate-500">{c.empleado}</td>

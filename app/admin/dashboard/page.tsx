@@ -43,12 +43,12 @@ function KpiCard({
       style={{ borderLeftColor: borderColor, borderLeftWidth: "3px" }}
       href={href}
     >
-      <p className="truncate text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <p className="truncate text-xs font-medium uppercase tracking-wider text-slate-400">{label}</p>
       <div className="mt-2 flex flex-wrap items-baseline gap-1">
-        <strong className="break-words text-[clamp(1.05rem,3.8vw,1.85rem)] font-black leading-tight tracking-tight [overflow-wrap:anywhere]">{value}</strong>
+        <strong className="break-words text-2xl font-black leading-tight tracking-tight text-white [overflow-wrap:anywhere]">{value}</strong>
         <DeltaBadge delta={delta} />
       </div>
-      <p className="mt-1.5 truncate text-xs font-semibold text-slate-500">{detail}</p>
+      <p className="mt-1.5 truncate text-xs text-slate-400">{detail}</p>
     </Link>
   );
 }

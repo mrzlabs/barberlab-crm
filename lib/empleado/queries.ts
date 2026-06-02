@@ -54,7 +54,11 @@ export async function getMiAgenda(userId: string) {
 
   return {
     empleado,
-    citas: items,
+    citas: items.map((item) => ({
+      ...item,
+      inicio: item.inicio instanceof Date ? item.inicio.toISOString() : String(item.inicio),
+      fin: item.fin instanceof Date ? item.fin.toISOString() : String(item.fin),
+    })),
     stats: {
       hoy: stats[0]?.hoy ?? 0,
       pendientes: stats[0]?.pendientes ?? 0,
@@ -82,7 +86,13 @@ export async function getCitasParaCerrar(userId: string) {
     .innerJoin(servicios, eq(citas.servicioId, servicios.id))
     .where(and(eq(citas.empleadoId, empleado.id), sql`${citas.estado} in ('reservada', 'confirmada')`))
     .orderBy(desc(citas.inicio))
-    .limit(20);
+    .limit(20)
+    .then((rows) =>
+      rows.map((r) => ({
+        ...r,
+        inicio: r.inicio instanceof Date ? r.inicio.toISOString() : String(r.inicio),
+      }))
+    );
 }
 
 export async function getMisTurnos(userId: string) {
@@ -105,7 +115,13 @@ export async function getMisTurnos(userId: string) {
     .innerJoin(servicios, eq(citas.servicioId, servicios.id))
     .where(eq(citas.empleadoId, empleado.id))
     .orderBy(desc(turnos.createdAt))
-    .limit(12);
+    .limit(12)
+    .then((rows) =>
+      rows.map((r) => ({
+        ...r,
+        createdAt: r.createdAt instanceof Date ? r.createdAt.toISOString() : String(r.createdAt),
+      }))
+    );
 }
 
 export async function getStatsEmpleado(userId: string) {

@@ -428,8 +428,8 @@ export function AppChrome({
 
       {/* ── Sidebar ─────────────────────────────────────────────── */}
       <aside
-        className={`glass-sidebar fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 [transition-timing-function:cubic-bezier(0.4,0,0.2,1.2)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(19rem,86vw)] lg:w-[19rem]" : "w-[19rem] lg:w-[5.4rem]"}`}
-        style={{ background: hexAlpha(primaryColor, 0.88) }}
+        className={`fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 [transition-timing-function:cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(220px,86vw)] lg:w-[220px]" : "w-[220px] lg:w-[56px]"}`}
+        style={{ background: "#1a1a2e", borderRight: "1px solid rgba(255,255,255,0.07)" }}
       >
         {/* header */}
         <div className="flex items-center justify-between gap-3 border-b border-white/10 p-4">
@@ -443,12 +443,12 @@ export function AppChrome({
             </div>
           </div>
           <button
-            className="hidden rounded-xl border border-white/15 bg-white/10 p-2 text-white/70 backdrop-blur-sm hover:bg-white/20 hover:text-white lg:grid"
+            className="hidden rounded-lg border border-white/10 bg-white/8 p-1.5 text-white/60 hover:bg-white/15 hover:text-white lg:grid"
             onClick={() => setOpen((v) => !v)}
             type="button"
             aria-label="Contraer menú"
           >
-            {open ? <ChevronLeft className="size-4" /> : <ChevronRight className="size-4" />}
+            {open ? <ChevronLeft className="size-3.5" /> : <ChevronRight className="size-3.5" />}
           </button>
           <button
             className="rounded-xl border border-white/15 bg-white/10 p-2 text-white/70 lg:hidden"
@@ -461,58 +461,48 @@ export function AppChrome({
         </div>
 
         {/* nav body */}
-        <div className="flex-1 overflow-y-auto p-3">
-          <div className={`mb-4 flex flex-wrap gap-2 ${open ? "justify-start" : "justify-center"}`}>
-            <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white/80">
-              {open ? role : role.slice(0, 1)}
+        <div className="flex-1 overflow-y-auto px-2 py-2">
+          <div className={`mb-3 flex flex-wrap gap-2 ${open ? "justify-start px-1" : "justify-center"}`}>
+            <span className="rounded-full border border-white/15 bg-white/8 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-white/60">
+              {open ? role.replace("_", " ") : role.slice(0, 1)}
             </span>
           </div>
 
           {open && (
-            <label className="mb-3 flex items-center gap-2 rounded-2xl border border-white/15 bg-white/8 px-3 py-2.5 text-sm font-semibold text-white/70 backdrop-blur-sm focus-within:border-white/30 focus-within:bg-white/15">
-              <Search className="size-4 shrink-0 text-white/50" />
+            <label className="mb-2 flex items-center gap-2 rounded-lg border border-white/10 bg-white/6 px-2.5 py-2 text-xs text-white/60 focus-within:border-white/20 focus-within:text-white/80">
+              <Search className="size-3.5 shrink-0 text-white/40" />
               <input
-                className="w-full bg-transparent text-white outline-none placeholder:text-white/40"
-                placeholder="Buscar módulo"
+                className="w-full bg-transparent text-white outline-none placeholder:text-white/35 text-xs"
+                placeholder="Buscar…"
                 value={moduleSearch}
                 onChange={(e) => setModuleSearch(e.target.value)}
               />
               {moduleSearch && (
-                <button
-                  type="button"
-                  className="text-white/40 hover:text-white/70"
-                  onClick={() => setModuleSearch("")}
-                  aria-label="Limpiar búsqueda"
-                >✕</button>
+                <button type="button" className="text-white/35 hover:text-white/60" onClick={() => setModuleSearch("")} aria-label="Limpiar">✕</button>
               )}
             </label>
           )}
 
-          <nav className="grid gap-1">
+          <nav className="grid gap-0.5">
             {nav.filter((item) => !moduleSearch || item.label.toLowerCase().includes(moduleSearch.toLowerCase())).map((item, index) => {
               const style = navStyles[item.label] ?? navStyles.Dashboard;
               const Icon = style.icon;
-              const shapeClass = style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-xl" : "rounded-[14px]";
+              const shapeClass = style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-lg" : "rounded-[10px]";
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
               return (
                 <div key={item.href}>
-                  {[3, 6].includes(index) && <div className="my-2 h-px bg-white/10" />}
+                  {[3, 6, 9].includes(index) && <div className="my-1.5 h-px bg-white/8" />}
                   <Link
                     href={item.href}
                     title={!open ? item.label : undefined}
                     onClick={() => setMobileOpen(false)}
-                    className={`group flex w-full items-center gap-3 rounded-full px-3 py-2.5 text-sm font-medium transition-all duration-150 ${open ? "justify-start" : "justify-center"} ${isActive ? "text-white shadow-sm" : "text-white/70 hover:text-white"}`}
-                    style={isActive
-                      ? { background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`, boxShadow: `0 14px 28px ${hexAlpha(primaryColor, 0.22)}` }
-                      : undefined}
-                    onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = hexAlpha(primaryColor, 0.34); }}
-                    onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = ""; }}
+                    className={`group flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150 ${open ? "justify-start" : "justify-center"} ${isActive ? "bg-white/12 text-white" : "text-white/60 hover:bg-white/8 hover:text-white"}`}
                   >
-                    <span className={`grid size-11 shrink-0 place-items-center shadow-sm transition-transform group-hover:scale-105 ${isActive ? "scale-105 shadow-md" : ""} ${shapeClass} ${style.tone}`}>
-                      <Icon className="size-6" />
+                    <span className={`grid size-7 shrink-0 place-items-center transition-transform group-hover:scale-105 ${isActive ? "scale-105" : ""} ${shapeClass} ${style.tone}`}>
+                      <Icon className="size-[15px]" />
                     </span>
-                    {open && <span className="flex-1 truncate text-[14px] leading-none">{item.label}</span>}
-                    {open && isActive && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white opacity-80" />}
+                    {open && <span className="flex-1 truncate text-[13px] leading-none">{item.label}</span>}
+                    {open && isActive && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400 opacity-90" />}
                   </Link>
                 </div>
               );
@@ -549,117 +539,121 @@ export function AppChrome({
         </div>
 
         {/* profile */}
-        <div className={`grid gap-2 border-t border-white/10 p-3 ${open ? "" : "justify-items-center"}`}>
+        <div className={`border-t border-white/8 p-2 ${open ? "" : "flex flex-col items-center gap-1"}`}>
           <button
-            className={`flex w-full items-center gap-3 rounded-2xl p-2 text-left transition hover:bg-white/12 ${open ? "" : "justify-center"}`}
+            className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition hover:bg-white/8 ${open ? "" : "justify-center"}`}
             onClick={() => setProfileOpen(true)}
             type="button"
             title={!open ? "Perfil" : undefined}
           >
             {brand?.logoUrl ? (
-              <span className="relative size-9 shrink-0 overflow-hidden rounded-full border-2 border-white/30 shadow-md">
-                <Image src={brand.logoUrl} alt="" className="object-cover" fill sizes="36px" unoptimized />
+              <span className="relative size-7 shrink-0 overflow-hidden rounded-full border border-white/20 shadow-sm">
+                <Image src={brand.logoUrl} alt="" className="object-cover" fill sizes="28px" unoptimized />
               </span>
             ) : (
-              <div className="grid size-9 shrink-0 place-items-center rounded-full text-sm font-black text-white shadow-md"
+              <div className="grid size-7 shrink-0 place-items-center rounded-full text-[11px] font-black text-white shadow-sm"
                 style={{ background: `linear-gradient(135deg, ${accentColor}, ${hexAlpha(accentColor, 0.5)})` }}>
                 {(brand?.nombre ?? role).slice(0, 1).toUpperCase()}
               </div>
             )}
             {open && (
-              <>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-bold text-white">{brand?.nombre ?? "Usuario"}</p>
-                  <p className="truncate text-[11px] font-medium capitalize text-white/60">{role} · {brand?.negocioNombre ?? "BarberLab"}</p>
-                </div>
-                <ChevronRight className="size-3.5 shrink-0 text-white/40" />
-              </>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[12px] font-bold text-white">{brand?.nombre ?? "Usuario"}</p>
+                <p className="truncate text-[10px] capitalize text-white/50">{role.replace("_", " ")}</p>
+              </div>
             )}
           </button>
           <SignOutButton
             collapsed={!open}
-            className={`flex w-full items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/8 px-3 py-2.5 text-xs font-bold text-rose-100 transition hover:bg-rose-500/18 hover:text-white ${open ? "" : "size-11 p-0"}`}
+            className={`flex w-full items-center justify-center gap-1.5 rounded-lg border border-white/8 bg-white/5 px-2 py-1.5 text-xs font-medium text-rose-300/80 transition hover:bg-rose-500/15 hover:text-rose-200 ${open ? "" : "size-8 p-0"}`}
           />
         </div>
       </aside>
 
       {/* ── Main area ───────────────────────────────────────────── */}
-      <div className={`min-h-dvh pb-28 transition-[padding] duration-300 lg:pb-14 ${open ? "lg:pl-[19rem]" : "lg:pl-[5.2rem]"}`}>
+      <div className={`min-h-dvh pb-20 transition-all duration-300 lg:pb-8 ${open ? "lg:ml-[220px]" : "lg:ml-[56px]"}`}>
         {/* topbar */}
         <header
-          className="sticky top-0 z-20 border-b border-white/15 px-4 py-3 backdrop-blur-[32px]"
-          style={{ background: hexAlpha(primaryColor, 0.06) }}
+          className="sticky top-0 z-20 flex h-[52px] items-center border-b border-white/8 px-4"
+          style={{ background: "#0f0f1a" }}
         >
-          <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <button className="rounded-2xl border border-slate-900/10 bg-white p-3 text-slate-700 lg:hidden" onClick={() => setMobileOpen(true)} type="button" aria-label="Abrir menú">
+          <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <button className="rounded-lg border border-white/10 bg-white/8 p-2 text-white/70 hover:bg-white/15 lg:hidden" onClick={() => setMobileOpen(true)} type="button" aria-label="Abrir menú">
                 <Menu className="size-4" />
               </button>
               {homeHref && !isHome && (
                 <Link
                   href={homeHref}
-                  className="hidden items-center gap-1.5 rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-black text-white/80 backdrop-blur-sm transition hover:bg-white/20 hover:text-white md:flex"
+                  className="hidden items-center gap-1 rounded-lg border border-white/10 bg-white/6 px-2.5 py-1.5 text-xs font-medium text-white/70 transition hover:bg-white/12 hover:text-white md:flex"
                   title={`Ir a ${homeLabel}`}
                 >
-                  <ArrowLeft className="size-3.5" />
+                  <ArrowLeft className="size-3" />
                   {homeLabel}
                 </Link>
               )}
               <div>
                 <Breadcrumb />
-                <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">{title}</h2>
-                <p className="mt-0.5 text-xs font-bold text-white/62">{headerIdentity}</p>
+                <h2 className="text-base font-bold tracking-tight text-white">{title}</h2>
               </div>
             </div>
-            <div className="relative hidden items-center gap-2 md:flex">
+            <div className="relative hidden items-center gap-1.5 md:flex">
               <button
-                className="relative grid size-10 place-items-center rounded-2xl border border-slate-900/10 bg-white text-slate-600 shadow-sm hover:border-cyan-300/40 hover:text-cyan-700"
+                className="relative grid size-8 place-items-center rounded-lg border border-white/10 bg-white/6 text-white/60 hover:bg-white/12 hover:text-white"
                 onClick={() => setAlertsOpen((v) => !v)}
                 type="button"
                 aria-label="Ver alarmas"
               >
-                <Bell className="size-4.5" />
-                {!alertsHidden && alerts.length > 0 && <span className="absolute right-2 top-2 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,.9)]" />}
+                <Bell className="size-3.5" />
+                {!alertsHidden && alerts.length > 0 && <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,.9)]" />}
               </button>
               <button
-                className="grid size-10 place-items-center rounded-2xl border border-slate-900/10 bg-white text-slate-700 shadow-sm transition hover:border-violet-300 hover:text-violet-700"
+                className="grid size-8 place-items-center rounded-lg border border-white/10 bg-white/6 text-white/60 transition hover:bg-white/12 hover:text-white"
                 onClick={() => setProfileOpen(true)}
                 type="button"
                 aria-label="Ver perfil"
               >
-                <UserCircle className="size-5" />
+                <UserCircle className="size-4" />
               </button>
+              <span className="ml-1 hidden text-xs text-white/40 lg:block">{headerIdentity}</span>
               {alertsOpen && (
-                <div ref={alertsRef} className="absolute right-20 top-14 z-50 w-80 rounded-[1.6rem] border border-violet-100 bg-white/97 p-4 shadow-2xl shadow-slate-950/14 backdrop-blur-2xl">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-violet-600">Alarmas activas</p>
-                    <button className="text-xs font-black text-slate-400 hover:text-violet-600" onClick={() => setAlertsHidden((v) => !v)} type="button">
+                <div ref={alertsRef} className="absolute right-16 top-12 z-50 w-72 rounded-xl border border-slate-700/60 bg-slate-900 p-3 shadow-2xl shadow-black/40">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Alarmas activas</p>
+                    <button className="text-xs font-medium text-slate-500 hover:text-slate-300" onClick={() => setAlertsHidden((v) => !v)} type="button">
                       {alertsHidden ? "Mostrar" : "Ocultar"}
                     </button>
                   </div>
-                  <div className="mt-3 grid gap-2">
+                  <div className="grid gap-1.5">
                     {(!alertsHidden ? alerts : []).map((item) => (
-                      <Link className={`block rounded-xl px-3 py-3 text-xs font-bold ${item.tone} transition hover:opacity-80`} href={item.href} key={item.label} onClick={() => setAlertsOpen(false)}>
-                        <span className="block">{item.label}</span>
-                        <span className="mt-0.5 block font-medium opacity-75">{item.detail}</span>
+                      <Link className={`block rounded-lg px-3 py-2 text-xs font-medium ${item.tone} transition hover:opacity-80`} href={item.href} key={item.label} onClick={() => setAlertsOpen(false)}>
+                        <span className="block font-bold">{item.label}</span>
+                        <span className="mt-0.5 block opacity-70">{item.detail}</span>
                       </Link>
                     ))}
-                    {alertsHidden && <p className="rounded-xl border border-dashed border-slate-200 p-4 text-center text-xs font-bold text-slate-400">Alarmas ocultas</p>}
-                    {!alertsHidden && alerts.length === 0 && <p className="rounded-xl border border-dashed border-slate-200 p-4 text-center text-xs font-bold text-slate-400">Sin alarmas activas</p>}
+                    {alertsHidden && <p className="rounded-lg border border-dashed border-slate-700/50 p-3 text-center text-xs text-slate-500">Alarmas ocultas</p>}
+                    {!alertsHidden && alerts.length === 0 && <p className="rounded-lg border border-dashed border-slate-700/50 p-3 text-center text-xs text-slate-500">Sin alarmas activas</p>}
                   </div>
                 </div>
               )}
             </div>
-            <button className="grid size-10 place-items-center rounded-2xl bg-white text-slate-700 md:hidden" onClick={() => setProfileOpen(true)} type="button" aria-label="Ver perfil">
-              <UserCircle className="size-5" />
+            <button className="grid size-8 place-items-center rounded-lg border border-white/10 bg-white/6 text-white/60 md:hidden" onClick={() => setProfileOpen(true)} type="button" aria-label="Ver perfil">
+              <UserCircle className="size-4" />
             </button>
           </div>
         </header>
 
-        {/* page content with transition */}
-        <main className="mx-auto max-w-[1480px] px-4 py-6 sm:px-6">
+        {/* page content */}
+        <main className="mx-auto max-w-[1280px] px-4 py-5 sm:px-5">
           <PageTransition>{children}</PageTransition>
         </main>
+
+        {/* ── Footer firma ────────────────────────────────────────── */}
+        <footer className="mx-auto flex max-w-[1280px] items-center justify-between gap-2 border-t border-white/6 px-5 py-3 text-[10px] text-white/25">
+          <span>© 2026 Todos los derechos reservados</span>
+          <span className="font-black tracking-widest text-cyan-500/60">BARBERLABS</span>
+          <span>Built by MRZLABS</span>
+        </footer>
       </div>
 
       {/* ── Mobile bottom tab bar ────────────────────────────────── */}
@@ -743,7 +737,6 @@ export function AppChrome({
       )}
 
       <MrzHelpBot topics={topics} />
-      <MrzSignature />
       {expandedPhoto && (
         <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/72 p-4 backdrop-blur-xl" onClick={() => setExpandedPhoto(null)}>
           <button className="absolute right-4 top-4 rounded-full border border-white/20 bg-white/10 p-3 text-white transition hover:bg-white/20" onClick={() => setExpandedPhoto(null)} type="button" aria-label="Cerrar foto">

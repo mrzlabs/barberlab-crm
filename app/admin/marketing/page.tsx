@@ -23,9 +23,9 @@ const integrations = [
   {
     name: "WhatsApp Business",
     icon: "💬",
-    description: "Envía recordatorios de citas automáticos por WhatsApp. Configura mensajes personalizados y reduce el ausentismo de clientes.",
+    description: "Configura el número de WhatsApp de tu negocio para enviar recordatorios automáticos de citas. El cliente recibe confirmación al reservar y recordatorio 1 hora antes.",
     status: "available" as const,
-    href: "/admin/configuracion",
+    href: "/admin/configuracion#whatsapp",
     color: "from-emerald-600 to-teal-600",
     badge: "bg-emerald-900/40 text-emerald-300",
   },

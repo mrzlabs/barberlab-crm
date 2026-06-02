@@ -132,6 +132,34 @@ export async function uploadNegocioBgPhoto(formData: FormData) {
   return { ok: true, url: publicUrl };
 }
 
+export async function updateWhatsAppConfig(formData: FormData) {
+  const profile = await requireRole(["admin", "super_admin"]);
+  const negocioId = String(formData.get("negocioId") ?? profile.negocioId ?? "");
+  if (!negocioId) throw new Error("Sin negocio asignado");
+  if (profile.rol !== "super_admin" && profile.negocioId !== negocioId) throw new Error("No autorizado");
+
+  const phone = String(formData.get("whatsappPhone") ?? "").trim();
+  const enabled = formData.get("whatsappEnabled") === "true";
+  const templatesRaw = String(formData.get("whatsappTemplates") ?? "{}");
+  let templates: Record<string, string> = {};
+  try { templates = JSON.parse(templatesRaw); } catch { /* ignore */ }
+
+  const [current] = await getDb()
+    .select({ configVisual: negocios.configVisual })
+    .from(negocios)
+    .where(eq(negocios.id, negocioId))
+    .limit(1);
+  const existing = (current?.configVisual ?? {}) as Record<string, unknown>;
+
+  const nextConfig = { ...existing, whatsapp_phone: phone, whatsapp_enabled: enabled, whatsapp_templates: templates } as Record<string, unknown>;
+  await getDb()
+    .update(negocios)
+    .set({ configVisual: nextConfig, updatedAt: new Date() })
+    .where(eq(negocios.id, negocioId));
+
+  revalidatePath("/admin/configuracion");
+}
+
 export async function removeNegocioBgPhoto() {
   const profile = await requireRole(["admin", "super_admin"]);
   const negocioId = profile.negocioId;

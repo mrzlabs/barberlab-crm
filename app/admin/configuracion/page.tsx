@@ -9,13 +9,14 @@ import {
   ACCENT_SWATCHES,
 } from "@/components/admin/ColorPicker";
 import { ConfigVisualPanel } from "@/components/admin/ConfigVisualPanel";
+import { WhatsAppTemplatesPanel } from "@/components/admin/WhatsAppTemplatesPanel";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { negocios } from "@/lib/db/schema";
 
 export const dynamic = "force-dynamic";
 
-const input = "w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-500 transition";
+const input = "w-full rounded-lg border border-slate-600/50 bg-slate-800/60 px-3 py-2 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 transition";
 const fontOptions = ["Inter", "Poppins", "Montserrat", "Raleway", "DM Sans", "Playfair Display", "Space Grotesk"];
 
 export default async function ConfiguracionPage() {
@@ -49,27 +50,27 @@ export default async function ConfiguracionPage() {
         {/* Plan info */}
         <div className="mb-5 grid gap-3 rounded-[1.5rem] border border-white/10 bg-white/10 backdrop-blur-md p-4 sm:grid-cols-3">
           <article>
-            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Plan</p>
-            <strong className="mt-1 block capitalize">{negocio.plan}</strong>
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Plan</p>
+            <strong className="mt-1 block capitalize text-white">{negocio.plan}</strong>
           </article>
           <article>
-            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Estado</p>
-            <strong className="mt-1 block capitalize">{negocio.estado}</strong>
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Estado</p>
+            <strong className="mt-1 block capitalize text-white">{negocio.estado}</strong>
           </article>
           <article>
-            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Renovación</p>
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Renovación</p>
             <strong className="mt-1 block">{negocio.fechaFin || "Sin fecha"}</strong>
           </article>
         </div>
 
         {/* Datos generales */}
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="grid gap-2 text-sm font-bold">Nombre<input className={input} name="nombre" defaultValue={negocio.nombre} required /></label>
-          <label className="grid gap-2 text-sm font-bold">Telefono<input className={input} name="telefono" defaultValue={negocio.telefono || ""} /></label>
-          <label className="grid gap-2 text-sm font-bold">Correo<input className={input} name="correo" type="email" defaultValue={negocio.correo || ""} /></label>
-          <label className="grid gap-2 text-sm font-bold">Direccion<input className={input} name="direccion" defaultValue={negocio.direccion || ""} /></label>
-          <label className="grid gap-2 text-sm font-bold">Representante<input className={input} name="representante" defaultValue={negocio.representante || ""} /></label>
-          <label className="grid gap-2 text-sm font-bold">Tipo documento
+          <label className="grid gap-2 text-sm font-bold text-slate-300">Nombre<input className={input} name="nombre" defaultValue={negocio.nombre} required /></label>
+          <label className="grid gap-2 text-sm font-bold text-slate-300">Telefono<input className={input} name="telefono" defaultValue={negocio.telefono || ""} /></label>
+          <label className="grid gap-2 text-sm font-bold text-slate-300">Correo<input className={input} name="correo" type="email" defaultValue={negocio.correo || ""} /></label>
+          <label className="grid gap-2 text-sm font-bold text-slate-300">Direccion<input className={input} name="direccion" defaultValue={negocio.direccion || ""} /></label>
+          <label className="grid gap-2 text-sm font-bold text-slate-300">Representante<input className={input} name="representante" defaultValue={negocio.representante || ""} /></label>
+          <label className="grid gap-2 text-sm font-bold text-slate-300">Tipo documento
             <select className={input} name="tipoDocumento" defaultValue={negocio.tipoDocumento || "cc"}>
               <option value="cc">Cedula ciudadania</option>
               <option value="ce">Cedula extranjeria</option>
@@ -80,12 +81,12 @@ export default async function ConfiguracionPage() {
               <option value="ti">Tarjeta identidad</option>
             </select>
           </label>
-          <label className="grid gap-2 text-sm font-bold">Numero documento<input className={input} name="numeroDocumento" defaultValue={negocio.numeroDocumento || ""} /></label>
-          <label className="grid gap-2 text-sm font-bold">Indicativo ciudad<input className={input} name="ciudadIndicativo" defaultValue={negocio.ciudadIndicativo || ""} /></label>
-          <label className="grid gap-2 text-sm font-bold">Contacto principal<input className={input} name="contactoPrincipal" defaultValue={negocio.contactoPrincipal || ""} /></label>
+          <label className="grid gap-2 text-sm font-bold text-slate-300">Numero documento<input className={input} name="numeroDocumento" defaultValue={negocio.numeroDocumento || ""} /></label>
+          <label className="grid gap-2 text-sm font-bold text-slate-300">Indicativo ciudad<input className={input} name="ciudadIndicativo" defaultValue={negocio.ciudadIndicativo || ""} /></label>
+          <label className="grid gap-2 text-sm font-bold text-slate-300">Contacto principal<input className={input} name="contactoPrincipal" defaultValue={negocio.contactoPrincipal || ""} /></label>
           <label className="grid gap-2 text-sm font-bold md:col-span-2">Descripcion<textarea className={input} name="descripcion" defaultValue={negocio.descripcion || ""} rows={4} /></label>
           <label className="grid gap-2 text-sm font-bold md:col-span-2">Slogan dashboard<input className={input} name="slogan" defaultValue={negocio.slogan || ""} /></label>
-          <label className="grid gap-2 text-sm font-bold">Fuente
+          <label className="grid gap-2 text-sm font-bold text-slate-300">Fuente
             <select className={input} name="fuente" defaultValue={configVisual.fontFamily || negocio.fuente || "Inter"}>
               {fontOptions.map((font) => <option key={font} value={font}>{font}</option>)}
             </select>
@@ -149,7 +150,7 @@ export default async function ConfiguracionPage() {
         <div className="mt-5 rounded-[1.5rem] border border-white/10 bg-white/10 backdrop-blur-md p-4">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-violet-700">Reglas contables</p>
           <div className="mt-3 grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2 text-sm font-bold">
+            <label className="grid gap-2 text-sm font-bold text-slate-300">
               Base de comisión
               <select className={input} name="comisionBase" defaultValue={negocio.comisionBase || "precio_final"}>
                 <option value="precio_final">Precio final del turno</option>
@@ -157,7 +158,7 @@ export default async function ConfiguracionPage() {
                 <option value="precio_menos_insumo">Precio menos costo de insumo</option>
               </select>
             </label>
-            <label className="flex items-center gap-3 rounded-xl border bg-slate-50 px-4 py-3 text-sm font-bold">
+            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/8 px-4 py-3 text-sm font-bold text-slate-300">
               <input name="propinaEnComision" type="hidden" value="false" />
               <input className="size-4 accent-violet-700" name="propinaEnComision" type="checkbox" value="true" defaultChecked={negocio.propinaEnComision} />
               Incluir propina en comisión
@@ -168,8 +169,8 @@ export default async function ConfiguracionPage() {
           </p>
         </div>
 
-        <button className="mt-5 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-violet-950" type="submit">
-          Guardar configuracion
+        <button className="mt-5 rounded-lg bg-cyan-500 px-5 py-2.5 text-sm font-medium text-white shadow transition hover:bg-cyan-400" type="submit">
+          Guardar configuración
         </button>
       </form>
 
@@ -178,6 +179,18 @@ export default async function ConfiguracionPage() {
         darkMode={!!configVisual.darkMode}
         bgPhotoUrl={configVisual.bgPhotoUrl}
         fontFamily={configVisual.fontFamily || negocio.fuente}
+      />
+
+      {/* ── WhatsApp Templates ──────────────────────────────────── */}
+      <WhatsAppTemplatesPanel
+        negocioId={negocio.id}
+        initialPhone={String((configVisual as Record<string, unknown>).whatsapp_phone ?? "")}
+        initialEnabled={Boolean((configVisual as Record<string, unknown>).whatsapp_enabled ?? false)}
+        initialTemplates={{
+          confirmacion: String(((configVisual as Record<string, unknown>).whatsapp_templates as Record<string, string> | null)?.confirmacion ?? "Hola {nombre_cliente}, tu cita en {nombre_negocio} para {servicio} con {empleado} está confirmada para el {fecha} a las {hora}. ¡Te esperamos!"),
+          recordatorio: String(((configVisual as Record<string, unknown>).whatsapp_templates as Record<string, string> | null)?.recordatorio ?? "Hola {nombre_cliente}, te recordamos tu cita en {nombre_negocio} en 1 hora ({hora}). Si necesitas cancelar escríbenos."),
+          seguimiento: String(((configVisual as Record<string, unknown>).whatsapp_templates as Record<string, string> | null)?.seguimiento ?? "Gracias por visitarnos {nombre_cliente}. Esperamos verte pronto en {nombre_negocio}. Reserva tu próxima cita aquí: {link_reserva}"),
+        }}
       />
     </div>
   );

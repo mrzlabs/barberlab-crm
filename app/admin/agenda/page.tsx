@@ -319,7 +319,7 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
               <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700">Horarios activos</p>
               <div className="mt-4 grid gap-2">
                 {horarios.slice(0, 8).map((horario) => (
-                  <div className="flex items-start justify-between gap-2 rounded-2xl border bg-white p-3 text-sm" key={horario.id}>
+                  <div className="flex items-start justify-between gap-2 rounded-xl border border-slate-700/50 bg-slate-900/80 p-3 text-sm" key={horario.id}>
                     <div>
                       <strong>{horario.empleado}</strong>
                       <p className="text-slate-500">{days[horario.diaSemana]} · {String(horario.horaInicio).slice(0, 5)} - {String(horario.horaFin).slice(0, 5)}</p>
@@ -336,7 +336,7 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
               <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700">Bloqueos recientes</p>
               <div className="mt-4 grid gap-2">
                 {bloqueos.slice(0, 8).map((bloqueo) => (
-                  <div className="flex items-start justify-between gap-2 rounded-2xl border bg-white p-3 text-sm" key={bloqueo.id}>
+                  <div className="flex items-start justify-between gap-2 rounded-xl border border-slate-700/50 bg-slate-900/80 p-3 text-sm" key={bloqueo.id}>
                     <div>
                       <strong>{bloqueo.empleado}</strong>
                       <p className="text-slate-500">{fmtDateTime(bloqueo.fechaInicio)} - {fmtDateTime(bloqueo.fechaFin)}</p>

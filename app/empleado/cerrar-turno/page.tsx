@@ -13,7 +13,7 @@ export default async function CerrarTurnoPage() {
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-      <section className="rounded-2xl border bg-white shadow-sm">
+      <section className="rounded-xl border border-slate-700/50 bg-slate-900/80 shadow-lg">
         <div className="border-b p-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-primary">Cierre de servicio</p>
           <h2 className="mt-1 text-2xl font-black">Mis citas pendientes</h2>
@@ -63,7 +63,7 @@ export default async function CerrarTurnoPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border bg-white shadow-sm">
+      <section className="rounded-xl border border-slate-700/50 bg-slate-900/80 shadow-lg">
         <div className="border-b p-5">
           <h3 className="text-lg font-black">Mis turnos cerrados</h3>
           <p className="mt-1 text-sm text-muted-foreground">Ultimos cierres registrados.</p>

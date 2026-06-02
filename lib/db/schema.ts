@@ -18,6 +18,13 @@ export type ConfigVisual = {
   fontFamily?: string | null;
   bgPhotoUrl?: string | null;
   bgPhotoStoragePath?: string | null;
+  whatsapp_phone?: string | null;
+  whatsapp_enabled?: boolean;
+  whatsapp_templates?: {
+    confirmacion?: string;
+    recordatorio?: string;
+    seguimiento?: string;
+  } | null;
 };
 
 export const rolUsuario = pgEnum("rol_usuario", ["super_admin", "admin", "empleado", "cliente"]);

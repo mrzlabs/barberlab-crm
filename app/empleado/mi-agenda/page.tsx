@@ -31,7 +31,7 @@ export default async function MiAgendaPage() {
 
   if (!agenda.empleado) {
     return (
-      <section className="rounded-2xl border bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-slate-700/50 bg-slate-900/80 p-6 shadow-sm">
         <h2 className="text-2xl font-black">Empleado sin perfil operativo</h2>
         <p className="mt-2 text-sm text-muted-foreground">El usuario existe, pero no tiene registro en la tabla empleados.</p>
       </section>
@@ -80,7 +80,7 @@ export default async function MiAgendaPage() {
               { label: "Mi comisión", value: fmtMoney(stats.mes.comision), sub: `${stats.comisionPct}% del bruto` },
               { label: "Ticket promedio", value: fmtMoney(stats.mes.ticket), sub: "por servicio" },
             ].map((kpi) => (
-              <article key={kpi.label} className="rounded-2xl border bg-white p-4 shadow-sm" style={{ borderLeftWidth: "3px", borderLeftColor: "var(--brand-secondary,#22d3ee)" }}>
+              <article key={kpi.label} className="rounded-xl border border-slate-700/50 bg-slate-900/80 p-4 shadow-sm" style={{ borderLeftWidth: "3px", borderLeftColor: "var(--brand-secondary,#22d3ee)" }}>
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{kpi.label}</p>
                 <strong className="mt-2 block text-xl font-black tracking-tight">{kpi.value}</strong>
                 <p className="mt-1 text-xs text-slate-400">{kpi.sub}</p>
@@ -134,7 +134,7 @@ export default async function MiAgendaPage() {
                   <form action={updateMiCita} key={estado}>
                     <input name="citaId" type="hidden" value={cita.id} />
                     <input name="estado" type="hidden" value={estado} />
-                    <button className="w-full rounded-xl border bg-white px-2 py-2 text-[11px] font-black capitalize text-slate-700" type="submit">
+                    <button className="w-full rounded-lg border border-slate-600/50 bg-slate-700 px-2 py-2 text-[11px] font-medium capitalize text-slate-200 transition hover:bg-slate-600" type="submit">
                       {estado.replace("_", " ")}
                     </button>
                   </form>
@@ -146,7 +146,7 @@ export default async function MiAgendaPage() {
       </section>
 
       {agenda.citas.length === 0 && (
-        <section className="rounded-2xl border bg-white p-8 text-center text-sm text-muted-foreground shadow-sm">
+        <section className="rounded-xl border border-slate-700/50 bg-slate-900/80 p-8 text-center text-sm text-muted-foreground shadow-sm">
           No hay citas asignadas.
         </section>
       )}

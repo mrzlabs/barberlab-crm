@@ -139,7 +139,7 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
                 </thead>
                 <tbody>
                   {r.byService.map((s, i) => (
-                    <tr className={`border-t transition hover:bg-white/10 ${i % 2 === 0 ? "" : "bg-white/5"}`} key={`${s.servicio}-${s.categoria}`}>
+                    <tr className={`border-t transition hover:bg-slate-800/40 ${i % 2 === 0 ? "" : "bg-slate-800/20"}`} key={`${s.servicio}-${s.categoria}`}>
                       <td className="px-5 py-3.5 font-semibold">{s.servicio}</td>
                       <td className="px-5 py-3.5 capitalize text-slate-500">{s.categoria.replace("_", " ")}</td>
                       <td className="px-4 py-3.5 text-right tabular-nums">{s.turnos}</td>
@@ -182,7 +182,7 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
                 </thead>
                 <tbody>
                   {r.byEmployee.map((e, i) => (
-                    <tr className={`border-t transition hover:bg-white/10 ${i % 2 === 0 ? "" : "bg-white/5"}`} key={`${e.empleado}-${e.especialidad}`}>
+                    <tr className={`border-t transition hover:bg-slate-800/40 ${i % 2 === 0 ? "" : "bg-slate-800/20"}`} key={`${e.empleado}-${e.especialidad}`}>
                       <td className="px-5 py-3.5 font-semibold">{e.empleado}</td>
                       <td className="px-5 py-3.5 capitalize text-slate-500">{e.especialidad.replace("_", " ")}</td>
                       <td className="px-4 py-3.5 text-right tabular-nums">{e.turnos}</td>
@@ -274,7 +274,7 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
       ]} />
 
       {/* regla contable */}
-      <section className="grid gap-3 rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md p-4 shadow-sm sm:grid-cols-3">
+      <section className="grid gap-3 rounded-xl border border-slate-700/50 bg-slate-900/80 p-4 shadow-lg sm:grid-cols-3">
         <article>
           <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">Regla de comisión</p>
           <strong className="mt-1 block text-sm">{commissionBaseLabel[r.settings.comisionBase] || "Precio final"}</strong>
