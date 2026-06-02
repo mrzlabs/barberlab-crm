@@ -290,12 +290,17 @@ type AppAlert = { label: string; tone: string; href: string; detail: string };
 
 // ─── LogoMark ─────────────────────────────────────────────────────────────────
 
-function LogoMark({ brand }: { brand?: CurrentProfile }) {
+function LogoMark({ brand, onExpand }: { brand?: CurrentProfile; onExpand?: (url: string) => void }) {
   if (brand?.logoUrl) {
     return (
-      <div className="relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/50 bg-white shadow-xl shadow-violet-950/15">
+      <button
+        aria-label="Ver foto del negocio"
+        className="relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/50 bg-white shadow-xl shadow-violet-950/15 transition hover:scale-[1.03]"
+        onClick={() => onExpand?.(brand.logoUrl!)}
+        type="button"
+      >
         <Image alt={brand.negocioNombre || "Logo"} className="object-cover" fill sizes="48px" src={brand.logoUrl} unoptimized />
-      </div>
+      </button>
     );
   }
   return (
@@ -382,6 +387,18 @@ export function AppChrome({
         ["--brand-primary" as string]: primaryColor,
         ["--brand-secondary" as string]: secondaryColor,
         ["--brand-accent" as string]: accentColor,
+        ["--shell-panel" as string]: isDark ? hexAlpha(primaryColor, 0.92) : hexAlpha(primaryColor, 0.05),
+        ["--shell-header" as string]: isDark ? hexAlpha(primaryColor, 0.88) : hexAlpha(primaryColor, 0.08),
+        ["--shell-border" as string]: isDark ? hexAlpha(secondaryColor, 0.2) : hexAlpha(primaryColor, 0.14),
+        ["--shell-muted" as string]: isDark ? hexAlpha(secondaryColor, 0.14) : hexAlpha(secondaryColor, 0.1),
+        ["--card-bg" as string]: isDark
+          ? `linear-gradient(135deg, ${hexAlpha(primaryColor, 0.72)}, ${hexAlpha(accentColor, 0.2)})`
+          : `linear-gradient(135deg, rgba(255,255,255,.78), ${hexAlpha(secondaryColor, 0.16)}, ${hexAlpha(accentColor, 0.12)})`,
+        ["--card-bg-strong" as string]: isDark
+          ? `linear-gradient(135deg, ${hexAlpha(primaryColor, 0.9)}, ${hexAlpha(accentColor, 0.34)})`
+          : `linear-gradient(135deg, rgba(255,255,255,.86), ${hexAlpha(primaryColor, 0.09)}, ${hexAlpha(secondaryColor, 0.14)})`,
+        ["--card-border" as string]: isDark ? hexAlpha(secondaryColor, 0.22) : hexAlpha(primaryColor, 0.16),
+        ["--card-shadow" as string]: isDark ? hexAlpha(accentColor, 0.18) : hexAlpha(accentColor, 0.12),
         ["--report-bar" as string]: isDark ? "#00cec9" : "#3b82f6",
         ["--report-axis" as string]: isDark ? "#cbd5e1" : "#475569",
         ["--report-grid" as string]: isDark ? "rgba(148,163,184,.25)" : "#e2e8f0",
@@ -426,7 +443,19 @@ export function AppChrome({
           <NeuralCanvas className="fixed inset-0 -z-10 h-full w-full opacity-55" />
         </>
       ) : (
-        <div className="pointer-events-none fixed inset-0 -z-30 bg-[#f8fafc]" />
+        <>
+          <div
+            className="pointer-events-none fixed inset-0 -z-30"
+            style={{
+              background: [
+                `radial-gradient(ellipse 54% 36% at 18% 20%, ${hexAlpha(secondaryColor, 0.18)}, transparent 64%)`,
+                `radial-gradient(ellipse 42% 34% at 82% 74%, ${hexAlpha(accentColor, 0.14)}, transparent 62%)`,
+                `linear-gradient(135deg, ${hexAlpha(primaryColor, 0.05)}, #f8fafc 48%, ${hexAlpha(secondaryColor, 0.06)})`,
+              ].join(", "),
+            }}
+          />
+          <NeuralCanvas className="fixed inset-0 -z-10 h-full w-full opacity-25" />
+        </>
       )}
 
       {/* ── Mobile overlay ──────────────────────────────────────── */}
@@ -437,24 +466,28 @@ export function AppChrome({
       {/* ── Sidebar ─────────────────────────────────────────────── */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 [transition-timing-function:cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(220px,86vw)] lg:w-[220px]" : "w-[220px] lg:w-[56px]"}`}
-        style={isDark ? { background: "#1a1a2e", borderRight: "1px solid rgba(255,255,255,0.07)" } : { background: "#ffffff", borderRight: "1px solid #e2e8f0" }}
+        style={isDark
+          ? { background: `linear-gradient(180deg, ${hexAlpha(primaryColor, 0.95)}, ${hexAlpha(accentColor, 0.18)}), #0f0f1a`, borderRight: `1px solid ${hexAlpha(secondaryColor, 0.18)}` }
+          : { background: `linear-gradient(180deg, #ffffff, ${hexAlpha(secondaryColor, 0.08)} 58%, ${hexAlpha(accentColor, 0.08)})`, borderRight: `1px solid ${hexAlpha(primaryColor, 0.14)}` }}
       >
         {/* header */}
         <div className="flex items-center justify-between gap-3 border-b border-white/10 p-4">
           <div className="flex min-w-0 items-center gap-3">
-            <LogoMark brand={brand} />
+            <LogoMark brand={brand} onExpand={setExpandedPhoto} />
             <div className={open ? "block" : "hidden"}>
               <p className="text-[11px] font-black uppercase tracking-[0.22em]" style={{ color: secondaryColor }}>
                 {brand?.plan ? `Plan ${brand.plan}` : "BarberLab"}
               </p>
-              <h1 className="truncate text-sm font-black text-white">{title}</h1>
+              <h1 className="truncate text-sm font-black crm-text-primary">{title}</h1>
             </div>
           </div>
           <button
             className="hidden rounded-lg border border-white/10 bg-white/8 p-1.5 text-white/60 hover:bg-white/15 hover:text-white lg:grid"
             onClick={() => setOpen((v) => !v)}
             type="button"
-            aria-label="Contraer menú"
+            aria-label={open ? "Contraer menú" : "Mostrar menú"}
+            title={open ? "Contraer menú" : "Mostrar menú"}
+            style={{ borderColor: hexAlpha(secondaryColor, 0.3), background: open ? hexAlpha(secondaryColor, 0.08) : hexAlpha(secondaryColor, 0.18), color: isDark ? "#e2e8f0" : primaryColor }}
           >
             {open ? <ChevronLeft className="size-3.5" /> : <ChevronRight className="size-3.5" />}
           </button>
@@ -504,13 +537,23 @@ export function AppChrome({
                     href={item.href}
                     title={!open ? item.label : undefined}
                     onClick={() => setMobileOpen(false)}
-                    className={`group flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150 ${open ? "justify-start" : "justify-center"} ${isActive ? "bg-white/12 text-white" : "text-white/60 hover:bg-white/8 hover:text-white"}`}
+                    className={`group flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150 ${open ? "justify-start" : "justify-center"} ${isActive ? "bg-white/12 crm-text-primary" : "crm-text-secondary hover:bg-white/8 hover:crm-text-primary"}`}
+                    style={{
+                      background: isActive ? `linear-gradient(135deg, ${hexAlpha(secondaryColor, 0.22)}, ${hexAlpha(accentColor, 0.18)})` : undefined,
+                      color: isActive ? (isDark ? "#ffffff" : primaryColor) : undefined,
+                    }}
                   >
-                    <span className={`grid size-7 shrink-0 place-items-center transition-transform group-hover:scale-105 ${isActive ? "scale-105" : ""} ${shapeClass} ${style.tone}`}>
+                    <span
+                      className={`grid size-7 shrink-0 place-items-center transition-transform group-hover:scale-105 ${isActive ? "scale-105" : ""} ${shapeClass} ${style.tone}`}
+                      style={{
+                        background: isActive ? `linear-gradient(135deg, ${secondaryColor}, ${accentColor})` : hexAlpha(secondaryColor, isDark ? 0.16 : 0.1),
+                        color: isActive ? "#ffffff" : secondaryColor,
+                      }}
+                    >
                       <Icon className="size-[15px]" />
                     </span>
                     {open && <span className="flex-1 truncate text-[13px] leading-none">{item.label}</span>}
-                    {open && isActive && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400 opacity-90" />}
+                    {open && isActive && <span className="h-1.5 w-1.5 shrink-0 rounded-full opacity-90" style={{ backgroundColor: secondaryColor }} />}
                   </Link>
                 </div>
               );
@@ -566,7 +609,7 @@ export function AppChrome({
             )}
             {open && (
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[12px] font-bold text-white">{brand?.nombre ?? "Usuario"}</p>
+                <p className="truncate text-[12px] font-bold crm-text-primary">{brand?.nombre ?? "Usuario"}</p>
                 <p className="truncate text-[10px] capitalize text-white/50">{role.replace("_", " ")}</p>
               </div>
             )}
@@ -577,13 +620,34 @@ export function AppChrome({
           />
         </div>
       </aside>
+      {!open && (
+        <button
+          className="fixed left-[68px] top-4 z-50 hidden items-center gap-2 rounded-full border px-3 py-2 text-xs font-black shadow-lg backdrop-blur lg:flex"
+          onClick={() => setOpen(true)}
+          style={{
+            borderColor: hexAlpha(secondaryColor, 0.36),
+            background: isDark ? hexAlpha(primaryColor, 0.92) : "#ffffff",
+            color: isDark ? "#ffffff" : primaryColor,
+            boxShadow: `0 12px 34px ${hexAlpha(accentColor, 0.18)}`,
+          }}
+          type="button"
+        >
+          <ChevronRight className="size-3.5" />
+          Mostrar menú
+        </button>
+      )}
 
       {/* ── Main area ───────────────────────────────────────────── */}
       <div className={`min-h-dvh pb-20 transition-all duration-300 lg:pb-8 ${open ? "lg:ml-[220px]" : "lg:ml-[56px]"}`}>
         {/* topbar */}
         <header
           className={`sticky top-0 z-20 flex h-[52px] items-center border-b px-4 ${isDark ? "border-white/8" : "border-slate-200"}`}
-          style={{ background: isDark ? "#0f0f1a" : "#ffffff" }}
+          style={{
+            background: isDark
+              ? hexAlpha(primaryColor, 0.86)
+              : `linear-gradient(90deg, #ffffff, ${hexAlpha(secondaryColor, 0.08)}, ${hexAlpha(accentColor, 0.08)})`,
+            borderColor: isDark ? hexAlpha(secondaryColor, 0.12) : hexAlpha(primaryColor, 0.12),
+          }}
         >
           <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
@@ -602,7 +666,7 @@ export function AppChrome({
               )}
               <div>
                 <Breadcrumb />
-                <h2 className="text-base font-bold tracking-tight text-white">{title}</h2>
+                <h2 className="text-base font-bold tracking-tight crm-text-primary">{title}</h2>
               </div>
             </div>
             <div className="relative hidden items-center gap-1.5 md:flex">
@@ -623,7 +687,7 @@ export function AppChrome({
               >
                 <UserCircle className="size-4" />
               </button>
-              <span className="ml-1 hidden text-xs text-white/40 lg:block">{headerIdentity}</span>
+              <span className="ml-1 hidden text-xs crm-text-muted lg:block">{headerIdentity}</span>
               {alertsOpen && (
                 <div ref={alertsRef} className="absolute right-16 top-12 z-50 w-72 rounded-xl border border-slate-700/60 bg-slate-900 p-3 shadow-2xl shadow-black/40">
                   <div className="flex items-center justify-between gap-3 mb-2">

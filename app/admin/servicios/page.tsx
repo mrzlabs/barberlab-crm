@@ -19,9 +19,9 @@ export default async function AdminServiciosPage() {
         <ServicioCreateButton createAction={createServicio} />
       </div>
 
-      <section className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-md shadow-black/20">
+      <section className="crm-card shadow-black/20">
         <div className="border-b border-white/10 p-5">
-          <p className="mt-1 text-sm text-slate-400">Precios, duración y costo base para rentabilidad.</p>
+          <p className="mt-1 text-sm crm-text-muted">Precios, duración y costo base para rentabilidad.</p>
         </div>
         <div className="divide-y divide-white/10">
           {servicios.map((item) => (
@@ -29,11 +29,11 @@ export default async function AdminServiciosPage() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="font-black">{item.nombre}</p>
-                  <p className="mt-0.5 text-sm capitalize text-slate-400">{item.categoria.replace("_", " ")} · {item.duracionMin} min</p>
+                  <p className="mt-0.5 text-sm capitalize crm-text-muted">{item.categoria.replace("_", " ")} · {item.duracionMin} min</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-black">{fmtMoney(item.precio)}</span>
-                  <span className="text-xs text-slate-400">Costo {fmtMoney(item.costoInsumo)}</span>
+                  <span className="text-xs crm-text-muted">Costo {fmtMoney(item.costoInsumo)}</span>
                   <form action={toggleServicio}>
                     <input name="servicioId" type="hidden" value={item.id} />
                     <input name="activo" type="hidden" value={String(!item.activo)} />

@@ -27,6 +27,18 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
     let last = performance.now();
     let pTimer = 0;
     let W = 0, H = 0;
+    let neuralOpacity = 0.55;
+    let neuralLineOpacity = 0.4;
+    let frameCount = 0;
+
+    function readThemeVars() {
+      const el = cv.closest("[data-theme]") ?? document.documentElement;
+      const s = getComputedStyle(el as Element);
+      const o = s.getPropertyValue("--neural-opacity").trim();
+      const l = s.getPropertyValue("--neural-line-opacity").trim();
+      neuralOpacity = o ? parseFloat(o) : 0.55;
+      neuralLineOpacity = l ? parseFloat(l) : 0.4;
+    }
 
     function resize() {
       W = cv.offsetWidth  || window.innerWidth;
@@ -61,10 +73,13 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
     }
 
     resize();
+    readThemeVars();
     const ro = new ResizeObserver(resize);
     ro.observe(cv);
 
     function tick(now: number) {
+      frameCount++;
+      if (frameCount % 60 === 0) readThemeVars();
       const dt = now - last; last = now;
       pTimer += dt;
       if (pTimer > 280) { spawnPulse(); pTimer = 0; }
@@ -82,7 +97,7 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
           const dx = parts[i].x - parts[j].x, dy = parts[i].y - parts[j].y;
           const d2 = dx * dx + dy * dy;
           if (d2 > DIST * DIST) continue;
-          const alpha = (1 - Math.sqrt(d2) / DIST) * 0.18;
+          const alpha = (1 - Math.sqrt(d2) / DIST) * 0.18 * (neuralLineOpacity / 0.4);
           ctx.strokeStyle = `rgba(124,58,237,${alpha})`;
           ctx.lineWidth = 0.6;
           ctx.beginPath();
@@ -111,7 +126,7 @@ export function NeuralCanvas({ className = "" }: { className?: string }) {
 
       for (const p of parts) {
         const b = 0.5 + Math.sin(p.phase) * 0.25;
-        ctx.fillStyle = `rgba(192,132,252,${0.55 * b})`;
+        ctx.fillStyle = `rgba(192,132,252,${neuralOpacity * b})`;
         ctx.shadowColor = "rgba(192,132,252,.6)"; ctx.shadowBlur = 6;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
         ctx.shadowBlur = 0;

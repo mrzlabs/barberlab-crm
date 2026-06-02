@@ -203,6 +203,14 @@ export function MrzSignature() {
               <div className="build-links">
                 <a href="https://github.com/mrzlabs" target="_blank" rel="noreferrer">GitHub</a>
                 <a href="https://mrzlabs.github.io/web-mrz-portfolio/" target="_blank" rel="noreferrer">Portafolio</a>
+                <a
+                  href="#"
+                  aria-disabled="true"
+                  onClick={(e) => e.preventDefault()}
+                  style={{ opacity: 0.6, cursor: "not-allowed", background: "#25d366", color: "#fff" }}
+                >
+                  WhatsApp — Próximamente
+                </a>
               </div>
             </div>
           </div>

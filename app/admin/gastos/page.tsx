@@ -26,12 +26,12 @@ export default async function GastosPage({ searchParams }: PageProps) {
         <GastoCreateButton createAction={createGasto} />
       </div>
 
-      <section className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-md shadow-black/20">
+      <section className="crm-card shadow-black/20">
         <div className="border-b border-white/10 p-5">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <h2 className="text-2xl font-black">Gastos registrados</h2>
-              <p className="mt-1 text-sm text-slate-400">Últimos 40 movimientos operativos.</p>
+              <p className="mt-1 text-sm crm-text-muted">Últimos 40 movimientos operativos.</p>
             </div>
             <strong className="rounded-xl bg-cyan-500/20 px-4 py-2 text-cyan-300 border border-cyan-500/30">{fmtMoney(total)}</strong>
           </div>

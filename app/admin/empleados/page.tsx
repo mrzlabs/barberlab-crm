@@ -26,7 +26,7 @@ export default async function AdminEmpleadosPage({ searchParams }: PageProps) {
       {/* ── Search ── */}
       <form className="flex gap-2" method="get">
         <input
-          className="flex-1 rounded-xl border bg-white/10 border-white/15 text-white placeholder:text-slate-500 px-3 py-2 text-sm outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20"
+          className="flex-1 rounded-xl crm-input placeholder:text-slate-500 px-3 py-2 text-sm outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20"
           defaultValue={q ?? ""}
           name="q"
           placeholder="Buscar por nombre…"
@@ -40,11 +40,11 @@ export default async function AdminEmpleadosPage({ searchParams }: PageProps) {
       {/* ── List ── */}
       <div className="grid gap-4 md:grid-cols-2">
         {empleados.map((item) => (
-          <article className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-md p-5 shadow-black/20" key={item.id}>
+          <article className="crm-card p-5 shadow-black/20" key={item.id}>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-xl font-black text-white">{item.nombre}</h3>
-                <p className="mt-1 text-sm text-slate-400">{item.email}</p>
+                <h3 className="text-xl font-black crm-text-primary">{item.nombre}</h3>
+                <p className="mt-1 text-sm crm-text-muted">{item.email}</p>
               </div>
               <form action={toggleEmpleado}>
                 <input name="empleadoId" type="hidden" value={item.id} />
@@ -58,9 +58,9 @@ export default async function AdminEmpleadosPage({ searchParams }: PageProps) {
               </form>
             </div>
             <dl className="mt-5 grid gap-3 text-sm">
-              <div className="flex justify-between gap-4"><dt className="text-slate-400">Especialidad</dt><dd className="font-semibold text-slate-200 capitalize">{item.especialidad.replace("_", " ")}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-slate-400">Comisión</dt><dd className="font-semibold text-slate-200">{item.comisionPct}%</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-slate-400">Teléfono</dt><dd className="font-semibold text-slate-200">{item.telefono}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="crm-text-muted">Especialidad</dt><dd className="font-semibold crm-text-secondary capitalize">{item.especialidad.replace("_", " ")}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="crm-text-muted">Comisión</dt><dd className="font-semibold crm-text-secondary">{item.comisionPct}%</dd></div>
+              <div className="flex justify-between gap-4"><dt className="crm-text-muted">Teléfono</dt><dd className="font-semibold crm-text-secondary">{item.telefono}</dd></div>
             </dl>
             <div className="mt-4">
               <EmpleadoEditButton

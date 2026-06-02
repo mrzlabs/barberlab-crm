@@ -8,7 +8,7 @@ import { SubmitButton } from "@/components/layout/SubmitButton";
 
 export const dynamic = "force-dynamic";
 
-const input = "w-full rounded-xl border bg-white/10 border-white/15 text-white placeholder:text-slate-500 px-3 py-2 text-sm outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20";
+const input = "w-full rounded-xl crm-input placeholder:text-slate-500 px-3 py-2 text-sm outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20";
 type PageProps = { searchParams?: Record<string, string | string[] | undefined> };
 function param(v: string | string[] | undefined) { return Array.isArray(v) ? v[0] : v; }
 
@@ -36,17 +36,17 @@ export default async function InventarioPage({ searchParams }: PageProps) {
 
       {/* ── Stats ── */}
       <section className="grid gap-4 lg:grid-cols-3">
-        <article className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-md p-5 shadow-black/20">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Items activos</p>
-          <strong className="mt-2 block text-3xl font-black">{items.filter((item) => item.activo).length}</strong>
+        <article className="crm-card p-5 shadow-black/20">
+          <p className="crm-label">Items activos</p>
+          <strong className="mt-2 block text-3xl font-black crm-text-primary">{items.filter((item) => item.activo).length}</strong>
         </article>
-        <article className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-md p-5 shadow-black/20">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Alertas stock mínimo</p>
+        <article className="crm-card p-5 shadow-black/20">
+          <p className="crm-label">Alertas stock mínimo</p>
           <strong className="mt-2 block text-3xl font-black text-red-400">{alertas.length}</strong>
         </article>
-        <article className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-md p-5 shadow-black/20">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Valor inventario</p>
-          <strong className="mt-2 block text-3xl font-black">{fmtMoney(items.reduce((sum, item) => sum + Number(item.stock) * Number(item.costoUnitario), 0))}</strong>
+        <article className="crm-card p-5 shadow-black/20">
+          <p className="crm-label">Valor inventario</p>
+          <strong className="mt-2 block text-3xl font-black crm-text-primary">{fmtMoney(items.reduce((sum, item) => sum + Number(item.stock) * Number(item.costoUnitario), 0))}</strong>
         </article>
       </section>
 
@@ -66,8 +66,8 @@ export default async function InventarioPage({ searchParams }: PageProps) {
               return (
                 <div className="flex items-start justify-between gap-3 rounded-2xl border border-red-500/30 bg-white/5 px-4 py-3" key={item.id}>
                   <div className="min-w-0">
-                    <p className="truncate font-black text-white">{item.nombre}</p>
-                    <p className="text-xs text-slate-400">{item.categoria} · {item.unidad}</p>
+                    <p className="truncate font-black crm-text-primary">{item.nombre}</p>
+                    <p className="text-xs crm-text-muted">{item.categoria} · {item.unidad}</p>
                     <p className="mt-1 text-xs font-bold text-red-400">Stock: {item.stock} / Mín: {item.stockMinimo}</p>
                   </div>
                   <div className="shrink-0 text-right">
@@ -82,11 +82,11 @@ export default async function InventarioPage({ searchParams }: PageProps) {
       )}
 
       {/* ── Movimiento de inventario ── */}
-      <form action={createMov} className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-md p-5 shadow-black/20">
+      <form action={createMov} className="crm-card p-5 shadow-black/20">
         <p className="text-xs font-semibold uppercase tracking-wide text-primary">Kardex</p>
         <h2 className="mt-1 text-xl font-black">Registrar movimiento</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <label className="text-xs font-bold uppercase text-slate-400">
+          <label className="crm-label">
             Insumo
             <select className={input} name="inventarioId" required>
               {items.map((item) => (
@@ -94,7 +94,7 @@ export default async function InventarioPage({ searchParams }: PageProps) {
               ))}
             </select>
           </label>
-          <label className="text-xs font-bold uppercase text-slate-400">
+          <label className="crm-label">
             Tipo
             <select className={input} name="tipo" required>
               <option value="entrada">Entrada</option>
@@ -102,8 +102,8 @@ export default async function InventarioPage({ searchParams }: PageProps) {
               <option value="ajuste">Ajuste</option>
             </select>
           </label>
-          <label className="text-xs font-bold uppercase text-slate-400">Cantidad<input className={input} name="cantidad" required type="number" /></label>
-          <label className="text-xs font-bold uppercase text-slate-400">Motivo<input className={input} name="motivo" placeholder="Compra, uso interno, ajuste" required /></label>
+          <label className="crm-label">Cantidad<input className={input} name="cantidad" required type="number" /></label>
+          <label className="crm-label">Motivo<input className={input} name="motivo" placeholder="Compra, uso interno, ajuste" required /></label>
         </div>
         <div className="mt-3">
           <SubmitButton label="Registrar movimiento" pendingLabel="Registrando…" className="rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-black text-white" />
@@ -111,13 +111,13 @@ export default async function InventarioPage({ searchParams }: PageProps) {
       </form>
 
       {/* ── Search + List ── */}
-      <section className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-md shadow-black/20">
+      <section className="crm-card shadow-black/20">
         <div className="border-b border-white/10 p-5">
           <h2 className="text-2xl font-black">Inventario</h2>
-          <p className="mt-1 text-sm text-slate-400">Stock, costo unitario y alertas para cierre de turnos.</p>
+          <p className="mt-1 text-sm crm-text-muted">Stock, costo unitario y alertas para cierre de turnos.</p>
           <form className="mt-3 flex flex-wrap gap-2" method="get">
             <input
-              className="rounded-xl border bg-white/10 border-white/15 text-white placeholder:text-slate-500 px-3 py-1.5 text-sm outline-none focus:border-cyan-400"
+              className="rounded-xl crm-input placeholder:text-slate-500 px-3 py-1.5 text-sm outline-none focus:border-cyan-400"
               defaultValue={q ?? ""}
               name="q"
               placeholder="Buscar por nombre o SKU…"
@@ -156,8 +156,8 @@ export default async function InventarioPage({ searchParams }: PageProps) {
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-black">Stock: {item.stock}</span>
-                    <span className="text-xs text-slate-400">Mín {item.stockMinimo}</span>
-                    <span className="text-xs text-slate-400">Costo {fmtMoney(item.costoUnitario)}</span>
+                    <span className="text-xs crm-text-muted">Mín {item.stockMinimo}</span>
+                    <span className="text-xs crm-text-muted">Costo {fmtMoney(item.costoUnitario)}</span>
                     <span className={`rounded-full px-3 py-1 text-xs font-black ${low ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"}`}>{low ? "Reponer" : "OK"}</span>
                     <span className={`rounded-full px-3 py-1 text-xs font-black ${item.visibleCliente ? "bg-cyan-500/20 text-cyan-300" : "bg-white/8 text-slate-300 border border-white/10"}`}>{item.visibleCliente ? "Visible" : "Interno"}</span>
                     <InventarioEditButton

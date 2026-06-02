@@ -23,9 +23,9 @@ function KpiCard({ label, value, detail, accent, icon }: { label: string; value:
   return (
     <article className={`report-kpi relative overflow-hidden rounded-2xl border border-white/8 bg-slate-900 p-5 shadow-sm ${accent}`}>
       <span className="absolute right-4 top-4 text-2xl opacity-20 select-none">{icon}</span>
-      <p className="report-kpi-label text-xs font-semibold tracking-widest text-white/70">{label}</p>
-      <strong className="report-kpi-value mt-2 block truncate text-2xl font-black text-white">{value}</strong>
-      <p className="report-kpi-detail mt-1 truncate text-xs text-white/60">{detail}</p>
+      <p className="report-kpi-label crm-label">{label}</p>
+      <strong className="report-kpi-value mt-2 block truncate text-2xl font-black crm-text-primary">{value}</strong>
+      <p className="report-kpi-detail mt-1 truncate text-xs crm-text-muted">{detail}</p>
     </article>
   );
 }
@@ -42,7 +42,7 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
   const serviceShare = hasData && topSvc ? (topSvc.turnos / r.kpis.turnos) * 100 : 0;
   const employeeShare = hasData && topEmp ? (topEmp.turnos / r.kpis.turnos) * 100 : 0;
 
-  const inputCls = "w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/50 outline-none focus:border-cyan-400";
+  const inputCls = "w-full rounded-xl crm-input px-3 py-2 text-sm placeholder:text-slate-500 outline-none focus:border-cyan-400";
 
   // ── DnD modules ───────────────────────────────────────────────────────────
 
@@ -51,7 +51,7 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
       id: "tendencia",
       label: "Tendencia diaria",
       node: (
-        <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md shadow-sm">
+        <section className="overflow-hidden crm-card shadow-sm">
           <div className="flex items-center justify-between border-b px-5 py-4">
             <div>
               <h3 className="report-truncate font-black">Ingresos por día</h3>
@@ -68,7 +68,7 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
       label: "Tendencias comerciales",
       node: (
         <section className="grid gap-4 md:grid-cols-3">
-          <article className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md p-5 shadow-sm">
+          <article className="crm-card p-5 shadow-sm">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-400">Tendencia</p>
             <h3 className="mt-1 text-lg font-black">Servicio líder</h3>
             {topSvc ? (
@@ -77,12 +77,12 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
                   <div className="h-full rounded-full bg-cyan-400 transition-all" style={{ width: `${Math.max(8, (topSvc.ingresos / maxSvc) * 100)}%` }} />
                 </div>
-                <strong className="report-truncate mt-3 block text-xl font-black text-white">{fmtMoney(topSvc.ingresos)}</strong>
+                <strong className="report-truncate mt-3 block text-xl font-black crm-text-primary">{fmtMoney(topSvc.ingresos)}</strong>
                 <span className="report-truncate text-xs text-slate-400">{topSvc.turnos} turnos · {pct(topSvc.rentabilidadNeta)} utilidad neta</span>
               </>
             ) : <p className="mt-3 text-sm text-slate-400">Sin turnos en el periodo.</p>}
           </article>
-          <article className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md p-5 shadow-sm">
+          <article className="crm-card p-5 shadow-sm">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-400">Talento</p>
             <h3 className="mt-1 text-lg font-black">Especialista líder</h3>
             {topEmp ? (
@@ -91,18 +91,18 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
                   <div className="h-full rounded-full bg-violet-500" style={{ width: `${Math.max(8, ((topEmp.ingresos + topEmp.propinas) / maxEmp) * 100)}%` }} />
                 </div>
-                <strong className="report-truncate mt-3 block text-xl font-black text-white">{fmtMoney(topEmp.ingresos + topEmp.propinas)}</strong>
+                <strong className="report-truncate mt-3 block text-xl font-black crm-text-primary">{fmtMoney(topEmp.ingresos + topEmp.propinas)}</strong>
                 <span className="report-truncate text-xs text-slate-400">{topEmp.turnos} turnos · utilidad {fmtMoney(topEmp.utilidadNegocio)}</span>
               </>
             ) : <p className="mt-3 text-sm text-slate-400">Sin producción por empleado.</p>}
           </article>
-          <article className="rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md p-5 shadow-sm">
+          <article className="crm-card p-5 shadow-sm">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-400">Caja</p>
             <h3 className="mt-1 text-lg font-black">Método dominante</h3>
             {topPay ? (
               <>
                 <p className="report-truncate mt-2 text-xs leading-5 text-slate-500">El método con mayor volumen facilita conciliación y arqueo.</p>
-                <strong className="report-truncate mt-4 block text-2xl font-black capitalize text-white">{topPay.metodoPago}</strong>
+                <strong className="report-truncate mt-4 block text-2xl font-black capitalize crm-text-primary">{topPay.metodoPago}</strong>
                 <span className="report-truncate text-xs text-slate-400">{fmtMoney(topPay.ingresos)} · {topPay.turnos} turnos</span>
               </>
             ) : <p className="mt-3 text-sm text-slate-400">Sin pagos en el periodo.</p>}
@@ -215,7 +215,7 @@ export default async function AdminReportesPage({ searchParams }: PageProps) {
                 <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/8 px-4 py-3.5" key={p.metodoPago}>
                   <div>
                     <p className="text-[11px] font-bold capitalize text-slate-500">{p.metodoPago}</p>
-                    <strong className="text-lg font-black text-white">{fmtMoney(p.ingresos)}</strong>
+                    <strong className="text-lg font-black crm-text-primary">{fmtMoney(p.ingresos)}</strong>
                   </div>
                   <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-bold text-slate-600">{p.turnos} turnos</span>
                 </div>

@@ -43,12 +43,12 @@ function KpiCard({
       style={{ borderLeftColor: borderColor, borderLeftWidth: "3px" }}
       href={href}
     >
-      <p className="truncate text-xs font-medium uppercase tracking-wider text-slate-400">{label}</p>
+      <p className="crm-label truncate">{label}</p>
       <div className="mt-2 flex flex-wrap items-baseline gap-1">
-        <strong className="break-words text-2xl font-black leading-tight tracking-tight text-white [overflow-wrap:anywhere]">{value}</strong>
+        <strong className="break-words text-2xl font-black leading-tight tracking-tight crm-text-primary [overflow-wrap:anywhere]">{value}</strong>
         <DeltaBadge delta={delta} />
       </div>
-      <p className="mt-1.5 truncate text-xs text-slate-400">{detail}</p>
+      <p className="mt-1.5 truncate text-xs crm-text-muted">{detail}</p>
     </Link>
   );
 }
@@ -80,7 +80,7 @@ export default async function DashboardPage() {
             <h2 className="mt-3 text-xl font-black tracking-tight sm:text-4xl lg:text-5xl">
               Control diario de agenda, caja, inventario y rentabilidad.
             </h2>
-            <p className="mt-3 text-sm leading-6 text-slate-300 sm:mt-5">
+            <p className="mt-3 text-sm leading-6 crm-text-secondary sm:mt-5">
               {profile?.slogan || "Vista personalizada del negocio para tomar decisiones rápidas sin entrar a cada módulo."}
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
@@ -103,8 +103,8 @@ export default async function DashboardPage() {
               <Link className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/8 p-3 transition hover:border-violet-500/40 hover:bg-white/12 hover:shadow-lg" href={item.href} key={item.href}>
                 <span className="grid size-9 place-items-center rounded-xl bg-slate-950 text-sm font-black text-cyan-200 group-hover:bg-violet-700">{index + 1}</span>
                 <span>
-                  <strong className="block text-sm text-white">{item.label}</strong>
-                  <span className="text-xs font-semibold text-slate-400">{item.text}</span>
+                  <strong className="block text-sm crm-text-primary">{item.label}</strong>
+                  <span className="text-xs font-semibold crm-text-muted">{item.text}</span>
                 </span>
               </Link>
             ))}
@@ -140,7 +140,7 @@ export default async function DashboardPage() {
           </div>
           <div className="overflow-x-auto scrollbar-soft">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-slate-950 text-xs uppercase tracking-wide text-cyan-100">
+              <thead className="crm-table-header text-xs uppercase tracking-wide">
                 <tr>
                   <th className="px-5 py-3">Cliente</th>
                   <th className="px-5 py-3">Servicio</th>
@@ -151,7 +151,7 @@ export default async function DashboardPage() {
               </thead>
               <tbody className="bg-transparent">
                 {recentTurnos.map((turno) => (
-                  <tr className="border-t border-white/10 hover:bg-white/5" key={turno.id}>
+                  <tr className="crm-table-border crm-table-row" key={turno.id}>
                     <td className="px-5 py-4 font-black">{turno.cliente}</td>
                     <td className="px-5 py-4">{turno.servicio}</td>
                     <td className="px-5 py-4">{turno.empleado}</td>

@@ -6,7 +6,7 @@ import { closeTurno } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-const input = "w-full rounded-xl border bg-white/10 border-white/15 text-white placeholder:text-slate-500 px-3 py-2 text-sm outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20";
+const input = "w-full rounded-xl crm-input placeholder:text-slate-500 px-3 py-2 text-sm outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20";
 
 const metodoColor: Record<string, string> = {
   efectivo: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
@@ -35,9 +35,9 @@ export default async function TurnosPage() {
             <h2 className="mt-1 text-2xl font-black">Arqueo del día</h2>
           </div>
           <div className="text-right">
-            <p className="text-xs font-bold uppercase text-slate-400">Total</p>
+            <p className="text-xs font-bold uppercase crm-text-muted">Total</p>
             <strong className="block text-3xl font-black">{fmtMoney(arqueo.total.ingresos)}</strong>
-            <p className="text-xs text-slate-400">{arqueo.total.turnos} turnos · {fmtMoney(arqueo.total.propinas)} propinas</p>
+            <p className="text-xs crm-text-muted">{arqueo.total.turnos} turnos · {fmtMoney(arqueo.total.propinas)} propinas</p>
           </div>
         </div>
 
