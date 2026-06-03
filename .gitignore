@@ -11,3 +11,4 @@ supabase/.temp/
 *.tsbuildinfo
 *.log
 .vercel
+.claude/settings.local.json
