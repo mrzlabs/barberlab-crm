@@ -7,7 +7,7 @@ import { cancelarCita, reprogramarCita } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-const input = "w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none focus:border-cyan-500";
+const input = "w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-400/60";
 
 type PageProps = {
   searchParams?: Record<string, string | string[] | undefined>;
@@ -99,7 +99,7 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
           </form>
           <div className="grid gap-3 p-5 pt-0 sm:grid-cols-2 lg:grid-cols-3">
             {slots.map((slot) => (
-              <form action={reprogramarCita} className="rounded-2xl border bg-slate-50 p-4" key={slot.inicio}>
+              <form action={reprogramarCita} className="rounded-2xl border border-white/15 bg-white/8 p-4 backdrop-blur-sm" key={slot.inicio}>
                 <input name="citaId" type="hidden" value={citaReprogramar} />
                 <input name="servicioId" type="hidden" value={params.servicioId} />
                 <input name="empleadoId" type="hidden" value={params.empleadoId} />
@@ -153,7 +153,7 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
               {!bloqueada ? (
                 <div className="mt-5 grid gap-2 sm:grid-cols-2">
                   <Link
-                    className="rounded-2xl border bg-white px-4 py-3 text-center text-sm font-black"
+                    className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-center text-sm font-black text-white backdrop-blur-sm"
                     href={`/cliente/mis-citas?citaId=${cita.id}&servicioId=${cita.servicioId}&empleadoId=${cita.empleadoId}&fecha=${toDateInput(new Date(cita.inicio))}`}
                   >
                     Reprogramar
@@ -172,7 +172,7 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
       </section>
 
       {citas.length === 0 ? (
-        <section className="rounded-2xl border bg-white p-8 text-center text-sm text-muted-foreground shadow-sm">
+        <section className="rounded-2xl border border-dashed border-white/20 p-8 text-center text-sm text-white/50">
           No tienes citas registradas.
         </section>
       ) : null}
@@ -186,21 +186,21 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
         </div>
         <div className="mt-5 grid gap-3">
           {historial.map((item) => (
-            <article className="rounded-2xl border bg-white p-4 text-sm shadow-sm" key={item.id}>
+            <article className="rounded-2xl border border-white/15 bg-white/8 p-4 text-sm backdrop-blur-sm" key={item.id}>
               <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
                 <div>
-                  <strong className="block">{item.servicio}</strong>
-                  <span className="text-slate-500">{item.detalle || item.accion}</span>
+                  <strong className="block text-white">{item.servicio}</strong>
+                  <span className="text-white/50">{item.detalle || item.accion}</span>
                 </div>
-                <span className="text-xs font-black uppercase tracking-[0.12em] text-slate-500">{fmtDateTime(item.createdAt)}</span>
+                <span className="text-xs font-black uppercase tracking-[0.12em] text-white/40">{fmtDateTime(item.createdAt)}</span>
               </div>
-              <p className="mt-2 text-xs font-bold text-slate-500">
+              <p className="mt-2 text-xs font-bold text-white/40">
                 {item.estadoAnterior || "inicio"} → {item.estadoNuevo || "sin cambio"}
               </p>
             </article>
           ))}
           {historial.length === 0 ? (
-            <p className="rounded-2xl border border-dashed bg-white/70 p-6 text-center text-sm font-semibold text-slate-500">
+            <p className="rounded-2xl border border-dashed border-white/20 p-6 text-center text-sm font-semibold text-white/40">
               Aun no hay movimientos registrados.
             </p>
           ) : null}

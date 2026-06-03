@@ -12,3 +12,4 @@ supabase/.temp/
 *.log
 .vercel
 .claude/settings.local.json
+.gstack/
