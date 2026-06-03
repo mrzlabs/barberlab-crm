@@ -1140,8 +1140,8 @@ a {
   font-size: 13px;
 }
 
-/* Glass panels → enterprise solid cards */
-.crm-shell .glass-panel {
+/* Glass panels → enterprise solid cards (dark mode) */
+.crm-shell[data-theme="dark"] .glass-panel {
   background: rgba(15, 23, 42, 0.95) !important;
   border: 1px solid rgba(51, 65, 85, 0.6) !important;
   border-radius: 0.5rem !important;
@@ -1149,13 +1149,33 @@ a {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* CRM card enterprise */
-.crm-shell .crm-card {
+/* Glass panels → light mode */
+.crm-shell[data-theme="light"] .glass-panel {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.5rem !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07) !important;
+  color: #0f172a !important;
+}
+
+/* CRM card enterprise (dark) */
+.crm-shell[data-theme="dark"] .crm-card {
   background: rgba(15, 23, 42, 0.95) !important;
   border: 1px solid rgba(51, 65, 85, 0.6) !important;
   border-radius: 0.5rem !important;
   backdrop-filter: none !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* CRM card enterprise (light) */
+.crm-shell[data-theme="light"] .crm-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.5rem !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07) !important;
+  color: #0f172a !important;
 }
 
 /* Headings enterprise */
