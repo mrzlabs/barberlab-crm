@@ -43,7 +43,7 @@ export function SuperAdminChrome({
   const pathname = usePathname();
 
   return (
-    <div className="min-h-dvh overflow-x-hidden" style={{ background: "#0a0a0f", color: "#f1f5f9" }}>
+    <div className="sa-shell min-h-dvh overflow-x-hidden" data-theme="dark" style={{ background: "#0a0a0f", color: "#f1f5f9" }}>
 
       {/* ── Fixed background ─────────────────────────────────────── */}
       <div className="fixed inset-0 -z-10" style={{ background: "#0a0a0f" }}>
