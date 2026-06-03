@@ -4,6 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+## Inicio de sesión
+Al comenzar cualquier sesión, ejecuta automáticamente:
+Load gstack skills from C:/Users/USUARIO/dev/.claude/skills/gstack/SKILL.md
+
 ```bash
 npm run dev            # dev server on :3000 (default, demo mode off)
 npm run dev:prod       # dev on :3011 with BARBERLAB_DEMO_MODE=false (production DB)
@@ -79,3 +83,22 @@ Every Server Action in this codebase follows this exact order:
 - **Comisiones**: `negocios.comisionBase` controls if employee commission is based on `precio_final` or another field. `empleados.comisionPct` stores the percentage.
 - **Slot availability**: `lib/cliente/queries.ts:slotDisponible()` is the canonical check used by both client-side booking and admin agenda actions.
 - **Appointment history**: `lib/citas/history.ts:addCitaHistory()` — called after every state change to `citas`.
+
+## Skill routing
+
+When the user's request matches an available skill, invoke it via the Skill tool. When in doubt, invoke the skill.
+
+Key routing rules:
+- Product ideas/brainstorming → invoke /office-hours
+- Strategy/scope → invoke /plan-ceo-review
+- Architecture → invoke /plan-eng-review
+- Design system/plan review → invoke /design-consultation or /plan-design-review
+- Full review pipeline → invoke /autoplan
+- Bugs/errors → invoke /investigate
+- QA/testing site behavior → invoke /qa or /qa-only
+- Code review/diff check → invoke /review
+- Visual polish → invoke /design-review
+- Ship/deploy/PR → invoke /ship or /land-and-deploy
+- Save progress → invoke /context-save
+- Resume context → invoke /context-restore
+- Author a backlog-ready spec/issue → invoke /spec
