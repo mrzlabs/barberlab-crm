@@ -158,8 +158,8 @@ export default async function InventarioPage({ searchParams }: PageProps) {
                     <span className="text-sm font-black">Stock: {item.stock}</span>
                     <span className="text-xs crm-text-muted">Mín {item.stockMinimo}</span>
                     <span className="text-xs crm-text-muted">Costo {fmtMoney(item.costoUnitario)}</span>
-                    <span className={`rounded-full px-3 py-1 text-xs font-black ${low ? "bg-red-500/20 text-red-300" : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"}`}>{low ? "Reponer" : "OK"}</span>
-                    <span className={`rounded-full px-3 py-1 text-xs font-black ${item.visibleCliente ? "bg-cyan-500/20 text-cyan-300" : "bg-white/8 text-slate-300 border border-white/10"}`}>{item.visibleCliente ? "Visible" : "Interno"}</span>
+                    <span className={`rounded-full px-3 py-1 text-xs font-black text-auto ${low ? "bg-red-500/20" : "bg-emerald-500/20 border border-emerald-500/30"}`}>{low ? "Reponer" : "OK"}</span>
+                    <span className={`rounded-full px-3 py-1 text-xs font-black text-auto ${item.visibleCliente ? "bg-cyan-500/20" : "bg-white/8 border border-white/10"}`}>{item.visibleCliente ? "Visible" : "Interno"}</span>
                     <InventarioEditButton
                       item={{ id: item.id, nombre: item.nombre, sku: item.sku, categoria: item.categoria, unidad: item.unidad, stock: item.stock, stockMinimo: item.stockMinimo, costoUnitario: item.costoUnitario, precioVenta: item.precioVenta, descripcion: item.descripcion, fotoUrl: item.fotoUrl, activo: item.activo, visibleCliente: item.visibleCliente }}
                       updateAction={updateInventario}

@@ -21,10 +21,10 @@ function getParam(value: string | string[] | undefined) {
 }
 
 function badge(estado: string) {
-  if (estado === "realizada") return "bg-emerald-900/50 text-emerald-300";
-  if (estado === "cancelada" || estado === "no_asistio") return "bg-red-900/50 text-red-300";
-  if (estado === "confirmada") return "bg-violet-900/50 text-violet-300";
-  return "bg-cyan-900/50 text-cyan-300";
+  if (estado === "realizada") return "badge-status-closed";
+  if (estado === "cancelada" || estado === "no_asistio") return "bg-red-900/50 text-auto border border-red-500/30";
+  if (estado === "confirmada") return "bg-violet-900/50 text-auto border border-violet-500/30";
+  return "bg-cyan-900/50 text-auto border border-cyan-500/30";
 }
 
 function isUuid(value?: string) {
@@ -227,7 +227,7 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
             <div className="mt-5 flex gap-3 overflow-x-auto pb-2 scrollbar-soft">
               {slots.map((slot) => (
                 citaMover ? (
-                  <form action={reagendarCita} className="min-w-[240px] rounded-[1.4rem] border border-amber-200 bg-amber-50 p-4 shadow-sm" key={slot.inicio}>
+                  <form action={reagendarCita} className="min-w-[240px] rounded-[1.4rem] border border-amber-700/40 bg-amber-900/20 p-4" key={slot.inicio}>
                     <input name="citaId" type="hidden" value={citaMover.id} />
                     <input name="empleadoId" type="hidden" value={empleadoId} />
                     <input name="servicioId" type="hidden" value={servicioId} />

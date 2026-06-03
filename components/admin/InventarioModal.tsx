@@ -74,7 +74,7 @@ function InventarioForm({ action, item, onDone, categorias = [] }: { action: (fd
         </label>
       </div>
       {err && <p className="rounded-xl bg-red-500/20 px-3 py-2 text-xs font-bold text-red-300 sm:col-span-2">{err}</p>}
-      <button className="rounded-xl bg-slate-950 py-3 text-sm font-black text-white disabled:opacity-50 sm:col-span-2" type="submit" disabled={pending}>
+      <button className="rounded-xl bg-slate-950 py-3 text-sm font-black text-auto disabled:opacity-50 sm:col-span-2" type="submit" disabled={pending}>
         {pending ? "Guardando…" : item ? "Guardar cambios" : "Crear item"}
       </button>
     </form>
@@ -85,7 +85,7 @@ export function InventarioCreateButton({ createAction, categorias = [] }: { crea
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-2.5 text-sm font-black text-white hover:bg-slate-800 transition" onClick={() => setOpen(true)} type="button">
+      <button className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-2.5 text-sm font-black text-auto hover:bg-slate-800 transition" onClick={() => setOpen(true)} type="button">
         <Plus className="size-4" /> Nuevo item
       </button>
       <Modal open={open} onClose={() => setOpen(false)} title="Nuevo item de inventario">

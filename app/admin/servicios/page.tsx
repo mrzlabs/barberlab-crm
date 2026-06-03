@@ -40,7 +40,7 @@ export default async function AdminServiciosPage() {
                     <SubmitButton
                       label={item.activo ? "Activo" : "Inactivo"}
                       pendingLabel="…"
-                      className={`rounded-full px-3 py-1 text-xs font-black transition hover:opacity-60 ${item.activo ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-white/8 text-slate-300 border border-white/10"}`}
+                      className={`rounded-full px-3 py-1 text-xs font-black text-auto transition hover:opacity-60 ${item.activo ? "bg-emerald-500/20 border border-emerald-500/30" : "bg-white/8 border border-white/10"}`}
                     />
                   </form>
                   <ServicioEditButton

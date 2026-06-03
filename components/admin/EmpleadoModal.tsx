@@ -71,7 +71,7 @@ function EmpleadoForm({ action, item, onDone }: FormProps) {
       {err && <p className="rounded-xl bg-red-500/20 px-3 py-2 text-xs font-bold text-red-300">{err}</p>}
       <div className="flex gap-3 pt-1">
         <button
-          className="flex-1 rounded-xl bg-slate-950 py-3 text-sm font-black text-white disabled:opacity-50"
+          className="flex-1 rounded-xl bg-slate-950 py-3 text-sm font-black text-auto disabled:opacity-50"
           type="submit"
           disabled={pending}
         >
@@ -87,7 +87,7 @@ export function EmpleadoCreateButton({ createAction }: { createAction: (fd: Form
   return (
     <>
       <button
-        className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-2.5 text-sm font-black text-white hover:bg-slate-800 transition"
+        className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-2.5 text-sm font-black text-auto hover:bg-slate-800 transition"
         onClick={() => setOpen(true)}
         type="button"
       >

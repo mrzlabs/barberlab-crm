@@ -45,7 +45,7 @@ function GastoForm({ action, item, onDone }: { action: (fd: FormData) => Promise
       <label className={lbl}>Descripción<textarea className={input} name="descripcion" rows={3} defaultValue={item?.descripcion ?? ""} /></label>
       <label className={lbl}>Comprobante URL<input className={input} name="comprobanteUrl" type="url" defaultValue={item?.comprobanteUrl ?? ""} /></label>
       {err && <p className="rounded-xl bg-red-500/20 px-3 py-2 text-xs font-bold text-red-300">{err}</p>}
-      <button className="rounded-xl bg-slate-950 py-3 text-sm font-black text-white disabled:opacity-50" type="submit" disabled={pending}>
+      <button className="rounded-xl bg-slate-950 py-3 text-sm font-black text-auto disabled:opacity-50" type="submit" disabled={pending}>
         {pending ? "Guardando…" : item ? "Guardar cambios" : "Registrar gasto"}
       </button>
     </form>
@@ -56,7 +56,7 @@ export function GastoCreateButton({ createAction }: { createAction: (fd: FormDat
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-2.5 text-sm font-black text-white hover:bg-slate-800 transition" onClick={() => setOpen(true)} type="button">
+      <button className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-2.5 text-sm font-black text-auto hover:bg-slate-800 transition" onClick={() => setOpen(true)} type="button">
         <Plus className="size-4" /> Nuevo gasto
       </button>
       <Modal open={open} onClose={() => setOpen(false)} title="Registrar gasto">

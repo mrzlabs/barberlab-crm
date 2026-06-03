@@ -1131,3 +1131,19 @@ a {
 }
 
 /* .mrz-footer-message removed — footer now uses inline styles in MrzSignature.tsx */
+
+/* ── Text auto: adapts between dark (#fff) and light (#0f172a) modes ── */
+.text-auto { color: #ffffff; }
+[data-theme="light"] .text-auto { color: #0f172a; }
+
+/* ── Badge: closed/completed service status ─────────────────────── */
+.badge-status-closed {
+  background: rgba(16,185,129,0.15);
+  color: #34d399;
+  border: 1px solid rgba(16,185,129,0.3);
+}
+[data-theme="light"] .badge-status-closed {
+  background: rgba(16,185,129,0.12);
+  color: #065f46;
+  border: 1px solid rgba(16,185,129,0.25);
+}
