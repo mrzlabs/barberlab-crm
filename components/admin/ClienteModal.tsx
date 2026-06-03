@@ -65,7 +65,7 @@ export function ClienteEditButton({ item, updateAction }: { item: Item; updateAc
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button className="inline-flex items-center gap-1.5 rounded-xl border border-violet-500/30 bg-violet-500/20 px-3 py-1.5 text-xs font-bold text-violet-300 hover:bg-violet-500/30 transition" onClick={() => setOpen(true)} type="button">
+      <button className="inline-flex items-center gap-1.5 rounded-xl bg-cyan-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-cyan-500 transition" onClick={() => setOpen(true)} type="button">
         <Pencil className="size-3" /> Editar
       </button>
       <Modal open={open} onClose={() => setOpen(false)} title={`Editar: ${item.nombre}`}>

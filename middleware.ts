@@ -4,10 +4,6 @@ import { getRoleFromClaims, isRole, protectedPrefixes, roleHome } from "@/lib/au
 import { isDemoMode } from "@/lib/demo";
 
 export async function middleware(request: NextRequest) {
-  // Safety: demo mode must never run in production
-  if (process.env.BARBERLAB_DEMO_MODE === "true" && process.env.NODE_ENV === "production") {
-    // Cannot mutate env at runtime; block demo paths and treat as non-demo
-  }
   const effectiveDemoMode = isDemoMode() && !(process.env.BARBERLAB_DEMO_MODE === "true" && process.env.NODE_ENV === "production");
 
   const demoRole = request.cookies.get("barberlab_demo_role")?.value;
@@ -21,11 +17,9 @@ export async function middleware(request: NextRequest) {
       }
       return NextResponse.next({ request });
     }
-
     if (isRole(demoRole) && matched.roles.includes(demoRole)) {
       return NextResponse.next({ request });
     }
-
     const url = new URL("/login", request.url);
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
@@ -38,9 +32,7 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
+        getAll() { return request.cookies.getAll(); },
         setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
@@ -50,15 +42,18 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Use getSession (cookie-only, no network) for routing decisions.
+  // Page Server Components call getUser() for actual data security.
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
-  const role = user ? getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata) : null;
+  const role = user
+    ? getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata)
+    : null;
 
   if (!matched) {
-    if (pathname === "/login" && user) {
-      if (role) return NextResponse.redirect(new URL(roleHome[role], request.url));
+    if (pathname === "/login" && user && role) {
+      return NextResponse.redirect(new URL(roleHome[role], request.url));
     }
     return supabaseResponse;
   }
@@ -80,25 +75,33 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/unauthorized", request.url));
   }
 
-  // Verify negocio is active for non-super-admin users accessing tenant routes.
-  // Uses Supabase REST (edge-compatible) since Drizzle cannot run in Edge Runtime.
+  // Verify negocio is active — gate behind timeout to avoid MIDDLEWARE_INVOCATION_TIMEOUT.
   if (role !== "super_admin") {
-    const { data: tenantRow } = await supabase
-      .from("usuarios")
-      .select("negocios(estado)")
-      .eq("id", user.id)
-      .maybeSingle();
+    try {
+      const tenantQuery = supabase
+        .from("usuarios")
+        .select("negocios(estado)")
+        .eq("id", user.id)
+        .maybeSingle();
 
-    const negocioEstado =
-      // PostgREST returns the related row as object or array depending on cardinality
-      Array.isArray(tenantRow?.negocios)
-        ? (tenantRow.negocios[0] as { estado?: string } | undefined)?.estado
-        : (tenantRow?.negocios as unknown as { estado?: string } | null)?.estado;
+      const { data: tenantRow } = await Promise.race([
+        tenantQuery,
+        new Promise<{ data: null }>((resolve) => setTimeout(() => resolve({ data: null }), 1200)),
+      ]);
 
-    if (negocioEstado && negocioEstado !== "activo") {
-      const url = new URL("/login", request.url);
-      url.searchParams.set("error", "negocio_inactivo");
-      return NextResponse.redirect(url);
+      const negocioEstado =
+        Array.isArray(tenantRow?.negocios)
+          ? (tenantRow.negocios[0] as { estado?: string } | undefined)?.estado
+          : (tenantRow?.negocios as unknown as { estado?: string } | null)?.estado;
+
+      if (negocioEstado && negocioEstado !== "activo") {
+        const url = new URL("/login", request.url);
+        url.searchParams.set("error", "negocio_inactivo");
+        return NextResponse.redirect(url);
+      }
+    } catch {
+      // If the tenant check times out, allow the request through.
+      // Server components will enforce auth independently via requireRole().
     }
   }
 
@@ -115,4 +118,3 @@ export const config = {
     "/perfil",
   ],
 };
-

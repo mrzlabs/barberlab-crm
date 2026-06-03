@@ -292,37 +292,37 @@ export function NegociosManager({ negocios }: { negocios: NegocioRow[] }) {
             <form action={updateNegocioSuperAdmin} className="grid flex-1 content-start gap-4 overflow-y-auto p-5">
               <input name="id" type="hidden" value={edit.id} />
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Nombre
-                <input className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" name="nombre" defaultValue={edit.nombre} required />
+                <input className="rounded-xl border border-slate-600 bg-slate-800 px-3 py-2.5 text-sm text-white placeholder:text-slate-400 outline-none focus:border-cyan-400" name="nombre" defaultValue={edit.nombre} required />
               </label>
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Slug
-                <input className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" name="slug" defaultValue={edit.slug} required />
+                <input className="rounded-xl border border-slate-600 bg-slate-800 px-3 py-2.5 text-sm text-white placeholder:text-slate-400 outline-none focus:border-cyan-400" name="slug" defaultValue={edit.slug} required />
               </label>
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Teléfono
-                <input className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" name="telefono" defaultValue={edit.telefono || ""} />
+                <input className="rounded-xl border border-slate-600 bg-slate-800 px-3 py-2.5 text-sm text-white placeholder:text-slate-400 outline-none focus:border-cyan-400" name="telefono" defaultValue={edit.telefono || ""} />
               </label>
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Correo
-                <input className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" name="correo" type="email" defaultValue={edit.correo || ""} />
+                <input className="rounded-xl border border-slate-600 bg-slate-800 px-3 py-2.5 text-sm text-white placeholder:text-slate-400 outline-none focus:border-cyan-400" name="correo" type="email" defaultValue={edit.correo || ""} />
               </label>
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Dirección
-                <input className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" name="direccion" defaultValue={edit.direccion || ""} />
+                <input className="rounded-xl border border-slate-600 bg-slate-800 px-3 py-2.5 text-sm text-white placeholder:text-slate-400 outline-none focus:border-cyan-400" name="direccion" defaultValue={edit.direccion || ""} />
               </label>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Plan
-                  <select className="rounded-xl border border-white/10 bg-[#171724] px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" name="plan" defaultValue={edit.plan}>
+                  <select className="rounded-xl border border-slate-600 bg-slate-800 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" name="plan" defaultValue={edit.plan}>
                     <option value="starter">Starter</option>
                     <option value="pro">Pro</option>
                     <option value="enterprise">Enterprise</option>
                   </select>
                 </label>
                 <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Estado
-                  <select className="rounded-xl border border-white/10 bg-[#171724] px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" name="estado" defaultValue={edit.estado === "cancelado" ? "suspendido" : edit.estado}>
+                  <select className="rounded-xl border border-slate-600 bg-slate-800 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" name="estado" defaultValue={edit.estado === "cancelado" ? "suspendido" : edit.estado}>
                     <option value="activo">Activo</option>
                     <option value="suspendido">Suspendido</option>
                   </select>
                 </label>
               </div>
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">Fecha fin
-                <input className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-400" name="fechaFin" type="date" defaultValue={edit.fechaFin || ""} />
+                <input className="rounded-xl border border-slate-600 bg-slate-800 px-3 py-2.5 text-sm text-white placeholder:text-slate-400 outline-none focus:border-cyan-400" name="fechaFin" type="date" defaultValue={edit.fechaFin || ""} />
               </label>
               <button className="mt-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-violet-600 px-4 py-3 text-sm font-black text-white" type="submit">
                 Guardar cambios

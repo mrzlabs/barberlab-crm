@@ -9,7 +9,7 @@ import { createBloqueoEmpleado, createCitaAdmin, createHorarioEmpleado, deleteBl
 
 export const dynamic = "force-dynamic";
 
-const input = "w-full rounded-xl border bg-white/80 px-3 py-2 text-sm outline-none focus:border-cyan-500";
+const input = "w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white placeholder:text-slate-400 outline-none focus:border-cyan-400";
 const days = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 
 type PageProps = {
@@ -21,10 +21,10 @@ function getParam(value: string | string[] | undefined) {
 }
 
 function badge(estado: string) {
-  if (estado === "realizada") return "bg-emerald-50 text-emerald-700";
-  if (estado === "cancelada" || estado === "no_asistio") return "bg-red-50 text-red-700";
-  if (estado === "confirmada") return "bg-violet-50 text-violet-700";
-  return "bg-cyan-50 text-cyan-700";
+  if (estado === "realizada") return "bg-emerald-900/50 text-emerald-300";
+  if (estado === "cancelada" || estado === "no_asistio") return "bg-red-900/50 text-red-300";
+  if (estado === "confirmada") return "bg-violet-900/50 text-violet-300";
+  return "bg-cyan-900/50 text-cyan-300";
 }
 
 function isUuid(value?: string) {
@@ -97,13 +97,13 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2">
           <Link
-            className={`rounded-xl px-4 py-2 text-sm font-black transition ${vista === "lista" ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-600 hover:border-violet-300 hover:text-violet-700"}`}
+            className={`rounded-xl px-4 py-2 text-sm font-black transition ${vista === "lista" ? "bg-slate-950 text-white" : "border border-slate-700 bg-slate-800 text-slate-300 hover:border-violet-500/50 hover:text-violet-300"}`}
             href={`/admin/agenda?vista=lista&fecha=${fecha}`}
           >
             Lista
           </Link>
           <Link
-            className={`rounded-xl px-4 py-2 text-sm font-black transition ${vista === "calendario" ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-600 hover:border-violet-300 hover:text-violet-700"}`}
+            className={`rounded-xl px-4 py-2 text-sm font-black transition ${vista === "calendario" ? "bg-slate-950 text-white" : "border border-slate-700 bg-slate-800 text-slate-300 hover:border-violet-500/50 hover:text-violet-300"}`}
             href={`/admin/agenda?vista=calendario&fecha=${fecha}`}
           >
             Calendario
@@ -111,9 +111,9 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
         </div>
         {vista === "calendario" && (
           <div className="flex items-center gap-2">
-            <Link className="rounded-xl border bg-white px-3 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50" href={`/admin/agenda?vista=calendario&fecha=${prevDay(fecha)}`}>←</Link>
+            <Link className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-bold text-slate-300 hover:bg-slate-700" href={`/admin/agenda?vista=calendario&fecha=${prevDay(fecha)}`}>←</Link>
             <span className="text-sm font-black">{fecha}</span>
-            <Link className="rounded-xl border bg-white px-3 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50" href={`/admin/agenda?vista=calendario&fecha=${nextDay(fecha)}`}>→</Link>
+            <Link className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-bold text-slate-300 hover:bg-slate-700" href={`/admin/agenda?vista=calendario&fecha=${nextDay(fecha)}`}>→</Link>
             <Link className="rounded-xl bg-cyan-500 px-3 py-2 text-xs font-black text-white hover:bg-cyan-400" href={`/admin/agenda?vista=calendario&fecha=${toDateInput()}`}>Hoy</Link>
           </div>
         )}
@@ -222,7 +222,7 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
                   </p>
                 )}
               </div>
-              <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-black text-cyan-700">{slots.length} disponibles</span>
+              <span className="rounded-full bg-cyan-900/40 px-3 py-1 text-xs font-black text-cyan-300 border border-cyan-500/30">{slots.length} disponibles</span>
             </div>
             <div className="mt-5 flex gap-3 overflow-x-auto pb-2 scrollbar-soft">
               {slots.map((slot) => (
@@ -239,15 +239,15 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
                     <SubmitButton label="Reagendar aquí" pendingLabel="Reagendando…" className="mt-3 w-full rounded-2xl bg-amber-500 px-4 py-3 text-sm font-black text-white hover:bg-amber-600" />
                   </form>
                 ) : (
-                  <form action={createCitaAdmin} className="min-w-[260px] rounded-[1.4rem] border bg-white p-4 shadow-sm" key={slot.inicio}>
+                  <form action={createCitaAdmin} className="min-w-[260px] rounded-[1.4rem] border border-slate-700 bg-slate-800/60 p-4 text-white" key={slot.inicio}>
                     <input name="clienteId" type="hidden" value={clienteId} />
                     <input name="servicioId" type="hidden" value={servicioId} />
                     <input name="empleadoId" type="hidden" value={empleadoId} />
                     <input name="inicio" type="hidden" value={slot.inicio} />
                     <input name="fin" type="hidden" value={slot.fin} />
-                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Horario</p>
-                    <strong className="mt-2 block text-lg">{fmtDateTime(slot.inicio)}</strong>
-                    <p className="mt-1 text-sm text-slate-500">Finaliza {fmtDateTime(slot.fin)}</p>
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Horario</p>
+                    <strong className="mt-2 block text-lg text-white">{fmtDateTime(slot.inicio)}</strong>
+                    <p className="mt-1 text-sm text-slate-400">Finaliza {fmtDateTime(slot.fin)}</p>
                     <select className={`${input} mt-4`} name="estado" defaultValue="confirmada">
                       <option value="confirmada">Confirmada</option>
                       <option value="reservada">Reservada</option>
@@ -257,7 +257,7 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
                 )
               ))}
               {slots.length === 0 ? (
-                <p className="w-full rounded-2xl border border-dashed bg-white/70 p-8 text-center text-sm font-semibold text-slate-500">
+                <p className="w-full rounded-2xl border border-dashed border-white/20 p-8 text-center text-sm font-semibold text-slate-400">
                   Sin horarios disponibles. Revisa que el empleado tenga horario activo y no tenga bloqueos.
                 </p>
               ) : null}
@@ -278,7 +278,7 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
                   <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Servicio</dt><dd className="font-semibold text-right">{cita.servicio}</dd></div>
                   <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Empleado</dt><dd className="font-semibold text-right">{cita.empleado}</dd></div>
                   <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Categoria</dt><dd className="font-semibold capitalize">{cita.categoria.replace("_", " ")}</dd></div>
-                  <div className="flex justify-between gap-4"><dt className="text-muted-foreground">WhatsApp</dt><dd><a className="rounded-full bg-emerald-50 px-3 py-1 font-black text-emerald-700" href={`https://wa.me/57${cita.telefono.replace(/\D/g, "")}`} target="_blank">Contactar</a></dd></div>
+                  <div className="flex justify-between gap-4"><dt className="text-muted-foreground">WhatsApp</dt><dd><a className="rounded-full bg-emerald-900/50 px-3 py-1 font-black text-emerald-300" href={`https://wa.me/57${cita.telefono.replace(/\D/g, "")}`} target="_blank">Contactar</a></dd></div>
                 </dl>
                 {cita.estado !== "realizada" && cita.estado !== "cancelada" && cita.estado !== "no_asistio" ? (
                   <div className="mt-5 space-y-2">
@@ -287,23 +287,23 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
                       <form action={updateCitaAdmin}>
                         <input name="citaId" type="hidden" value={cita.id} />
                         <input name="estado" type="hidden" value="confirmada" />
-                        <button className="w-full rounded-xl border bg-white px-2 py-2 text-[11px] font-black text-slate-700" type="submit">Confirmada</button>
+                        <button className="w-full rounded-xl border border-slate-700 bg-slate-800 px-2 py-2 text-[11px] font-black text-white hover:bg-slate-700" type="submit">Confirmada</button>
                       </form>
                       {/* cancelada — destructivo */}
                       <ConfirmForm action={updateCitaAdmin} message="¿Cancelar esta cita? Esta acción es difícil de revertir.">
                         <input name="citaId" type="hidden" value={cita.id} />
                         <input name="estado" type="hidden" value="cancelada" />
-                        <button className="w-full rounded-xl border bg-white px-2 py-2 text-[11px] font-black text-slate-700" type="submit">Cancelada</button>
+                        <button className="w-full rounded-xl border border-slate-700 bg-slate-800 px-2 py-2 text-[11px] font-black text-white hover:bg-red-900/40 hover:text-red-300" type="submit">Cancelada</button>
                       </ConfirmForm>
                       {/* no_asistio — destructivo */}
                       <ConfirmForm action={updateCitaAdmin} message="¿Marcar al cliente como no asistió?">
                         <input name="citaId" type="hidden" value={cita.id} />
                         <input name="estado" type="hidden" value="no_asistio" />
-                        <button className="w-full rounded-xl border bg-white px-2 py-2 text-[11px] font-black text-slate-700" type="submit">No asistio</button>
+                        <button className="w-full rounded-xl border border-slate-700 bg-slate-800 px-2 py-2 text-[11px] font-black text-white hover:bg-amber-900/40 hover:text-amber-300" type="submit">No asistio</button>
                       </ConfirmForm>
                     </div>
                     <Link
-                      className={`flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-black transition ${mover === cita.id ? "bg-amber-500 text-white" : "border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"}`}
+                      className={`flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-black transition ${mover === cita.id ? "bg-amber-500 text-white" : "border border-amber-700/40 bg-amber-900/30 text-amber-300 hover:bg-amber-900/50"}`}
                       href={mover === cita.id ? "/admin/agenda" : `/admin/agenda?mover=${cita.id}&empleadoId=${cita.empleadoId}&servicioId=${cita.servicioId}&fecha=${fecha}`}
                     >
                       {mover === cita.id ? "✕ Cancelar mover" : "Mover cita"}
@@ -326,7 +326,7 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
                     </div>
                     <ConfirmForm action={deleteHorario} message="¿Eliminar este horario? El empleado dejará de tener disponibilidad en ese turno.">
                       <input name="horarioId" type="hidden" value={horario.id} />
-                      <button className="rounded-lg px-2 py-1 text-[11px] font-bold text-slate-400 hover:bg-red-50 hover:text-red-600" type="submit" title="Eliminar horario">✕</button>
+                      <button className="rounded-lg px-2 py-1 text-[11px] font-bold text-slate-400 hover:bg-red-900/40 hover:text-red-300" type="submit" title="Eliminar horario">✕</button>
                     </ConfirmForm>
                   </div>
                 ))}
@@ -344,7 +344,7 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
                     </div>
                     <ConfirmForm action={deleteBloqueo} message="¿Eliminar este bloqueo?">
                       <input name="bloqueoId" type="hidden" value={bloqueo.id} />
-                      <button className="rounded-lg px-2 py-1 text-[11px] font-bold text-slate-400 hover:bg-red-50 hover:text-red-600" type="submit" title="Eliminar bloqueo">✕</button>
+                      <button className="rounded-lg px-2 py-1 text-[11px] font-bold text-slate-400 hover:bg-red-900/40 hover:text-red-300" type="submit" title="Eliminar bloqueo">✕</button>
                     </ConfirmForm>
                   </div>
                 ))}

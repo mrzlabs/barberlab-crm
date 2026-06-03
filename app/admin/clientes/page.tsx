@@ -46,7 +46,7 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
             </dl>
             <p className="mt-4 rounded-xl bg-white/5 p-3 text-sm crm-text-secondary">{item.notas || "Sin notas"}</p>
             <div className="mt-4 flex items-center gap-2">
-              <Link className="rounded-xl border border-cyan-500/30 bg-cyan-500/20 px-3 py-1.5 text-xs font-bold text-cyan-300 hover:bg-cyan-500/30" href={`/admin/clientes/${item.id}`}>
+              <Link className="rounded-xl bg-slate-700 px-3 py-1.5 text-xs font-bold text-white hover:bg-slate-600" href={`/admin/clientes/${item.id}`}>
                 Ver historial
               </Link>
               <ClienteEditButton
