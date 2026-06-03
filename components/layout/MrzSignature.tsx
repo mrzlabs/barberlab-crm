@@ -110,7 +110,7 @@ export function MrzSignature({ bot }: { bot?: ReactNode }) {
 
       {/* Bot — esquina derecha del footer */}
       {bot && (
-        <div style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", zIndex: 5 }}>
+        <div style={{ position: "absolute", inset: 0, zIndex: 6, pointerEvents: "none" }}>
           {bot}
         </div>
       )}

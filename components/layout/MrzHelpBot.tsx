@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowRight, Search, X } from "lucide-react";
 
 // ── Robot violeta — 2px más pequeño ──────────────────────────
@@ -69,19 +70,37 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const [botX, setBotX] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  const [zoneWidth, setZoneWidth] = useState(0);
+  const zoneRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Movimiento suave horizontal dentro del footer
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const zone = zoneRef.current;
+    if (!zone) return;
+    const readWidth = () => setZoneWidth(zone.getBoundingClientRect().width);
+    readWidth();
+    const ro = new ResizeObserver(readWidth);
+    ro.observe(zone);
+    return () => ro.disconnect();
+  }, []);
+
+  // Movimiento suave horizontal dentro de toda la firma
   useEffect(() => {
     if (open) return;
-    const targets = [0, -28, -10, -42, -18, -6, -34];
+    const travel = Math.max(0, zoneWidth - 110);
+    const targets = [0, -travel * 0.22, -travel * 0.48, -travel * 0.76, -travel * 0.34, -travel * 0.62, -travel * 0.12];
     let idx = 0;
     const id = window.setInterval(() => {
       idx = (idx + 1) % targets.length;
       setBotX(targets[idx]);
     }, 4200);
     return () => window.clearInterval(id);
-  }, [open]);
+  }, [open, zoneWidth]);
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
@@ -102,10 +121,8 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  return (
-    <div style={{ position: "relative" }}>
-      {/* Panel de ayuda — se abre hacia arriba */}
-      {open && (
+  const panel = open && mounted
+    ? createPortal(
         <div
           ref={panelRef}
           className="mrz-help-panel"
@@ -159,8 +176,14 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
               </article>
             )}
           </div>
-        </div>
-      )}
+        </div>,
+        document.body,
+      )
+    : null;
+
+  return (
+    <div className="mrz-bot-zone" ref={zoneRef}>
+      {panel}
 
       {/* Botón del bot — se mueve suavemente en el footer */}
       <button
