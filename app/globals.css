@@ -1279,3 +1279,63 @@ a {
   color: #065f46;
   border: 1px solid rgba(16,185,129,0.25);
 }
+
+/* ── PROBLEMA 3: Contraste base garantizado ─────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="dark"] .crm-shell,
+[data-theme="dark"] .sa-shell {
+  color: #e2e8f0;
+}
+[data-theme="light"] .crm-shell,
+[data-theme="light"] .sa-shell {
+  color: #0f172a;
+}
+
+/* ── PROBLEMA 1: Select y options legibles en todos los temas ── */
+select {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #475569 !important;
+}
+select option {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+[data-theme="light"] select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+[data-theme="light"] select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* ── Inputs legibles en ambos temas ─────────────────────────── */
+input:not([type="color"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+textarea {
+  color: #f1f5f9;
+  background-color: rgba(30, 41, 59, 0.8);
+}
+[data-theme="light"] input:not([type="color"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+[data-theme="light"] textarea {
+  color: #0f172a;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* ── Labels siempre legibles ─────────────────────────────────── */
+label {
+  color: inherit;
+}
+[data-theme="dark"] label {
+  color: #cbd5e1;
+}
+[data-theme="light"] label {
+  color: #334155;
+}
