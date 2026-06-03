@@ -73,7 +73,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
         <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-4 text-white shadow-2xl shadow-violet-950/20 sm:p-8">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(34,211,238,.34),transparent_18rem),radial-gradient(circle_at_84%_65%,rgba(168,85,247,.38),transparent_20rem)]" />
+          <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--brand-secondary) 34%, transparent) 0%, transparent 18rem), radial-gradient(circle at 84% 65%, color-mix(in srgb, var(--brand-accent) 38%, transparent) 0%, transparent 20rem)" }} />
           <div className="relative">
             <div className="mac-dots" />
             <p className="mt-5 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-200 sm:mt-8">Resumen operativo</p>

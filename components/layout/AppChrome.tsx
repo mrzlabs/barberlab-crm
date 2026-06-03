@@ -383,8 +383,8 @@ export function AppChrome({
   const accentColor   = brand?.colorAcento    || "#7c3aed";
   const bgPhotoUrl    = configVisual?.bgPhotoUrl;
   const fontFamily = configVisual?.fontFamily || brand?.fuente || "Inter";
-  // Forced dark until production toggle is enabled
-  const isDark = true;
+  // Read dark mode from configVisual — defaults to true (dark)
+  const isDark = configVisual?.darkMode !== false;
 
   // Sync theme + neural vars to documentElement
   useEffect(() => {
@@ -396,7 +396,7 @@ export function AppChrome({
 
   // Sync sidebar width so MrzSignature doesn't overlap sidebar
   useEffect(() => {
-    document.documentElement.style.setProperty("--sidebar-w", open ? "220px" : "56px");
+    document.documentElement.style.setProperty("--sidebar-w", open ? "200px" : "48px");
   }, [open]);
   const roleLabel = role === "super_admin" ? "Super Admin MRZLABS" : role === "admin" ? "Administrador" : role === "empleado" ? "Empleado" : "Cliente";
 
@@ -446,16 +446,14 @@ export function AppChrome({
       <FontLoader fontFamily={fontFamily} />
       {isDark && <CursorGlow />}
 
-      {/* ── Fixed background layer — neutral dark, no brand tint ── */}
+      {/* ── Fixed background layer ─────────────────────────────── */}
       <div
         className="pointer-events-none fixed inset-0"
         style={{
           zIndex: -2,
-          background: [
-            "radial-gradient(ellipse 55% 40% at 18% 25%, rgba(99,58,180,0.18), transparent 65%)",
-            "radial-gradient(ellipse 42% 36% at 82% 74%, rgba(30,20,80,0.22), transparent 60%)",
-            "#060810",
-          ].join(", "),
+          background: isDark
+            ? ["radial-gradient(ellipse 55% 40% at 18% 25%, rgba(99,58,180,0.18), transparent 65%)", "radial-gradient(ellipse 42% 36% at 82% 74%, rgba(30,20,80,0.22), transparent 60%)", "#060810"].join(", ")
+            : "#f1f5f9",
         }}
       />
       {isDark && bgPhotoUrl && (
@@ -465,12 +463,12 @@ export function AppChrome({
         />
       )}
 
-      {/* ── Neural canvas — fixed violet/purple, never brand tinted ── */}
-      <div className="pointer-events-none fixed inset-0" style={{ zIndex: 0 }}>
+      {/* ── Neural canvas ─────────────────────────────────────────── */}
+      <div className="pointer-events-none fixed inset-0" style={{ zIndex: 0, opacity: isDark ? 1 : 0.18 }}>
         <NeuralCanvas
           className="h-full w-full"
           darkMode={isDark}
-          primaryColor="#7c3aed"
+          primaryColor={isDark ? "#7c3aed" : primaryColor}
         />
       </div>
 
@@ -484,8 +482,11 @@ export function AppChrome({
 
       {/* ── Sidebar ─────────────────────────────────────────────── */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 [transition-timing-function:cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(220px,86vw)] lg:w-[220px]" : "w-[220px] lg:w-[56px]"}`}
-        style={{ background: "linear-gradient(180deg, #0e0e1e, #0a0a16)", borderRight: "1px solid rgba(255,255,255,0.07)" }}
+        className={`fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 [transition-timing-function:cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(200px,86vw)] lg:w-[200px]" : "w-[200px] lg:w-[48px]"}`}
+        style={{
+          background: isDark ? "#0f1117" : "#f8fafc",
+          borderRight: isDark ? "1px solid rgba(71,85,105,0.5)" : "1px solid #e2e8f0",
+        }}
       >
         {/* header */}
         <div className={`flex items-center justify-between gap-3 border-b p-4 ${isDark ? "border-white/10" : "border-slate-200"}`}>
@@ -545,41 +546,38 @@ export function AppChrome({
             {nav.filter((item) => !moduleSearch || item.label.toLowerCase().includes(moduleSearch.toLowerCase())).map((item, index) => {
               const style = navStyles[item.label] ?? navStyles.Dashboard;
               const Icon = style.icon;
-              const shapeClass = style.shape === "circle" ? "rounded-full" : style.shape === "square" ? "rounded-lg" : "rounded-[10px]";
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
               const iconColor = ICON_COLORS[item.label] ?? "#94a3b8";
               return (
                 <div key={item.href}>
-                  {[3, 6, 9].includes(index) && <div className={`my-1.5 h-px ${isDark ? "bg-white/8" : "bg-slate-200"}`} />}
+                  {[3, 6, 9].includes(index) && <div className={`my-1 h-px ${isDark ? "bg-slate-800" : "bg-slate-200"}`} />}
                   <Link
                     href={item.href}
                     title={!open ? item.label : undefined}
                     onClick={() => setMobileOpen(false)}
-                    className={`group flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150 ${open ? "justify-start" : "justify-center"}`}
+                    className={`group flex w-full items-center gap-2.5 px-3 py-2 text-sm font-medium transition-colors duration-100 ${open ? "justify-start" : "justify-center"}`}
                     style={{
-                      background: isActive
-                        ? hexAlpha(primaryColor, isDark ? 0.19 : 0.12)
-                        : undefined,
-                      color: isActive
-                        ? (isDark ? "#ffffff" : primaryColor)
-                        : (isDark ? "rgba(255,255,255,0.75)" : "#1e293b"),
+                      borderLeft: isActive ? `2px solid ${iconColor}` : "2px solid transparent",
+                      background: isActive ? hexAlpha(iconColor, isDark ? 0.12 : 0.09) : "transparent",
+                      color: isActive ? (isDark ? "#ffffff" : "#0f172a") : (isDark ? "#94a3b8" : "#475569"),
                     }}
                   >
                     <span
-                      className={`grid size-7 shrink-0 place-items-center transition-transform group-hover:scale-105 ${isActive ? "scale-105" : ""} ${shapeClass}`}
                       style={{
-                        background: isActive
-                          ? hexAlpha(iconColor, isDark ? 0.24 : 0.16)
-                          : hexAlpha(iconColor, isDark ? 0.12 : 0.07),
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 28,
+                        height: 28,
+                        borderRadius: "50%",
+                        background: hexAlpha(iconColor, isActive ? 0.25 : 0.12),
+                        flexShrink: 0,
                         color: iconColor,
-                        filter: isActive ? "brightness(1.3)" : undefined,
-                        opacity: isActive ? 1 : 0.75,
                       }}
                     >
-                      <Icon className="size-[15px]" />
+                      <Icon className="size-[14px]" />
                     </span>
-                    {open && <span className="flex-1 truncate text-[13px] leading-none">{item.label}</span>}
-                    {open && isActive && <span className="h-1.5 w-1.5 shrink-0 rounded-full opacity-90" style={{ backgroundColor: secondaryColor }} />}
+                    {open && <span className="flex-1 truncate text-sm leading-none">{item.label}</span>}
                   </Link>
                 </div>
               );
@@ -664,17 +662,20 @@ export function AppChrome({
       )}
 
       {/* ── Main area ───────────────────────────────────────────── */}
-      <div className={`min-h-dvh transition-all duration-300 ${open ? "lg:ml-[220px]" : "lg:ml-[56px]"}`}>
+      <div className={`min-h-dvh transition-all duration-300 ${open ? "lg:ml-[200px]" : "lg:ml-[48px]"}`}>
 
         {/* sticky wrapper: header + tab bar se desplazan juntos */}
         <div
           className="sticky top-0 z-20"
-          style={{ background: "rgba(8,8,20,0.88)", backdropFilter: "blur(14px)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+          style={{
+            background: isDark ? "#090b11" : "#ffffff",
+            borderBottom: isDark ? "1px solid rgba(71,85,105,0.5)" : "1px solid #e2e8f0",
+          }}
         >
         {/* topbar */}
         <header
-          className={`flex h-[52px] items-center border-b px-4 ${isDark ? "border-white/8" : "border-slate-200"}`}
-          style={{ borderColor: "rgba(255,255,255,0.06)" }}
+          className="flex h-[44px] items-center border-b border-slate-800 px-4"
+          style={{ borderColor: "rgba(71,85,105,0.5)" }}
         >
           <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
@@ -693,7 +694,7 @@ export function AppChrome({
               )}
               <div>
                 <Breadcrumb />
-                <h2 className="text-base font-bold tracking-tight crm-text-primary">{title}</h2>
+                <h2 className={`text-sm font-medium ${isDark ? "text-slate-200" : "text-slate-800"}`}>{title}</h2>
               </div>
             </div>
             <div className="relative hidden items-center gap-1.5 md:flex">

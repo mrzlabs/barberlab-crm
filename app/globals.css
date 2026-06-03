@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: 210 35% 98%;
+  --background: 220 14% 96%;
   --foreground: 222 47% 11%;
   --primary: 184 86% 34%;
   --primary-foreground: 0 0% 100%;
@@ -22,7 +22,7 @@ html {
 
 body {
   margin: 0;
-  background: #f4f7fb;
+  background: #f4f4f7;
   color: hsl(var(--foreground));
   font-family: var(--brand-font, Outfit), var(--font-outfit), "Plus Jakarta Sans", Inter, sans-serif;
   text-rendering: geometricPrecision;
@@ -908,7 +908,7 @@ a {
   border: 1px solid var(--card-border, #e2e8f0) !important;
   background: var(--card-bg) !important;
   color: #0f172a !important;
-  box-shadow: 0 16px 40px var(--card-shadow, rgba(15, 23, 42, .08)) !important;
+  box-shadow: 0 2px 8px rgba(15,23,42,.10), 0 0 0 1px rgba(0,0,0,.06) !important;
   backdrop-filter: blur(18px);
 }
 
@@ -1128,6 +1128,138 @@ a {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UX CORPORATIVA — Enterprise theme override (ux-corporativa branch)
+   Applied when AppChrome renders with enterprise sidebar/header.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Base typography: denser, more technical */
+.crm-shell {
+  font-size: 13px;
+}
+
+/* Glass panels → enterprise solid cards (dark mode) */
+.crm-shell[data-theme="dark"] .glass-panel {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(51, 65, 85, 0.6) !important;
+  border-radius: 0.5rem !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Glass panels → light mode */
+.crm-shell[data-theme="light"] .glass-panel {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.5rem !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07) !important;
+  color: #0f172a !important;
+}
+
+/* CRM card enterprise (dark) */
+.crm-shell[data-theme="dark"] .crm-card {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(51, 65, 85, 0.6) !important;
+  border-radius: 0.5rem !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* CRM card enterprise (light) */
+.crm-shell[data-theme="light"] .crm-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.5rem !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07) !important;
+  color: #0f172a !important;
+}
+
+/* Headings enterprise */
+.crm-shell h2[class*="text-4xl"],
+.crm-shell h2[class*="text-5xl"] {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  letter-spacing: normal !important;
+}
+
+.crm-shell h3[class*="text-2xl"],
+.crm-shell h3[class*="text-xl"] {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+}
+
+/* Labels enterprise */
+.crm-shell .crm-label {
+  font-size: 0.65rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #64748b !important;
+}
+
+/* KPI card enterprise — compact 4-column */
+.crm-shell .glass-panel[class*="min-w-0"] {
+  background: rgb(15, 23, 42) !important;
+  border: 1px solid rgba(51, 65, 85, 0.6) !important;
+  border-radius: 0.5rem !important;
+}
+
+/* KPI values */
+.crm-shell strong[class*="text-2xl"],
+.crm-shell strong[class*="text-3xl"] {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Enterprise buttons — rounded-md instead of rounded-xl/2xl */
+.crm-shell button[class*="rounded-2xl"],
+.crm-shell a[class*="rounded-2xl"],
+.crm-shell button[class*="rounded-xl"],
+.crm-shell a[class*="rounded-xl"] {
+  border-radius: 0.375rem !important;
+}
+
+/* Primary action buttons */
+.crm-shell button[class*="bg-cyan"],
+.crm-shell a[class*="bg-cyan"] {
+  background-color: #0891b2 !important;
+}
+.crm-shell button[class*="bg-cyan"]:hover,
+.crm-shell a[class*="bg-cyan"]:hover {
+  background-color: #06b6d4 !important;
+}
+
+/* Secondary buttons */
+.crm-shell button[class*="bg-slate-950"],
+.crm-shell a[class*="bg-slate-950"] {
+  background-color: #334155 !important;
+}
+.crm-shell button[class*="bg-slate-950"]:hover,
+.crm-shell a[class*="bg-slate-950"]:hover {
+  background-color: #475569 !important;
+}
+
+/* Remove gradients from gradient buttons */
+.crm-shell button[class*="from-cyan"],
+.crm-shell a[class*="from-cyan"] {
+  background: #0891b2 !important;
+  background-image: none !important;
+}
+
+/* Hero sections enterprise */
+.crm-shell section[class*="bg-slate-950"] {
+  border-radius: 0.5rem !important;
+}
+
+/* rounded-[2rem] → rounded-lg globally in enterprise */
+.crm-shell [class*="rounded-[2rem]"],
+.crm-shell [class*="rounded-[1.7rem]"],
+.crm-shell [class*="rounded-[1.4rem]"] {
+  border-radius: 0.5rem !important;
 }
 
 /* .mrz-footer-message removed — footer now uses inline styles in MrzSignature.tsx */

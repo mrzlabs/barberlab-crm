@@ -98,25 +98,25 @@ export function ConfigVisualPanel({
   const displayUrl = preview ?? bgUrl;
 
   return (
-    <div className="mt-6 rounded-[1.5rem] border bg-white p-5">
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Identidad visual avanzada</p>
-      <p className="mt-1 text-sm text-slate-500">
+    <div className="glass-panel mt-6 rounded-[1.5rem] p-5">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-400">Identidad visual avanzada</p>
+      <p className="mt-1 text-sm text-slate-400">
         La foto se usa como logo de perfil y marca del negocio. El fondo mantiene el grid y las conexiones neuronales con la paleta activa.
       </p>
 
-      {/* Dark / Light toggle — hidden until production */}
-      <div className="hidden mt-5 flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4">
+      {/* Tema oscuro / claro */}
+      <div className="mt-5 flex items-center justify-between rounded-2xl border border-white/10 bg-white/6 px-5 py-4">
         <div>
-          <p className="text-sm font-bold text-slate-800">Modo de color</p>
-          <p className="mt-0.5 text-xs text-slate-500">
-            {isDark ? "Oscuro — cards y paneles en fondo oscuro." : "Claro — apariencia estándar del dashboard."}
+          <p className="text-sm font-bold text-auto">Tema oscuro / Tema claro</p>
+          <p className="mt-0.5 text-xs text-slate-400">
+            {isDark ? "Oscuro — fondo oscuro con neural canvas." : "Claro — apariencia light del dashboard."}
           </p>
         </div>
         <button
           type="button"
           onClick={handleDarkToggle}
           disabled={isPending}
-          className={`relative flex h-8 w-14 items-center rounded-full transition-colors ${isDark ? "bg-slate-900" : "bg-slate-200"}`}
+          className={`relative flex h-8 w-14 items-center rounded-full transition-colors disabled:opacity-60 ${isDark ? "bg-cyan-900" : "bg-slate-200"}`}
           aria-label="Toggle dark mode"
         >
           <span
@@ -127,11 +127,11 @@ export function ConfigVisualPanel({
         </button>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 px-5 py-4">
-        <label className="grid gap-2 text-sm font-bold text-slate-800">
+      <div className="mt-4 rounded-2xl border border-white/10 bg-white/6 px-5 py-4">
+        <label className="grid gap-2 text-sm font-bold text-auto">
           Fuente del CRM
           <select
-            className="w-full rounded-xl border bg-white px-3 py-2.5 text-sm outline-none focus:border-violet-500"
+            className="w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500"
             value={fontFamily}
             onChange={handleFontChange}
             disabled={isPending}
@@ -148,7 +148,7 @@ export function ConfigVisualPanel({
 
       {/* Foto de fondo */}
       <div className="mt-4">
-        <p className="mb-3 text-sm font-bold text-slate-700">Logo y foto de perfil del negocio</p>
+        <p className="mb-3 text-sm font-bold text-auto">Logo y foto de perfil del negocio</p>
 
         {/* preview strip */}
         {displayUrl && (
@@ -178,7 +178,7 @@ export function ConfigVisualPanel({
 
         <form onSubmit={handleUpload} className="flex items-center gap-3">
           <label
-            className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:border-violet-400 hover:bg-white"
+            className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-auto transition hover:border-violet-400 hover:bg-white dark:border-white/20 dark:bg-white/6"
           >
             <ImagePlus className="size-4 text-violet-500" />
             <span>{preview ? "Foto seleccionada" : "Subir foto de marca"}</span>
