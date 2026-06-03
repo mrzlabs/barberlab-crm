@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 const input = "w-full rounded-xl crm-input placeholder:text-slate-500 px-3 py-2 text-sm outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20";
 
 const metodoColor: Record<string, string> = {
-  efectivo: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  transferencia: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
-  tarjeta: "bg-violet-500/20 text-violet-300 border-violet-500/30",
+  efectivo: "bg-emerald-500/20 text-auto border-emerald-500/30",
+  transferencia: "bg-cyan-500/20 text-auto border-cyan-500/30",
+  tarjeta: "bg-violet-500/20 text-auto border-violet-500/30",
 };
 
 export default async function TurnosPage() {
@@ -74,7 +74,7 @@ export default async function TurnosPage() {
                   <p className="font-black">{cita.cliente}</p>
                   <p className="text-sm text-slate-400">{cita.servicio} con {cita.empleado}</p>
                   <p className="mt-1 text-xs font-semibold uppercase text-slate-400">{fmtDateTime(cita.inicio)}</p>
-                  <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold capitalize ${cita.estado === "realizada" ? "bg-emerald-500/20 text-emerald-300" : "bg-violet-500/20 text-violet-300"}`}>{cita.estado}</span>
+                  <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold capitalize text-auto ${cita.estado === "realizada" ? "bg-emerald-500/20" : "bg-violet-500/20"}`}>{cita.estado}</span>
                 </div>
                 <label className="text-xs font-bold uppercase text-slate-400">
                   Precio final
@@ -93,7 +93,7 @@ export default async function TurnosPage() {
                   </select>
                 </label>
                 <div className="flex items-end">
-                  <SubmitButton label="Cerrar" pendingLabel="Cerrando…" className="w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white" />
+                  <SubmitButton label="Cerrar" pendingLabel="Cerrando…" className="w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-auto" />
                 </div>
                 <label className="lg:col-span-2 text-xs font-bold uppercase text-slate-400">
                   Descuento

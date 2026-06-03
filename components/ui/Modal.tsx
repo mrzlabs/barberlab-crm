@@ -49,7 +49,7 @@ export function Modal({ open, onClose, title, children, footer }: Props) {
           >
             {/* Header */}
             <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-6 py-4">
-              <h2 className="text-lg font-black text-white">{title}</h2>
+              <h2 className="text-lg font-black text-auto">{title}</h2>
               <button
                 className="grid size-8 place-items-center rounded-xl border border-white/10 text-white/40 transition hover:border-white/20 hover:text-white"
                 onClick={onClose}

@@ -20,10 +20,10 @@ type UsuarioRow = {
 type NegocioOption = { id: string; nombre: string };
 
 const rolStyles: Record<string, string> = {
-  super_admin: "bg-violet-900/50 text-violet-300",
-  admin:       "bg-cyan-900/50 text-cyan-300",
-  empleado:    "bg-emerald-900/50 text-emerald-300",
-  cliente:     "bg-slate-700/60 text-slate-300",
+  super_admin: "bg-violet-900/50 text-auto",
+  admin:       "bg-cyan-900/50 text-auto",
+  empleado:    "bg-emerald-900/50 text-auto",
+  cliente:     "bg-slate-700/60 text-auto",
 };
 
 function fmtDate(d: Date | string | null | undefined) {
@@ -193,7 +193,7 @@ export function UsuariosManager({
                   </td>
                   <td className="px-4 py-3.5 text-xs text-slate-500">{fmtDate(u.lastSignIn)}</td>
                   <td className="px-4 py-3.5">
-                    <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${u.activo ? "bg-emerald-900/50 text-emerald-300" : "bg-rose-900/50 text-rose-300"}`}>
+                    <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold text-auto ${u.activo ? "bg-emerald-900/50" : "bg-rose-900/50"}`}>
                       {u.activo ? "Activo" : "Inactivo"}
                     </span>
                   </td>
