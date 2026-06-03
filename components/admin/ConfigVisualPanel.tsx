@@ -148,7 +148,7 @@ export function ConfigVisualPanel({
 
       {/* Foto de fondo */}
       <div className="mt-4">
-        <p className="mb-3 text-sm font-bold text-slate-700">Logo y foto de perfil del negocio</p>
+        <p className="mb-3 text-sm font-bold text-auto">Logo y foto de perfil del negocio</p>
 
         {/* preview strip */}
         {displayUrl && (
@@ -178,7 +178,7 @@ export function ConfigVisualPanel({
 
         <form onSubmit={handleUpload} className="flex items-center gap-3">
           <label
-            className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:border-violet-400 hover:bg-white"
+            className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-auto transition hover:border-violet-400 hover:bg-white dark:border-white/20 dark:bg-white/6"
           >
             <ImagePlus className="size-4 text-violet-500" />
             <span>{preview ? "Foto seleccionada" : "Subir foto de marca"}</span>

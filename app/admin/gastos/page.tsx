@@ -54,11 +54,11 @@ export default async function GastosPage({ searchParams }: PageProps) {
             <div className="p-5" key={gasto.id}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="font-semibold capitalize text-white">{gasto.categoria.replace("_", " ")}</p>
+                  <p className="font-semibold capitalize crm-text-primary">{gasto.categoria.replace("_", " ")}</p>
                   <p className="mt-0.5 text-xs text-slate-400">{fmtDate(gasto.fecha)} · {gasto.descripcion || "Sin detalle"}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <strong className="text-sm font-black text-white">{fmtMoney(gasto.monto)}</strong>
+                  <strong className="text-sm font-black crm-text-primary">{fmtMoney(gasto.monto)}</strong>
                   <GastoEditButton
                     item={{ id: gasto.id, categoria: gasto.categoria, monto: gasto.monto, fecha: gasto.fecha, descripcion: gasto.descripcion, comprobanteUrl: gasto.comprobanteUrl }}
                     updateAction={updateGasto}

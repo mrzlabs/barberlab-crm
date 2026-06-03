@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: 210 35% 98%;
+  --background: 220 14% 96%;
   --foreground: 222 47% 11%;
   --primary: 184 86% 34%;
   --primary-foreground: 0 0% 100%;
@@ -22,7 +22,7 @@ html {
 
 body {
   margin: 0;
-  background: #f4f7fb;
+  background: #f4f4f7;
   color: hsl(var(--foreground));
   font-family: var(--brand-font, Outfit), var(--font-outfit), "Plus Jakarta Sans", Inter, sans-serif;
   text-rendering: geometricPrecision;
@@ -908,7 +908,7 @@ a {
   border: 1px solid var(--card-border, #e2e8f0) !important;
   background: var(--card-bg) !important;
   color: #0f172a !important;
-  box-shadow: 0 16px 40px var(--card-shadow, rgba(15, 23, 42, .08)) !important;
+  box-shadow: 0 2px 8px rgba(15,23,42,.10), 0 0 0 1px rgba(0,0,0,.06) !important;
   backdrop-filter: blur(18px);
 }
 

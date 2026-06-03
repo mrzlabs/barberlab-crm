@@ -577,7 +577,7 @@ export function AppChrome({
                     >
                       <Icon className="size-[14px]" />
                     </span>
-                    {open && <span className="flex-1 truncate text-[13px] leading-none">{item.label}</span>}
+                    {open && <span className="flex-1 truncate text-sm leading-none">{item.label}</span>}
                   </Link>
                 </div>
               );
