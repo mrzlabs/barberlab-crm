@@ -14,6 +14,13 @@ export const metadata: Metadata = {
   description: "CRM operativo para barberias, peluquerias, spa de unas y tatuajes.",
 };
 
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  console.error("Missing NEXT_PUBLIC_SUPABASE_URL — check Vercel environment variables");
+}
+if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  console.error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY — check Vercel environment variables");
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={outfit.variable}>
