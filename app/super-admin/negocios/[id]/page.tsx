@@ -9,7 +9,7 @@ import { fmtMoney } from "@/lib/admin/format";
 
 export const dynamic = "force-dynamic";
 
-const input = "w-full rounded-xl border bg-white/80 px-3 py-2 text-sm outline-none focus:border-cyan-500";
+const input = "w-full rounded-md border border-[#334155] bg-[#0f172a] px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-500 placeholder:text-[#64748b]";
 
 export default async function NegocioDetallePage({ params }: { params: { id: string } }) {
   const negocio = await getNegocioById(params.id);
@@ -81,8 +81,8 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
         ].map(([title, body]) => (
           <article className="glass-panel rounded-[1.4rem] p-5" key={title}>
             <div className="mac-dots" />
-            <h3 className="mt-5 text-lg font-black text-slate-950">{title}</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
+            <h3 className="mt-5 text-lg font-black" style={{ color: "#ffffff" }}>{title}</h3>
+            <p className="mt-2 text-sm leading-6" style={{ color: "#94a3b8" }}>{body}</p>
           </article>
         ))}
       </section>
@@ -90,8 +90,8 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
       <section className="grid gap-6 xl:grid-cols-[1fr_390px]">
         <form action={updateNegocio} className="glass-panel rounded-[2rem] p-5" data-brand-form>
           <input name="id" type="hidden" value={negocio.id} />
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Personalizacion</p>
-          <h3 className="mt-1 text-2xl font-black">Marca y suscripcion</h3>
+          <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Personalizacion</p>
+          <h3 className="mt-1 text-2xl font-black" style={{ color: "#ffffff" }}>Marca y suscripcion</h3>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <label className="grid gap-2 text-sm font-bold">
               Nombre
@@ -210,7 +210,7 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
               Propina comisionable
             </label>
           </div>
-          <button className="mt-5 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white" type="submit">
+          <button className="mt-5 rounded-2xl px-5 py-3 text-sm font-black" style={{ background: "#1e293b", color: "#f1f5f9", border: "1px solid #334155" }} type="submit">
             Guardar cambios
           </button>
         </form>
@@ -227,9 +227,9 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
 
       <section className="grid gap-6 xl:grid-cols-[430px_1fr]">
         <section className="glass-panel rounded-[2rem] p-5">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-rose-700">Control comercial</p>
-          <h3 className="mt-1 text-2xl font-black">Encender o apagar tienda</h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
+          <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Control comercial</p>
+          <h3 className="mt-1 text-2xl font-black" style={{ color: "#ffffff" }}>Encender o apagar tienda</h3>
+          <p className="mt-2 text-sm leading-6" style={{ color: "#94a3b8" }}>
             Al suspender o cancelar, los usuarios relacionados quedan inactivos. Al activar, se rehabilitan para operar.
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
@@ -241,7 +241,7 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
               <form action={toggleNegocio} key={estado}>
                 <input name="id" type="hidden" value={negocio.id} />
                 <input name="estado" type="hidden" value={estado} />
-                <button className="w-full rounded-2xl border bg-white px-4 py-3 text-sm font-black text-slate-800 hover:border-violet-300" type="submit">
+                <button className="w-full rounded-2xl border px-4 py-3 text-sm font-black" style={{ background: "#1e293b", color: "#f1f5f9", borderColor: "#334155" }} type="submit">
                   {label}
                 </button>
               </form>
@@ -250,13 +250,13 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
         </section>
 
         <section className="glass-panel overflow-hidden rounded-[2rem]">
-          <div className="border-b border-slate-200/70 p-5">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">Roles y accesos</p>
-            <h3 className="mt-1 text-2xl font-black">Usuarios registrados</h3>
+          <div className="border-b p-5" style={{ borderColor: "rgba(51,65,85,0.5)" }}>
+            <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Roles y accesos</p>
+            <h3 className="mt-1 text-2xl font-black" style={{ color: "#ffffff" }}>Usuarios registrados</h3>
           </div>
           <div className="overflow-x-auto scrollbar-soft">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-slate-950 text-xs uppercase tracking-wide text-cyan-100">
+              <thead className="text-xs uppercase tracking-wide" style={{ background: "#0f172a", color: "#00cec9" }}>
                 <tr>
                   <th className="px-5 py-3">Usuario</th>
                   <th className="px-5 py-3">Rol</th>
@@ -265,17 +265,19 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
                   <th className="px-5 py-3">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="bg-white/80">
+              <tbody style={{ background: "rgba(10,15,30,0.9)" }}>
                 {usuarios.map((user) => (
-                  <tr className="border-t" key={user.id}>
+                  <tr className="border-t" style={{ borderColor: "rgba(51,65,85,0.4)" }} key={user.id}>
                     <td className="px-5 py-4">
-                      <strong className="block">{user.nombre}</strong>
-                      <span className="text-xs text-slate-500">{user.email}</span>
+                      <strong className="block" style={{ color: "#ffffff" }}>{user.nombre}</strong>
+                      <span className="text-xs" style={{ color: "#94a3b8" }}>{user.email}</span>
                     </td>
-                    <td className="px-5 py-4 capitalize">{user.rol}</td>
-                    <td className="px-5 py-4">{user.telefono || "Sin telefono"}</td>
+                    <td className="px-5 py-4 capitalize" style={{ color: "#e2e8f0" }}>{user.rol}</td>
+                    <td className="px-5 py-4" style={{ color: "#e2e8f0" }}>{user.telefono || "Sin telefono"}</td>
                     <td className="px-5 py-4">
-                      <span className={`rounded-full px-2.5 py-1 text-xs font-black ${user.activo ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
+                      <span className="rounded-full px-2.5 py-1 text-xs font-black" style={user.activo
+                        ? { background: "rgba(16,185,129,0.2)", color: "#34d399", border: "1px solid rgba(16,185,129,0.3)" }
+                        : { background: "rgba(239,68,68,0.2)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)" }}>
                         {user.activo ? "Activo" : "Inactivo"}
                       </span>
                     </td>
@@ -289,7 +291,7 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
                   </tr>
                 ))}
                 {usuarios.length === 0 ? (
-                  <tr><td className="px-5 py-8 text-center text-slate-500" colSpan={5}>Sin usuarios en este negocio.</td></tr>
+                  <tr><td className="px-5 py-8 text-center" style={{ color: "#94a3b8" }} colSpan={5}>Sin usuarios en este negocio.</td></tr>
                 ) : null}
               </tbody>
             </table>
@@ -300,9 +302,9 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
       <section className="grid gap-6 xl:grid-cols-[430px_1fr]">
         <form action={createNegocioUser} className="glass-panel rounded-[2rem] p-5">
           <input name="negocioId" type="hidden" value={negocio.id} />
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Usuarios del negocio</p>
-          <h3 className="mt-1 text-2xl font-black">Crear acceso</h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
+          <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Usuarios del negocio</p>
+          <h3 className="mt-1 text-2xl font-black" style={{ color: "#ffffff" }}>Crear acceso</h3>
+          <p className="mt-2 text-sm leading-6" style={{ color: "#94a3b8" }}>
             Crea usuarios dentro de esta barberia. El rol define su vista, permisos y datos visibles.
           </p>
           <div className="mt-5 grid gap-3">
@@ -324,15 +326,15 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
               </select>
               <input className={input} name="comisionPct" placeholder="Comision %" type="number" min="0" max="100" step="0.01" defaultValue="0" />
             </div>
-            <button className="rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white" type="submit">
+            <button className="rounded-2xl px-4 py-3 text-sm font-black" style={{ background: "#1e293b", color: "#f1f5f9", border: "1px solid #334155" }} type="submit">
               Crear usuario
             </button>
           </div>
         </form>
 
         <section className="glass-panel rounded-[2rem] p-5">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-700">Operación MRZLABS</p>
-          <h3 className="mt-1 text-2xl font-black">Flujo comercial por barberia</h3>
+          <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Operación MRZLABS</p>
+          <h3 className="mt-1 text-2xl font-black" style={{ color: "#ffffff" }}>Flujo comercial por barberia</h3>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {[
               ["Onboarding", "Crear negocio, cargar marca, crear admin y validar acceso."],
@@ -342,9 +344,9 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
               ["Mercado LATAM", "Soportar monedas, planes y operaciones por pais desde el modelo SaaS."],
               ["Decision", "Cruzar agenda, caja, inventario, no asistencia y rentabilidad."],
             ].map(([title, body]) => (
-              <article className="rounded-2xl border bg-white/80 p-4" key={title}>
-                <strong className="block text-sm">{title}</strong>
-                <p className="mt-1 text-sm leading-6 text-slate-600">{body}</p>
+              <article className="rounded-2xl border p-4" style={{ background: "#0f172a", borderColor: "#1e293b" }} key={title}>
+                <strong className="block" style={{ color: "#00cec9", fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</strong>
+                <p className="mt-1 text-sm leading-6" style={{ color: "#94a3b8" }}>{body}</p>
               </article>
             ))}
           </div>

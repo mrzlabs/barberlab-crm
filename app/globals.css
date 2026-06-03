@@ -1339,3 +1339,86 @@ label {
 [data-theme="light"] label {
   color: #334155;
 }
+
+/* ── Super-admin shell: enforce dark theme — overrides hardcoded light classes ── */
+.sa-shell [class*="bg-white/"],
+.sa-shell article[class*="bg-white"],
+.sa-shell div[class*="bg-white"] {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-color: rgba(51, 65, 85, 0.5) !important;
+}
+.sa-shell [class*="text-slate-950"],
+.sa-shell [class*="text-slate-900"],
+.sa-shell [class*="text-slate-800"] {
+  color: #ffffff !important;
+}
+.sa-shell [class*="text-slate-600"],
+.sa-shell [class*="text-slate-500"] {
+  color: #94a3b8 !important;
+}
+.sa-shell [class*="text-rose-700"],
+.sa-shell [class*="text-cyan-600"],
+.sa-shell [class*="text-cyan-700"],
+.sa-shell [class*="text-emerald-600"],
+.sa-shell [class*="text-violet-700"] {
+  color: #00cec9 !important;
+}
+.sa-shell button[class*="bg-white"] {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
+}
+.sa-shell .bg-emerald-100 {
+  background: rgba(16, 185, 129, 0.2) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+.sa-shell .text-emerald-700 {
+  color: #34d399 !important;
+}
+.sa-shell .bg-rose-100 {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+.sa-shell .text-rose-700 {
+  color: #f87171 !important;
+}
+
+/* ── TAREA 2: Modo claro — overrides para crm-shell ─────────────────────── */
+[data-theme="light"] .crm-shell h1,
+[data-theme="light"] .crm-shell h2,
+[data-theme="light"] .crm-shell h3,
+[data-theme="light"] .crm-shell h4 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .crm-shell p,
+[data-theme="light"] .crm-shell span:not(.badge):not([class*="text-"]),
+[data-theme="light"] .crm-shell td,
+[data-theme="light"] .crm-shell th,
+[data-theme="light"] .crm-shell label {
+  color: #334155;
+}
+
+[data-theme="light"] .crm-shell .text-white,
+[data-theme="light"] .crm-shell .text-slate-100,
+[data-theme="light"] .crm-shell .text-slate-200 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .crm-shell .text-slate-300,
+[data-theme="light"] .crm-shell .text-slate-400 {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .crm-shell table {
+  color: #0f172a;
+}
+
+[data-theme="light"] .crm-shell tr {
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .crm-shell thead th {
+  color: #64748b !important;
+  background: rgba(0, 0, 0, 0.03);
+}
