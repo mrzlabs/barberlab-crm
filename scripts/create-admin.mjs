@@ -6,8 +6,8 @@ loadLocalEnv();
 const required = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "SUPABASE_SERVICE_ROLE_KEY",
-  "BARBERLAB_ADMIN_EMAIL",
-  "BARBERLAB_ADMIN_PASSWORD",
+  "OPERUX_ADMIN_EMAIL",
+  "OPERUX_ADMIN_PASSWORD",
 ];
 
 for (const key of required) {
@@ -28,10 +28,10 @@ const supabase = createClient(
   },
 );
 
-const email = process.env.BARBERLAB_ADMIN_EMAIL.trim().toLowerCase();
-const password = process.env.BARBERLAB_ADMIN_PASSWORD;
-const nombre = process.env.BARBERLAB_ADMIN_NOMBRE || "Admin BarberLab";
-const telefono = process.env.BARBERLAB_ADMIN_TELEFONO || "3503803010";
+const email    = process.env.OPERUX_ADMIN_EMAIL.trim().toLowerCase();
+const password = process.env.OPERUX_ADMIN_PASSWORD;
+const nombre   = process.env.OPERUX_ADMIN_NOMBRE   || "Admin Operux";
+const telefono = process.env.OPERUX_ADMIN_TELEFONO  || "3503803010";
 
 const { data, error } = await supabase.auth.admin.createUser({
   email,

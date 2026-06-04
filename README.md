@@ -1,33 +1,43 @@
-# BarberLab CRM
+# Operux CRM
+**Gestión inteligente para negocios de estilo y belleza**
 
-CRM comercializable para barberias, peluquerias, spa de unas y tatuajes.
+![Maylo — Asistente de Operux](public/maylo.png)
 
-Cliente piloto potencial: Ego's Barberia y Peluqueria, Bogota.
+Operux es un CRM SaaS multi-tenant para barberías, peluquerías, spas de uñas y tatuajes. Permite tomar decisiones basadas en datos reales para crecer. No es solo una agenda: es el sistema operativo del negocio.
 
-## Modelo comercial
+## Qué gestiona Operux
 
-BarberLab CRM se vende como producto SaaS, implementacion o servicio administrado.
+- Agenda y citas por especialista
+- Cierre de turnos y control de caja
+- Inventario con alertas de stock mínimo
+- Comisiones y producción por empleado
+- Gastos operacionales por categoría
+- Reportes de rentabilidad, margen, utilidad neta y ticket promedio
+- Branding personalizado por negocio (colores, fuente, logo)
+- WhatsApp automático (confirmación, recordatorio, seguimiento)
+- 4 roles: `super_admin`, `admin`, `empleado`, `cliente`
 
-No se vende el codigo fuente.
+## Modelos de acceso
 
-El cliente compra:
+1. **Suscripción mensual** — el cliente paga mensual, MRZLABS opera y mantiene
+2. **Implementación única** — se parametriza el negocio, el cliente opera, soporte pactado
+3. **Sin venta de código fuente** — MRZLABS conserva arquitectura, repositorio y know-how
 
-- Uso del CRM.
-- Parametrizacion del negocio.
-- Configuracion de usuarios, servicios, empleados, horarios e inventario.
-- Soporte de despliegue.
-- Ajustes funcionales pactados.
-- Hosting y mantenimiento si aplica dentro de la oferta.
+## Tiempos de implementación
 
-MRZLABS conserva:
+- Parametrización inicial (servicios, empleados, horarios, branding): 1-2 días hábiles
+- Capacitación de roles (admin, empleado, cliente): 1 sesión de 2 horas
+- Primer negocio en producción: 3-5 días hábiles desde firma
 
-- Codigo fuente.
-- Arquitectura.
-- Repositorio.
-- Migraciones.
-- Componentes visuales.
-- Automatizaciones internas.
-- Know-how tecnico.
+## Magic Link
+
+- Acceso sin contraseña para empleados y clientes
+- El usuario escribe su correo, recibe un enlace temporal
+- Al abrirlo entra directamente con su rol asignado
+- No reemplaza el control de rol ni los permisos
+- Ideal para clientes que no quieren recordar clave
+
+---
 
 ## Arquitectura SaaS hibrida
 
@@ -36,7 +46,7 @@ Modelo recomendado e implementado:
 - Planes `starter` y `pro`: una base multi-tenant con aislamiento por `negocio_id`.
 - Plan `enterprise`: preparado para aislamiento dedicado por cliente.
 - MRZLABS opera como `super_admin`.
-- Cada barberia tiene su propio registro en `negocios`.
+- Cada negocio tiene su propio registro en `negocios`.
 - Cada tabla operativa queda asociada a `negocio_id`.
 - RLS filtra por negocio autenticado.
 - Los usuarios se crean asociados al negocio.
@@ -50,7 +60,7 @@ Panel MRZLABS:
 
 Desde ese panel se registra:
 
-- Barberia.
+- Negocio.
 - Slug.
 - Telefono.
 - Direccion.
@@ -62,14 +72,14 @@ Desde ese panel se registra:
 - Modo de aislamiento.
 - Admin inicial del negocio.
 
-Google Auth:
+## Google Auth
 
 - El login tiene opcion `Ingresar con Google`.
 - El boton llama a Supabase OAuth.
 - Supabase redirige a Google.
 - Google devuelve la sesion a `/auth/callback`.
 - Si el usuario ya existe en `usuarios`, entra con su rol asignado.
-- Si el usuario no existe, se crea como `cliente` dentro del negocio base `barberlab-demo`.
+- Si el usuario no existe, se crea como `cliente` dentro del negocio base `operux-demo`.
 - Debe habilitarse Google Provider en Supabase Auth.
 - Callback requerido:
 
@@ -77,16 +87,6 @@ Google Auth:
 https://TU_DOMINIO/auth/callback
 http://127.0.0.1:3011/auth/callback
 ```
-
-Magic link:
-
-- Es acceso sin password.
-- El usuario escribe su correo y pulsa `Magic link`.
-- Supabase envia un enlace temporal al correo.
-- Al abrir el enlace, Supabase valida el token y crea sesion.
-- El usuario entra con el rol que tenga en `usuarios` y en metadata.
-- Sirve para clientes o empleados que no quieren recordar clave.
-- No reemplaza el control de rol. Solo cambia el metodo de entrada.
 
 Pantalla de espera:
 
@@ -273,7 +273,7 @@ supabase db push
 3. Configurar variables en Vercel:
 
 ```env
-BARBERLAB_DEMO_MODE=false
+OPERUX_DEMO_MODE=false
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
@@ -302,6 +302,26 @@ npm run super-admin:create
 - Cerrar turno.
 - Revisar historial de cita.
 - Revisar descuento de inventario.
+
+## Seguridad pendiente antes de produccion
+
+- [ ] Rotar `SUPABASE_SERVICE_ROLE_KEY` y `DATABASE_URL`
+- [ ] Verificar que `.env.local` esta en `.gitignore` y nunca fue commiteado
+- [ ] Activar RLS en todas las tablas (verificar cobertura completa)
+- [ ] Migrar `getSession()` a `getUser()` en middleware (ya aplicado, confirmar)
+- [ ] Configurar CORS en Supabase para el dominio de produccion
+- [ ] Rate limiting en `/login`: implementación actual usa memoria in-process — no es efectiva
+  en Vercel multi-instancia. Reemplazar con Vercel KV, Upstash Redis o tabla Supabase antes
+  de exponer el login a internet público. Ver advertencia en `app/login/actions.ts`.
+- [ ] Revisar que `SUPABASE_SERVICE_ROLE_KEY` no se use en client components
+- [ ] Configurar branch protection en `ux-corporativa`: requerir PR para merge
+- [ ] Agregar `.env*` a `.gitignore` si no esta
+
+## Ramas
+
+- `ux-corporativa`: rama principal de produccion. Base para despliegue real.
+- `ux-staging`: rama de pruebas y desarrollo. Se mergea a `ux-corporativa` tras validacion.
+- `main`: rama legada. No usar.
 
 ## Fase 1
 
@@ -346,10 +366,10 @@ supabase db push
 4. Crear usuario Auth admin:
 
 ```bash
-BARBERLAB_ADMIN_EMAIL=admin@egosbarberia.com \
-BARBERLAB_ADMIN_PASSWORD='cambia-esta-clave' \
-BARBERLAB_ADMIN_NOMBRE="Admin Ego's" \
-BARBERLAB_ADMIN_TELEFONO=3503803010 \
+OPERUX_ADMIN_EMAIL=admin@egosbarberia.com \
+OPERUX_ADMIN_PASSWORD='cambia-esta-clave' \
+OPERUX_ADMIN_NOMBRE="Admin Ego's" \
+OPERUX_ADMIN_TELEFONO=3503803010 \
 npm run admin:create
 ```
 
@@ -413,14 +433,14 @@ Demo local usa cache `.next-demo`. Puede estar abierto al tiempo con produccion 
 Credenciales:
 
 ```text
-Email: admin@barberlab.local
-Password: BarberLab2026!
+Email: admin@operux.local
+Password: Operux2026!
 ```
 
 El modo demo se activa con:
 
 ```env
-BARBERLAB_DEMO_MODE=true
+OPERUX_DEMO_MODE=true
 ```
 
 En demo:
@@ -435,7 +455,7 @@ En demo:
 Usar con:
 
 ```env
-BARBERLAB_DEMO_MODE=false
+OPERUX_DEMO_MODE=false
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 DATABASE_URL=
@@ -469,10 +489,10 @@ npm run super-admin:create
 Variables:
 
 ```env
-BARBERLAB_SUPER_ADMIN_EMAIL=admin@mrzlabs.dev
-BARBERLAB_SUPER_ADMIN_PASSWORD=
-BARBERLAB_SUPER_ADMIN_NOMBRE=Super Admin BarberLab
-BARBERLAB_SUPER_ADMIN_TELEFONO=3503803010
+OPERUX_SUPER_ADMIN_EMAIL=admin@mrzlabs.dev
+OPERUX_SUPER_ADMIN_PASSWORD=
+OPERUX_SUPER_ADMIN_NOMBRE=Super Admin Operux
+OPERUX_SUPER_ADMIN_TELEFONO=3503803010
 ```
 
 El `super admin` usa `rol=admin` en SQL para conservar compatibilidad con RLS y agrega `super_admin=true` en metadata de Supabase Auth.
