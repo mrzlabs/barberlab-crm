@@ -554,6 +554,8 @@ a {
   height: 100%;
   display: block;
 }
+.maylo-float-svg { display: block; }
+.maylo-float-svg svg { width: 100%; height: 100%; display: block; }
 
 /* ── Peek bubble — notificación contextual sobre el FAB ─── */
 .mrz-peek {
