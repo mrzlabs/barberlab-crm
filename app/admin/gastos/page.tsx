@@ -33,7 +33,7 @@ export default async function GastosPage({ searchParams }: PageProps) {
               <h2 className="text-2xl font-black">Gastos registrados</h2>
               <p className="mt-1 text-sm crm-text-muted">Últimos 40 movimientos operativos.</p>
             </div>
-            <strong className="rounded-xl bg-cyan-500/20 px-4 py-2 text-cyan-300 border border-cyan-500/30">{fmtMoney(total)}</strong>
+            <strong className="rounded-xl bg-cyan-500/20 px-4 py-2 text-white border border-cyan-500/30">{fmtMoney(total)}</strong>
           </div>
           <form className="mt-3 flex flex-wrap gap-2" method="get">
             {["", "arriendo", "servicios_publicos", "nomina", "insumos", "marketing", "otros"].map((c) => (

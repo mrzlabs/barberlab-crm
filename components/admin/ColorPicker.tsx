@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 
 type Swatch = { color: string; label: string };
@@ -71,6 +71,15 @@ export function ColorPicker({
   label: string;
 }) {
   const [selected, setSelected] = useState(defaultValue || "#111827");
+
+  useEffect(() => {
+    function handler(e: Event) {
+      const { field, color } = (e as CustomEvent<{ field: string; color: string }>).detail;
+      if (field === name) setSelected(color);
+    }
+    window.addEventListener("operux:apply-color", handler);
+    return () => window.removeEventListener("operux:apply-color", handler);
+  }, [name]);
 
   return (
     <div className="grid gap-3">

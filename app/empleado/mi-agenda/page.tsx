@@ -2,21 +2,22 @@ import Link from "next/link";
 import { fmtDateTime, fmtMoney } from "@/lib/admin/format";
 import { requireRole } from "@/lib/auth/session";
 import { getMiAgenda, getStatsEmpleado } from "@/lib/empleado/queries";
+import { getComentariosParaCitas } from "@/lib/cliente/queries";
 import { updateMiCita } from "./actions";
 
 export const dynamic = "force-dynamic";
 
 function estadoClass(estado: string) {
-  if (estado === "realizada") return "bg-emerald-50 text-emerald-700";
-  if (estado === "cancelada" || estado === "no_asistio") return "bg-red-50 text-red-700";
-  return "bg-cyan-50 text-cyan-700";
+  if (estado === "realizada") return "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+  if (estado === "cancelada" || estado === "no_asistio") return "bg-red-500/20 text-red-300 border border-red-500/30";
+  return "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30";
 }
 
 function DeltaBadge({ delta }: { delta: number | null }) {
   if (delta == null) return null;
   const up = delta >= 0;
   return (
-    <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] font-black ${up ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+    <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] font-black ${up ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"}`}>
       {up ? "▲" : "▼"} {Math.abs(delta)}%
     </span>
   );
@@ -31,6 +32,8 @@ export default async function MiAgendaPage() {
   // Nuclear: garantiza que no llegue ningún Date al árbol RSC
   const agenda = JSON.parse(JSON.stringify(agendaRaw)) as typeof agendaRaw;
   const stats  = JSON.parse(JSON.stringify(statsRaw))  as typeof statsRaw;
+  const comentariosRaw = await getComentariosParaCitas(agendaRaw.citas.map(c => c.id));
+  const comentarioMap = Object.fromEntries(comentariosRaw.map(c => [c.citaId, c.detalle]));
 
   if (!agenda.empleado) {
     return (
@@ -44,18 +47,18 @@ export default async function MiAgendaPage() {
   return (
     <div className="space-y-6">
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-6 text-white shadow-2xl shadow-violet-950/20 sm:p-8">
+      <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 py-8 px-6 text-white shadow-2xl shadow-violet-950/20 sm:py-12 sm:px-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_25%,rgba(34,211,238,.34),transparent_18rem),radial-gradient(circle_at_82%_48%,rgba(168,85,247,.35),transparent_22rem)]" />
         <div className="relative flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <div className="mac-dots" />
             <p className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Agenda personal</p>
-            <h2 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">{profile.nombre}</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
+            <h2 className="mt-2 text-[2.5rem] font-black tracking-tight sm:text-[3.5rem]">{profile.nombre}</h2>
+            <p className="mt-3 max-w-2xl text-base leading-7 text-slate-300">
               Vista de citas asignadas, pendientes por aceptar, servicios cerrados y acciones rapidas con cliente.
             </p>
           </div>
-          <Link className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950" href="/empleado/cerrar-turno">
+          <Link className="rounded-2xl bg-cyan-300 px-7 py-3.5 text-base font-black text-slate-950" href="/empleado/cerrar-turno">
             Cerrar turno
           </Link>
         </div>
@@ -66,13 +69,13 @@ export default async function MiAgendaPage() {
         <section className="glass-panel rounded-[2rem] p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Mi producción</p>
-              <h3 className="mt-1 text-xl font-black">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-400">Mi producción</p>
+              <h3 className="mt-1 text-xl font-black crm-text-primary">
                 Este mes
                 <DeltaBadge delta={stats.delta} />
               </h3>
             </div>
-            <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-black capitalize text-violet-700">
+            <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-black capitalize text-white/70">
               {stats.comisionPct}% comisión · {stats.especialidad.replace("_", " ")}
             </span>
           </div>
@@ -84,9 +87,9 @@ export default async function MiAgendaPage() {
               { label: "Ticket promedio", value: fmtMoney(stats.mes.ticket), sub: "por servicio" },
             ].map((kpi) => (
               <article key={kpi.label} className="rounded-xl border border-slate-700/50 bg-slate-900/80 p-4 shadow-sm" style={{ borderLeftWidth: "3px", borderLeftColor: "var(--brand-secondary,#22d3ee)" }}>
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{kpi.label}</p>
-                <strong className="mt-2 block text-xl font-black tracking-tight">{kpi.value}</strong>
-                <p className="mt-1 text-xs text-slate-400">{kpi.sub}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] crm-text-muted">{kpi.label}</p>
+                <strong className="mt-2 block text-xl font-black tracking-tight crm-text-primary">{kpi.value}</strong>
+                <p className="mt-1 text-xs crm-text-muted">{kpi.sub}</p>
               </article>
             ))}
           </div>
@@ -101,8 +104,8 @@ export default async function MiAgendaPage() {
           { label: "Realizadas", value: agenda.stats.realizadas },
         ].map((s) => (
           <article key={s.label} className="glass-panel rounded-[1.6rem] p-5">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-700">{s.label}</p>
-            <strong className="mt-2 block text-3xl font-black">{s.value}</strong>
+            <p className="text-xs font-black uppercase tracking-[0.16em] crm-text-muted">{s.label}</p>
+            <strong className="mt-2 block text-3xl font-black crm-text-primary">{s.value}</strong>
           </article>
         ))}
       </section>
@@ -113,17 +116,17 @@ export default async function MiAgendaPage() {
           <article className="glass-panel min-w-[300px] rounded-[1.7rem] p-5 transition hover:-translate-y-1 hover:border-violet-300 hover:shadow-xl sm:min-w-[340px]" key={cita.id}>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{fmtDateTime(cita.inicio)}</p>
+                <p className="text-xs font-black uppercase tracking-[0.14em] crm-text-muted">{fmtDateTime(cita.inicio)}</p>
                 <h3 className="mt-2 text-xl font-black">{cita.cliente}</h3>
               </div>
               <span className={`rounded-full px-3 py-1 text-xs font-black ${estadoClass(cita.estado)}`}>{cita.estado}</span>
             </div>
             <dl className="mt-5 grid gap-3 text-sm">
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Servicio</dt><dd className="font-semibold text-right">{cita.servicio}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Duración</dt><dd className="font-semibold">{cita.duracionMin} min</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Precio base</dt><dd className="font-semibold">{fmtMoney(cita.precio)}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-xs crm-text-muted">Servicio</dt><dd className="font-semibold crm-text-primary text-right">{cita.servicio}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-xs crm-text-muted">Duración</dt><dd className="font-semibold crm-text-primary">{cita.duracionMin} min</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-xs crm-text-muted">Precio base</dt><dd className="font-semibold crm-text-primary">{fmtMoney(cita.precio)}</dd></div>
               <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">WhatsApp</dt>
+                <dt className="text-xs crm-text-muted">WhatsApp</dt>
                 <dd>
                   <a className="rounded-full bg-emerald-50 px-3 py-1 font-black text-emerald-700" href={`https://wa.me/57${cita.telefono.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">
                     Contactar
@@ -131,6 +134,14 @@ export default async function MiAgendaPage() {
                 </dd>
               </div>
             </dl>
+            {comentarioMap[cita.id] && (
+              <div className="mt-3 rounded-xl border border-white/10 bg-white/8 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest crm-text-muted">Opinión del cliente</p>
+                <p className="mt-1 text-xs crm-text-primary">
+                  {(() => { try { return JSON.parse(comentarioMap[cita.id] || "{}").comentario; } catch { return ""; } })()}
+                </p>
+              </div>
+            )}
             {cita.estado !== "realizada" ? (
               <div className="mt-5 grid grid-cols-3 gap-2">
                 {["confirmada", "cancelada", "no_asistio"].map((estado) => (

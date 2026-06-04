@@ -128,15 +128,20 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
           className="mrz-help-panel"
           style={{
             position: "fixed",
-            right: 18,
-            bottom: 80,
-            zIndex: 200,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            width: "min(94vw, 480px)",
+            maxHeight: "100dvh",
+            zIndex: 260,
+            borderRadius: "1.25rem 0 0 1.25rem",
+            animation: "mayloSlideIn 0.28s cubic-bezier(0.4,0,0.2,1)",
           }}
         >
           <div className="mrz-help-head">
             <div>
-              <p>Bot MRZLABS</p>
-              <h3>Guía operativa del CRM</h3>
+              <p>Maylo · Operux CRM</p>
+              <h3>Hola, soy Maylo</h3>
             </div>
             <button type="button" onClick={() => setOpen(false)} aria-label="Cerrar ayuda">
               <X className="size-4" />
@@ -144,7 +149,7 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
           </div>
           <label className="mrz-help-search">
             <Search className="size-4" />
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar módulo, paso o reporte" />
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Pregúntale a Maylo..." />
           </label>
           <div className="mrz-help-body">
             <div className="mrz-help-list">
@@ -190,7 +195,7 @@ export function MrzHelpBot({ topics }: { topics: HelpTopic[] }) {
         className={`mrz-bot-btn ${open ? "active" : ""}`}
         onClick={() => setOpen((v) => !v)}
         type="button"
-        aria-label="Abrir ayuda BarberLab"
+        aria-label="Abrir ayuda Maylo"
         style={{
           transform: `translateX(${botX}px)`,
           transition: open ? "none" : "transform 3.2s cubic-bezier(0.45,0.05,0.25,1)",

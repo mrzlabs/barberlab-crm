@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { fmtDateTime, fmtMoney, toDateInput } from "@/lib/admin/format";
 import { requireRole } from "@/lib/auth/session";
-import { getHistorialCliente, getMisCitas, getReservaCatalog, getSlots } from "@/lib/cliente/queries";
+import { getComentariosParaCitas, getHistorialCliente, getMisCitas, getReservaCatalog, getSlots } from "@/lib/cliente/queries";
 import { buscarSlotsSchema } from "@/lib/validations/cliente";
-import { cancelarCita, reprogramarCita } from "./actions";
+import { cancelarCita, confirmarCita, reprogramarCita, saveComentarioCita } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -18,10 +18,15 @@ function getParam(value: string | string[] | undefined) {
 }
 
 function estadoClass(estado: string) {
-  if (estado === "realizada") return "bg-emerald-50 text-emerald-700";
-  if (estado === "cancelada" || estado === "no_asistio") return "bg-red-50 text-red-700";
-  if (estado === "confirmada") return "bg-violet-50 text-violet-700";
-  return "bg-cyan-50 text-cyan-700";
+  if (estado === "realizada") return "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+  if (estado === "cancelada" || estado === "no_asistio") return "bg-red-500/20 text-red-300 border border-red-500/30";
+  if (estado === "confirmada") return "bg-violet-500/20 text-violet-300 border border-violet-500/30";
+  return "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30";
+}
+
+function estadoLabel(estado: string) {
+  const m: Record<string, string> = { reservada: "Agendado", confirmada: "Confirmado", realizada: "Cerrado", cancelada: "Cancelado", no_asistio: "No asistió" };
+  return m[estado] ?? estado;
 }
 
 function estadoDetalle(estado: string) {
@@ -36,7 +41,21 @@ function estadoDetalle(estado: string) {
 export default async function MisCitasPage({ searchParams }: PageProps) {
   const profile = await requireRole(["cliente"]);
   const [{ citas }, catalog, historial] = await Promise.all([getMisCitas(profile.id), getReservaCatalog(), getHistorialCliente(profile.id)]);
+  const editComentario = getParam(searchParams?.editComentario);
+  const citaComentariosRaw = await getComentariosParaCitas(citas.map(c => c.id));
+  const comentariosClienteMap = Object.fromEntries(
+    citaComentariosRaw.map(c => [
+      c.citaId,
+      (() => { try { return JSON.parse(c.detalle || "{}").comentario || ""; } catch { return ""; } })(),
+    ])
+  );
   const citaReprogramar = getParam(searchParams?.citaId);
+  const filter = getParam(searchParams?.filter);
+  const query  = (getParam(searchParams?.q) || "").toLowerCase();
+  const citasFiltradas = citas
+    .filter(c => filter === "aprobar" ? c.estado === "reservada" : true)
+    .filter(c => query ? c.servicio.toLowerCase().includes(query) || c.empleado.toLowerCase().includes(query) : true);
+  const pendienteCount = citas.filter(c => c.estado === "reservada").length;
   const params = buscarSlotsSchema.parse({
     servicioId: getParam(searchParams?.servicioId) || catalog.servicios[0]?.id,
     empleadoId: getParam(searchParams?.empleadoId) || catalog.empleados[0]?.id,
@@ -62,6 +81,27 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
           </Link>
         </div>
       </section>
+
+      {/* ── Filtros ── */}
+      <div className="flex flex-wrap items-center gap-2">
+        <form className="flex gap-2" method="get">
+          <input
+            name="q"
+            type="search"
+            defaultValue={query}
+            placeholder="Buscar servicio o empleado…"
+            className="w-48 rounded-xl border border-white/20 bg-white/8 px-3 py-2 text-sm text-white placeholder:text-white/30 outline-none focus:border-cyan-400/60"
+          />
+          <button className="rounded-xl bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/20" type="submit">Buscar</button>
+        </form>
+        <Link className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-cyan-300" href="/cliente/reservar">Reservar</Link>
+        <Link
+          className={`rounded-xl px-4 py-2 text-sm font-black transition ${filter === "aprobar" ? "bg-violet-500 text-white" : "border border-white/20 bg-white/8 text-white/70 hover:bg-white/15 hover:text-white"}`}
+          href={filter === "aprobar" ? "/cliente/mis-citas" : "/cliente/mis-citas?filter=aprobar"}
+        >
+          Aprobar {pendienteCount > 0 && <span className="ml-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px]">{pendienteCount}</span>}
+        </Link>
+      </div>
 
       {citaReprogramar ? (
         <section className="glass-panel rounded-[2rem]">
@@ -122,7 +162,7 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
       ) : null}
 
       <section className="flex gap-4 overflow-x-auto pb-2 scrollbar-soft">
-        {citas.map((cita) => {
+        {citasFiltradas.map((cita) => {
           const bloqueada = cita.estado === "realizada" || cita.estado === "cancelada" || cita.estado === "no_asistio";
           return (
             <article className="glass-panel min-w-[300px] rounded-[1.7rem] p-5 transition hover:-translate-y-1 hover:border-violet-300 hover:shadow-xl sm:min-w-[350px]" key={cita.id}>
@@ -131,7 +171,7 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
                   <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{fmtDateTime(cita.inicio)}</p>
                   <h3 className="mt-2 text-xl font-black">{cita.servicio}</h3>
                 </div>
-                <span className={`rounded-full px-3 py-1 text-xs font-black ${estadoClass(cita.estado)}`}>{cita.estado}</span>
+                <span className={`rounded-full px-3 py-1 text-xs font-black ${estadoClass(cita.estado)}`}>{estadoLabel(cita.estado)}</span>
               </div>
               <dl className="mt-5 grid gap-3 text-sm">
                 <div className={`rounded-2xl p-3 text-sm font-semibold ${estadoClass(cita.estado)}`}>
@@ -150,8 +190,54 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
                   <dd className="font-semibold">{fmtMoney(cita.precio)}</dd>
                 </div>
               </dl>
+              {cita.estado === "realizada" && (
+                <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-3">
+                  {comentariosClienteMap[cita.id] && editComentario !== cita.id ? (
+                    <div>
+                      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest crm-text-muted">Tu opinión</p>
+                      <p className="text-sm crm-text-primary">{comentariosClienteMap[cita.id]}</p>
+                      <Link href={`/cliente/mis-citas?editComentario=${cita.id}`} className="mt-2 inline-block text-xs text-white/40 transition hover:text-white/80">
+                        Editar
+                      </Link>
+                    </div>
+                  ) : (
+                    <form action={saveComentarioCita} className="grid gap-2">
+                      <input name="citaId" type="hidden" value={cita.id} />
+                      <label className="text-[10px] font-bold uppercase tracking-widest crm-text-muted">
+                        {comentariosClienteMap[cita.id] ? "Editar opinión" : "Dejar opinión"}
+                      </label>
+                      <textarea
+                        name="comentario"
+                        rows={2}
+                        maxLength={300}
+                        defaultValue={comentariosClienteMap[cita.id] || ""}
+                        placeholder="¿Cómo fue el servicio? (máx. 300 caracteres)"
+                        className="w-full resize-none rounded-xl border border-white/20 bg-white/8 px-3 py-2 text-sm text-white placeholder:text-white/30 outline-none focus:border-cyan-400/60"
+                      />
+                      <div className="flex gap-2">
+                        <button type="submit" className="flex-1 rounded-xl bg-white/10 px-4 py-2 text-sm font-black text-white transition hover:bg-white/20">
+                          Guardar
+                        </button>
+                        {comentariosClienteMap[cita.id] && (
+                          <Link href="/cliente/mis-citas" className="rounded-xl border border-white/10 px-4 py-2 text-sm font-black text-white/60 transition hover:text-white">
+                            Cancelar
+                          </Link>
+                        )}
+                      </div>
+                    </form>
+                  )}
+                </div>
+              )}
               {!bloqueada ? (
                 <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                  {cita.estado === "reservada" && (
+                    <form action={confirmarCita} className="sm:col-span-2">
+                      <input name="citaId" type="hidden" value={cita.id} />
+                      <button className="w-full rounded-2xl border border-emerald-500/30 bg-emerald-500/20 px-4 py-3 text-sm font-black text-emerald-300 transition hover:bg-emerald-500/30" type="submit">
+                        Confirmar cita
+                      </button>
+                    </form>
+                  )}
                   <Link
                     className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-center text-sm font-black text-white backdrop-blur-sm"
                     href={`/cliente/mis-citas?citaId=${cita.id}&servicioId=${cita.servicioId}&empleadoId=${cita.empleadoId}&fecha=${toDateInput(new Date(cita.inicio))}`}
@@ -180,7 +266,7 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
       <section className="glass-panel rounded-[2rem] p-5">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Historial</p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-400">Historial</p>
             <h3 className="mt-1 text-2xl font-black">Movimientos de tus citas</h3>
           </div>
         </div>
@@ -190,12 +276,16 @@ export default async function MisCitasPage({ searchParams }: PageProps) {
               <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
                 <div>
                   <strong className="block text-white">{item.servicio}</strong>
-                  <span className="text-white/50">{item.detalle || item.accion}</span>
+                  <span className="text-white/50">
+                    {item.accion === "comentario_cliente"
+                      ? (() => { try { return JSON.parse(item.detalle || "{}").comentario || "Opinión registrada"; } catch { return "Opinión registrada"; } })()
+                      : (item.detalle || item.accion)}
+                  </span>
                 </div>
                 <span className="text-xs font-black uppercase tracking-[0.12em] text-white/40">{fmtDateTime(item.createdAt)}</span>
               </div>
               <p className="mt-2 text-xs font-bold text-white/40">
-                {item.estadoAnterior || "inicio"} → {item.estadoNuevo || "sin cambio"}
+                {estadoLabel(item.estadoAnterior || "inicio")} → {estadoLabel(item.estadoNuevo || "sin cambio")}
               </p>
             </article>
           ))}

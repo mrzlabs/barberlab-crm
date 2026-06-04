@@ -129,11 +129,6 @@ export function MrzSignature({ bot }: { bot?: ReactNode }) {
         }}
       >
         {/* Eslogan arriba */}
-        <div style={{ gridColumn: "1 / -1", textAlign: "center", paddingBottom: 4 }}>
-          <p style={{ fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.11em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)", margin: 0 }}>
-            Automatizamos tu negocio · Agenda, caja, inventario y reportes en un solo lugar · MRZLABS
-          </p>
-        </div>
       </div>
 
       {/* Fila inferior: copyright | BARBERLABS | Built by */}
@@ -158,7 +153,7 @@ export function MrzSignature({ bot }: { bot?: ReactNode }) {
           onClick={() => setOpen(true)}
           style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#00cec9", textShadow: "0 0 10px rgba(0,206,201,0.55)", padding: "2px 8px" }}
         >
-          BARBERLABS
+          OPERUX
         </button>
         <button
           type="button"

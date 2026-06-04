@@ -176,7 +176,6 @@ export default async function ConfiguracionPage() {
 
       {/* Personalización visual avanzada */}
       <ConfigVisualPanel
-        darkMode={configVisual.darkMode !== false}
         bgPhotoUrl={configVisual.bgPhotoUrl}
         fontFamily={configVisual.fontFamily || negocio.fuente}
       />

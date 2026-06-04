@@ -81,29 +81,29 @@ export default async function ReportesEmpleadoPage({ searchParams }: PageProps) 
           { label: "Ticket promedio", value: fmtMoney(reporte.kpis.ticket), detail: "por servicio cerrado" },
         ].map((kpi) => (
           <article className="glass-panel overflow-hidden rounded-[1.5rem] p-5" key={kpi.label}>
-            <p className="truncate text-xs font-black uppercase tracking-[0.16em] text-violet-700">{kpi.label}</p>
-            <strong className="mt-2 block truncate text-3xl font-black">{kpi.value}</strong>
-            <p className="mt-1 truncate text-xs text-slate-400">{kpi.detail}</p>
+            <p className="truncate text-xs font-black uppercase tracking-[0.16em] crm-text-muted">{kpi.label}</p>
+            <strong className="mt-2 block truncate text-3xl font-black crm-text-primary">{kpi.value}</strong>
+            <p className="mt-1 truncate text-xs crm-text-muted">{kpi.detail}</p>
           </article>
         ))}
       </section>
 
       <section className="glass-panel overflow-hidden rounded-[1.5rem] shadow-sm">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <div className="min-w-0"><h3 className="truncate font-black">Servicios realizados</h3><p className="truncate text-xs text-slate-400">Periodo activo: {desde} a {hasta}</p></div>
-          <span className="rounded-full bg-cyan-50 px-2.5 py-1 text-[10px] font-bold text-cyan-700">{reporte.servicios.length} registros</span>
+          <div className="min-w-0"><h3 className="truncate font-black crm-text-primary">Servicios realizados</h3><p className="truncate text-xs crm-text-muted">Periodo activo: {desde} a {hasta}</p></div>
+          <span className="rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold text-white">{reporte.servicios.length} registros</span>
         </div>
         <div className="overflow-x-auto scrollbar-soft">
           <table className="w-full min-w-[720px] text-left text-sm">
-            <thead className="bg-slate-950 text-[10px] uppercase tracking-wide text-cyan-100"><tr><th className="px-5 py-3">Fecha</th><th className="px-5 py-3">Cliente</th><th className="px-5 py-3">Servicio</th><th className="px-4 py-3 text-right">Ingreso</th><th className="px-4 py-3 text-right">Comisión</th></tr></thead>
+            <thead className="bg-transparent text-[10px] uppercase tracking-wide crm-text-muted"><tr><th className="px-5 py-3">Fecha</th><th className="px-5 py-3">Cliente</th><th className="px-5 py-3">Servicio</th><th className="px-4 py-3 text-right">Ingreso</th><th className="px-4 py-3 text-right">Comisión</th></tr></thead>
             <tbody>
               {reporte.servicios.map((item, i) => (
                 <tr className={`border-t border-white/8 transition hover:bg-slate-800/40 ${i % 2 === 0 ? "" : "bg-slate-800/20"}`} key={item.id}>
-                  <td className="px-5 py-3.5 whitespace-nowrap">{fmtDateTime(item.fecha)}</td>
-                  <td className="max-w-[220px] truncate px-5 py-3.5 font-semibold">{item.cliente}</td>
-                  <td className="max-w-[260px] truncate px-5 py-3.5 text-slate-400">{item.servicio}</td>
-                  <td className="px-4 py-3.5 text-right tabular-nums font-semibold">{fmtMoney(item.ingreso)}</td>
-                  <td className="px-4 py-3.5 text-right tabular-nums font-black text-violet-700">{fmtMoney(item.comision)}</td>
+                  <td className="px-5 py-3.5 whitespace-nowrap crm-text-primary">{fmtDateTime(item.fecha)}</td>
+                  <td className="max-w-[220px] truncate px-5 py-3.5 font-semibold crm-text-primary">{item.cliente}</td>
+                  <td className="max-w-[260px] truncate px-5 py-3.5 crm-text-muted">{item.servicio}</td>
+                  <td className="px-4 py-3.5 text-right tabular-nums font-semibold crm-text-primary">{fmtMoney(item.ingreso)}</td>
+                  <td className="px-4 py-3.5 text-right tabular-nums font-black text-violet-300">{fmtMoney(item.comision)}</td>
                 </tr>
               ))}
               {reporte.servicios.length === 0 && <tr><td className="px-5 py-8 text-center text-slate-400" colSpan={5}>Sin servicios realizados en el periodo.</td></tr>}

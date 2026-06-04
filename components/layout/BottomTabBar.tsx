@@ -10,8 +10,8 @@ export function BottomTabBar({ items }: { items: NavItem[] }) {
 
   return (
     <nav
-      className="overflow-x-auto lg:hidden"
-      style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+      className="overflow-x-auto lg:hidden [&::-webkit-scrollbar]:hidden"
+      style={{ borderTop: "1px solid rgba(255,255,255,0.06)", scrollbarWidth: "none" }}
     >
       <div className="flex h-9 min-w-max items-end gap-0 px-3">
         {items.map((item) => {
