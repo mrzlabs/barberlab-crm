@@ -4,7 +4,7 @@ import { getRoleFromClaims, isRole, protectedPrefixes, roleHome } from "@/lib/au
 import { isDemoMode } from "@/lib/demo";
 
 export async function middleware(request: NextRequest) {
-  const effectiveDemoMode = isDemoMode() && !(process.env.BARBERLAB_DEMO_MODE === "true" && process.env.NODE_ENV === "production");
+  const effectiveDemoMode = isDemoMode() && !(process.env.OPERUX_DEMO_MODE === "true" && process.env.NODE_ENV === "production");
 
   const demoRole = request.cookies.get("barberlab_demo_role")?.value;
   const pathname = request.nextUrl.pathname;
