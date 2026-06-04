@@ -10,8 +10,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "BarberLab CRM",
-  description: "CRM operativo para barberias, peluquerias, spa de unas y tatuajes.",
+  title: "Operux CRM",
+  description: "CRM operativo para barberias, peluquerias, spa de uñas y tatuajes.",
 };
 
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {

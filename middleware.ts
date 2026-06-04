@@ -4,7 +4,7 @@ import { getRoleFromClaims, isRole, protectedPrefixes, roleHome } from "@/lib/au
 import { isDemoMode } from "@/lib/demo";
 
 export async function middleware(request: NextRequest) {
-  const effectiveDemoMode = isDemoMode() && !(process.env.BARBERLAB_DEMO_MODE === "true" && process.env.NODE_ENV === "production");
+  const effectiveDemoMode = isDemoMode() && !(process.env.OPERUX_DEMO_MODE === "true" && process.env.NODE_ENV === "production");
 
   const demoRole = request.cookies.get("barberlab_demo_role")?.value;
   const pathname = request.nextUrl.pathname;
@@ -42,10 +42,15 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Use getSession (cookie-only, no network) for routing decisions.
-  // Page Server Components call getUser() for actual data security.
-  const { data: { session } } = await supabase.auth.getSession();
-  const user = session?.user ?? null;
+  const { data: { user }, error } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    const isPublicRoute = pathname.startsWith("/login") || pathname.startsWith("/api/auth");
+    if (!isPublicRoute) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    return supabaseResponse;
+  }
 
   const role = user
     ? getRoleFromClaims(user.app_metadata) ?? getRoleFromClaims(user.user_metadata)

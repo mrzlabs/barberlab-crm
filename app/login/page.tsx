@@ -82,15 +82,44 @@ function AtomCanvas() {
   return <canvas ref={ref} className="absolute inset-0 h-full w-full" aria-hidden="true" />;
 }
 
-function BLLogo() {
+function MayloBg() {
   return (
-    <div className="relative mx-auto mb-6 flex size-20 items-center justify-center">
-      <svg viewBox="0 0 80 80" fill="none" className="absolute inset-0 size-full drop-shadow-[0_0_18px_rgba(0,206,201,0.5)]" aria-hidden="true">
-        <defs><linearGradient id="blg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse"><stop stopColor="#00cec9" /><stop offset="1" stopColor="#6c5ce7" /></linearGradient></defs>
-        <rect width="80" height="80" rx="22" fill="url(#blg)" opacity="0.15" />
-        <rect width="80" height="80" rx="22" stroke="url(#blg)" strokeWidth="1.5" fill="none" />
-        <text x="50%" y="54%" dominantBaseline="middle" textAnchor="middle" fill="url(#blg)" fontSize="32" fontWeight="900" fontFamily="Inter, sans-serif" letterSpacing="-1">BL</text>
+    <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.18]" aria-hidden="true">
+      <svg viewBox="0 0 64 80" fill="none" width="280" height="350">
+        <line x1="35" y1="3" x2="32" y2="10" stroke="#3d2f7a" strokeWidth="2.2" strokeLinecap="round"/>
+        <circle cx="36.5" cy="2" r="3.5" fill="#4fc3f7" stroke="#2a1f5e" strokeWidth="1"/>
+        <rect x="14" y="9" width="36" height="26" rx="7" fill="#4c3a91" stroke="#2a1f5e" strokeWidth="1.5"/>
+        <circle cx="26" cy="22" r="6" fill="#f5c518"/><circle cx="42" cy="22" r="6" fill="#f5c518"/>
+        <circle cx="26" cy="22" r="3.2" fill="#1a1230"/><circle cx="42" cy="22" r="3.2" fill="#1a1230"/>
+        <rect x="26" y="35" width="12" height="6" rx="3" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1.2"/>
+        <rect x="10" y="41" width="44" height="28" rx="7" fill="#4c3a91" stroke="#2a1f5e" strokeWidth="1.5"/>
+        <rect x="19" y="49" width="24" height="14" rx="3.5" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1"/>
+        <circle cx="26" cy="56" r="2.8" fill="#4fc3f7" opacity="0.9"/>
+        <circle cx="32" cy="56" r="2" fill="#f5c518" opacity="0.75"/>
+        <rect x="15" y="69" width="13" height="9" rx="4" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1.2"/>
+        <rect x="36" y="69" width="13" height="9" rx="4" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1.2"/>
       </svg>
+    </div>
+  );
+}
+
+function MayloIdentity() {
+  return (
+    <div className="mb-7 flex flex-col items-center gap-2">
+      <div className="flex size-16 items-center justify-center rounded-2xl border border-violet-500/40 bg-violet-500/15 shadow-lg shadow-violet-500/20">
+        <svg viewBox="0 0 64 80" fill="none" width="36" height="44" aria-hidden="true">
+          <rect x="14" y="9" width="36" height="26" rx="7" fill="#4c3a91" stroke="#2a1f5e" strokeWidth="1.5"/>
+          <circle cx="26" cy="22" r="6" fill="#f5c518"/><circle cx="42" cy="22" r="6" fill="#f5c518"/>
+          <circle cx="26" cy="22" r="3.2" fill="#1a1230"/><circle cx="42" cy="22" r="3.2" fill="#1a1230"/>
+          <circle cx="27.4" cy="20.5" r="1.3" fill="white" opacity="0.9"/><circle cx="43.4" cy="20.5" r="1.3" fill="white" opacity="0.9"/>
+          <rect x="10" y="41" width="44" height="28" rx="7" fill="#4c3a91" stroke="#2a1f5e" strokeWidth="1.5"/>
+          <rect x="19" y="49" width="24" height="14" rx="3.5" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1"/>
+          <circle cx="26" cy="56" r="2.8" fill="#4fc3f7" opacity="0.9"/>
+          <circle cx="32" cy="56" r="2" fill="#f5c518" opacity="0.75"/>
+        </svg>
+      </div>
+      <p className="text-base font-black tracking-wide text-white">Maylo</p>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40">Asistente operativo · Operux CRM</p>
     </div>
   );
 }
@@ -123,11 +152,14 @@ export default function LoginPage({ searchParams }: { searchParams: { next?: str
     <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-[#050709] p-4">
       <AtomCanvas />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(0,206,201,0.07),transparent),radial-gradient(ellipse_60%_60%_at_50%_100%,rgba(108,92,231,0.07),transparent)]" />
+      <MayloBg />
       <div className="relative z-10 w-full max-w-md">
         <div className="rounded-3xl border border-white/15 bg-white/8 p-8 shadow-2xl shadow-violet-950/40 backdrop-blur-xl">
-          <BLLogo />
-          <p className="mb-6 text-center text-base leading-7 text-white/80">Estás por ingresar al sistema top integrado de gestión para tu negocio</p>
-          {searchParams.error ? <p className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-400">{errorMsg[searchParams.error] || "No se pudo iniciar sesión."}</p> : <div className="mb-4 grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 text-center text-[10px] font-black uppercase tracking-widest text-white/50"><span>Auth</span><span>Perfil</span><span>Rol activo</span></div>}
+          <div className="mb-7 text-center">
+            <h1 className="text-3xl font-black tracking-tight text-white">Operux</h1>
+            <p className="mt-2 text-sm font-semibold text-white/50">Tu negocio, en orden.</p>
+          </div>
+          {searchParams.error && <p className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-400">{errorMsg[searchParams.error] || "No se pudo iniciar sesión."}</p>}
           <form action={loginAction} className="grid gap-4">
             <input type="hidden" name="next" value={searchParams.next || ""} />
             <label className="grid gap-2 text-xs font-bold uppercase tracking-wide text-slate-300">Email<input className="rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-400/60" name="email" type="email" required placeholder="tu@correo.com" /></label>
@@ -135,7 +167,7 @@ export default function LoginPage({ searchParams }: { searchParams: { next?: str
             <button className="-mt-2 w-fit text-xs font-bold text-cyan-300 transition hover:text-cyan-100" type="button" onClick={() => setModalOpen(true)}>¿Olvidaste tu contraseña?</button>
             <button className="mt-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 px-4 py-3.5 text-sm font-black text-white shadow-lg shadow-violet-500/25 transition hover:scale-[1.02] hover:opacity-95" type="submit">Entrar al sistema</button>
           </form>
-          <p className="mt-6 text-center text-[10px] font-semibold text-white/25">BarberLab CRM · Gestión integral para tu negocio</p>
+          <p className="mt-6 text-center text-[10px] font-semibold text-white/25">Operux CRM · Gestión integral para tu negocio</p>
         </div>
       </div>
       {modalOpen && <div className="fixed inset-0 z-30 grid place-items-center bg-slate-950/70 p-4 backdrop-blur-sm"><form className="w-full max-w-md rounded-3xl border border-white/15 bg-slate-950 p-6 shadow-2xl" onSubmit={sendRecovery}><div className="flex items-center justify-between gap-3"><h2 className="text-lg font-black text-white">Recuperar contraseña</h2><button className="rounded-xl border border-white/10 p-2 text-white/60 hover:text-white" type="button" onClick={() => setModalOpen(false)} aria-label="Cerrar"><X className="size-4" /></button></div><label className="mt-5 grid gap-2 text-xs font-bold uppercase tracking-wide text-slate-300">Email<input className="rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-400/60" type="email" required value={recoveryEmail} onChange={(e) => setRecoveryEmail(e.target.value)} placeholder="tu@correo.com" /></label>{recoveryMsg && <p className="mt-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-bold text-emerald-300">{recoveryMsg}</p>}<button className="mt-5 w-full rounded-xl bg-cyan-500 px-4 py-3 text-sm font-black text-slate-950 transition hover:bg-cyan-400 disabled:opacity-60" type="submit" disabled={sending}>{sending ? "Enviando..." : "Enviar código"}</button></form></div>}

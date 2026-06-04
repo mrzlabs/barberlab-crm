@@ -11,7 +11,10 @@ const INNER_H = CHART_H - PAD.top - PAD.bottom;
 
 function shortDate(fecha: string) {
   const d = new Date(`${fecha}T12:00:00`);
-  return `${d.getDate()}/${d.getMonth() + 1}`;
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yy = String(d.getFullYear()).slice(2);
+  return `${dd}/${mm}/${yy}`;
 }
 
 function shortMoney(v: number) {

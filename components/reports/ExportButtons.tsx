@@ -76,9 +76,9 @@ export function ExportButtons({
   const handlePDF = () => window.print();
 
   return (
-    <div className="flex shrink-0 items-center gap-2">
+    <>
       <button
-        className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-white/18 no-print"
+        className="flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-white/18 no-print"
         onClick={handleCSV}
         type="button"
       >
@@ -86,13 +86,13 @@ export function ExportButtons({
         CSV
       </button>
       <button
-        className="flex items-center gap-2 rounded-xl bg-cyan-400 px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-slate-950 transition hover:bg-cyan-300 no-print"
+        className="flex items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-slate-950 transition hover:bg-cyan-300 no-print"
         onClick={handlePDF}
         type="button"
       >
         <Printer className="size-3.5" />
         PDF
       </button>
-    </div>
+    </>
   );
 }

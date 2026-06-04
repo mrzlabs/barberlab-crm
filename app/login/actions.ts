@@ -10,6 +10,11 @@ import { negocios, usuarios } from "@/lib/db/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleFromClaims, roleHome } from "@/lib/auth/roles";
 
+// WARNING: This rate limiter uses an in-process Map. In serverless/Vercel deployments
+// each function instance has its own Map, so a distributed attacker can bypass limits
+// by hitting different instances. Before exposing this login to the public internet,
+// replace with a shared store: Vercel KV, Upstash Redis, or a Supabase rate_limits table.
+// See README.md § "Seguridad pendiente antes de produccion".
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOGIN_BLOCK_MS = 5 * 60 * 1000;
 

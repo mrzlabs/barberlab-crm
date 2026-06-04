@@ -74,18 +74,36 @@ export default async function DashboardPage() {
       <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
         <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-4 text-white shadow-2xl shadow-violet-950/20 sm:p-8">
           <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--brand-secondary) 34%, transparent) 0%, transparent 18rem), radial-gradient(circle at 84% 65%, color-mix(in srgb, var(--brand-accent) 38%, transparent) 0%, transparent 20rem)" }} />
-          <div className="relative">
-            <div className="mac-dots" />
-            <p className="mt-5 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-200 sm:mt-8">Resumen operativo</p>
-            <h2 className="mt-3 text-xl font-black tracking-tight sm:text-4xl lg:text-5xl">
-              Control diario de agenda, caja, inventario y rentabilidad.
-            </h2>
-            <p className="mt-3 text-sm leading-6 crm-text-secondary sm:mt-5">
-              {profile?.slogan || "Vista personalizada del negocio para tomar decisiones rápidas sin entrar a cada módulo."}
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Link className="rounded-2xl bg-cyan-300 px-4 py-2.5 text-sm font-black text-slate-950 sm:px-5 sm:py-3" href="/admin/agenda">Agendar turno</Link>
-              <Link className="rounded-2xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-black crm-text-primary sm:px-5 sm:py-3" href="/admin/turnos">Cerrar caja</Link>
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            {/* ── Texto + botones ── */}
+            <div>
+              <div className="mac-dots" />
+              <p className="mt-5 text-[11px] font-black uppercase tracking-[0.2em] text-cyan-200 sm:mt-8">Resumen operativo</p>
+              <h2 className="mt-3 text-xl font-black tracking-tight sm:text-4xl lg:text-5xl">
+                Control diario de agenda, caja, inventario y rentabilidad.
+              </h2>
+              <p className="mt-3 text-sm leading-6 crm-text-secondary sm:mt-5">
+                {profile?.slogan || "Toma decisiones con datos reales. Todo tu equipo, agenda y caja en un solo lugar."}
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link className="rounded-2xl bg-cyan-300 px-6 py-3 text-base font-black text-slate-950 sm:px-7 sm:py-3.5" href="/admin/agenda">Agendar turno</Link>
+                <Link className="rounded-2xl border border-white/20 bg-white/10 px-6 py-3 text-base font-black crm-text-primary sm:px-7 sm:py-3.5" href="/admin/turnos">Cerrar caja</Link>
+              </div>
+            </div>
+            {/* ── Stats rápidos del día ── */}
+            <div className="flex shrink-0 gap-6 lg:flex-col lg:items-end lg:gap-5">
+              <div className="text-right">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/40">Turnos hoy</p>
+                <p className="text-4xl font-black tabular-nums text-white lg:text-5xl">{dashboard.today.turnos}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/40">Citas hoy</p>
+                <p className="text-4xl font-black tabular-nums text-white lg:text-5xl">{dashboard.today.citas}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/40">Ingresos hoy</p>
+                <p className="text-2xl font-black text-white lg:text-3xl">{fmtMoney(dashboard.today.ingresos)}</p>
+              </div>
             </div>
           </div>
         </div>

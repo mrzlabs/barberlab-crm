@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -41,6 +41,11 @@ export function DateRangePicker({ from, to }: Props) {
   const [customFrom, setCustomFrom] = useState(from);
   const [customTo,   setCustomTo]   = useState(to);
   const presets = getPresets();
+
+  useEffect(() => {
+    setCustomFrom(from);
+    setCustomTo(to);
+  }, [from, to]);
 
   function navigate(f: string, t: string) {
     router.push(`/admin/reportes?from=${f}&to=${t}`);

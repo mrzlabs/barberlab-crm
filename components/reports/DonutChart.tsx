@@ -43,9 +43,9 @@ export function DonutChart({
       <h3 className="report-truncate text-base font-black crm-text-primary">{title}</h3>
       <p className="report-truncate text-xs crm-text-muted">{total} en total</p>
 
-      <div className="mt-5 flex flex-col items-center gap-5 sm:flex-row sm:items-start">
+      <div className="mt-5 flex flex-col gap-4">
         {/* SVG donut */}
-        <div className="relative shrink-0">
+        <div className="relative mx-auto shrink-0">
           <svg viewBox="0 0 160 160" width={148} height={148} className="overflow-visible">
             {/* track */}
             <circle
@@ -85,20 +85,15 @@ export function DonutChart({
         </div>
 
         {/* legend */}
-        <div className="flex-1 space-y-1">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
           {total === 0 ? (
-            <p className="text-sm crm-text-muted">Sin datos en el periodo.</p>
+            <p className="col-span-2 text-sm crm-text-muted">Sin datos en el periodo.</p>
           ) : segments.map((seg) => (
-            <div key={seg.label} className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 transition hover:bg-white/6">
-              <div className="flex min-w-0 items-center gap-2">
-                <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: seg.color, boxShadow: `0 0 6px ${seg.color}` }} />
-                <span className="report-truncate text-xs font-semibold crm-text-secondary">{seg.label}</span>
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                <span className="text-xs font-black crm-text-primary">{seg.value}</span>
-                <span className="w-9 text-right text-[10px] font-bold crm-text-muted">
-                  {(seg.pct * 100).toFixed(0)}%
-                </span>
+            <div key={seg.label} className="flex items-start gap-1.5 rounded-lg px-2 py-1.5 transition hover:bg-white/6">
+              <span className="mt-0.5 size-2.5 shrink-0 rounded-full" style={{ backgroundColor: seg.color, boxShadow: `0 0 6px ${seg.color}` }} />
+              <div className="min-w-0">
+                <p className="truncate text-xs font-semibold crm-text-secondary">{seg.label}</p>
+                <p className="text-[10px] font-bold crm-text-muted">{seg.value} · {(seg.pct * 100).toFixed(0)}%</p>
               </div>
             </div>
           ))}

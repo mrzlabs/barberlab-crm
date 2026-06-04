@@ -19,7 +19,7 @@ export default async function CerrarTurnoPage() {
         <div className="border-b p-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-primary">Cierre de servicio</p>
           <h2 className="mt-1 text-2xl font-black">Mis citas pendientes</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Solo aparecen citas asignadas al empleado autenticado.</p>
+          <p className="mt-2 text-sm crm-text-muted font-medium">Solo aparecen citas asignadas al empleado autenticado.</p>
         </div>
         <div className="divide-y">
           {citas.map((cita) => (
@@ -68,19 +68,19 @@ export default async function CerrarTurnoPage() {
       <section className="rounded-xl border border-slate-700/50 bg-slate-900/80 shadow-lg">
         <div className="border-b p-5">
           <h3 className="text-lg font-black">Mis turnos cerrados</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Ultimos cierres registrados.</p>
+          <p className="mt-1 text-sm crm-text-muted font-medium">Ultimos cierres registrados.</p>
         </div>
         <div className="divide-y">
           {turnos.map((turno) => (
             <article className="p-5" key={turno.id}>
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="font-black">{turno.cliente}</p>
-                  <p className="text-sm text-muted-foreground">{turno.servicio}</p>
+                  <p className="font-black crm-text-primary">{turno.cliente}</p>
+                  <p className="text-sm crm-text-muted">{turno.servicio}</p>
                 </div>
-                <strong>{fmtMoney(Number(turno.precioFinal) + Number(turno.propina))}</strong>
+                <strong className="crm-text-primary">{fmtMoney(Number(turno.precioFinal) + Number(turno.propina))}</strong>
               </div>
-              <p className="mt-2 text-xs uppercase tracking-wide text-muted-foreground">{turno.metodoPago} · {fmtDateTime(turno.createdAt)}</p>
+              <p className="mt-2 text-xs uppercase tracking-wide crm-text-muted">{turno.metodoPago} · {fmtDateTime(turno.createdAt)}</p>
             </article>
           ))}
           {turnos.length === 0 ? <p className="p-8 text-center text-sm text-muted-foreground">Sin turnos cerrados.</p> : null}

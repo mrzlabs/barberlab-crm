@@ -7,9 +7,13 @@ dist/
 coverage/
 .vercel/
 supabase/.temp/
+.env
 .env*.local
 *.tsbuildinfo
 *.log
 .vercel
 .claude/settings.local.json
 .gstack/
+test-stack.mjs
+test-final.mjs
+test-empleado.mjs

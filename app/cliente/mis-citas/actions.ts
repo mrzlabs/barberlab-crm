@@ -7,7 +7,7 @@ import { getDb } from "@/lib/db";
 import { citas } from "@/lib/db/schema";
 import { addCitaHistory } from "@/lib/citas/history";
 import { citaPerteneceCliente, slotDisponible } from "@/lib/cliente/queries";
-import { citaIdSchema, reprogramarSchema } from "@/lib/validations/cliente";
+import { citaIdSchema, comentarioCitaSchema, reprogramarSchema } from "@/lib/validations/cliente";
 
 export async function cancelarCita(formData: FormData) {
   const profile = await requireRole(["cliente"]);
@@ -31,6 +31,40 @@ export async function cancelarCita(formData: FormData) {
 
   revalidatePath("/cliente/mis-citas");
   revalidatePath("/admin/agenda");
+}
+
+export async function confirmarCita(formData: FormData) {
+  const profile = await requireRole(["cliente"]);
+  const payload = citaIdSchema.parse(Object.fromEntries(formData));
+  const cita = await citaPerteneceCliente(profile.id, payload.citaId);
+  if (!cita || cita.estado !== "reservada") throw new Error("La cita no se puede confirmar");
+  await getDb().update(citas).set({ estado: "confirmada", updatedAt: new Date().toISOString() }).where(eq(citas.id, payload.citaId));
+  await addCitaHistory({
+    citaId: payload.citaId,
+    actorId: profile.id,
+    actorRol: "cliente",
+    estadoAnterior: "reservada",
+    estadoNuevo: "confirmada",
+    accion: "cita_cliente_confirmada",
+    detalle: "Cliente confirmó la cita",
+  });
+  revalidatePath("/cliente/mis-citas");
+  revalidatePath("/admin/agenda");
+}
+
+export async function saveComentarioCita(formData: FormData) {
+  const profile = await requireRole(["cliente"]);
+  const payload = comentarioCitaSchema.parse(Object.fromEntries(formData));
+  const cita = await citaPerteneceCliente(profile.id, payload.citaId);
+  if (!cita) throw new Error("Cita no encontrada");
+  await addCitaHistory({
+    citaId: payload.citaId,
+    actorId: profile.id,
+    actorRol: "cliente",
+    accion: "comentario_cliente",
+    detalle: JSON.stringify({ comentario: payload.comentario }),
+  });
+  revalidatePath("/cliente/mis-citas");
 }
 
 export async function reprogramarCita(formData: FormData) {

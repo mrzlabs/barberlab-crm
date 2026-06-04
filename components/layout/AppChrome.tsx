@@ -323,6 +323,10 @@ const ICON_COLORS: Record<string, string> = {
   "Empleados":     "#fb923c",
   "Clientes":      "#e879f9",
   "Reportes":      "#4ade80",
+  "Mi agenda":     "#34d399",
+  "Cerrar turno":  "#f59e0b",
+  "Reservar":      "#22c55e",
+  "Mis citas":     "#06b6d4",
   "Configuracion": "#94a3b8",
   "Marketing":     "#f472b6",
 };
@@ -383,8 +387,7 @@ export function AppChrome({
   const accentColor   = brand?.colorAcento    || "#7c3aed";
   const bgPhotoUrl    = configVisual?.bgPhotoUrl;
   const fontFamily = configVisual?.fontFamily || brand?.fuente || "Inter";
-  // Read dark mode from configVisual — defaults to true (dark)
-  const isDark = configVisual?.darkMode !== false;
+  const isDark = true;
 
   // Sync theme + neural vars to documentElement
   useEffect(() => {
@@ -396,7 +399,7 @@ export function AppChrome({
 
   // Sync sidebar width so MrzSignature doesn't overlap sidebar
   useEffect(() => {
-    document.documentElement.style.setProperty("--sidebar-w", open ? "200px" : "48px");
+    document.documentElement.style.setProperty("--sidebar-w", open ? "200px" : "64px");
   }, [open]);
   const roleLabel = role === "super_admin" ? "Super Admin MRZLABS" : role === "admin" ? "Administrador" : role === "empleado" ? "Empleado" : "Cliente";
 
@@ -482,30 +485,32 @@ export function AppChrome({
 
       {/* ── Sidebar ─────────────────────────────────────────────── */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 [transition-timing-function:cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(200px,86vw)] lg:w-[200px]" : "w-[200px] lg:w-[48px]"}`}
+        className={`fixed inset-y-0 left-0 z-40 flex flex-col shadow-2xl transition-all duration-300 [transition-timing-function:cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"} ${open ? "w-[min(200px,86vw)] lg:w-[200px]" : "w-[200px] lg:w-[64px]"}`}
         style={{
           background: isDark ? "#0f1117" : "#f8fafc",
           borderRight: isDark ? "1px solid rgba(71,85,105,0.5)" : "1px solid #e2e8f0",
         }}
       >
         {/* header */}
-        <div className={`flex items-center justify-between gap-3 border-b p-4 ${isDark ? "border-white/10" : "border-slate-200"}`}>
-          <div className="flex min-w-0 items-center gap-3">
-            <LogoMark brand={brand} onExpand={setExpandedPhoto} />
-            <div className={open ? "block" : "hidden"}>
-              <p className="text-[11px] font-black uppercase tracking-[0.22em]" style={{ color: secondaryColor }}>
-                {brand?.plan ? `Plan ${brand.plan}` : "BarberLab"}
-              </p>
-              <h1 className="truncate text-sm font-black crm-text-primary">{title}</h1>
+        <div className={`flex items-center border-b ${open ? "justify-between gap-3 p-4" : "justify-center py-3"} ${isDark ? "border-white/10" : "border-slate-200"}`}>
+          {open && (
+            <div className="flex min-w-0 items-center gap-3">
+              <LogoMark brand={brand} onExpand={setExpandedPhoto} />
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.22em]" style={{ color: secondaryColor }}>
+                  {role === "cliente" ? "" : (brand?.plan ? `Plan ${brand.plan}` : "BarberLab")}
+                </p>
+                <h1 className="truncate text-sm font-black crm-text-primary">{title}</h1>
+              </div>
             </div>
-          </div>
+          )}
           <button
-            className="hidden rounded-lg border border-white/10 bg-white/8 p-1.5 text-white/60 hover:bg-white/15 hover:text-white lg:grid"
+            className={`hidden lg:grid transition-opacity ${open ? "rounded-lg border border-white/10 bg-white/8 p-1.5 text-white/60 hover:bg-white/15 hover:text-white" : "border-0 bg-transparent p-1 opacity-40 hover:opacity-100"}`}
             onClick={() => setOpen((v) => !v)}
             type="button"
             aria-label={open ? "Contraer menú" : "Mostrar menú"}
             title={open ? "Contraer menú" : "Mostrar menú"}
-            style={{ borderColor: "rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.08)", color: "#e2e8f0" }}
+            style={open ? { borderColor: "rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.08)", color: "#e2e8f0" } : { color: "#e2e8f0" }}
           >
             {open ? <ChevronLeft className="size-3.5" /> : <ChevronRight className="size-3.5" />}
           </button>
@@ -520,12 +525,14 @@ export function AppChrome({
         </div>
 
         {/* nav body */}
-        <div className="flex-1 overflow-y-auto px-2 py-2">
-          <div className={`mb-3 flex flex-wrap gap-2 ${open ? "justify-start px-1" : "justify-center"}`}>
-            <span className={`rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-wide ${isDark ? "border-white/15 bg-white/8 text-white/60" : "border-slate-200 bg-slate-100 text-slate-500"}`}>
-              {open ? role.replace("_", " ") : role.slice(0, 1)}
-            </span>
-          </div>
+        <div className={`flex-1 px-2 py-2 ${open ? "overflow-y-auto scrollbar-soft" : "overflow-hidden"}`}>
+          {open && (
+            <div className="mb-3 flex flex-wrap gap-2 justify-start px-1">
+              <span className={`rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-wide ${isDark ? "border-white/15 bg-white/8 text-white/60" : "border-slate-200 bg-slate-100 text-slate-500"}`}>
+                {role.replace("_", " ")}
+              </span>
+            </div>
+          )}
 
           {open && (
             <label className={`mb-2 flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs ${isDark ? "border-white/10 bg-white/6 text-white/60 focus-within:border-white/20" : "border-slate-200 bg-white text-slate-500 focus-within:border-slate-400"}`}>
@@ -644,25 +651,8 @@ export function AppChrome({
           />
         </div>
       </aside>
-      {!open && (
-        <button
-          className="fixed left-[68px] top-4 z-50 hidden items-center gap-2 rounded-full border px-3 py-2 text-xs font-black shadow-lg backdrop-blur lg:flex"
-          onClick={() => setOpen(true)}
-          style={{
-            borderColor: hexAlpha(secondaryColor, 0.36),
-            background: isDark ? hexAlpha(primaryColor, 0.92) : "#ffffff",
-            color: isDark ? "#ffffff" : primaryColor,
-            boxShadow: `0 12px 34px ${hexAlpha(accentColor, 0.18)}`,
-          }}
-          type="button"
-        >
-          <ChevronRight className="size-3.5" />
-          Mostrar menú
-        </button>
-      )}
-
       {/* ── Main area ───────────────────────────────────────────── */}
-      <div className={`min-h-dvh transition-all duration-300 ${open ? "lg:ml-[200px]" : "lg:ml-[48px]"}`}>
+      <div className={`min-h-dvh transition-all duration-300 ${open ? "lg:ml-[200px]" : "lg:ml-[64px]"}`}>
 
         {/* sticky wrapper: header + tab bar se desplazan juntos */}
         <div
@@ -831,12 +821,12 @@ export function AppChrome({
         </>
       )}
 
-        {/* ── Footer con firma y bot — en flujo del documento ──── */}
-        <footer className="relative" style={{ marginLeft: 0 }}>
-          <MrzSignature bot={<MrzHelpBot topics={topics} />} />
-        </footer>
-
       </div>{/* end crm shell content */}
+
+      {/* ── Footer — mismo offset que el main ──────────────────── */}
+      <footer className={`relative transition-all duration-300 ${open ? "lg:ml-[200px]" : "lg:ml-[64px]"}`}>
+        <MrzSignature bot={<MrzHelpBot topics={topics} />} />
+      </footer>
       {expandedPhoto && (
         <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/72 p-4 backdrop-blur-xl" onClick={() => setExpandedPhoto(null)}>
           <button className="absolute right-4 top-4 rounded-full border border-white/20 bg-white/10 p-3 text-white transition hover:bg-white/20" onClick={() => setExpandedPhoto(null)} type="button" aria-label="Cerrar foto">

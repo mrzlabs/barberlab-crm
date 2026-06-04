@@ -21,3 +21,8 @@ export const reprogramarSchema = reservarSchema.extend({
   citaId: z.string().trim().uuid(),
 });
 
+export const comentarioCitaSchema = z.object({
+  citaId: z.string().trim().uuid(),
+  comentario: z.string().trim().min(1, "Escribe un comentario").max(300, "Máximo 300 caracteres"),
+});
+

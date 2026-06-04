@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { citaHistorial, citas, clientes, empleados, inventario, servicios, usuarios } from "@/lib/db/schema";
 import { isDemoMode } from "@/lib/demo";
@@ -266,10 +266,26 @@ export async function getHistorialCliente(userId: string) {
     .from(citaHistorial)
     .innerJoin(citas, eq(citaHistorial.citaId, citas.id))
     .innerJoin(servicios, eq(citas.servicioId, servicios.id))
-    .where(eq(citas.clienteId, cliente.id))
+    .where(and(
+      eq(citas.clienteId, cliente.id),
+      or(
+        inArray(citaHistorial.estadoNuevo, ["reservada", "confirmada", "realizada", "cancelada"]),
+        eq(citaHistorial.accion, "comentario_cliente")
+      )
+    ))
     .orderBy(desc(citaHistorial.createdAt))
     .limit(30);
   return serializeDates(rows);
+}
+
+export async function getComentariosParaCitas(citaIds: string[]) {
+  if (isDemoMode() || citaIds.length === 0) return [] as { citaId: string; detalle: string | null; createdAt: string }[];
+  const rows = await getDb()
+    .select({ citaId: citaHistorial.citaId, detalle: citaHistorial.detalle, createdAt: citaHistorial.createdAt })
+    .from(citaHistorial)
+    .where(and(eq(citaHistorial.accion, "comentario_cliente"), inArray(citaHistorial.citaId, citaIds)))
+    .orderBy(desc(citaHistorial.createdAt));
+  return serializeDates(rows) as { citaId: string; detalle: string | null; createdAt: string }[];
 }
 
 export async function citaPerteneceCliente(userId: string, citaId: string) {
