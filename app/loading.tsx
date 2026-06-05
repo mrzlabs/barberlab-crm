@@ -1,3 +1,5 @@
+import { generateMaylo } from "@/lib/maylo";
+
 export default function Loading() {
   return (
     <main className="relative grid min-h-dvh overflow-hidden bg-slate-950 text-white">
@@ -29,21 +31,11 @@ export default function Loading() {
           style={{ right: "-80px", animation: "mayloFloat 2.4s ease-in-out infinite" }}
           aria-hidden="true"
         >
-          <svg viewBox="0 0 64 80" fill="none" width="140" height="175">
-            <line x1="35" y1="3" x2="32" y2="10" stroke="#3d2f7a" strokeWidth="2.2" strokeLinecap="round"/>
-            <circle cx="36.5" cy="2" r="3.5" fill="#4fc3f7" stroke="#2a1f5e" strokeWidth="1"/>
-            <rect x="14" y="9" width="36" height="26" rx="7" fill="#4c3a91" stroke="#2a1f5e" strokeWidth="1.5"/>
-            <circle cx="26" cy="22" r="6" fill="#f5c518"/><circle cx="42" cy="22" r="6" fill="#f5c518"/>
-            <circle cx="26" cy="22" r="3.2" fill="#1a1230"/><circle cx="42" cy="22" r="3.2" fill="#1a1230"/>
-            <circle cx="27.4" cy="20.5" r="1.3" fill="white" opacity="0.9"/><circle cx="43.4" cy="20.5" r="1.3" fill="white" opacity="0.9"/>
-            <rect x="26" y="35" width="12" height="6" rx="3" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1.2"/>
-            <rect x="10" y="41" width="44" height="28" rx="7" fill="#4c3a91" stroke="#2a1f5e" strokeWidth="1.5"/>
-            <rect x="19" y="49" width="24" height="14" rx="3.5" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1"/>
-            <circle cx="26" cy="56" r="2.8" fill="#4fc3f7" opacity="0.9"/>
-            <circle cx="32" cy="56" r="2" fill="#f5c518" opacity="0.75"/>
-            <rect x="15" y="69" width="13" height="9" rx="4" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1.2"/>
-            <rect x="36" y="69" width="13" height="9" rx="4" fill="#3d2f7a" stroke="#2a1f5e" strokeWidth="1.2"/>
-          </svg>
+          <span
+            className="maylo-float-svg"
+            style={{ width: 140, height: 175 }}
+            dangerouslySetInnerHTML={{ __html: generateMaylo({ eyes: 'open', arms: 'wave', glow: true }) }}
+          />
         </div>
       </div>
       <div className="absolute bottom-0 left-0 right-0 h-8 overflow-hidden border-t border-violet-400/10 bg-slate-950/80">

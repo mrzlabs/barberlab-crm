@@ -8,6 +8,45 @@ export const dynamic = "force-dynamic";
 type PageProps = { searchParams?: Record<string, string | string[] | undefined> };
 function param(v: string | string[] | undefined) { return Array.isArray(v) ? v[0] : v; }
 
+function initials(nombre: string) {
+  return nombre.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
+}
+
+function relativeTime(date: string | Date | null | undefined): string {
+  if (!date) return "Sin visitas";
+  const days = Math.floor((Date.now() - new Date(date).getTime()) / 86400000);
+  if (days === 0) return "Hoy";
+  if (days === 1) return "Ayer";
+  if (days < 7)  return `Hace ${days} días`;
+  if (days < 14) return "Hace 1 sem";
+  if (days < 30) return `Hace ${Math.floor(days / 7)} sem`;
+  if (days < 60) return "Hace 1 mes";
+  return `Hace ${Math.floor(days / 30)} meses`;
+}
+
+function computeEstado(total: number, recientes: number, ultima: string | null | undefined): string {
+  if (total >= 6) return "VIP";
+  const d = ultima ? Math.floor((Date.now() - new Date(ultima).getTime()) / 86400000) : 999;
+  if (d > 45) return "En riesgo";
+  if (recientes >= 2) return "Frecuente";
+  return "Nuevo";
+}
+
+const ESTADO_STYLES: Record<string, { avatarBg: string; avatarColor: string; pillBg: string; pillColor: string; pillBorder: string }> = {
+  VIP:          { avatarBg: "#F5C40020", avatarColor: "#F5C400", pillBg: "#F5C40015", pillColor: "#F5C400", pillBorder: "#F5C40030" },
+  Frecuente:    { avatarBg: "#7F77DD20", avatarColor: "#7F77DD", pillBg: "#7F77DD15", pillColor: "#7F77DD", pillBorder: "#7F77DD30" },
+  "En riesgo":  { avatarBg: "#f9731620", avatarColor: "#f97316", pillBg: "#f9731615", pillColor: "#f97316", pillBorder: "#f9731630" },
+  Nuevo:        { avatarBg: "#27C3D820", avatarColor: "#27C3D8", pillBg: "#27C3D815", pillColor: "#27C3D8", pillBorder: "#27C3D830" },
+};
+
+const GRID = "1.8fr 1.2fr 0.8fr 1fr 1.2fr auto";
+
+const btnStyle: React.CSSProperties = {
+  fontSize: 12, fontWeight: 600, padding: "5px 12px", borderRadius: 8,
+  border: "1px solid #23232f", background: "transparent", color: "#8a8a9c",
+  cursor: "pointer", textDecoration: "none", display: "inline-block",
+};
+
 export default async function AdminClientesPage({ searchParams }: PageProps) {
   const q = param(searchParams?.q);
   const clientes = await getClientesAdmin(q);
@@ -33,31 +72,100 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
         <button className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-black text-white" type="submit">Buscar</button>
         {q && <a className="rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-slate-400 hover:bg-white/8" href="/admin/clientes">Limpiar</a>}
       </form>
-      <p className="text-xs text-slate-400">{clientes.length} cliente{clientes.length !== 1 ? "s" : ""}{q ? ` para "${q}"` : ""}</p>
+      <p className="text-xs text-slate-400">
+        {clientes.length} cliente{clientes.length !== 1 ? "s" : ""}{q ? ` para "${q}"` : ""}
+      </p>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {clientes.map((item) => (
-          <article className="crm-card p-5 shadow-black/20" key={item.id}>
-            <h3 className="text-xl font-black crm-text-primary">{item.nombre}</h3>
-            <p className="mt-1 text-sm crm-text-muted">{item.email || "Sin email"}</p>
-            <dl className="mt-5 grid gap-3 text-sm">
-              <div className="flex justify-between gap-4"><dt className="crm-text-muted">Teléfono</dt><dd className="font-semibold crm-text-secondary">{item.telefono}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="crm-text-muted">Origen</dt><dd className="font-semibold crm-text-secondary">{item.usuarioId ? "Cuenta auth" : "Registro manual"}</dd></div>
-            </dl>
-            <p className="mt-4 rounded-xl bg-white/5 p-3 text-sm crm-text-secondary">{item.notas || "Sin notas"}</p>
-            <div className="mt-4 flex items-center gap-2">
-              <Link className="rounded-xl bg-slate-700 px-3 py-1.5 text-xs font-bold text-auto hover:bg-slate-600" href={`/admin/clientes/${item.id}`}>
-                Ver historial
-              </Link>
-              <ClienteEditButton
-                item={{ id: item.id, nombre: item.nombre, telefono: item.telefono, email: item.email, notas: item.notas }}
-                updateAction={updateCliente}
-              />
+      {/* Tabla */}
+      <div style={{ background: "#13131c", border: "1px solid #23232f", borderRadius: 18, overflow: "hidden" }}>
+
+        {/* Header */}
+        <div style={{
+          display: "grid", gridTemplateColumns: GRID,
+          padding: "12px 24px", borderBottom: "1px solid #23232f",
+          fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em",
+          color: "#6a6a7c", fontWeight: 700, alignItems: "center",
+        }}>
+          <span>Cliente</span>
+          <span>Última visita</span>
+          <span>Visitas</span>
+          <span>Estado</span>
+          <span>Teléfono</span>
+          <span />
+        </div>
+
+        {/* Rows */}
+        {clientes.map((item, idx) => {
+          const total    = (item as any).totalVisitas     ?? 0;
+          const recientes = (item as any).visitasRecientes ?? 0;
+          const ultima   = (item as any).ultimaVisita     ?? null;
+          const estado   = (item as any).estadoCrm        ?? computeEstado(total, recientes, ultima);
+          const st       = ESTADO_STYLES[estado] ?? ESTADO_STYLES.Nuevo;
+          const isLast   = idx === clientes.length - 1;
+
+          return (
+            <div
+              key={item.id}
+              className="hover:bg-[#15151f] transition-colors"
+              style={{
+                display: "grid", gridTemplateColumns: GRID,
+                padding: "16px 24px", alignItems: "center",
+                borderBottom: isLast ? "none" : "1px solid #1b1b27",
+              }}
+            >
+              {/* Cliente */}
+              <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+                <span style={{
+                  width: 36, height: 36, borderRadius: "50%",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 12, fontWeight: 800, flexShrink: 0,
+                  background: st.avatarBg, color: st.avatarColor,
+                }}>
+                  {initials(item.nombre)}
+                </span>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#ECECF4" }}>{item.nombre}</div>
+                  {item.email && <div style={{ fontSize: 12, color: "#8a8a9c", marginTop: 2 }}>{item.email}</div>}
+                </div>
+              </div>
+
+              {/* Última visita */}
+              <span style={{ fontSize: 14, color: "#8a8a9c" }}>{relativeTime(ultima)}</span>
+
+              {/* Visitas */}
+              <span style={{ fontSize: 14, color: "#8a8a9c" }}>{total}</span>
+
+              {/* Estado */}
+              <span style={{
+                display: "inline-flex", alignSelf: "center",
+                fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 999,
+                background: st.pillBg, color: st.pillColor, border: `1px solid ${st.pillBorder}`,
+                width: "fit-content",
+              }}>
+                {estado}
+              </span>
+
+              {/* Teléfono */}
+              <span style={{ fontSize: 14, color: "#ECECF4" }}>{item.telefono}</span>
+
+              {/* Acciones */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Link href={`/admin/clientes/${item.id}`} style={btnStyle}>
+                  Historial
+                </Link>
+                <ClienteEditButton
+                  item={{ id: item.id, nombre: item.nombre, telefono: item.telefono, email: item.email, notas: item.notas }}
+                  updateAction={updateCliente}
+                />
+              </div>
             </div>
-          </article>
-        ))}
+          );
+        })}
+
         {clientes.length === 0 && (
-          <p className="col-span-2 rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-slate-400">Sin clientes registrados.</p>
+          <p style={{ padding: "32px", textAlign: "center", fontSize: 14, color: "#8a8a9c" }}>
+            Sin clientes registrados.
+          </p>
         )}
       </div>
     </div>
