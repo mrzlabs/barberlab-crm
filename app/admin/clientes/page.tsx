@@ -39,7 +39,7 @@ const ESTADO_STYLES: Record<string, { avatarBg: string; avatarColor: string; pil
   Nuevo:        { avatarBg: "#27C3D820", avatarColor: "#27C3D8", pillBg: "#27C3D815", pillColor: "#27C3D8", pillBorder: "#27C3D830" },
 };
 
-const GRID = "1.8fr 1.2fr 0.8fr 1fr 1.2fr auto";
+const GRID = "1.8fr 1.2fr 0.8fr 1fr 1.2fr 156px";
 
 const btnStyle: React.CSSProperties = {
   fontSize: 12, fontWeight: 600, padding: "5px 12px", borderRadius: 8,
