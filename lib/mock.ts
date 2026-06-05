@@ -77,6 +77,72 @@ export const mockGastos = [
   },
 ];
 
+export const mockDepositos = [
+  {
+    id: "dep-1",
+    citaId: "cita-tat-1",
+    clienteId: "cli-1",
+    monto: "80000",
+    metodoPago: "transferencia" as const,
+    estado: "recibido" as const,
+    notas: "Anticipo manga completa",
+    comprobanteUrl: null,
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "dep-2",
+    citaId: "cita-tat-2",
+    clienteId: "cli-2",
+    monto: "50000",
+    metodoPago: "efectivo" as const,
+    estado: "aplicado" as const,
+    notas: "Depósito tatuaje espalda",
+    comprobanteUrl: null,
+    createdAt: now,
+    updatedAt: now,
+  },
+];
+
+export const mockClienteArchivos = [
+  {
+    id: "arch-1",
+    clienteId: "cli-1",
+    citaId: "cita-tat-1",
+    tipo: "boceto" as const,
+    url: "https://placehold.co/400x400/1a1a2e/7F77DD?text=Boceto+1",
+    storagePath: null,
+    nombre: "Boceto manga dragón",
+    descripcion: "Primera propuesta de manga con dragón japonés",
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "arch-2",
+    clienteId: "cli-1",
+    citaId: null,
+    tipo: "referencia" as const,
+    url: "https://placehold.co/400x400/1a1a2e/F5C400?text=Ref+Cliente",
+    storagePath: null,
+    nombre: "Referencia cliente",
+    descripcion: "Imagen de referencia traída por el cliente",
+    createdAt: now,
+    updatedAt: now,
+  },
+  {
+    id: "arch-3",
+    clienteId: "cli-1",
+    citaId: "cita-tat-2",
+    tipo: "resultado" as const,
+    url: "https://placehold.co/400x400/1a1a2e/27C3D8?text=Resultado",
+    storagePath: null,
+    nombre: "Resultado sesión 1",
+    descripcion: "Foto finalizada de la primera sesión",
+    createdAt: now,
+    updatedAt: now,
+  },
+];
+
 export const mockInventario = [
   {
     id: "inv-1",
