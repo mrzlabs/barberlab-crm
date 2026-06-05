@@ -4,7 +4,8 @@ import { fmtDateTime, fmtMoney } from "@/lib/admin/format";
 import { getClienteDetalle } from "@/lib/admin/catalog";
 import { requireRole } from "@/lib/auth/session";
 import { SubmitButton } from "@/components/layout/SubmitButton";
-import { addClienteArchivo, deleteClienteArchivo, updateDepositoEstado } from "./actions";
+import { ClienteBookUpload } from "@/components/admin/ClienteBookUpload";
+import { deleteClienteArchivo, updateDepositoEstado } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -118,8 +119,6 @@ export default async function ClienteDetallePage({ params }: PageProps) {
           </span>
         </div>
 
-        {/* Form nuevo depósito */}
-        <form action={addClienteArchivo} className="hidden" />
         <div className="border-b border-[#1b1b27] p-5">
           <p className="mb-3 text-xs font-semibold text-slate-400">Registrar nuevo depósito</p>
           <form
@@ -202,37 +201,14 @@ export default async function ClienteDetallePage({ params }: PageProps) {
           </span>
         </div>
 
-        {/* Form agregar archivo */}
+        {/* Upload directo a Supabase Storage */}
         <div className="border-b border-[#1b1b27] p-5">
-          <p className="mb-3 text-xs font-semibold text-slate-400">Agregar imagen al book</p>
-          <form action={addClienteArchivo} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <input name="clienteId" type="hidden" value={cliente.id} />
-            <label className="text-xs font-bold uppercase text-slate-400">
-              URL de imagen
-              <input className={inputCls} name="url" required type="url" placeholder="https://..." />
-            </label>
-            <label className="text-xs font-bold uppercase text-slate-400">
-              Nombre
-              <input className={inputCls} name="nombre" required placeholder="Boceto manga dragón" />
-            </label>
-            <label className="text-xs font-bold uppercase text-slate-400">
-              Tipo
-              <select className={inputCls} name="tipo">
-                <option value="boceto">Boceto</option>
-                <option value="referencia">Referencia</option>
-                <option value="resultado">Resultado</option>
-                <option value="otro">Otro</option>
-              </select>
-            </label>
-            <div className="flex items-end">
-              <SubmitButton label="Agregar imagen" pendingLabel="Agregando…"
-                className="w-full rounded-xl bg-[#7F77DD] px-4 py-2.5 text-sm font-black text-white hover:bg-[#9A8EF7]" />
-            </div>
-            <label className="text-xs font-bold uppercase text-slate-400 sm:col-span-2 lg:col-span-4">
-              Descripción (opcional)
-              <input className={inputCls} name="descripcion" placeholder="Notas sobre el diseño" />
-            </label>
-          </form>
+          <p className="mb-4 text-xs font-semibold text-slate-400">Subir imagen al book</p>
+          <ClienteBookUpload
+            clienteId={cliente.id}
+            negocioId={profile.negocioId!}
+            citaId={citas[0]?.citaId}
+          />
         </div>
 
         {/* Galería */}
