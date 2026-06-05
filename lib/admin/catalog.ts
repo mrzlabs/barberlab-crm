@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, gte, ilike, lte, or, sql } from "drizzle-orm";
 import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
-import { bloqueosEmpleado, citas, clientes, empleados, horariosEmpleado, servicios, turnos, usuarios } from "@/lib/db/schema";
+import { bloqueosEmpleado, citas, clienteArchivos, clientes, depositos, empleados, horariosEmpleado, servicios, turnos, usuarios } from "@/lib/db/schema";
 import { getCurrentProfile } from "@/lib/auth/session";
 
 const now = new Date();
@@ -199,6 +199,7 @@ export async function getAgendaDia(fecha: string) {
 
 export async function getClienteDetalle(clienteId: string, negocioId: string) {
   if (isDemoMode()) {
+    const { mockClienteArchivos, mockDepositos } = await import("@/lib/mock");
     const now = new Date();
     return {
       cliente: { id: clienteId, nombre: "Carlos Rojas", telefono: "3001234567", email: "carlos@mail.com", notas: "Prefiere corte bajo", usuarioId: null },
@@ -206,12 +207,15 @@ export async function getClienteDetalle(clienteId: string, negocioId: string) {
         { citaId: "c1", inicio: new Date(now.getTime() - 7 * 86400000), estado: "realizada", servicio: "Corte premium", empleado: "Mateo Barber", precioBase: "45000", precioFinal: "45000", propina: "5000", metodoPago: "efectivo" as const },
         { citaId: "c2", inicio: new Date(now.getTime() - 21 * 86400000), estado: "realizada", servicio: "Corte y barba", empleado: "Mateo Barber", precioBase: "65000", precioFinal: "65000", propina: "0", metodoPago: "transferencia" as const },
         { citaId: "c3", inicio: new Date(now.getTime() - 45 * 86400000), estado: "cancelada", servicio: "Corte premium", empleado: "Mateo Barber", precioBase: "45000", precioFinal: null, propina: null, metodoPago: null },
+        { citaId: "cita-tat-1", inicio: new Date(now.getTime() - 60 * 86400000), estado: "realizada", servicio: "Tatuaje manga completa", empleado: "Nico Ink", precioBase: "350000", precioFinal: "350000", propina: "20000", metodoPago: "transferencia" as const },
       ],
+      archivos: mockClienteArchivos.filter((a) => a.clienteId === clienteId),
+      depositos: mockDepositos.filter((d) => d.clienteId === clienteId),
     };
   }
 
   const db = getDb();
-  const [clienteData, citasData] = await Promise.all([
+  const [clienteData, citasData, archivosData, depositosData] = await Promise.all([
     db
       .select()
       .from(clientes)
@@ -237,11 +241,23 @@ export async function getClienteDetalle(clienteId: string, negocioId: string) {
       .where(and(eq(citas.clienteId, clienteId), eq(citas.negocioId, negocioId)))
       .orderBy(desc(citas.inicio))
       .limit(120),
+    db
+      .select()
+      .from(clienteArchivos)
+      .where(and(eq(clienteArchivos.clienteId, clienteId), eq(clienteArchivos.negocioId, negocioId)))
+      .orderBy(desc(clienteArchivos.createdAt)),
+    db
+      .select()
+      .from(depositos)
+      .where(and(eq(depositos.clienteId, clienteId), eq(depositos.negocioId, negocioId)))
+      .orderBy(desc(depositos.createdAt)),
   ]);
 
   return {
     cliente: clienteData[0] ?? null,
     citas: citasData,
+    archivos: archivosData,
+    depositos: depositosData,
   };
 }
 
@@ -270,6 +286,52 @@ export async function getHorariosAdmin() {
     .innerJoin(usuarios, eq(empleados.usuarioId, usuarios.id))
     .where(eq(horariosEmpleado.negocioId, profile?.negocioId || "00000000-0000-0000-0000-000000000000"))
     .orderBy(asc(usuarios.nombre), asc(horariosEmpleado.diaSemana), asc(horariosEmpleado.horaInicio));
+}
+
+export async function getDepositosPorCita(citaId: string, negocioId: string) {
+  if (isDemoMode()) {
+    const { mockDepositos } = await import("@/lib/mock");
+    return mockDepositos.filter((d) => d.citaId === citaId);
+  }
+  return getDb()
+    .select()
+    .from(depositos)
+    .where(and(eq(depositos.citaId, citaId), eq(depositos.negocioId, negocioId)))
+    .orderBy(desc(depositos.createdAt));
+}
+
+export async function getDepositosActivosPorCita(negocioId: string) {
+  if (isDemoMode()) {
+    const { mockDepositos } = await import("@/lib/mock");
+    return mockDepositos;
+  }
+  return getDb()
+    .select({
+      id: depositos.id,
+      citaId: depositos.citaId,
+      clienteId: depositos.clienteId,
+      monto: depositos.monto,
+      metodoPago: depositos.metodoPago,
+      estado: depositos.estado,
+      notas: depositos.notas,
+      cliente: clientes.nombre,
+    })
+    .from(depositos)
+    .innerJoin(clientes, eq(depositos.clienteId, clientes.id))
+    .where(and(eq(depositos.negocioId, negocioId), eq(depositos.estado, "recibido")))
+    .orderBy(desc(depositos.createdAt));
+}
+
+export async function getClienteArchivosQuery(clienteId: string, negocioId: string) {
+  if (isDemoMode()) {
+    const { mockClienteArchivos } = await import("@/lib/mock");
+    return mockClienteArchivos.filter((a) => a.clienteId === clienteId);
+  }
+  return getDb()
+    .select()
+    .from(clienteArchivos)
+    .where(and(eq(clienteArchivos.clienteId, clienteId), eq(clienteArchivos.negocioId, negocioId)))
+    .orderBy(desc(clienteArchivos.createdAt));
 }
 
 export async function getBloqueosAdmin() {

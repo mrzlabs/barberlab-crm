@@ -49,6 +49,7 @@ export const citaAdminSchema = z.object({
   inicio: z.string().trim().datetime(),
   fin: z.string().trim().datetime(),
   estado: z.enum(["reservada", "confirmada"]).default("confirmada"),
+  duracionOverride: z.coerce.number().int().min(15).max(1440).optional(),
 });
 
 export const horarioEmpleadoSchema = z.object({
@@ -147,6 +148,30 @@ export const negocioSelfSchema = negocioUpdateSchema.omit({
   fechaFin: true,
 }).extend({
   negocioId: z.string().trim().uuid(),
+});
+
+export const depositoSchema = z.object({
+  citaId: z.string().trim().uuid(),
+  clienteId: z.string().trim().uuid(),
+  monto: z.coerce.number().min(1, "El depósito debe ser mayor a 0"),
+  metodoPago: z.enum(["efectivo", "transferencia", "tarjeta"]),
+  notas: z.string().trim().max(300).optional(),
+  comprobanteUrl: z.string().trim().url().optional().or(z.literal("")),
+});
+
+export const depositoEstadoSchema = z.object({
+  depositoId: z.string().trim().uuid(),
+  estado: z.enum(["recibido", "aplicado", "devuelto"]),
+});
+
+export const clienteArchivoSchema = z.object({
+  clienteId: z.string().trim().uuid(),
+  citaId: z.string().trim().uuid().optional().or(z.literal("")),
+  tipo: z.enum(["boceto", "referencia", "resultado", "otro"]).default("otro"),
+  url: z.string().trim().url(),
+  storagePath: z.string().trim().optional().or(z.literal("")),
+  nombre: z.string().trim().min(1).max(120),
+  descripcion: z.string().trim().max(300).optional(),
 });
 
 export const configVisualSchema = z.object({
