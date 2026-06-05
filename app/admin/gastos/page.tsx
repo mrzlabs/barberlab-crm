@@ -23,7 +23,7 @@ export default async function GastosPage({ searchParams }: PageProps) {
           <p className="text-xs font-semibold uppercase tracking-wide text-primary">Registro contable</p>
           <h2 className="text-2xl font-black">Gastos</h2>
         </div>
-        <GastoCreateButton createAction={createGasto} />
+        <GastoCreateButton createAction={createGasto} negocioId={negocioId} />
       </div>
 
       <section className="crm-card shadow-black/20">
@@ -53,15 +53,39 @@ export default async function GastosPage({ searchParams }: PageProps) {
           {gastos.map((gasto) => (
             <div className="p-5" key={gasto.id}>
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-semibold capitalize crm-text-primary">{gasto.categoria.replace("_", " ")}</p>
-                  <p className="mt-0.5 text-xs text-slate-400">{fmtDate(gasto.fecha)} · {gasto.descripcion || "Sin detalle"}</p>
+                <div className="flex items-start gap-3 min-w-0">
+                  {gasto.comprobanteUrl && (
+                    <a href={gasto.comprobanteUrl} target="_blank" rel="noreferrer" title="Ver comprobante">
+                      {/\.(jpg|jpeg|png|webp|gif)/i.test(gasto.comprobanteUrl) ? (
+                        <img
+                          src={gasto.comprobanteUrl}
+                          alt="comprobante"
+                          className="h-12 w-12 flex-shrink-0 rounded-xl object-cover border border-white/10 hover:opacity-80 transition"
+                        />
+                      ) : (
+                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-red-500/20 border border-red-500/20 text-xl hover:opacity-80 transition">
+                          📄
+                        </div>
+                      )}
+                    </a>
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-semibold capitalize crm-text-primary">{gasto.categoria.replace("_", " ")}</p>
+                    <p className="mt-0.5 text-xs text-slate-400">{fmtDate(gasto.fecha)} · {gasto.descripcion || "Sin detalle"}</p>
+                    {gasto.comprobanteUrl && (
+                      <a href={gasto.comprobanteUrl} target="_blank" rel="noreferrer"
+                        className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-400 hover:underline">
+                        Ver comprobante →
+                      </a>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-shrink-0">
                   <strong className="text-sm font-black crm-text-primary">{fmtMoney(gasto.monto)}</strong>
                   <GastoEditButton
                     item={{ id: gasto.id, categoria: gasto.categoria, monto: gasto.monto, fecha: gasto.fecha, descripcion: gasto.descripcion, comprobanteUrl: gasto.comprobanteUrl }}
                     updateAction={updateGasto}
+                    negocioId={negocioId}
                   />
                 </div>
               </div>
