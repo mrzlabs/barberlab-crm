@@ -2,6 +2,7 @@ import { fmtDateTime, fmtMoney } from "@/lib/admin/format";
 import { getArqueoCaja, getPendingCitas, getRecentTurnos } from "@/lib/admin/queries";
 import { requireRole } from "@/lib/auth/session";
 import { SubmitButton } from "@/components/layout/SubmitButton";
+import { createDeposito } from "@/app/admin/agenda/actions";
 import { closeTurno } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -68,13 +69,21 @@ export default async function TurnosPage() {
           </div>
           <div className="divide-y divide-white/10">
             {citas.map((cita) => (
-              <form action={closeTurno} className="grid gap-3 p-5 lg:grid-cols-6" key={cita.id}>
+              <div key={cita.id} className="border-b border-white/10 last:border-0">
+              <form action={closeTurno} className="grid gap-3 p-5 lg:grid-cols-6">
                 <input name="citaId" type="hidden" value={cita.id} />
                 <div className="lg:col-span-2">
                   <p className="font-black">{cita.cliente}</p>
                   <p className="text-sm text-slate-400">{cita.servicio} con {cita.empleado}</p>
                   <p className="mt-1 text-xs font-semibold uppercase text-slate-400">{fmtDateTime(cita.inicio)}</p>
-                  <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold capitalize text-auto ${cita.estado === "realizada" ? "bg-emerald-500/20" : "bg-violet-500/20"}`}>{cita.estado}</span>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold capitalize ${cita.estado === "realizada" ? "bg-emerald-500/20 text-emerald-300" : "bg-violet-500/20 text-violet-300"}`}>{cita.estado}</span>
+                    {(cita as any).depositoMonto && (
+                      <span className="inline-block rounded-full bg-[#F5C40015] border border-[#F5C40030] px-2 py-0.5 text-[10px] font-black text-[#F5C400]">
+                        💰 {fmtMoney(Number((cita as any).depositoMonto))} anticipo
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <label className="text-xs font-bold uppercase text-slate-400">
                   Precio final
@@ -103,7 +112,42 @@ export default async function TurnosPage() {
                   Observaciones
                   <input className={input} name="observaciones" placeholder="Notas internas del turno" />
                 </label>
+                {(cita as any).depositoMonto && (
+                  <div className="lg:col-span-6 rounded-xl bg-[#F5C40010] border border-[#F5C40025] px-4 py-2.5 text-sm text-[#F5C400]">
+                    ⚡ Anticipo recibido de <strong>{fmtMoney(Number((cita as any).depositoMonto))}</strong> — se aplicará automáticamente al cerrar el turno.
+                  </div>
+                )}
               </form>
+
+              {/* Form depósito rápido (si no tiene) */}
+              {!(cita as any).depositoMonto && (
+                <form action={createDeposito} className="grid gap-3 px-5 pb-5 sm:grid-cols-4 border-t border-white/5 pt-4">
+                  <input name="citaId"    type="hidden" value={cita.id} />
+                  <input name="clienteId" type="hidden" value={(cita as any).clienteId ?? ""} />
+                  <p className="sm:col-span-4 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Registrar anticipo (opcional)</p>
+                  <label className="text-xs font-bold uppercase text-slate-400">
+                    Monto anticipo
+                    <input className={input} name="monto" min="1" type="number" placeholder="50000" />
+                  </label>
+                  <label className="text-xs font-bold uppercase text-slate-400">
+                    Método
+                    <select className={input} name="metodoPago">
+                      <option value="efectivo">Efectivo</option>
+                      <option value="transferencia">Transferencia</option>
+                      <option value="tarjeta">Tarjeta</option>
+                    </select>
+                  </label>
+                  <label className="text-xs font-bold uppercase text-slate-400">
+                    Notas
+                    <input className={input} name="notas" placeholder="Descripción del anticipo" />
+                  </label>
+                  <div className="flex items-end">
+                    <SubmitButton label="Registrar anticipo" pendingLabel="Registrando…"
+                      className="w-full rounded-xl border border-[#F5C40040] bg-transparent px-3 py-2.5 text-sm font-black text-[#F5C400] hover:bg-[#F5C40015]" />
+                  </div>
+                </form>
+              )}
+              </div>
             ))}
             {citas.length === 0 && (
               <p className="p-8 text-center text-sm text-slate-400">No hay citas pendientes para cierre.</p>

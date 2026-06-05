@@ -7,8 +7,8 @@ import { slotDisponible } from "@/lib/cliente/queries";
 import { addCitaHistory } from "@/lib/citas/history";
 import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
-import { bloqueosEmpleado, citas, horariosEmpleado } from "@/lib/db/schema";
-import { bloqueoEmpleadoSchema, citaAdminSchema, estadoCitaSchema, horarioEmpleadoSchema } from "@/lib/validations/admin";
+import { bloqueosEmpleado, citas, depositos, horariosEmpleado } from "@/lib/db/schema";
+import { bloqueoEmpleadoSchema, citaAdminSchema, depositoSchema, estadoCitaSchema, horarioEmpleadoSchema } from "@/lib/validations/admin";
 
 export async function createCitaAdmin(formData: FormData) {
   const profile = await requireRole(["admin"]);
@@ -21,7 +21,10 @@ export async function createCitaAdmin(formData: FormData) {
 
   const payload = citaAdminSchema.parse(Object.fromEntries(formData));
   const inicioDate = new Date(payload.inicio);
-  const finDate = new Date(payload.fin);
+  // Si hay duracionOverride (tatuajes/sesiones largas), recalcular fin
+  const finDate = payload.duracionOverride
+    ? new Date(inicioDate.getTime() + payload.duracionOverride * 60000)
+    : new Date(payload.fin);
   const inicio = inicioDate.toISOString();
   const fin = finDate.toISOString();
   const fecha = payload.inicio.slice(0, 10);
@@ -181,6 +184,33 @@ export async function deleteBloqueo(formData: FormData) {
 
   revalidatePath("/admin/agenda");
   revalidatePath("/cliente/reservar");
+}
+
+export async function createDeposito(formData: FormData) {
+  const profile = await requireRole(["admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
+  if (isDemoMode()) {
+    revalidatePath("/admin/agenda");
+    revalidatePath("/admin/turnos");
+    return;
+  }
+
+  const payload = depositoSchema.parse(Object.fromEntries(formData));
+
+  await getDb().insert(depositos).values({
+    negocioId,
+    citaId: payload.citaId,
+    clienteId: payload.clienteId,
+    monto: String(payload.monto),
+    metodoPago: payload.metodoPago,
+    estado: "recibido",
+    notas: payload.notas || null,
+    comprobanteUrl: payload.comprobanteUrl || null,
+  });
+
+  revalidatePath("/admin/agenda");
+  revalidatePath("/admin/turnos");
 }
 
 export async function updateCitaAdmin(formData: FormData) {

@@ -6,7 +6,7 @@ import { requireRole } from "@/lib/auth/session";
 import { addCitaHistory } from "@/lib/citas/history";
 import { logActivity } from "@/lib/activity/log";
 import { getDb } from "@/lib/db";
-import { citas, turnos } from "@/lib/db/schema";
+import { citas, depositos, turnos } from "@/lib/db/schema";
 import { turnoSchema } from "@/lib/validations/admin";
 import { and, eq } from "drizzle-orm";
 
@@ -34,6 +34,12 @@ export async function closeTurno(formData: FormData) {
     descuento: String(payload.descuento),
     observaciones: payload.observaciones || null,
   });
+
+  // Marcar depósitos recibidos de esta cita como aplicados
+  await db
+    .update(depositos)
+    .set({ estado: "aplicado", updatedAt: new Date().toISOString() })
+    .where(and(eq(depositos.citaId, payload.citaId), eq(depositos.negocioId, negocioId), eq(depositos.estado, "recibido")));
 
   // Actualizar estado de la cita a "realizada"
   await db

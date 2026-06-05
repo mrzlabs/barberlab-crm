@@ -16,7 +16,7 @@ function cop(v: string | number): string {
   return "$" + Number(v).toLocaleString("es-CO");
 }
 
-const GRID = "1.8fr 1fr 0.7fr 0.8fr 1fr 0.8fr 1fr auto";
+const GRID = "1.8fr 1fr 0.7fr 0.8fr 1fr 0.8fr 1fr 80px";
 
 const btnStyle: React.CSSProperties = {
   fontSize: 12, fontWeight: 600, padding: "5px 12px", borderRadius: 8,

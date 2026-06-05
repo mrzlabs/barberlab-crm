@@ -236,6 +236,39 @@ export const activityLogs = pgTable("activity_logs", {
   createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
 });
 
+// ── Depósitos / anticipos (tatuajes y servicios de larga duración) ─────────
+export const estadoDeposito = pgEnum("estado_deposito", ["recibido", "aplicado", "devuelto"]);
+
+export const depositos = pgTable("depositos", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
+  citaId: uuid("cita_id").notNull().references(() => citas.id, { onDelete: "cascade" }),
+  clienteId: uuid("cliente_id").notNull().references(() => clientes.id),
+  monto: numeric("monto", { precision: 12, scale: 2 }).notNull(),
+  metodoPago: metodoPago("metodo_pago").notNull(),
+  estado: estadoDeposito("estado").notNull().default("recibido"),
+  comprobanteUrl: text("comprobante_url"),
+  notas: text("notas"),
+  ...timestamps,
+});
+
+// ── Book / historial de diseños por cliente ───────────────────────────────
+export const tipoArchivoCliente = pgEnum("tipo_archivo_cliente", ["boceto", "referencia", "resultado", "otro"]);
+
+export const clienteArchivos = pgTable("cliente_archivos", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
+  clienteId: uuid("cliente_id").notNull().references(() => clientes.id, { onDelete: "cascade" }),
+  citaId: uuid("cita_id").references(() => citas.id, { onDelete: "set null" }),
+  tipo: tipoArchivoCliente("tipo").notNull().default("otro"),
+  url: text("url").notNull(),
+  storagePath: text("storage_path"),
+  nombre: text("nombre").notNull(),
+  descripcion: text("descripcion"),
+  createdBy: uuid("created_by").references(() => usuarios.id, { onDelete: "set null" }),
+  ...timestamps,
+});
+
 export const impersonationTokens = pgTable("impersonation_tokens", {
   id: uuid("id").primaryKey().defaultRandom(),
   negocioId: uuid("negocio_id").notNull().references(() => negocios.id, { onDelete: "cascade" }),

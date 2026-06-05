@@ -6,7 +6,7 @@ import { AgendaCalendar } from "@/components/admin/AgendaCalendar";
 import { AgendaBoardView } from "@/components/admin/AgendaBoardView";
 import { ConfirmForm } from "@/components/layout/ConfirmForm";
 import { SubmitButton } from "@/components/layout/SubmitButton";
-import { createBloqueoEmpleado, createCitaAdmin, createHorarioEmpleado, deleteBloqueo, deleteHorario, reagendarCita, updateCitaAdmin } from "./actions";
+import { createBloqueoEmpleado, createCitaAdmin, createDeposito, createHorarioEmpleado, deleteBloqueo, deleteHorario, reagendarCita, updateCitaAdmin } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -264,6 +264,21 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
                     <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Horario</p>
                     <strong className="mt-2 block text-lg text-white">{fmtDateTime(slot.inicio)}</strong>
                     <p className="mt-1 text-sm text-slate-400">Finaliza {fmtDateTime(slot.fin)}</p>
+                    {/* Duración override — solo para servicios de tatuajes */}
+                    {servicios.find((s) => s.id === servicioId)?.categoria === "tatuajes" && (
+                      <label className="mt-3 block text-xs font-bold uppercase text-amber-400">
+                        🖋 Duración sesión (min)
+                        <input
+                          className={`${input} mt-1 border-amber-700/50 bg-amber-900/20`}
+                          name="duracionOverride"
+                          type="number"
+                          min="30"
+                          step="30"
+                          placeholder={`${servicios.find((s) => s.id === servicioId)?.duracionMin ?? 120} (por defecto)`}
+                        />
+                        <span className="text-[10px] text-slate-500 mt-0.5 block">Sobreescribe la duración del servicio para esta sesión.</span>
+                      </label>
+                    )}
                     <select className={`${input} mt-4`} name="estado" defaultValue="confirmada">
                       <option value="confirmada">Confirmada</option>
                       <option value="reservada">Reservada</option>

@@ -1,10 +1,11 @@
 import { and, desc, eq, gte, ilike, isNull, lte, or, sql } from "drizzle-orm";
 import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
-import { mockCitas, mockGastos, mockInventario, mockTurnos } from "@/lib/mock";
+import { mockCitas, mockDepositos, mockGastos, mockInventario, mockTurnos } from "@/lib/mock";
 import {
   citas,
   clientes,
+  depositos,
   empleados,
   gastos,
   inventario,
@@ -204,17 +205,34 @@ export async function getRecentTurnos(negocioId: string) {
 }
 
 export async function getPendingCitas(negocioId: string) {
-  if (isDemoMode()) return mockCitas;
+  if (isDemoMode()) {
+    return mockCitas.map((c) => ({
+      ...c,
+      clienteId: "cli-1",
+      depositoMonto: mockDepositos.find((d) => d.citaId === c.id)?.monto ?? null,
+      depositoEstado: mockDepositos.find((d) => d.citaId === c.id)?.estado ?? null,
+    }));
+  }
 
   const rows = await getDb()
     .select({
       id: citas.id,
       inicio: citas.inicio,
       estado: citas.estado,
+      clienteId: citas.clienteId,
       cliente: clientes.nombre,
       servicio: servicios.nombre,
       precio: servicios.precio,
       empleado: usuarios.nombre,
+      depositoMonto: sql<string | null>`(
+        select sum(d.monto) from depositos d
+        where d.cita_id = ${citas.id} and d.estado = 'recibido'
+      )`,
+      depositoEstado: sql<string | null>`(
+        select d.estado from depositos d
+        where d.cita_id = ${citas.id} and d.estado = 'recibido'
+        limit 1
+      )`,
     })
     .from(citas)
     .innerJoin(clientes, eq(citas.clienteId, clientes.id))
