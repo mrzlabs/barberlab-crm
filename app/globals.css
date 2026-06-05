@@ -554,6 +554,251 @@ a {
   height: 100%;
   display: block;
 }
+.maylo-float-svg { display: block; }
+.maylo-float-svg svg { width: 100%; height: 100%; display: block; }
+
+/* ── Peek bubble — notificación contextual sobre el FAB ─── */
+.mrz-peek {
+  position: absolute;
+  right: 18px;
+  bottom: 74px;
+  width: 220px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,.55);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(15,23,42,.18);
+  color: #0f172a;
+  padding: 12px 14px 10px;
+  pointer-events: auto;
+  z-index: 8;
+  animation: peekIn 0.28s cubic-bezier(0.4,0,0.2,1);
+}
+.mrz-peek::before {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  right: 20px;
+  width: 16px;
+  height: 9px;
+  background: rgba(200,200,255,.4);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.mrz-peek::after {
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  right: 21px;
+  width: 14px;
+  height: 7px;
+  background: rgba(255,255,255,.92);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.mrz-peek-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.mrz-peek-msg {
+  font-size: .8rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #0f172a;
+  flex: 1;
+  margin: 0;
+}
+.mrz-peek-close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: rgba(0,0,0,.06);
+  border-radius: 50%;
+  cursor: pointer;
+  color: #475569;
+  padding: 0;
+  pointer-events: auto;
+}
+.mrz-peek-close:hover { background: rgba(0,0,0,.12); }
+.mrz-peek-cta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .72rem;
+  font-weight: 600;
+  color: #7c3aed;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  pointer-events: auto;
+}
+.mrz-peek-cta:hover { color: #6d28d9; }
+@keyframes peekIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0)  scale(1); }
+}
+
+/* ── Maylo drawer rediseñado ─────────────────────────────── */
+.mrz-drawer-scrim {
+  position: fixed; inset: 0;
+  background: rgba(5,5,9,.5);
+  z-index: 255;
+  animation: mayScrIn .2s;
+}
+@keyframes mayScrIn { from { opacity: 0; } to { opacity: 1; } }
+.mrz-drawer-panel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(94vw, 372px);
+  background: #101018;
+  border-left: 1px solid #2c2c3b;
+  z-index: 260;
+  display: flex; flex-direction: column;
+  padding: 22px 22px 24px;
+  overflow-y: auto;
+}
+.mrz-drawer-top { display: flex; align-items: center; gap: 13px; padding-bottom: 6px; }
+.mrz-drawer-avatar {
+  width: 58px; height: 58px; flex: none;
+  border-radius: 16px;
+  background: radial-gradient(120% 120% at 50% 20%, #23204a, #15131f);
+  border: 1px solid #2c2752;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.mrz-drawer-avatar span { width: 42px; height: 42px; display: flex; }
+.mrz-drawer-avatar span svg { width: 100%; height: 100%; display: block; }
+.mrz-drawer-id { flex: 1; min-width: 0; }
+.mrz-drawer-id strong { font-size: 16px; font-weight: 800; display: block; color: #ECECF4; }
+.mrz-drawer-id span   { font-size: 12.5px; color: #8a8a9c; }
+.mrz-drawer-close {
+  width: 34px; height: 34px; border-radius: 10px;
+  border: 1px solid #23232f; background: #13131c;
+  color: #8a8a9c; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  flex-shrink: 0;
+}
+.mrz-drawer-close:hover { color: #ECECF4; }
+.mrz-drawer-bubble {
+  margin: 16px 0 6px;
+  background: #191730; border: 1px solid #2a2750;
+  border-radius: 14px; border-top-left-radius: 4px;
+  padding: 14px 16px; font-size: 14px; line-height: 1.55; color: #e4e1f5;
+}
+.mrz-drawer-sec {
+  font-size: 11.5px; text-transform: uppercase; letter-spacing: .1em;
+  color: #6a6a7c; font-weight: 800; margin: 20px 2px 11px;
+}
+.mrz-drawer-tips { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+.mrz-drawer-tips li { display: flex; gap: 11px; font-size: 13.5px; line-height: 1.45; color: #cfcfe0; }
+.mrz-drawer-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #27C3D8; box-shadow: 0 0 8px #27C3D8;
+  margin-top: 6px; flex: none;
+}
+.mrz-drawer-qa { display: flex; flex-direction: column; gap: 9px; }
+.mrz-drawer-qa-btn {
+  display: flex; align-items: center; gap: 11px;
+  background: #181826; border: 1px solid #23232f; border-radius: 12px;
+  padding: 13px 15px; color: #ECECF4; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: .15s; text-decoration: none;
+}
+.mrz-drawer-qa-btn:hover { border-color: #7F77DD; background: #1b1830; }
+.mrz-drawer-qa-btn svg  { color: #7F77DD; }
+.mrz-drawer-cta {
+  margin-top: 22px;
+  background: linear-gradient(90deg, #7F77DD, #9b58c9);
+  border: 0; color: #fff; font-weight: 800; font-size: 14.5px;
+  padding: 14px; border-radius: 13px; cursor: pointer; transition: .15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.mrz-drawer-cta:hover { filter: brightness(1.08); }
+
+/* ── Drawer: buscador ──────────────────────────────────── */
+.mrz-drawer-search {
+  display: flex; align-items: center; gap: 8px;
+  background: #181826; border: 1px solid #2c2c3b;
+  border-radius: 12px; padding: 9px 12px;
+  margin: 14px 0 8px; color: #8a8a9c;
+}
+.mrz-drawer-search-input {
+  flex: 1; background: transparent; border: 0; outline: 0;
+  font-size: 13px; color: #ECECF4; font-family: inherit;
+}
+.mrz-drawer-search-input::placeholder { color: #6a6a7c; }
+.mrz-drawer-search-clear {
+  background: none; border: none; color: #6a6a7c;
+  cursor: pointer; display: flex; align-items: center; padding: 0;
+}
+.mrz-drawer-search-clear:hover { color: #ECECF4; }
+
+/* ── Drawer: lista de módulos ──────────────────────────── */
+.mrz-drawer-modules {
+  display: flex; flex-direction: column; gap: 4px;
+  flex: 1; overflow-y: auto;
+  margin: 0 -2px; padding: 2px 2px 8px;
+}
+.mrz-drawer-module { border-radius: 12px; }
+.mrz-drawer-module-head {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 10px 12px; background: #181826; border: 1px solid #23232f;
+  border-radius: 12px; cursor: pointer; transition: .15s; text-align: left;
+}
+.mrz-drawer-module-head:hover { background: #1e1e30; border-color: #2c2c3b; }
+.mrz-drawer-module-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; flex: none;
+}
+.mrz-drawer-module-label { font-size: 13.5px; font-weight: 700; color: #ECECF4; flex: 1; }
+.mrz-drawer-module-count {
+  font-size: 10px; font-weight: 800;
+  background: rgba(255,255,255,.06); border-radius: 999px;
+  padding: 1px 7px; color: #6a6a7c;
+}
+
+/* ── Drawer: tips expandibles ──────────────────────────── */
+.mrz-drawer-tips-list {
+  padding: 6px 4px 4px 12px; display: flex; flex-direction: column; gap: 2px;
+  border-left: 1px solid #2c2c3b; margin: 4px 0 4px 20px;
+}
+.mrz-drawer-tip { border-radius: 8px; }
+.mrz-drawer-tip-head {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 8px 6px; background: none; border: none;
+  cursor: pointer; text-align: left; border-radius: 8px; transition: .12s;
+}
+.mrz-drawer-tip-head:hover { background: rgba(255,255,255,.04); }
+.mrz-drawer-tip-title { font-size: 12.5px; color: #cfcfe0; flex: 1; font-weight: 500; }
+
+/* ── Drawer: pasos numerados ───────────────────────────── */
+.mrz-drawer-steps {
+  list-style: none; display: flex; flex-direction: column; gap: 6px;
+  padding: 4px 4px 8px 4px;
+}
+.mrz-drawer-steps li {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 12px; color: #8a8a9c; line-height: 1.4;
+}
+.mrz-drawer-step-num {
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 900; flex: none; margin-top: 1px;
+}
+
+/* ── Drawer: botón ir al módulo / empty ────────────────── */
+.mrz-drawer-go-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: none; border: 1px solid; border-radius: 8px;
+  padding: 6px 10px; font-size: 11.5px; font-weight: 700;
+  cursor: pointer; margin-top: 6px; transition: .15s;
+  width: 100%; justify-content: center; font-family: inherit;
+}
+.mrz-drawer-go-btn:hover { opacity: .75; }
+.mrz-drawer-empty {
+  font-size: 13px; color: #6a6a7c; padding: 20px 8px; text-align: center;
+}
 
 .mrz-help-panel {
   position: fixed;
