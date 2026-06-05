@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, ilike, lte, or } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, lte, or, sql } from "drizzle-orm";
 import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
 import { bloqueosEmpleado, citas, clientes, empleados, horariosEmpleado, servicios, turnos, usuarios } from "@/lib/db/schema";
@@ -58,9 +58,9 @@ export async function getServiciosAdmin() {
 export async function getEmpleadosAdmin(search?: string) {
   if (isDemoMode()) {
     const all = [
-      { id: "emp-1", usuarioId: "usr-1", nombre: "Mateo Barber", email: "mateo@barberlab.local", telefono: "3101112233", especialidad: "barberia", comisionPct: "40", activo: true },
-      { id: "emp-2", usuarioId: "usr-2", nombre: "Sofia Nails", email: "sofia@barberlab.local", telefono: "3105556677", especialidad: "spa_unas", comisionPct: "35", activo: true },
-      { id: "emp-3", usuarioId: "usr-3", nombre: "Nico Ink", email: "nico@barberlab.local", telefono: "3118889900", especialidad: "tatuajes", comisionPct: "45", activo: true },
+      { id: "emp-1", usuarioId: "usr-1", nombre: "Mateo Barber", email: "mateo@operux.local", telefono: "3101112233", especialidad: "barberia", comisionPct: "40", activo: true,  turnosMes: 18, produccionMes: "1440000" },
+      { id: "emp-2", usuarioId: "usr-2", nombre: "Sofia Nails",  email: "sofia@operux.local",  telefono: "3105556677", especialidad: "spa_unas", comisionPct: "35", activo: true,  turnosMes: 12, produccionMes: "960000" },
+      { id: "emp-3", usuarioId: "usr-3", nombre: "Nico Ink",     email: "nico@operux.local",   telefono: "3118889900", especialidad: "tatuajes", comisionPct: "45", activo: false, turnosMes: 0,  produccionMes: "0" },
     ];
     if (!search) return all;
     const q = search.toLowerCase();
@@ -75,27 +75,45 @@ export async function getEmpleadosAdmin(search?: string) {
   }
   return getDb()
     .select({
-      id: empleados.id,
-      usuarioId: empleados.usuarioId,
-      nombre: usuarios.nombre,
-      email: usuarios.email,
-      telefono: usuarios.telefono,
-      especialidad: empleados.especialidad,
-      comisionPct: empleados.comisionPct,
-      activo: empleados.activo,
+      id:            empleados.id,
+      usuarioId:     empleados.usuarioId,
+      nombre:        usuarios.nombre,
+      email:         usuarios.email,
+      telefono:      usuarios.telefono,
+      especialidad:  empleados.especialidad,
+      comisionPct:   empleados.comisionPct,
+      activo:        empleados.activo,
+      turnosMes:     sql<number>`count(${turnos.id}) filter (where ${turnos.createdAt} >= date_trunc('month', now()))::int`,
+      produccionMes: sql<string>`coalesce(sum(${turnos.precioFinal}) filter (where ${turnos.createdAt} >= date_trunc('month', now())), 0)::text`,
     })
     .from(empleados)
     .innerJoin(usuarios, eq(empleados.usuarioId, usuarios.id))
+    .leftJoin(citas,  and(eq(citas.empleadoId, empleados.id), eq(citas.negocioId, negocioId)))
+    .leftJoin(turnos, eq(turnos.citaId, citas.id))
     .where(and(...conditions))
+    .groupBy(
+      empleados.id, empleados.usuarioId, empleados.especialidad,
+      empleados.comisionPct, empleados.activo,
+      usuarios.nombre, usuarios.email, usuarios.telefono,
+    )
     .orderBy(asc(usuarios.nombre));
+}
+
+function computeEstadoCrm(total: number, recientes: number, ultima: string | null): string {
+  if (total >= 6) return "VIP";
+  const d = ultima ? Math.floor((Date.now() - new Date(ultima).getTime()) / 86400000) : 999;
+  if (d > 45) return "En riesgo";
+  if (recientes >= 2) return "Frecuente";
+  return "Nuevo";
 }
 
 export async function getClientesAdmin(search?: string) {
   if (isDemoMode()) {
     const all = [
-      { id: "cli-1", usuarioId: null, nombre: "Carlos Rojas", telefono: "3001234567", email: "carlos@mail.com", notas: "Prefiere corte bajo", createdAt: now, updatedAt: now },
-      { id: "cli-2", usuarioId: null, nombre: "Laura Vega", telefono: "3019876543", email: "laura@mail.com", notas: "Cliente frecuente de unas", createdAt: now, updatedAt: now },
-      { id: "cli-3", usuarioId: null, nombre: "Andres Mora", telefono: "3025557788", email: "andres@mail.com", notas: "Interesado en tatuajes", createdAt: now, updatedAt: now },
+      { id: "cli-1", usuarioId: null, nombre: "Carlos Rojas", telefono: "3001234567", email: "carlos@mail.com", notas: "Prefiere corte bajo",       createdAt: now, updatedAt: now, totalVisitas: 14, ultimaVisita: new Date(Date.now() - 14 * 86400000).toISOString(), estadoCrm: "VIP" },
+      { id: "cli-2", usuarioId: null, nombre: "Laura Vega",   telefono: "3019876543", email: "laura@mail.com",  notas: "Cliente frecuente de unas", createdAt: now, updatedAt: now, totalVisitas: 3,  ultimaVisita: new Date(Date.now() -  5 * 86400000).toISOString(), estadoCrm: "Frecuente" },
+      { id: "cli-3", usuarioId: null, nombre: "Andres Mora",  telefono: "3025557788", email: "andres@mail.com", notas: "Interesado en tatuajes",    createdAt: now, updatedAt: now, totalVisitas: 9,  ultimaVisita: new Date(Date.now() - 90 * 86400000).toISOString(), estadoCrm: "En riesgo" },
+      { id: "cli-4", usuarioId: null, nombre: "Sofia Reyes",  telefono: "3134445566", email: null,              notas: null,                        createdAt: now, updatedAt: now, totalVisitas: 1,  ultimaVisita: new Date(Date.now() -  2 * 86400000).toISOString(), estadoCrm: "Nuevo" },
     ];
     if (!search) return all;
     const q = search.toLowerCase();
@@ -109,7 +127,35 @@ export async function getClientesAdmin(search?: string) {
     const term = `%${search.trim()}%`;
     conditions.push(or(ilike(clientes.nombre, term), ilike(clientes.telefono, term))!);
   }
-  return getDb().select().from(clientes).where(and(...conditions)).orderBy(desc(clientes.createdAt)).limit(100);
+
+  const rows = await getDb()
+    .select({
+      id:               clientes.id,
+      usuarioId:        clientes.usuarioId,
+      nombre:           clientes.nombre,
+      telefono:         clientes.telefono,
+      email:            clientes.email,
+      notas:            clientes.notas,
+      createdAt:        clientes.createdAt,
+      totalVisitas:     sql<number>`count(${turnos.id})::int`,
+      ultimaVisita:     sql<string | null>`max(${turnos.createdAt})::text`,
+      visitasRecientes: sql<number>`count(${turnos.id}) filter (where ${turnos.createdAt} >= now() - interval '60 days')::int`,
+    })
+    .from(clientes)
+    .leftJoin(citas,  and(eq(citas.clienteId, clientes.id), eq(citas.negocioId, negocioId)))
+    .leftJoin(turnos, eq(turnos.citaId, citas.id))
+    .where(and(...conditions))
+    .groupBy(
+      clientes.id, clientes.usuarioId, clientes.nombre,
+      clientes.telefono, clientes.email, clientes.notas, clientes.createdAt,
+    )
+    .orderBy(desc(clientes.createdAt))
+    .limit(100);
+
+  return rows.map((r) => ({
+    ...r,
+    estadoCrm: computeEstadoCrm(r.totalVisitas, r.visitasRecientes, r.ultimaVisita),
+  }));
 }
 
 export async function getAgendaDia(fecha: string) {

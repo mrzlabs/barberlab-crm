@@ -16,7 +16,7 @@ function cop(v: string | number): string {
   return "$" + Number(v).toLocaleString("es-CO");
 }
 
-const GRID = "1.8fr 1fr 0.7fr 0.8fr 1fr 0.8fr 1fr auto";
+const GRID = "1.8fr 1fr 0.7fr 0.8fr 1fr 0.8fr 1fr 80px";
 
 const btnStyle: React.CSSProperties = {
   fontSize: 12, fontWeight: 600, padding: "5px 12px", borderRadius: 8,
@@ -66,12 +66,12 @@ export default async function AdminEmpleadosPage({ searchParams }: PageProps) {
           color: "#6a6a7c", fontWeight: 700, alignItems: "center",
         }}>
           <span>Empleado</span>
-          <span>Especialidad</span>
-          <span>Comisión</span>
-          <span>Turnos mes</span>
-          <span>Producción mes</span>
-          <span>Estado</span>
-          <span>Teléfono</span>
+          <span style={{ textAlign: "center" }}>Especialidad</span>
+          <span style={{ textAlign: "center" }}>Comisión</span>
+          <span style={{ textAlign: "center" }}>Turnos mes</span>
+          <span style={{ textAlign: "center" }}>Producción mes</span>
+          <span style={{ textAlign: "center" }}>Estado</span>
+          <span style={{ textAlign: "center" }}>Teléfono</span>
           <span />
         </div>
 
@@ -92,7 +92,7 @@ export default async function AdminEmpleadosPage({ searchParams }: PageProps) {
               }}
             >
               {/* Empleado */}
-              <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0, overflow: "hidden" }}>
                 <span style={{
                   width: 36, height: 36, borderRadius: "50%",
                   display: "flex", alignItems: "center", justifyContent: "center",
@@ -101,28 +101,28 @@ export default async function AdminEmpleadosPage({ searchParams }: PageProps) {
                 }}>
                   {initials(item.nombre)}
                 </span>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#ECECF4" }}>{item.nombre}</div>
-                  {item.email && <div style={{ fontSize: 12, color: "#8a8a9c", marginTop: 2 }}>{item.email}</div>}
+                <div style={{ minWidth: 0, overflow: "hidden" }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#ECECF4", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.nombre}</div>
+                  {item.email && <div style={{ fontSize: 12, color: "#8a8a9c", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.email}</div>}
                 </div>
               </div>
 
               {/* Especialidad */}
-              <span style={{ fontSize: 14, color: "#8a8a9c", textTransform: "capitalize" }}>
+              <span style={{ fontSize: 14, color: "#8a8a9c", textAlign: "center", display: "block", textTransform: "capitalize" }}>
                 {item.especialidad.replace("_", " ")}
               </span>
 
               {/* Comisión */}
-              <span style={{ fontSize: 14, color: "#8a8a9c" }}>{item.comisionPct}%</span>
+              <span style={{ fontSize: 14, color: "#8a8a9c", textAlign: "center", display: "block" }}>{item.comisionPct}%</span>
 
               {/* Turnos mes */}
-              <span style={{ fontSize: 14, color: "#ECECF4", fontWeight: 600 }}>{turnosMes}</span>
+              <span style={{ fontSize: 14, color: "#ECECF4", fontWeight: 600, textAlign: "center", display: "block" }}>{turnosMes}</span>
 
               {/* Producción mes */}
-              <span style={{ fontSize: 14, color: "#5fb98a", fontWeight: 600 }}>{cop(produccionMes)}</span>
+              <span style={{ fontSize: 14, color: "#5fb98a", fontWeight: 600, textAlign: "center", display: "block" }}>{cop(produccionMes)}</span>
 
               {/* Estado — toggle */}
-              <span>
+              <div style={{ display: "flex", justifyContent: "center" }}>
                 <form action={toggleEmpleado} className="inline">
                   <input name="empleadoId" type="hidden" value={item.id} />
                   <input name="usuarioId"  type="hidden" value={item.usuarioId} />
@@ -136,13 +136,13 @@ export default async function AdminEmpleadosPage({ searchParams }: PageProps) {
                     }
                   />
                 </form>
-              </span>
+              </div>
 
               {/* Teléfono */}
-              <span style={{ fontSize: 14, color: "#ECECF4" }}>{item.telefono}</span>
+              <span style={{ fontSize: 14, color: "#ECECF4", textAlign: "center", display: "block" }}>{item.telefono}</span>
 
               {/* Editar */}
-              <div style={{ display: "flex" }}>
+              <div style={{ display: "flex", justifyContent: "center" }}>
                 <EmpleadoEditButton
                   item={{
                     id: item.id, usuarioId: item.usuarioId, nombre: item.nombre,

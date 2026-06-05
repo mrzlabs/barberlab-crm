@@ -3,6 +3,7 @@ import { fmtDateTime, toDateInput } from "@/lib/admin/format";
 import { getAgendaAdmin, getAgendaDia, getBloqueosAdmin, getClientesAdmin, getEmpleadosAdmin, getHorariosAdmin, getServiciosAdmin } from "@/lib/admin/catalog";
 import { getSlots } from "@/lib/cliente/queries";
 import { AgendaCalendar } from "@/components/admin/AgendaCalendar";
+import { AgendaBoardView } from "@/components/admin/AgendaBoardView";
 import { ConfirmForm } from "@/components/layout/ConfirmForm";
 import { SubmitButton } from "@/components/layout/SubmitButton";
 import { createBloqueoEmpleado, createCitaAdmin, createHorarioEmpleado, deleteBloqueo, deleteHorario, reagendarCita, updateCitaAdmin } from "./actions";
@@ -43,7 +44,7 @@ function nextDay(fecha: string) {
 }
 
 export default async function AdminAgendaPage({ searchParams }: PageProps) {
-  const vista = getParam(searchParams?.vista) ?? "lista";
+  const vista = getParam(searchParams?.vista) ?? "board";
   const fecha = getParam(searchParams?.fecha) || toDateInput();
 
   const [citas, servicios, empleados, clientes, horarios, bloqueos] = await Promise.all([
@@ -97,6 +98,12 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2">
           <Link
+            className={`rounded-xl px-4 py-2 text-sm font-black transition ${vista === "board" ? "bg-slate-950 text-white" : "border border-slate-700 bg-slate-800 text-slate-300 hover:border-violet-500/50 hover:text-violet-300"}`}
+            href={`/admin/agenda?vista=board&fecha=${fecha}`}
+          >
+            Board
+          </Link>
+          <Link
             className={`rounded-xl px-4 py-2 text-sm font-black transition ${vista === "lista" ? "bg-slate-950 text-white" : "border border-slate-700 bg-slate-800 text-slate-300 hover:border-violet-500/50 hover:text-violet-300"}`}
             href={`/admin/agenda?vista=lista&fecha=${fecha}`}
           >
@@ -109,15 +116,24 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
             Calendario
           </Link>
         </div>
-        {vista === "calendario" && (
+        {(vista === "calendario" || vista === "board") && (
           <div className="flex items-center gap-2">
-            <Link className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-bold text-slate-300 hover:bg-slate-700" href={`/admin/agenda?vista=calendario&fecha=${prevDay(fecha)}`}>←</Link>
+            <Link className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-bold text-slate-300 hover:bg-slate-700" href={`/admin/agenda?vista=${vista}&fecha=${prevDay(fecha)}`}>←</Link>
             <span className="text-sm font-black">{fecha}</span>
-            <Link className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-bold text-slate-300 hover:bg-slate-700" href={`/admin/agenda?vista=calendario&fecha=${nextDay(fecha)}`}>→</Link>
-            <Link className="rounded-xl bg-cyan-500 px-3 py-2 text-xs font-black text-white hover:bg-cyan-400" href={`/admin/agenda?vista=calendario&fecha=${toDateInput()}`}>Hoy</Link>
+            <Link className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-bold text-slate-300 hover:bg-slate-700" href={`/admin/agenda?vista=${vista}&fecha=${nextDay(fecha)}`}>→</Link>
+            <Link className="rounded-xl bg-cyan-500 px-3 py-2 text-xs font-black text-white hover:bg-cyan-400" href={`/admin/agenda?vista=${vista}&fecha=${toDateInput()}`}>Hoy</Link>
           </div>
         )}
       </div>
+
+      {/* ── Vista board ── */}
+      {vista === "board" && (
+        <AgendaBoardView
+          citas={citas}
+          empleados={empleados.map((e) => ({ id: e.id, nombre: e.nombre, activo: e.activo }))}
+          fecha={fecha}
+        />
+      )}
 
       {/* ── Vista calendario ── */}
       {vista === "calendario" && (
@@ -128,7 +144,7 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
       )}
 
       {/* ── Vista lista ── */}
-      {vista !== "calendario" && <section className="grid gap-4 xl:grid-cols-[410px_1fr]">
+      {vista === "lista" && <section className="grid gap-4 xl:grid-cols-[410px_1fr]">
         <div className="space-y-4">
           <form className="glass-panel rounded-[2rem] p-5" id="nueva-cita">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Crear cita admin</p>

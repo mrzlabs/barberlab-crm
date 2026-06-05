@@ -16,14 +16,102 @@ function peekKey(pathname: string) {
 const PEEK_MESSAGES: Record<string, string> = {
   "/admin/agenda":        "Tienes citas pendientes de confirmar hoy",
   "/admin/turnos":        "Hay citas listas para cerrar y cobrar",
-  "/admin/clientes":      "Tienes clientes en riesgo que no vuelven",
-  "/admin/empleados":     "Revisa la producción del mes",
-  "/admin/inventario":    "Verifica items con stock mínimo",
-  "/admin/gastos":        "Registra los gastos del día",
-  "/admin/reportes":      "Tu rentabilidad del mes está lista",
-  "/admin/configuracion": "Personaliza el branding de tu negocio",
+  "/admin/clientes":      "Tienes clientes en riesgo que no vuelven hace tiempo",
+  "/admin/empleados":     "Revisa la producción del mes por especialista",
+  "/admin/inventario":    "Verifica los items con stock mínimo activo",
+  "/admin/gastos":        "Registra los gastos del día para mantener el margen real",
+  "/admin/reportes":      "Tu rentabilidad del mes está lista para revisar",
+  "/admin/configuracion": "Personaliza el branding con el logo de tu negocio",
 };
-const DEFAULT_PEEK = "Hola soy Maylo. Estoy aquí para ayudarte";
+const DEFAULT_PEEK = "Hola, soy Maylo. Estoy aquí para ayudarte";
+
+// ── Contexto por ruta ─────────────────────────────────────
+type DrawerCtx = { subtitle: string; intro: string; quickActions: { label: string; href: string }[] };
+
+const DRAWER_CONTEXT: Record<string, DrawerCtx> = {
+  "/admin/agenda": {
+    subtitle: "Agenda · Operux CRM",
+    intro: "Gestiona las citas del día. Los huecos libres se llenan al instante y las citas confirmadas reducen las inasistencias.",
+    quickActions: [
+      { label: "+ Nueva cita",       href: "/admin/agenda#nueva-cita" },
+      { label: "Ver disponibilidad", href: "/admin/agenda#slots" },
+      { label: "Bloqueos",           href: "/admin/agenda" },
+    ],
+  },
+  "/admin/turnos": {
+    subtitle: "Caja del día · Operux CRM",
+    intro: "Cierra los turnos y cuadra la caja. Cada cierre alimenta los reportes de comisiones e inventario automáticamente.",
+    quickActions: [
+      { label: "Cerrar turno",  href: "/admin/turnos" },
+      { label: "Ver caja",      href: "/admin/turnos" },
+      { label: "Reportes",      href: "/admin/reportes" },
+    ],
+  },
+  "/admin/clientes": {
+    subtitle: "CRM clientes · Operux CRM",
+    intro: "Base de clientes con estados automáticos: VIP, Frecuente, En riesgo. Un mensaje a tiempo recupera clientes inactivos.",
+    quickActions: [
+      { label: "+ Nuevo cliente", href: "/admin/clientes" },
+      { label: "Ver historial",   href: "/admin/clientes" },
+      { label: "Exportar",        href: "/admin/clientes" },
+    ],
+  },
+  "/admin/empleados": {
+    subtitle: "Equipo operativo · Operux CRM",
+    intro: "Gestiona el equipo. La producción del mes y comisiones se calculan automáticamente con cada turno cerrado.",
+    quickActions: [
+      { label: "+ Nuevo empleado", href: "/admin/empleados" },
+      { label: "Ver producción",   href: "/admin/empleados" },
+      { label: "Comisiones",       href: "/admin/reportes" },
+    ],
+  },
+  "/admin/inventario": {
+    subtitle: "Inventario · Operux CRM",
+    intro: "Controla el stock de insumos. Los items bajo el mínimo aparecen resaltados automáticamente.",
+    quickActions: [
+      { label: "+ Nuevo item",        href: "/admin/inventario" },
+      { label: "Registrar movimiento", href: "/admin/inventario" },
+      { label: "Ver alertas",          href: "/admin/inventario" },
+    ],
+  },
+  "/admin/gastos": {
+    subtitle: "Gastos · Operux CRM",
+    intro: "Registra los gastos operacionales. Cada gasto impacta directamente el margen bruto y la utilidad neta.",
+    quickActions: [
+      { label: "+ Nuevo gasto",   href: "/admin/gastos" },
+      { label: "Ver categorías",  href: "/admin/gastos" },
+      { label: "Reportes",        href: "/admin/reportes" },
+    ],
+  },
+  "/admin/reportes": {
+    subtitle: "Reportes · Operux CRM",
+    intro: "Ingresos, margen bruto, utilidad neta, comisiones y ticket promedio. Filtra por rango o por preset.",
+    quickActions: [
+      { label: "Ver ingresos",  href: "/admin/reportes" },
+      { label: "Comisiones",    href: "/admin/reportes" },
+      { label: "Exportar CSV",  href: "/admin/reportes" },
+    ],
+  },
+  "/admin/configuracion": {
+    subtitle: "Configuración · Operux CRM",
+    intro: "Personaliza el branding, WhatsApp y tipografía. El CRM extrae la paleta de colores desde el logo automáticamente.",
+    quickActions: [
+      { label: "Branding",    href: "/admin/configuracion" },
+      { label: "WhatsApp",    href: "/admin/configuracion" },
+      { label: "Apariencia",  href: "/admin/configuracion" },
+    ],
+  },
+};
+
+const DEFAULT_CTX: DrawerCtx = {
+  subtitle: "Asistente Operativo · Operux CRM",
+  intro: "Bienvenido a Operux CRM. Selecciona un módulo para comenzar o usa el buscador para encontrar una función específica.",
+  quickActions: [
+    { label: "Agenda",   href: "/admin/agenda" },
+    { label: "Caja",     href: "/admin/turnos" },
+    { label: "Reportes", href: "/admin/reportes" },
+  ],
+};
 
 // ── Module data ───────────────────────────────────────────
 type Tip    = { title: string; steps: string[] };

@@ -39,7 +39,7 @@ const ESTADO_STYLES: Record<string, { avatarBg: string; avatarColor: string; pil
   Nuevo:        { avatarBg: "#27C3D820", avatarColor: "#27C3D8", pillBg: "#27C3D815", pillColor: "#27C3D8", pillBorder: "#27C3D830" },
 };
 
-const GRID = "1.8fr 1.2fr 0.8fr 1fr 1.2fr auto";
+const GRID = "1.8fr 1.2fr 0.8fr 1fr 1.2fr 156px";
 
 const btnStyle: React.CSSProperties = {
   fontSize: 12, fontWeight: 600, padding: "5px 12px", borderRadius: 8,
@@ -87,21 +87,21 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
           color: "#6a6a7c", fontWeight: 700, alignItems: "center",
         }}>
           <span>Cliente</span>
-          <span>Última visita</span>
-          <span>Visitas</span>
-          <span>Estado</span>
-          <span>Teléfono</span>
+          <span style={{ textAlign: "center" }}>Última visita</span>
+          <span style={{ textAlign: "center" }}>Visitas</span>
+          <span style={{ textAlign: "center" }}>Estado</span>
+          <span style={{ textAlign: "center" }}>Teléfono</span>
           <span />
         </div>
 
         {/* Rows */}
         {clientes.map((item, idx) => {
-          const total    = (item as any).totalVisitas     ?? 0;
+          const total     = (item as any).totalVisitas     ?? 0;
           const recientes = (item as any).visitasRecientes ?? 0;
-          const ultima   = (item as any).ultimaVisita     ?? null;
-          const estado   = (item as any).estadoCrm        ?? computeEstado(total, recientes, ultima);
-          const st       = ESTADO_STYLES[estado] ?? ESTADO_STYLES.Nuevo;
-          const isLast   = idx === clientes.length - 1;
+          const ultima    = (item as any).ultimaVisita     ?? null;
+          const estado    = (item as any).estadoCrm        ?? computeEstado(total, recientes, ultima);
+          const st        = ESTADO_STYLES[estado] ?? ESTADO_STYLES.Nuevo;
+          const isLast    = idx === clientes.length - 1;
 
           return (
             <div
@@ -114,7 +114,7 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
               }}
             >
               {/* Cliente */}
-              <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0, overflow: "hidden" }}>
                 <span style={{
                   width: 36, height: 36, borderRadius: "50%",
                   display: "flex", alignItems: "center", justifyContent: "center",
@@ -123,30 +123,30 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
                 }}>
                   {initials(item.nombre)}
                 </span>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#ECECF4" }}>{item.nombre}</div>
-                  {item.email && <div style={{ fontSize: 12, color: "#8a8a9c", marginTop: 2 }}>{item.email}</div>}
+                <div style={{ minWidth: 0, overflow: "hidden" }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#ECECF4", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.nombre}</div>
+                  {item.email && <div style={{ fontSize: 12, color: "#8a8a9c", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.email}</div>}
                 </div>
               </div>
 
               {/* Última visita */}
-              <span style={{ fontSize: 14, color: "#8a8a9c" }}>{relativeTime(ultima)}</span>
+              <span style={{ fontSize: 14, color: "#8a8a9c", textAlign: "center", display: "block" }}>{relativeTime(ultima)}</span>
 
               {/* Visitas */}
-              <span style={{ fontSize: 14, color: "#8a8a9c" }}>{total}</span>
+              <span style={{ fontSize: 14, color: "#8a8a9c", textAlign: "center", display: "block" }}>{total}</span>
 
               {/* Estado */}
-              <span style={{
-                display: "inline-flex", alignSelf: "center",
-                fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 999,
-                background: st.pillBg, color: st.pillColor, border: `1px solid ${st.pillBorder}`,
-                width: "fit-content",
-              }}>
-                {estado}
-              </span>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <span style={{
+                  fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 999,
+                  background: st.pillBg, color: st.pillColor, border: `1px solid ${st.pillBorder}`,
+                }}>
+                  {estado}
+                </span>
+              </div>
 
               {/* Teléfono */}
-              <span style={{ fontSize: 14, color: "#ECECF4" }}>{item.telefono}</span>
+              <span style={{ fontSize: 14, color: "#ECECF4", textAlign: "center", display: "block" }}>{item.telefono}</span>
 
               {/* Acciones */}
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
