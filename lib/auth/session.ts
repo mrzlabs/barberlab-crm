@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { and, eq } from "drizzle-orm";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleFromClaims, type UserRole } from "@/lib/auth/roles";
@@ -37,7 +38,7 @@ export type CurrentProfile = {
   fechaFin: string | null;
 };
 
-export async function getCurrentProfile(): Promise<CurrentProfile | null> {
+async function loadCurrentProfile(): Promise<CurrentProfile | null> {
   const demoRole = cookies().get("barberlab_demo_role")?.value;
   const demoUser = getDemoUserByRole(demoRole);
   if (isDemoMode() && demoUser) {
@@ -197,6 +198,8 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
   });
 }
 
+export const getCurrentProfile = cache(loadCurrentProfile);
+
 function renewalDate(days: number) {
   const date = new Date();
   date.setDate(date.getDate() + days);
@@ -207,5 +210,8 @@ export async function requireRole(allowed: UserRole[]) {
   const profile = await getCurrentProfile();
   if (!profile) redirect("/login");
   if (!allowed.includes(profile.rol)) redirect("/unauthorized");
+  if (profile.rol !== "super_admin" && profile.negocioEstado && profile.negocioEstado !== "activo") {
+    redirect("/login?error=negocio_inactivo");
+  }
   return profile;
 }

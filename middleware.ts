@@ -80,36 +80,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/unauthorized", request.url));
   }
 
-  // Verify negocio is active — gate behind timeout to avoid MIDDLEWARE_INVOCATION_TIMEOUT.
-  if (role !== "super_admin") {
-    try {
-      const tenantQuery = supabase
-        .from("usuarios")
-        .select("negocios(estado)")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      const { data: tenantRow } = await Promise.race([
-        tenantQuery,
-        new Promise<{ data: null }>((resolve) => setTimeout(() => resolve({ data: null }), 1200)),
-      ]);
-
-      const negocioEstado =
-        Array.isArray(tenantRow?.negocios)
-          ? (tenantRow.negocios[0] as { estado?: string } | undefined)?.estado
-          : (tenantRow?.negocios as unknown as { estado?: string } | null)?.estado;
-
-      if (negocioEstado && negocioEstado !== "activo") {
-        const url = new URL("/login", request.url);
-        url.searchParams.set("error", "negocio_inactivo");
-        return NextResponse.redirect(url);
-      }
-    } catch {
-      // If the tenant check times out, allow the request through.
-      // Server components will enforce auth independently via requireRole().
-    }
-  }
-
   return supabaseResponse;
 }
 

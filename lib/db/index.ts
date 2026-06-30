@@ -32,7 +32,7 @@ export function getDb() {
 
   const client = postgres(url, {
     prepare: false,        // required for Supabase connection pooling (pgBouncer)
-    max: 1,                // single connection for serverless cold starts
+    max: 3,
     idle_timeout: 30,      // close idle before pgBouncer's timeout
     connect_timeout: 8,
     max_lifetime: 300,

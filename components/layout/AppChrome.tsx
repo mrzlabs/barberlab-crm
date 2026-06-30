@@ -560,6 +560,7 @@ export function AppChrome({
                   {[3, 6, 9].includes(index) && <div className={`my-1 h-px ${isDark ? "bg-slate-800" : "bg-slate-200"}`} />}
                   <Link
                     href={item.href}
+                    prefetch={false}
                     title={!open ? item.label : undefined}
                     onClick={() => setMobileOpen(false)}
                     className={`group flex w-full items-center gap-2.5 px-3 py-2 text-sm font-medium transition-colors duration-100 ${open ? "justify-start" : "justify-center"}`}
@@ -675,6 +676,7 @@ export function AppChrome({
               {homeHref && !isHome && (
                 <Link
                   href={homeHref}
+                  prefetch={false}
                   className={`hidden items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition md:flex ${isDark ? "border-white/10 bg-white/6 text-white/70 hover:bg-white/12 hover:text-white" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
                   title={`Ir a ${homeLabel}`}
                 >

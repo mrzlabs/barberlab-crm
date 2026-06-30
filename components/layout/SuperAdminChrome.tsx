@@ -128,6 +128,7 @@ export function SuperAdminChrome({
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={false}
                   onClick={() => setMobileOpen(false)}
                   className={`group flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-all ${
                     open ? "justify-start" : "justify-center"
