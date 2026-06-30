@@ -31,6 +31,7 @@ const loginSchema = z.object({
   email: z.string().trim().email(),
   password: z.string().trim().min(8),
   next: z.string().trim().optional(),
+  terms: z.literal("accepted"),
 });
 
 function getClientIp() {
@@ -71,6 +72,7 @@ export async function loginAction(formData: FormData) {
     email: formData.get("email"),
     password: formData.get("password"),
     next: formData.get("next") || undefined,
+    terms: formData.get("terms"),
   });
 
   if (!parsed.success) {

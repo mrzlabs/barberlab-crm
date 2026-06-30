@@ -135,6 +135,7 @@ const errorMsg: Record<string, string> = {
 
 export default function LoginPage({ searchParams }: { searchParams: { next?: string; error?: string } }) {
   const [showPassword, setShowPassword] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [recoveryEmail, setRecoveryEmail] = useState("");
   const [recoveryMsg, setRecoveryMsg] = useState<string | null>(null);
@@ -166,9 +167,34 @@ export default function LoginPage({ searchParams }: { searchParams: { next?: str
             <label className="grid gap-2 text-xs font-bold uppercase tracking-wide text-slate-300">Email<input className="rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-400/60" name="email" type="email" required placeholder="tu@correo.com" /></label>
             <label className="grid gap-2 text-xs font-bold uppercase tracking-wide text-slate-300">Contraseña<span className="relative"><input className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 pr-12 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-400/60" name="password" type={showPassword ? "text" : "password"} minLength={8} required placeholder="Mínimo 8 caracteres" /><button className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-400 transition hover:text-white" type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}>{showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</button></span></label>
             <button className="-mt-2 w-fit text-xs font-bold text-cyan-300 transition hover:text-cyan-100" type="button" onClick={() => setModalOpen(true)}>¿Olvidaste tu contraseña?</button>
-            <button className="mt-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 px-4 py-3.5 text-sm font-black text-white shadow-lg shadow-violet-500/25 transition hover:scale-[1.02] hover:opacity-95" type="submit">Entrar al sistema</button>
+            <label className="flex items-start gap-3 text-xs normal-case leading-5 text-slate-300">
+              <input
+                className="mt-0.5 size-4 shrink-0 accent-cyan-500"
+                type="checkbox"
+                name="terms"
+                value="accepted"
+                checked={termsAccepted}
+                onChange={(event) => setTermsAccepted(event.target.checked)}
+                required
+              />
+              <span>
+                Acepto los{" "}
+                <a className="font-bold text-cyan-300 hover:text-cyan-100" href="/terminos" target="_blank" rel="noopener noreferrer">
+                  Términos y Condiciones
+                </a>{" "}
+                y la{" "}
+                <a className="font-bold text-cyan-300 hover:text-cyan-100" href="/privacidad" target="_blank" rel="noopener noreferrer">
+                  Política de Tratamiento de Datos
+                </a>
+              </span>
+            </label>
+            <button className="mt-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 px-4 py-3.5 text-sm font-black text-white shadow-lg shadow-violet-500/25 transition hover:scale-[1.02] hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100" type="submit" disabled={!termsAccepted}>Entrar al sistema</button>
           </form>
-          <p className="mt-6 text-center text-[10px] font-semibold text-white/25">Operux CRM · Gestión integral para tu negocio</p>
+          <p className="mt-6 text-center text-[10px] font-semibold text-white/35">
+            <a className="hover:text-white/70" href="/terminos">Términos</a>
+            {" · "}
+            <a className="hover:text-white/70" href="/privacidad">Tratamiento de datos</a>
+          </p>
         </div>
         {/* Maylo asomándose desde la esquina inferior derecha del card */}
         <span
