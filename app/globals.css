@@ -18,7 +18,10 @@
 
 html {
   scroll-behavior: smooth;
-  font-size: 17.5px;
+  /* Tipografía fluida: los textos escalan con la pantalla.
+     ~14.6px en móvil (390px) → 17.5px desde ~1230px.
+     Todas las utilidades rem (Tailwind text-*) heredan esta base. */
+  font-size: clamp(14.5px, 13.2px + 0.35vw, 17.5px);
 }
 
 body {
@@ -1728,5 +1731,20 @@ label {
 
   .crm-shell {
     font-size: 13px;
+  }
+}
+
+/* Títulos hero: nunca sobredimensionados en pantallas chicas
+   (text-4xl/5xl de Tailwind quedan capados dentro del shell) */
+@media (max-width: 640px) {
+  .crm-shell h1,
+  .crm-shell h2 {
+    font-size: clamp(1.3rem, 6.5vw, 2rem) !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.02em;
+  }
+  .crm-shell h3 {
+    font-size: clamp(1.05rem, 5vw, 1.3rem) !important;
+    line-height: 1.2 !important;
   }
 }

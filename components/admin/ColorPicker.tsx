@@ -83,17 +83,32 @@ export function ColorPicker({
 
   return (
     <div className="grid gap-3">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-bold">{label}</span>
-        <span className="flex items-center gap-2">
-          <span
-            className="size-6 rounded-lg border border-slate-200 shadow-inner"
-            style={{ backgroundColor: selected }}
-          />
-          <code className="text-xs font-mono text-slate-400">{selected}</code>
-        </span>
-      </div>
+      {label && (
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-bold">{label}</span>
+        </div>
+      )}
 
+      {/* Color libre primero (patrón FloorUX): elige exactamente tu tono */}
+      <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-600 transition hover:border-violet-300 hover:bg-white">
+        <input
+          type="color"
+          value={selected}
+          onChange={(e) => setSelected(e.target.value)}
+          className="size-9 cursor-pointer rounded-lg border-0 bg-transparent p-0 outline-none"
+        />
+        <span className="min-w-0">
+          <span className="block">Color libre</span>
+          <code className="font-mono text-xs font-normal text-slate-400">{selected.toUpperCase()}</code>
+        </span>
+        <span
+          className="ml-auto size-6 shrink-0 rounded-lg border border-slate-200 shadow-inner"
+          style={{ backgroundColor: selected }}
+        />
+      </label>
+
+      {/* Sugerencias rápidas */}
+      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Sugerencias</p>
       <div className="grid grid-cols-6 gap-2">
         {swatches.map((s) => (
           <button
@@ -120,17 +135,6 @@ export function ColorPicker({
           </button>
         ))}
       </div>
-
-      <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-600 transition hover:border-violet-300 hover:bg-white">
-        <span>Personalizado</span>
-        <input
-          type="color"
-          value={selected}
-          onChange={(e) => setSelected(e.target.value)}
-          className="size-8 cursor-pointer rounded-lg border-0 bg-transparent p-0 outline-none"
-        />
-        <span className="ml-auto font-mono text-xs text-slate-400">{selected}</span>
-      </label>
 
       <input type="hidden" name={name} value={selected} />
     </div>
