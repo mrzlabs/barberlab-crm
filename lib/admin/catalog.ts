@@ -110,10 +110,10 @@ function computeEstadoCrm(total: number, recientes: number, ultima: string | nul
 export async function getClientesAdmin(search?: string) {
   if (isDemoMode()) {
     const all = [
-      { id: "cli-1", usuarioId: null, nombre: "Carlos Rojas", telefono: "3001234567", email: "carlos@mail.com", notas: "Prefiere corte bajo",       createdAt: now, updatedAt: now, totalVisitas: 14, ultimaVisita: new Date(Date.now() - 14 * 86400000).toISOString(), estadoCrm: "VIP" },
-      { id: "cli-2", usuarioId: null, nombre: "Laura Vega",   telefono: "3019876543", email: "laura@mail.com",  notas: "Cliente frecuente de unas", createdAt: now, updatedAt: now, totalVisitas: 3,  ultimaVisita: new Date(Date.now() -  5 * 86400000).toISOString(), estadoCrm: "Frecuente" },
-      { id: "cli-3", usuarioId: null, nombre: "Andres Mora",  telefono: "3025557788", email: "andres@mail.com", notas: "Interesado en tatuajes",    createdAt: now, updatedAt: now, totalVisitas: 9,  ultimaVisita: new Date(Date.now() - 90 * 86400000).toISOString(), estadoCrm: "En riesgo" },
-      { id: "cli-4", usuarioId: null, nombre: "Sofia Reyes",  telefono: "3134445566", email: null,              notas: null,                        createdAt: now, updatedAt: now, totalVisitas: 1,  ultimaVisita: new Date(Date.now() -  2 * 86400000).toISOString(), estadoCrm: "Nuevo" },
+      { id: "cli-1", usuarioId: null, nombre: "Carlos Rojas", telefono: "3001234567", email: "carlos@mail.com", notas: "Prefiere corte bajo", puntos: 320, cumpleanos: "1990-07-15",       createdAt: now, updatedAt: now, totalVisitas: 14, ultimaVisita: new Date(Date.now() - 14 * 86400000).toISOString(), estadoCrm: "VIP" },
+      { id: "cli-2", usuarioId: null, nombre: "Laura Vega",   telefono: "3019876543", email: "laura@mail.com",  notas: "Cliente frecuente de unas", puntos: 85, cumpleanos: null, createdAt: now, updatedAt: now, totalVisitas: 3,  ultimaVisita: new Date(Date.now() -  5 * 86400000).toISOString(), estadoCrm: "Frecuente" },
+      { id: "cli-3", usuarioId: null, nombre: "Andres Mora",  telefono: "3025557788", email: "andres@mail.com", notas: "Interesado en tatuajes", puntos: 140, cumpleanos: "1988-03-02",    createdAt: now, updatedAt: now, totalVisitas: 9,  ultimaVisita: new Date(Date.now() - 90 * 86400000).toISOString(), estadoCrm: "En riesgo" },
+      { id: "cli-4", usuarioId: null, nombre: "Sofia Reyes",  telefono: "3134445566", email: null,              notas: null, puntos: 50, cumpleanos: null,                        createdAt: now, updatedAt: now, totalVisitas: 1,  ultimaVisita: new Date(Date.now() -  2 * 86400000).toISOString(), estadoCrm: "Nuevo" },
     ];
     if (!search) return all;
     const q = search.toLowerCase();
@@ -147,7 +147,7 @@ export async function getClientesAdmin(search?: string) {
     .where(and(...conditions))
     .groupBy(
       clientes.id, clientes.usuarioId, clientes.nombre,
-      clientes.telefono, clientes.email, clientes.notas, clientes.createdAt,
+      clientes.telefono, clientes.email, clientes.notas, clientes.puntos, clientes.cumpleanos, clientes.createdAt,
     )
     .orderBy(desc(clientes.createdAt))
     .limit(100);

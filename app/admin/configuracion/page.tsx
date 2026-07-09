@@ -9,6 +9,7 @@ import {
   ACCENT_SWATCHES,
 } from "@/components/admin/ColorPicker";
 import { ConfigVisualPanel } from "@/components/admin/ConfigVisualPanel";
+import { ClientesFidelizacionPanel } from "@/components/admin/ClientesFidelizacionPanel";
 import { WhatsAppTemplatesPanel } from "@/components/admin/WhatsAppTemplatesPanel";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
@@ -178,6 +179,12 @@ export default async function ConfiguracionPage() {
       <ConfigVisualPanel
         bgPhotoUrl={configVisual.bgPhotoUrl}
         fontFamily={configVisual.fontFamily || negocio.fuente}
+      />
+
+      <ClientesFidelizacionPanel
+        slug={negocio.slug}
+        settings={negocio.settings}
+        appUrl={process.env.NEXT_PUBLIC_APP_URL || ""}
       />
 
       {/* ── WhatsApp Templates ──────────────────────────────────── */}

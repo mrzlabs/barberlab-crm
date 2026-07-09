@@ -6,7 +6,8 @@ import { requireRole } from "@/lib/auth/session";
 import { addCitaHistory } from "@/lib/citas/history";
 import { logActivity } from "@/lib/activity/log";
 import { getDb } from "@/lib/db";
-import { citas, depositos, turnos } from "@/lib/db/schema";
+import { citas, depositos, negocios, turnos } from "@/lib/db/schema";
+import { getPuntosConfig, moverPuntos, puntosPorConsumo } from "@/lib/puntos";
 import { turnoSchema } from "@/lib/validations/admin";
 import { and, eq } from "drizzle-orm";
 
@@ -18,7 +19,7 @@ export async function closeTurno(formData: FormData) {
   const db = getDb();
 
   const [current] = await db
-    .select({ estado: citas.estado })
+    .select({ estado: citas.estado, clienteId: citas.clienteId })
     .from(citas)
     .where(and(eq(citas.id, payload.citaId), eq(citas.negocioId, negocioId)))
     .limit(1);
@@ -58,6 +59,26 @@ export async function closeTurno(formData: FormData) {
   });
 
   await logActivity({ usuarioId: profile.id, negocioId, accion: "turno_cerrado", detalle: { citaId: payload.citaId, metodoPago: payload.metodoPago } });
+
+  // Fidelización: acreditar puntos por el consumo si el negocio lo tiene habilitado
+  if (current.clienteId) {
+    const [negocio] = await db
+      .select({ settings: negocios.settings })
+      .from(negocios)
+      .where(eq(negocios.id, negocioId))
+      .limit(1);
+    const config = getPuntosConfig(negocio?.settings);
+    const ganados = puntosPorConsumo(config, payload.precioFinal);
+    if (ganados > 0) {
+      await moverPuntos({
+        negocioId,
+        clienteId: current.clienteId,
+        delta: ganados,
+        motivo: `Consumo turno · ${payload.metodoPago}`,
+        citaId: payload.citaId,
+      });
+    }
+  }
 
   revalidatePath("/admin/turnos");
   revalidatePath("/admin/dashboard");

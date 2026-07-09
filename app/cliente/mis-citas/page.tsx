@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { fmtDateTime, fmtMoney, toDateInput } from "@/lib/admin/format";
 import { requireRole } from "@/lib/auth/session";
-import { getComentariosParaCitas, getHistorialCliente, getMisCitas, getReservaCatalog, getSlots } from "@/lib/cliente/queries";
+import { getComentariosParaCitas, getHistorialCliente, getMisCitas, getMisPuntos, getReservaCatalog, getSlots } from "@/lib/cliente/queries";
 import { buscarSlotsSchema } from "@/lib/validations/cliente";
 import { cancelarCita, confirmarCita, reprogramarCita, saveComentarioCita } from "./actions";
 
@@ -40,7 +40,7 @@ function estadoDetalle(estado: string) {
 
 export default async function MisCitasPage({ searchParams }: PageProps) {
   const profile = await requireRole(["cliente"]);
-  const [{ citas }, catalog, historial] = await Promise.all([getMisCitas(profile.id), getReservaCatalog(), getHistorialCliente(profile.id)]);
+  const [{ citas }, catalog, historial, misPuntos] = await Promise.all([getMisCitas(profile.id), getReservaCatalog(), getHistorialCliente(profile.id), getMisPuntos(profile.id)]);
   const editComentario = getParam(searchParams?.editComentario);
   const citaComentariosRaw = await getComentariosParaCitas(citas.map(c => c.id));
   const comentariosClienteMap = Object.fromEntries(

@@ -251,3 +251,91 @@ export async function removeNegocioBgPhoto() {
 
 
 
+
+/* ============================================================
+   Clientes y fidelización: vertical del negocio, sistema de
+   puntos y políticas de manejo de clientes (settings jsonb).
+   ============================================================ */
+
+export async function updateClientesFidelizacion(formData: FormData) {
+  const profile = await requireRole(["admin", "super_admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
+
+  const num = (name: string, fallback: number) => {
+    const v = Number(formData.get(name));
+    return Number.isFinite(v) && v > 0 ? Math.round(v) : fallback;
+  };
+
+  const [current] = await getDb()
+    .select({ settings: negocios.settings })
+    .from(negocios)
+    .where(eq(negocios.id, negocioId))
+    .limit(1);
+  const existing = (current?.settings ?? {}) as Record<string, unknown>;
+
+  const verticalRaw = String(formData.get("vertical") || "barberia");
+  const VERTICALES_VALIDOS = ["barberia", "peluqueria", "spa_unas", "tatuajes", "restaurante", "otro"] as const;
+  const vertical = (VERTICALES_VALIDOS as readonly string[]).includes(verticalRaw) ? verticalRaw as typeof VERTICALES_VALIDOS[number] : "barberia";
+  const settings = {
+    ...existing,
+    vertical,
+    puntos: {
+      habilitado: formData.get("puntosHabilitado") === "on",
+      pesosPorPunto: num("pesosPorPunto", 1000),
+      valorPunto: num("valorPunto", 30),
+      minCanje: num("minCanje", 100),
+      bonoRegistro: Math.max(0, Math.round(Number(formData.get("bonoRegistro")) || 0)),
+    },
+    politicas: {
+      textoRegistro: String(formData.get("textoRegistro") || "").slice(0, 1200) || undefined,
+      consentimientoObligatorio: formData.get("consentimientoObligatorio") === "on",
+    },
+  };
+
+  await getDb().update(negocios).set({
+    settings,
+    updatedAt: new Date().toISOString(),
+  }).where(eq(negocios.id, negocioId));
+
+  revalidatePath("/admin/configuracion");
+  revalidatePath("/admin/clientes");
+  revalidatePath("/admin/marketing");
+}
+
+/** Solicitud de integración (modelo FloorUX): queda pendiente para OperUX. */
+export async function solicitarIntegracion(formData: FormData) {
+  const profile = await requireRole(["admin", "super_admin"]);
+  const negocioId = profile.negocioId;
+  if (!negocioId) throw new Error("Sin negocio asignado");
+
+  const integracionId = String(formData.get("integracionId") || "").slice(0, 40);
+  const accion = String(formData.get("accion") || "solicitar");
+  if (!integracionId) throw new Error("Integración inválida");
+
+  const [current] = await getDb()
+    .select({ settings: negocios.settings })
+    .from(negocios)
+    .where(eq(negocios.id, negocioId))
+    .limit(1);
+  const existing = (current?.settings ?? {}) as Record<string, unknown>;
+  const integraciones: Record<string, { status: "pendiente" | "activa"; managed: boolean; handle?: string; requestedAt: string; activatedAt?: string }> = { ...((existing.integraciones as Record<string, { status: "pendiente" | "activa"; managed: boolean; handle?: string; requestedAt: string; activatedAt?: string }>) ?? {}) };
+
+  if (accion === "cancelar") {
+    delete integraciones[integracionId];
+  } else {
+    integraciones[integracionId] = {
+      status: "pendiente",
+      managed: formData.get("managed") === "on",
+      handle: String(formData.get("handle") || "").slice(0, 120) || undefined,
+      requestedAt: new Date().toISOString(),
+    };
+  }
+
+  await getDb().update(negocios).set({
+    settings: { ...existing, integraciones },
+    updatedAt: new Date().toISOString(),
+  }).where(eq(negocios.id, negocioId));
+
+  revalidatePath("/admin/marketing");
+}

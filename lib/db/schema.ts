@@ -27,6 +27,40 @@ export type ConfigVisual = {
   } | null;
 };
 
+/** Vertical del negocio: ajusta vocabulario y módulos del CRM. */
+export type NegocioVertical = "barberia" | "peluqueria" | "spa_unas" | "tatuajes" | "restaurante" | "otro";
+
+/** Estado de una integración solicitada por el negocio (modelo FloorUX). */
+export type IntegracionEstado = {
+  status: "pendiente" | "activa";
+  managed: boolean;
+  handle?: string;
+  requestedAt: string;
+  activatedAt?: string;
+};
+
+export type NegocioSettings = {
+  vertical?: NegocioVertical;
+  integraciones?: Record<string, IntegracionEstado>;
+  puntos?: {
+    habilitado?: boolean;
+    /** Pesos de consumo que otorgan 1 punto (ej. 1000 = 1 punto por cada $1.000). */
+    pesosPorPunto?: number;
+    /** Valor en pesos de 1 punto al canjear. */
+    valorPunto?: number;
+    /** Mínimo de puntos para poder canjear. */
+    minCanje?: number;
+    /** Puntos de bienvenida al registrarse desde la página pública. */
+    bonoRegistro?: number;
+  };
+  politicas?: {
+    /** Texto de tratamiento de datos mostrado en el registro público. */
+    textoRegistro?: string;
+    /** Exigir consentimiento explícito al registrar clientes. */
+    consentimientoObligatorio?: boolean;
+  };
+};
+
 export const rolUsuario = pgEnum("rol_usuario", ["super_admin", "admin", "empleado", "cliente"]);
 export const especialidadEmpleado = pgEnum("especialidad_empleado", ["barberia", "peluqueria", "spa_unas", "tatuajes"]);
 export const categoriaServicio = pgEnum("categoria_servicio", ["barberia", "peluqueria", "spa_unas", "tatuajes"]);
@@ -60,6 +94,7 @@ export const negocios = pgTable("negocios", {
   colorAcento: text("color_acento").notNull().default("#7c3aed"),
   fuente: text("fuente").notNull().default("Inter"),
   configVisual: json("config_visual").$type<ConfigVisual>().notNull().default({}),
+  settings: json("settings").$type<NegocioSettings>().notNull().default({}),
   plan: text("plan").notNull().default("starter"),
   estado: text("estado").notNull().default("activo"),
   modoAislamiento: text("modo_aislamiento").notNull().default("multi_tenant"),
@@ -101,7 +136,21 @@ export const clientes = pgTable("clientes", {
   telefono: text("telefono").notNull(),
   email: text("email"),
   notas: text("notas"),
+  cumpleanos: date("cumpleanos", { mode: "string" }),
+  puntos: integer("puntos").notNull().default(0),
+  aceptaComunicaciones: boolean("acepta_comunicaciones").notNull().default(false),
   ...timestamps,
+});
+
+/** Trazabilidad del sistema de puntos: cada acreditación o canje queda registrado. */
+export const puntosMovimientos = pgTable("puntos_movimientos", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  negocioId: uuid("negocio_id").references(() => negocios.id, { onDelete: "restrict" }),
+  clienteId: uuid("cliente_id").notNull().references(() => clientes.id, { onDelete: "cascade" }),
+  delta: integer("delta").notNull(),
+  motivo: text("motivo").notNull(),
+  citaId: uuid("cita_id").references(() => citas.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
 });
 
 export const servicios = pgTable("servicios", {

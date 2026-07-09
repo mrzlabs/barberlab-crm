@@ -39,7 +39,7 @@ const ESTADO_STYLES: Record<string, { avatarBg: string; avatarColor: string; pil
   Nuevo:        { avatarBg: "#27C3D820", avatarColor: "#27C3D8", pillBg: "#27C3D815", pillColor: "#27C3D8", pillBorder: "#27C3D830" },
 };
 
-const GRID = "1.8fr 1.2fr 0.8fr 1fr 1.2fr 156px";
+const GRID = "1.8fr 1.2fr 0.8fr 0.8fr 1fr 1.2fr 156px";
 
 const btnStyle: React.CSSProperties = {
   fontSize: 12, fontWeight: 600, padding: "5px 12px", borderRadius: 8,
@@ -89,6 +89,7 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
           <span>Cliente</span>
           <span style={{ textAlign: "center" }}>Última visita</span>
           <span style={{ textAlign: "center" }}>Visitas</span>
+          <span style={{ textAlign: "center" }}>Puntos</span>
           <span style={{ textAlign: "center" }}>Estado</span>
           <span style={{ textAlign: "center" }}>Teléfono</span>
           <span />
@@ -134,6 +135,11 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
 
               {/* Visitas */}
               <span style={{ fontSize: 14, color: "#8a8a9c", textAlign: "center", display: "block" }}>{total}</span>
+
+              {/* Puntos */}
+              <span style={{ fontSize: 13, fontWeight: 800, color: "#F5C400", textAlign: "center", display: "block" }}>
+                {((item as any).puntos ?? 0).toLocaleString("es-CO")}
+              </span>
 
               {/* Estado */}
               <div style={{ display: "flex", justifyContent: "center" }}>

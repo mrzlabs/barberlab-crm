@@ -304,3 +304,26 @@ export async function citaPerteneceCliente(userId: string, citaId: string) {
 
   return cita ?? null;
 }
+
+/* ── Sistema de puntos: saldo del cliente y política del negocio ── */
+export async function getMisPuntos(usuarioId: string) {
+  if (isDemoMode()) {
+    return { puntos: 120, habilitado: true, valorPunto: 30, minCanje: 100, pesosPorPunto: 1000 };
+  }
+  const { negocios } = await import("@/lib/db/schema");
+  const { getPuntosConfig } = await import("@/lib/puntos");
+  const [row] = await getDb()
+    .select({ puntos: clientes.puntos, settings: negocios.settings })
+    .from(clientes)
+    .leftJoin(negocios, eq(clientes.negocioId, negocios.id))
+    .where(eq(clientes.usuarioId, usuarioId))
+    .limit(1);
+  const config = getPuntosConfig(row?.settings ?? null);
+  return {
+    puntos: row?.puntos ?? 0,
+    habilitado: config.habilitado,
+    valorPunto: config.valorPunto,
+    minCanje: config.minCanje,
+    pesosPorPunto: config.pesosPorPunto,
+  };
+}
