@@ -1683,3 +1683,50 @@ label {
   color: #64748b !important;
   background: rgba(0, 0, 0, 0.03);
 }
+
+/* ============================================================
+   Responsive móvil: menos blur = más rápido; el canvas neural
+   decorativo se apaga en pantallas pequeñas (el del shell se
+   auto-regula por densidad en NeuralCanvas.tsx).
+   ============================================================ */
+@media (max-width: 768px) {
+  .neural-canvas {
+    display: none !important;
+  }
+
+  .crm-shell {
+    backdrop-filter: blur(2px);
+  }
+
+  /* superficies casi sólidas en móvil, respetando el tema activo */
+  .crm-shell .glass-panel,
+  .crm-shell .crm-card {
+    backdrop-filter: blur(4px);
+  }
+  .dark-mode .crm-shell .glass-panel,
+  .dark-mode .crm-shell .crm-card {
+    background: rgba(15, 23, 42, 0.95);
+  }
+
+  /* objetivo táctil mínimo recomendado */
+  button, a[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .crm-card, .glass-panel {
+    padding: 12px;
+    border-radius: 0.5rem;
+  }
+
+  .neural-canvas,
+  .build-neural-canvas {
+    display: none !important;
+  }
+
+  .crm-shell {
+    font-size: 13px;
+  }
+}

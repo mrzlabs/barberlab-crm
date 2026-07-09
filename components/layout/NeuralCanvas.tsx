@@ -34,12 +34,17 @@ export function NeuralCanvas({ className = "", darkMode, primaryColor }: NeuralC
     const ctx: CanvasRenderingContext2D = ctxRaw;
 
     const dpr  = Math.min(window.devicePixelRatio || 1, 2);
-    const QTY  = 52;
-    const DIST = 140;
+    // Densidad adaptativa: en pantallas pequeñas menos partículas = mismo ambiente, menos CPU
+    const small = window.innerWidth < 768;
+    const QTY  = small ? 26 : 52;
+    const DIST = small ? 110 : 140;
+    const FRAME_MS = 33; // tope ~30fps: el movimiento ambiente no necesita 60
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const parts: Particle[] = [];
     const pulses: Pulse[]   = [];
     let raf    = 0;
     let last   = performance.now();
+    let acc    = 0;
     let pTimer = 0;
     let W = 0, H = 0;
     let frameCount = 0;
@@ -119,9 +124,16 @@ export function NeuralCanvas({ className = "", darkMode, primaryColor }: NeuralC
     ro.observe(cv);
 
     function tick(now: number) {
-      frameCount++;
-      if (frameCount % 60 === 0) readThemeVars();
       const dt = now - last; last = now;
+      // Tope de FPS: acumula tiempo y solo dibuja cada FRAME_MS
+      acc += dt;
+      if (acc < FRAME_MS) { raf = requestAnimationFrame(tick); return; }
+      acc = 0;
+      // Canvas oculto (display:none / fuera de layout): no calcular nada
+      if (cv.offsetWidth === 0 || cv.offsetHeight === 0) { raf = requestAnimationFrame(tick); return; }
+
+      frameCount++;
+      if (frameCount % 30 === 0) readThemeVars();
       pTimer += dt;
       if (pTimer > 280) { spawnPulse(); pTimer = 0; }
 
@@ -179,8 +191,51 @@ export function NeuralCanvas({ className = "", darkMode, primaryColor }: NeuralC
       raf = requestAnimationFrame(tick);
     }
 
-    raf = requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+    function drawStaticFrame() {
+      // prefers-reduced-motion: un solo cuadro, sin animación
+      ctx.clearRect(0, 0, W, H);
+      for (let i = 0; i < parts.length; i++) {
+        for (let j = i + 1; j < parts.length; j++) {
+          const dx = parts[i].x - parts[j].x, dy = parts[i].y - parts[j].y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 > DIST * DIST) continue;
+          const proximity = 1 - Math.sqrt(d2) / DIST;
+          ctx.strokeStyle = hexToRgba(brandColor, lineAlpha(proximity));
+          ctx.lineWidth = 0.7;
+          ctx.beginPath();
+          ctx.moveTo(parts[i].x, parts[i].y);
+          ctx.lineTo(parts[j].x, parts[j].y);
+          ctx.stroke();
+        }
+      }
+      for (const p of parts) {
+        ctx.fillStyle = hexToRgba(brandColor, particleAlpha(0.55));
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    // Pausar cuando la pestaña no está visible: cero CPU en segundo plano
+    function onVisibility() {
+      if (reducedMotion) return;
+      if (document.hidden) {
+        cancelAnimationFrame(raf);
+      } else {
+        last = performance.now();
+        raf = requestAnimationFrame(tick);
+      }
+    }
+    document.addEventListener("visibilitychange", onVisibility);
+
+    if (reducedMotion) {
+      drawStaticFrame();
+    } else {
+      raf = requestAnimationFrame(tick);
+    }
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, [darkMode, primaryColor]);
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { fontVar } from "@/components/layout/FontLoader";
 
 function hexToRgbCsv(hex: string): string {
   const clean = hex.replace("#", "");
@@ -28,7 +29,7 @@ export function ThemeApplier({
     root.style.setProperty("--brand-primary",       primary);
     root.style.setProperty("--brand-secondary",     secondary);
     root.style.setProperty("--brand-accent",        accent);
-    root.style.setProperty("--brand-font",          fuente);
+    root.style.setProperty("--brand-font",          fontVar(fuente));
     root.style.setProperty("--brand-accent-10",     accent + "1a");
     root.style.setProperty("--brand-primary-rgb",   hexToRgbCsv(primary));
     root.style.setProperty("--brand-secondary-rgb", hexToRgbCsv(secondary));
