@@ -2,7 +2,8 @@ import { spawn } from "node:child_process";
 import { rmSync } from "node:fs";
 import { join } from "node:path";
 
-process.env.BARBERLAB_DEMO_MODE = "false";
+process.env.OPERUX_DEMO_MODE = "false";
+process.env.BARBERLAB_DEMO_MODE = "false"; // compat con scripts antiguos
 process.env.NEXT_PUBLIC_APP_URL = "http://127.0.0.1:3011";
 process.env.BARBERLAB_NEXT_DIST_DIR = ".next-prod";
 

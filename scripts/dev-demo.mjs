@@ -2,7 +2,8 @@ import { spawn } from "node:child_process";
 import { rmSync } from "node:fs";
 import { join } from "node:path";
 
-process.env.BARBERLAB_DEMO_MODE = "true";
+process.env.OPERUX_DEMO_MODE = "true";
+process.env.BARBERLAB_DEMO_MODE = "true"; // compat con scripts antiguos
 process.env.NEXT_PUBLIC_SUPABASE_URL ||= "https://example.supabase.co";
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||= "placeholder";
 process.env.DATABASE_URL ||= "postgres://postgres:postgres@127.0.0.1:54322/postgres";
