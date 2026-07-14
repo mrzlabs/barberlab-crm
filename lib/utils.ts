@@ -1,3 +1,11 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+// Une clases condicionales resolviendo conflictos de Tailwind.
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 export function serializeDates<T>(obj: T): T {
   if (obj === null || obj === undefined) return obj;
   if (obj instanceof Date) return obj.toISOString() as unknown as T;

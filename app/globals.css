@@ -10,7 +10,74 @@
   --muted: 210 40% 94%;
   --muted-foreground: 215 16% 36%;
   --border: 214 32% 88%;
+
+  /* ─────────────────────────────────────────────────────────────
+     DESIGN SYSTEM · Operux (tokens "ds-*")
+     Identidad premium enterprise: neutros, un solo primario azul,
+     sin gradientes ni neones. Consumidos por components/ui/* vía
+     el namespace `ds` de Tailwind (bg-ds-surface, text-ds-fg…).
+     ───────────────────────────────────────────────────────────── */
+  --ds-canvas: #f8f9fb;         /* fondo de la app */
+  --ds-surface: #ffffff;        /* tarjetas, paneles, inputs */
+  --ds-surface-2: #f3f4f6;      /* superficie sutil / hover de filas */
+  --ds-border: #e5e7eb;         /* borde por defecto */
+  --ds-border-strong: #d1d5db;  /* borde de énfasis / hover */
+
+  --ds-fg: #111827;             /* texto primario */
+  --ds-fg-muted: #6b7280;       /* texto secundario */
+  --ds-fg-subtle: #9ca3af;      /* placeholder / deshabilitado */
+
+  --ds-primary: #2563eb;        /* azul 600 — único color de marca del chrome */
+  --ds-primary-hover: #1d4ed8;  /* azul 700 */
+  --ds-primary-tint: #eff6ff;   /* fondo suave de estados activos */
+  --ds-on-primary: #ffffff;
+
+  --ds-success: #16a34a;
+  --ds-success-tint: #f0fdf4;
+  --ds-warning: #d97706;
+  --ds-warning-tint: #fffbeb;
+  --ds-danger: #dc2626;
+  --ds-danger-tint: #fef2f2;
+
+  --ds-ring: #93c5fd;           /* anillo de focus (azul 300) */
+
+  --ds-radius-control: 6px;     /* botones, inputs */
+  --ds-radius-card: 10px;       /* tarjetas, modales */
+  --ds-h-control: 36px;         /* alto estándar de control */
+  --ds-h-control-dense: 32px;   /* control denso (tablas) */
+
+  --ds-shadow-sm: 0 1px 2px 0 rgba(17, 24, 39, 0.05);
+  --ds-shadow: 0 1px 3px 0 rgba(17, 24, 39, 0.08), 0 1px 2px -1px rgba(17, 24, 39, 0.06);
+  --ds-shadow-lg: 0 10px 24px -6px rgba(17, 24, 39, 0.12), 0 4px 8px -4px rgba(17, 24, 39, 0.08);
 }
+
+/* Superficie base para pantallas ya migradas al Design System.
+   Aplicar en el <main> o wrapper de la vista. */
+.ds-root {
+  background: var(--ds-canvas);
+  color: var(--ds-fg);
+  font-family: var(--font-inter), Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  font-feature-settings: "cv11", "ss01";
+}
+.ds-root .ds-nums,
+.ds-root [data-nums] { font-variant-numeric: tabular-nums; }
+
+/* Neutraliza los defaults oscuros globales de input/select/textarea (legacy
+   del tema oscuro, más abajo en este archivo) dentro del Design System.
+   Los componentes de components/ui aplican sus propios colores ds-*. */
+.ds-root input:not([type="color"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+.ds-root textarea,
+.ds-root select {
+  background-color: var(--ds-surface) !important;
+  color: var(--ds-fg) !important;
+  border-color: var(--ds-border);
+}
+.ds-root select option {
+  background-color: var(--ds-surface) !important;
+  color: var(--ds-fg) !important;
+}
+.ds-root input::placeholder,
+.ds-root textarea::placeholder { color: var(--ds-fg-subtle); }
 
 * {
   box-sizing: border-box;
