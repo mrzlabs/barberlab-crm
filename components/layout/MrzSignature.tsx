@@ -4,12 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { MrzModal } from "@/components/layout/MrzModal";
 import type { ReactNode } from "react";
 
-export function MrzSignature({ bot }: { bot?: ReactNode }) {
+export function MrzSignature({ bot, light = false }: { bot?: ReactNode; light?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sigRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    if (light) return; // el tema claro no dibuja el canvas neural
     const cvEl = canvasRef.current;
     const sigEl = sigRef.current;
     const ctxRaw = cvEl?.getContext("2d");
@@ -87,7 +88,9 @@ export function MrzSignature({ bot }: { bot?: ReactNode }) {
     }
     raf = requestAnimationFrame(tick);
     return () => { cancelAnimationFrame(raf); ro.disconnect(); };
-  }, []);
+  }, [light]);
+
+  const muted = light ? "var(--ds-fg-subtle)" : "rgba(255,255,255,0.40)";
 
   return (
     <div
@@ -96,17 +99,19 @@ export function MrzSignature({ bot }: { bot?: ReactNode }) {
         position: "relative",
         width: "100%",
         height: "72px",
-        borderTop: "1px solid rgba(255,255,255,0.07)",
-        background: "rgba(4,4,14,0.7)",
+        borderTop: light ? "1px solid var(--ds-border)" : "1px solid rgba(255,255,255,0.07)",
+        background: light ? "var(--ds-surface)" : "rgba(4,4,14,0.7)",
         overflow: "hidden",
       }}
     >
-      {/* Canvas neural */}
-      <canvas
-        ref={canvasRef}
-        aria-hidden="true"
-        style={{ position: "absolute", inset: 0, width: "100%", height: "72px", mixBlendMode: "screen", opacity: 0.65 }}
-      />
+      {/* Canvas neural — solo tema oscuro */}
+      {!light && (
+        <canvas
+          ref={canvasRef}
+          aria-hidden="true"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "72px", mixBlendMode: "screen", opacity: 0.65 }}
+        />
+      )}
 
       {/* Bot — esquina derecha del footer */}
       {bot && (
@@ -119,21 +124,22 @@ export function MrzSignature({ bot }: { bot?: ReactNode }) {
           En móvil queda una sola línea (OPERUX · Built by); el copyright
           aparece desde sm. pr-20 reserva el espacio del bot. */}
       <div className="relative z-[4] flex h-full items-center justify-center gap-x-4 px-5 pr-20 sm:justify-between">
-        <span className="hidden whitespace-nowrap text-[0.68rem] font-semibold tracking-[0.07em] text-white/40 sm:block">
+        <span className="hidden whitespace-nowrap text-[0.68rem] font-semibold tracking-[0.07em] sm:block" style={{ color: muted }}>
           © 2026 Todos los derechos reservados
         </span>
         <button
           type="button"
           onClick={() => setOpen(true)}
           className="shrink-0 cursor-pointer border-0 bg-transparent px-2 py-0.5 text-[0.82rem] font-bold uppercase tracking-[0.14em]"
-          style={{ color: "#00cec9", textShadow: "0 0 10px rgba(0,206,201,0.55)" }}
+          style={light ? { color: "var(--ds-primary)" } : { color: "#00cec9", textShadow: "0 0 10px rgba(0,206,201,0.55)" }}
         >
           OPERUX
         </button>
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="shrink-0 cursor-pointer whitespace-nowrap border-0 bg-transparent text-[0.68rem] font-bold uppercase tracking-[0.09em] text-white/40 sm:text-right"
+          className="shrink-0 cursor-pointer whitespace-nowrap border-0 bg-transparent text-[0.68rem] font-bold uppercase tracking-[0.09em] sm:text-right"
+          style={{ color: muted }}
         >
           Built by MRZLABS
         </button>

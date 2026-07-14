@@ -344,7 +344,7 @@ function hexAlpha(hex: string, alpha: number): string {
 }
 
 export function AppChrome({
-  role, title, nav, mode, children, brand, alerts = [], configVisual,
+  role, title, nav, mode, children, brand, alerts = [], configVisual, theme = "dark",
 }: {
   role: UserRole;
   title: string;
@@ -354,6 +354,7 @@ export function AppChrome({
   brand?: CurrentProfile;
   alerts?: AppAlert[];
   configVisual?: ConfigVisual | null;
+  theme?: "light" | "dark";
 }) {
   const [open, setOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -387,7 +388,7 @@ export function AppChrome({
   const accentColor   = brand?.colorAcento    || "#7c3aed";
   const bgPhotoUrl    = configVisual?.bgPhotoUrl;
   const fontFamily = configVisual?.fontFamily || brand?.fuente || "Inter";
-  const isDark = true;
+  const isDark = theme !== "light";
 
   // Sync theme + neural vars to documentElement
   useEffect(() => {
@@ -413,7 +414,7 @@ export function AppChrome({
 
   return (
     <div
-      className={`crm-shell min-h-dvh overflow-x-hidden ${isDark ? "text-white" : "text-slate-900"}`}
+      className={`crm-shell min-h-dvh overflow-x-hidden ${isDark ? "text-white" : "ds-root text-ds-fg"}`}
       data-theme={isDark ? "dark" : "light"}
       style={{
         // Brand vars — used ONLY in card accents (left border + subtle tint)
@@ -456,7 +457,7 @@ export function AppChrome({
           zIndex: -2,
           background: isDark
             ? ["radial-gradient(ellipse 55% 40% at 18% 25%, rgba(99,58,180,0.18), transparent 65%)", "radial-gradient(ellipse 42% 36% at 82% 74%, rgba(30,20,80,0.22), transparent 60%)", "#060810"].join(", ")
-            : "#f1f5f9",
+            : "var(--ds-canvas)",
         }}
       />
       {isDark && bgPhotoUrl && (
@@ -466,14 +467,16 @@ export function AppChrome({
         />
       )}
 
-      {/* ── Neural canvas ─────────────────────────────────────────── */}
-      <div className="pointer-events-none fixed inset-0" style={{ zIndex: 0, opacity: isDark ? 1 : 0.18 }}>
-        <NeuralCanvas
-          className="h-full w-full"
-          darkMode={isDark}
-          primaryColor={isDark ? "#7c3aed" : primaryColor}
-        />
-      </div>
+      {/* ── Neural canvas (solo tema oscuro; el DS claro es limpio) ── */}
+      {isDark && (
+        <div className="pointer-events-none fixed inset-0" style={{ zIndex: 0, opacity: 1 }}>
+          <NeuralCanvas
+            className="h-full w-full"
+            darkMode
+            primaryColor="#7c3aed"
+          />
+        </div>
+      )}
 
       {/* ── CRM shell content — sits above neural canvas ─────────── */}
       <div className="relative" style={{ zIndex: 1 }}>
@@ -556,10 +559,23 @@ export function AppChrome({
               const style = navStyles[item.label] ?? navStyles.Dashboard;
               const Icon = style.icon;
               const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+              // Tema oscuro: un color por módulo (legacy). Tema claro (DS):
+              // sidebar neutro, activo en azul primario — look enterprise.
               const iconColor = ICON_COLORS[item.label] ?? "#94a3b8";
+              const linkBorder = isDark ? iconColor : "var(--ds-primary)";
+              const linkBg = isDark
+                ? (isActive ? hexAlpha(iconColor, 0.12) : "transparent")
+                : (isActive ? "var(--ds-primary-tint)" : "transparent");
+              const linkColor = isDark
+                ? (isActive ? "#ffffff" : "#94a3b8")
+                : (isActive ? "var(--ds-primary)" : "var(--ds-fg-muted)");
+              const iconBg = isDark
+                ? hexAlpha(iconColor, isActive ? 0.25 : 0.12)
+                : (isActive ? "var(--ds-primary)" : "var(--ds-surface-2)");
+              const iconFg = isDark ? iconColor : (isActive ? "#ffffff" : "var(--ds-fg-muted)");
               return (
                 <div key={item.href}>
-                  {[3, 6, 9].includes(index) && <div className={`my-1 h-px ${isDark ? "bg-slate-800" : "bg-slate-200"}`} />}
+                  {[3, 6, 9].includes(index) && <div className={`my-1 h-px ${isDark ? "bg-slate-800" : "bg-ds-border"}`} />}
                   <Link
                     href={item.href}
                     prefetch={false}
@@ -567,9 +583,9 @@ export function AppChrome({
                     onClick={() => setMobileOpen(false)}
                     className={`group flex w-full items-center gap-2.5 px-3 py-2 text-sm font-medium transition-colors duration-100 ${open ? "justify-start" : "justify-center"}`}
                     style={{
-                      borderLeft: isActive ? `2px solid ${iconColor}` : "2px solid transparent",
-                      background: isActive ? hexAlpha(iconColor, isDark ? 0.12 : 0.09) : "transparent",
-                      color: isActive ? (isDark ? "#ffffff" : "#0f172a") : (isDark ? "#94a3b8" : "#475569"),
+                      borderLeft: isActive ? `2px solid ${linkBorder}` : "2px solid transparent",
+                      background: linkBg,
+                      color: linkColor,
                     }}
                   >
                     <span
@@ -580,9 +596,9 @@ export function AppChrome({
                         width: 28,
                         height: 28,
                         borderRadius: "50%",
-                        background: hexAlpha(iconColor, isActive ? 0.25 : 0.12),
+                        background: iconBg,
                         flexShrink: 0,
-                        color: iconColor,
+                        color: iconFg,
                       }}
                     >
                       <Icon className="size-[14px]" />
@@ -830,7 +846,7 @@ export function AppChrome({
       {/* ── Footer — mismo offset que el main ──────────────────── */}
       <footer className={`relative transition-all duration-300 ${open ? "lg:ml-[200px]" : "lg:ml-[64px]"}`}>
         {/* El bot se desmonta con menú móvil o perfil abiertos: nunca debe tapar sus controles */}
-        <MrzSignature bot={mobileOpen || profileOpen ? undefined : <MrzHelpBot topics={topics} />} />
+        <MrzSignature light={!isDark} bot={mobileOpen || profileOpen ? undefined : <MrzHelpBot topics={topics} />} />
       </footer>
       {expandedPhoto && (
         <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/72 p-4 backdrop-blur-xl" onClick={() => setExpandedPhoto(null)}>

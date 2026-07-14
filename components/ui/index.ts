@@ -6,3 +6,4 @@ export { Card, CardBody, CardHeader } from "./Card";
 export { PageHeader } from "./PageHeader";
 export { EmptyState } from "./EmptyState";
 export { Alert } from "./Alert";
+export { Stat, DeltaBadge } from "./Stat";

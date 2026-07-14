@@ -59,6 +59,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         isImpersonating={isImpersonating}
         profile={profile}
         role="admin"
+        theme="light"
         title={profile.negocioNombre || "Administracion"}
         nav={nav}
       >
