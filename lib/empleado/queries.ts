@@ -2,6 +2,8 @@ import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { citas, clientes, empleados, servicios, turnos } from "@/lib/db/schema";
 import { serializeDates } from "@/lib/utils";
+import { isDemoMode } from "@/lib/demo";
+import { mockEmpleado, mockEmpleadoCitas, mockTurnos } from "@/lib/mock";
 
 function dayBounds(date = new Date()) {
   const start = new Date(date);
@@ -12,6 +14,7 @@ function dayBounds(date = new Date()) {
 }
 
 export async function getEmpleadoByUsr(userId: string) {
+  if (isDemoMode()) return serializeDates(mockEmpleado);
   const db = getDb();
   const [row] = await db.select().from(empleados).where(eq(empleados.usuarioId, userId)).limit(1);
   return row ? serializeDates(row) : null;
@@ -20,6 +23,14 @@ export async function getEmpleadoByUsr(userId: string) {
 export async function getMiAgenda(userId: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return serializeDates({ empleado: null, citas: [], stats: { hoy: 0, pendientes: 0, realizadas: 0 } });
+
+  if (isDemoMode()) {
+    return serializeDates({
+      empleado,
+      citas: mockEmpleadoCitas,
+      stats: { hoy: mockEmpleadoCitas.length, pendientes: 1, realizadas: 1 },
+    });
+  }
 
   const db = getDb();
   const { start, end } = dayBounds();
@@ -68,6 +79,12 @@ export async function getCitasParaCerrar(userId: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return [];
 
+  if (isDemoMode()) {
+    return serializeDates(mockEmpleadoCitas.map(({ id, inicio, estado, cliente, telefono, servicio, precio }) => ({
+      id, inicio, estado, cliente, telefono, servicio, precio,
+    })));
+  }
+
   const rows = await getDb()
     .select({
       id: citas.id,
@@ -91,6 +108,12 @@ export async function getCitasParaCerrar(userId: string) {
 export async function getMisTurnos(userId: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return [];
+
+  if (isDemoMode()) {
+    return serializeDates(mockTurnos.map(({ id, createdAt, precioFinal, propina, metodoPago, cliente, servicio }) => ({
+      id, createdAt, precioFinal, propina, metodoPago, cliente, servicio,
+    })));
+  }
 
   const rows = await getDb()
     .select({
@@ -116,6 +139,15 @@ export async function getMisTurnos(userId: string) {
 export async function getStatsEmpleado(userId: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return null;
+
+  if (isDemoMode()) {
+    return serializeDates({
+      comisionPct: Number(empleado.comisionPct),
+      especialidad: empleado.especialidad,
+      mes: { turnos: 18, ingresos: 1440000, propinas: 120000, comision: 576000, ticket: 72000 },
+      delta: 8 as number | null,
+    });
+  }
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -168,6 +200,8 @@ export async function citaPerteneceEmpleado(userId: string, citaId: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return false;
 
+  if (isDemoMode()) return mockEmpleadoCitas.some((c) => c.id === citaId);
+
   const [cita] = await getDb()
     .select({ id: citas.id })
     .from(citas)
@@ -178,6 +212,33 @@ export async function citaPerteneceEmpleado(userId: string, citaId: string) {
 }
 
 export async function getReportesEmpleado(empleadoId: string, desde: string, hasta: string) {
+  if (isDemoMode()) {
+    const comisionPct = Number(mockEmpleado.comisionPct);
+    const serviciosRealizados = mockTurnos.map((t) => {
+      const ingreso = Number(t.precioFinal) + Number(t.propina);
+      return {
+        id: t.id,
+        fecha: t.createdAt,
+        cliente: t.cliente,
+        servicio: t.servicio,
+        ingreso,
+        comision: Math.round((ingreso * comisionPct) / 100),
+      };
+    });
+    const ingresos = serviciosRealizados.reduce((acc, r) => acc + r.ingreso, 0);
+    const comisiones = serviciosRealizados.reduce((acc, r) => acc + r.comision, 0);
+    return serializeDates({
+      comisionPct,
+      kpis: {
+        servicios: serviciosRealizados.length,
+        ingresos,
+        comisiones,
+        ticket: serviciosRealizados.length ? Math.round(ingresos / serviciosRealizados.length) : 0,
+      },
+      servicios: serviciosRealizados,
+    });
+  }
+
   const from = new Date(`${desde}T00:00:00-05:00`).toISOString();
   const to = new Date(`${hasta}T23:59:59-05:00`).toISOString();
   const db = getDb();

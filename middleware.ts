@@ -4,7 +4,10 @@ import { getRoleFromClaims, isRole, protectedPrefixes, roleHome } from "@/lib/au
 import { isDemoMode } from "@/lib/demo";
 
 export async function middleware(request: NextRequest) {
-  const effectiveDemoMode = isDemoMode() && !(process.env.OPERUX_DEMO_MODE === "true" && process.env.NODE_ENV === "production");
+  // Única fuente de verdad del modo demo: isDemoMode(). La sesión, las queries
+  // y las actions usan la misma función; si el middleware la contradice, el
+  // login demo entra en bucle de redirección (bug en despliegues de demo).
+  const effectiveDemoMode = isDemoMode();
 
   const demoRole = request.cookies.get("barberlab_demo_role")?.value;
   const pathname = request.nextUrl.pathname;

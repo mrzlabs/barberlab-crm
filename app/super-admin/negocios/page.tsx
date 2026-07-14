@@ -1,11 +1,8 @@
 import { getNegocios } from "@/lib/super-admin/queries";
-import { createNegocio } from "./actions";
+import { NegocioCreateForm } from "./NegocioCreateForm";
 import { NegociosManager } from "./NegociosManager";
 
 export const dynamic = "force-dynamic";
-
-const input =
-  "w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-400/40 transition";
 
 export default async function NegociosPage() {
   const negocios = await getNegocios();
@@ -77,122 +74,7 @@ export default async function NegociosPage() {
       <section className="grid gap-6 xl:grid-cols-[400px_1fr]">
 
         {/* form crear negocio */}
-        <form
-          action={createNegocio}
-          className="rounded-[2rem] border p-5"
-          style={{ background: "#111118", borderColor: "rgba(255,255,255,0.09)" }}
-        >
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-400">Nuevo cliente SaaS</p>
-          <h3 className="mt-1 text-xl font-black text-white">Registrar barbería</h3>
-          <div className="mt-4 grid gap-3">
-            <input className={input} name="nombre" placeholder="Nombre barbería" required />
-            <input className={input} name="slug" placeholder="slug-barberia" required />
-            <div className="grid grid-cols-2 gap-3">
-              <input className={input} name="telefono" placeholder="Teléfono" />
-              <input className={input} name="correo" placeholder="Correo" type="email" />
-            </div>
-            <input className={input} name="direccion" placeholder="Dirección" />
-            <input className={input} name="representante" placeholder="Representante legal" />
-            <div className="grid grid-cols-2 gap-3">
-              <select className={input} name="tipoDocumento" defaultValue="cc">
-                <option value="cc">Cédula ciudadanía</option>
-                <option value="ce">Cédula extranjería</option>
-                <option value="nit">NIT</option>
-                <option value="pasaporte">Pasaporte</option>
-                <option value="pep">PEP</option>
-                <option value="ppt">PPT</option>
-                <option value="ti">Tarjeta identidad</option>
-              </select>
-              <input className={input} name="numeroDocumento" placeholder="Número documento" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <input className={input} name="ciudadIndicativo" placeholder="Indicativo ciudad" />
-              <input className={input} name="contactoPrincipal" placeholder="Contacto principal" />
-            </div>
-            <textarea className={input} name="descripcion" placeholder="Descripción de la barbería" rows={3} />
-            <input className={input} name="slogan" placeholder="Slogan dashboard" />
-            <input className={input} name="logoUrl" placeholder="URL logo" />
-
-            {/* colores */}
-            <div
-              className="rounded-xl border p-3"
-              style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}
-            >
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">Identidad visual</p>
-              <div className="grid grid-cols-3 gap-2">
-                <label className="grid gap-1 text-[10px] font-semibold text-slate-400">
-                  Principal<input className="h-9 w-full rounded-lg border border-white/10 bg-transparent" defaultValue="#111827" name="colorPrimario" type="color" />
-                </label>
-                <label className="grid gap-1 text-[10px] font-semibold text-slate-400">
-                  Secundario<input className="h-9 w-full rounded-lg border border-white/10 bg-transparent" defaultValue="#22d3ee" name="colorSecundario" type="color" />
-                </label>
-                <label className="grid gap-1 text-[10px] font-semibold text-slate-400">
-                  Acento<input className="h-9 w-full rounded-lg border border-white/10 bg-transparent" defaultValue="#7c3aed" name="colorAcento" type="color" />
-                </label>
-              </div>
-              <input className={`${input} mt-2`} defaultValue="Outfit" name="fuente" placeholder="Fuente" />
-            </div>
-
-            {/* plan / estado / aislamiento */}
-            <div className="grid grid-cols-3 gap-2">
-              <select className={input} name="plan" defaultValue="pro">
-                <option value="starter">Starter</option>
-                <option value="pro">Pro</option>
-                <option value="enterprise">Enterprise</option>
-              </select>
-              <select className={input} name="estado" defaultValue="activo">
-                <option value="activo">Activo</option>
-                <option value="suspendido">Suspendido</option>
-                <option value="cancelado">Cancelado</option>
-              </select>
-              <select className={input} name="modoAislamiento" defaultValue="multi_tenant">
-                <option value="multi_tenant">Multi</option>
-                <option value="dedicado">Dedicado</option>
-              </select>
-            </div>
-
-            <div
-              className="rounded-xl border p-3"
-              style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}
-            >
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">Regla contable</p>
-              <select className={input} name="comisionBase" defaultValue="precio_final">
-                <option value="precio_final">Comisión sobre precio final</option>
-                <option value="precio_menos_descuento">Comisión sobre precio menos descuento</option>
-                <option value="precio_menos_insumo">Comisión sobre precio menos insumo</option>
-              </select>
-              <label className="mt-2 flex items-center gap-2 text-xs font-bold text-slate-400">
-                <input name="propinaEnComision" type="hidden" value="false" />
-                <input className="size-4 accent-violet-500" name="propinaEnComision" type="checkbox" value="true" />
-                Incluir propina en comisión
-              </label>
-            </div>
-
-            <input className={input} name="fechaFin" placeholder="Fecha renovación" type="date" />
-
-            {/* admin */}
-            <div
-              className="rounded-xl border p-3"
-              style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}
-            >
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">Admin del negocio</p>
-              <div className="grid gap-2">
-                <input className={input} name="adminNombre" placeholder="Nombre admin" required />
-                <input className={input} name="adminTelefono" placeholder="Teléfono admin" required />
-                <input className={input} name="adminEmail" placeholder="Email admin" required type="email" />
-                <input className={input} name="adminPassword" placeholder="Password inicial" required type="password" />
-              </div>
-            </div>
-
-            <button
-              className="rounded-xl px-4 py-3 text-sm font-black text-white transition hover:opacity-90"
-              style={{ background: "linear-gradient(135deg,#22d3ee,#7c3aed)" }}
-              type="submit"
-            >
-              Crear negocio
-            </button>
-          </div>
-        </form>
+        <NegocioCreateForm />
 
         {/* tabla clientes — Client Component con drawer "Operar" */}
         <NegociosManager negocios={negocios} />

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
+import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
 import { citas } from "@/lib/db/schema";
 import { addCitaHistory } from "@/lib/citas/history";
@@ -16,6 +17,11 @@ export async function cancelarCita(formData: FormData) {
 
   if (!cita || cita.estado === "realizada") {
     throw new Error("La cita no se puede cancelar");
+  }
+
+  if (isDemoMode()) {
+    revalidatePath("/cliente/mis-citas");
+    return;
   }
 
   await getDb().update(citas).set({ estado: "cancelada", updatedAt: new Date().toISOString() }).where(eq(citas.id, payload.citaId));
@@ -38,6 +44,10 @@ export async function confirmarCita(formData: FormData) {
   const payload = citaIdSchema.parse(Object.fromEntries(formData));
   const cita = await citaPerteneceCliente(profile.id, payload.citaId);
   if (!cita || cita.estado !== "reservada") throw new Error("La cita no se puede confirmar");
+  if (isDemoMode()) {
+    revalidatePath("/cliente/mis-citas");
+    return;
+  }
   await getDb().update(citas).set({ estado: "confirmada", updatedAt: new Date().toISOString() }).where(eq(citas.id, payload.citaId));
   await addCitaHistory({
     citaId: payload.citaId,
@@ -57,6 +67,10 @@ export async function saveComentarioCita(formData: FormData) {
   const payload = comentarioCitaSchema.parse(Object.fromEntries(formData));
   const cita = await citaPerteneceCliente(profile.id, payload.citaId);
   if (!cita) throw new Error("Cita no encontrada");
+  if (isDemoMode()) {
+    revalidatePath("/cliente/mis-citas");
+    return;
+  }
   await addCitaHistory({
     citaId: payload.citaId,
     actorId: profile.id,
@@ -74,6 +88,11 @@ export async function reprogramarCita(formData: FormData) {
 
   if (!cita || cita.estado === "realizada") {
     throw new Error("La cita no se puede reprogramar");
+  }
+
+  if (isDemoMode()) {
+    revalidatePath("/cliente/mis-citas");
+    return;
   }
 
   const inicioDate = new Date(payload.inicio);

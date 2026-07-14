@@ -1697,9 +1697,10 @@ label {
     display: none !important;
   }
 
-  .crm-shell {
-    backdrop-filter: blur(2px);
-  }
+  /* OJO: nunca aplicar backdrop-filter/transform/filter a .crm-shell —
+     convierte al shell en containing block de todos los position:fixed
+     (sidebar, drawers, overlays) y los estira al alto del contenido en
+     vez del viewport, dejando "Cerrar sesión" fuera de pantalla. */
 
   /* superficies casi sólidas en móvil, respetando el tema activo */
   .crm-shell .glass-panel,

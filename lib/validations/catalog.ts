@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { formBool } from "./helpers";
 
 const money = z.coerce.number().min(0);
 
@@ -8,7 +9,7 @@ export const servicioAdminSchema = z.object({
   duracionMin: z.coerce.number().int().min(15).max(480),
   precio: money,
   costoInsumo: money.default(0),
-  activo: z.coerce.boolean().default(true),
+  activo: formBool(true),
 });
 
 export const empleadoAdminSchema = z.object({
@@ -18,7 +19,7 @@ export const empleadoAdminSchema = z.object({
   telefono: z.string().trim().min(7).max(20),
   especialidad: z.enum(["barberia", "peluqueria", "spa_unas", "tatuajes"]),
   comisionPct: z.coerce.number().min(0).max(100),
-  activo: z.coerce.boolean().default(true),
+  activo: formBool(true),
 });
 
 export const clienteAdminSchema = z.object({
@@ -26,7 +27,7 @@ export const clienteAdminSchema = z.object({
   telefono: z.string().trim().min(7).max(20),
   email: z.string().trim().email().optional().or(z.literal("")),
   password: z.string().trim().min(8).max(72).optional().or(z.literal("")),
-  crearCuenta: z.coerce.boolean().default(false),
+  crearCuenta: formBool(false),
   notas: z.string().trim().max(500).optional(),
 });
 

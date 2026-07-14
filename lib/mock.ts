@@ -1,5 +1,132 @@
 const now = new Date();
 
+export const DEMO_NEGOCIO_ID = "00000000-0000-0000-0000-000000000010";
+export const DEMO_EMPLEADO_USUARIO_ID = "00000000-0000-0000-0000-000000000002";
+
+export const mockNegocios = [
+  {
+    id: DEMO_NEGOCIO_ID,
+    nombre: "Smart Style",
+    slug: "smart-style",
+    telefono: "3503803010",
+    correo: "smartstyle@barberlab.local",
+    direccion: "Cra 15 # 82-30, Bogotá",
+    representante: "Admin Smart Style",
+    tipoDocumento: "nit",
+    numeroDocumento: "901234567",
+    ciudadIndicativo: "601",
+    contactoPrincipal: "3503803010",
+    descripcion: "CRM demo para validar agenda, turnos, inventario y reportes.",
+    slogan: "Controla agenda, caja y rentabilidad con una operación clara.",
+    logoUrl: null,
+    colorPrimario: "#111827",
+    colorSecundario: "#22d3ee",
+    colorAcento: "#7c3aed",
+    fuente: "Inter",
+    configVisual: {},
+    settings: {},
+    plan: "pro",
+    estado: "activo",
+    modoAislamiento: "multi_tenant",
+    comisionBase: "precio_final",
+    propinaEnComision: false,
+    fechaInicio: "2026-01-15",
+    fechaFin: "2026-08-15",
+    createdAt: now,
+    updatedAt: now,
+    adminEmail: "admin@operux.local",
+  },
+  {
+    id: "00000000-0000-0000-0000-000000000011",
+    nombre: "Barber King",
+    slug: "barber-king",
+    telefono: "3015551122",
+    correo: "contacto@barberking.co",
+    direccion: "Cll 45 # 12-08, Medellín",
+    representante: "Julián King",
+    tipoDocumento: "cc",
+    numeroDocumento: "1020304050",
+    ciudadIndicativo: "604",
+    contactoPrincipal: "3015551122",
+    descripcion: "Barbería clásica con 4 sillas.",
+    slogan: "El corte que manda.",
+    logoUrl: null,
+    colorPrimario: "#111827",
+    colorSecundario: "#f59e0b",
+    colorAcento: "#dc2626",
+    fuente: "Inter",
+    configVisual: {},
+    settings: {},
+    plan: "starter",
+    estado: "suspendido",
+    modoAislamiento: "multi_tenant",
+    comisionBase: "precio_final",
+    propinaEnComision: false,
+    fechaInicio: "2026-02-01",
+    fechaFin: "2026-07-01",
+    createdAt: now,
+    updatedAt: now,
+    adminEmail: "julian@barberking.co",
+  },
+];
+
+export const mockNegocioUsers = [
+  {
+    id: "00000000-0000-0000-0000-000000000001",
+    nombre: "Admin Smart Style",
+    email: "admin@operux.local",
+    rol: "admin" as const,
+    telefono: "3503803010",
+    activo: true,
+    createdAt: now,
+  },
+  {
+    id: DEMO_EMPLEADO_USUARIO_ID,
+    nombre: "Mateo Barber",
+    email: "empleado@operux.local",
+    rol: "empleado" as const,
+    telefono: "3101112233",
+    activo: true,
+    createdAt: now,
+  },
+];
+
+export const mockEmpleado = {
+  id: "00000000-0000-0000-0000-000000000020",
+  negocioId: DEMO_NEGOCIO_ID,
+  usuarioId: DEMO_EMPLEADO_USUARIO_ID,
+  especialidad: "barberia" as const,
+  comisionPct: "40",
+  activo: true,
+  createdAt: now,
+  updatedAt: now,
+};
+
+export const mockEmpleadoCitas = [
+  {
+    id: "cita-1",
+    inicio: new Date(now.getTime() + 30 * 60000),
+    fin: new Date(now.getTime() + 75 * 60000),
+    estado: "confirmada" as const,
+    cliente: "Paula Gomez",
+    telefono: "3001234567",
+    servicio: "Corte y barba",
+    precio: "65000",
+    duracionMin: 45,
+  },
+  {
+    id: "cita-2",
+    inicio: new Date(now.getTime() + 120 * 60000),
+    fin: new Date(now.getTime() + 165 * 60000),
+    estado: "reservada" as const,
+    cliente: "Daniel Ruiz",
+    telefono: "3019876543",
+    servicio: "Corte premium",
+    precio: "45000",
+    duracionMin: 45,
+  },
+];
+
 export const mockTurnos = [
   {
     id: "turno-1",

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { formBool } from "./helpers";
 
 const money = z.coerce.number().min(0);
 const qty = z.coerce.number();
@@ -22,8 +23,8 @@ export const inventarioSchema = z.object({
   stockMinimo: money,
   precioVenta: money.default(0),
   fotoUrl: z.string().trim().url().optional().or(z.literal("")),
-  visibleCliente: z.coerce.boolean().default(false),
-  activo: z.coerce.boolean().default(true),
+  visibleCliente: formBool(false),
+  activo: formBool(true),
 });
 
 export const movInventarioSchema = z.object({
@@ -78,8 +79,9 @@ export const estadoCitaSchema = z.object({
 });
 
 export const negocioSchema = z.object({
-  nombre: z.string().trim().min(2).max(120),
-  slug: z.string().trim().min(2).max(80).regex(/^[a-z0-9-]+$/),
+  nombre: z.string().trim().min(2, "Mínimo 2 caracteres").max(120),
+  slug: z.string().trim().min(2, "Mínimo 2 caracteres").max(80)
+    .regex(/^[a-z0-9-]+$/, "Solo minúsculas, números y guiones (sin espacios ni tildes)"),
   telefono: z.string().trim().max(30).optional().or(z.literal("")),
   correo: z.string().trim().email().optional().or(z.literal("")),
   direccion: z.string().trim().max(180).optional().or(z.literal("")),
@@ -99,12 +101,12 @@ export const negocioSchema = z.object({
   estado: z.enum(["activo", "suspendido", "cancelado"]),
   modoAislamiento: z.enum(["multi_tenant", "dedicado"]),
   comisionBase: z.enum(["precio_final", "precio_menos_descuento", "precio_menos_insumo"]).default("precio_final"),
-  propinaEnComision: z.coerce.boolean().default(false),
+  propinaEnComision: formBool(false),
   fechaFin: z.string().trim().min(10).optional().or(z.literal("")),
-  adminEmail: z.string().trim().email(),
-  adminPassword: z.string().trim().min(8).max(72),
-  adminNombre: z.string().trim().min(2).max(120),
-  adminTelefono: z.string().trim().min(7).max(30),
+  adminEmail: z.string().trim().email("Correo inválido"),
+  adminPassword: z.string().trim().min(8, "Mínimo 8 caracteres").max(72),
+  adminNombre: z.string().trim().min(2, "Mínimo 2 caracteres").max(120),
+  adminTelefono: z.string().trim().min(7, "Mínimo 7 dígitos").max(30),
 });
 
 export const negocioUpdateSchema = negocioSchema.omit({
@@ -175,7 +177,7 @@ export const clienteArchivoSchema = z.object({
 });
 
 export const configVisualSchema = z.object({
-  darkMode: z.coerce.boolean().default(false),
+  darkMode: formBool(false),
   fontFamily: z.enum(["Inter", "Poppins", "Montserrat", "Raleway", "DM Sans", "Playfair Display", "Space Grotesk"]).default("Inter"),
 });
 

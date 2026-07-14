@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/session";
+import { isDemoMode } from "@/lib/demo";
 import { getDb } from "@/lib/db";
 import { citas } from "@/lib/db/schema";
 import { addCitaHistory } from "@/lib/citas/history";
@@ -13,6 +14,13 @@ export async function reservarCita(formData: FormData) {
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
   const payload = reservarSchema.parse(Object.fromEntries(formData));
+
+  if (isDemoMode()) {
+    revalidatePath("/cliente/reservar");
+    revalidatePath("/cliente/mis-citas");
+    return;
+  }
+
   const inicioDate = new Date(payload.inicio);
   const finDate = new Date(payload.fin);
   const inicio = inicioDate.toISOString();

@@ -457,7 +457,9 @@ export function MrzHelpBot({ topics }: { topics?: HelpTopic[] }) {
       {peekVisible && mounted && (
         <div
           className="mrz-peek"
-          style={{ position: "fixed", bottom: 100, right: 26, zIndex: 9999, animation: "peekIn 0.28s cubic-bezier(0.4,0,0.2,1)" }}
+          // z-30: por debajo del sidebar (z-40) y del drawer de perfil (z-50)
+          // para no tapar "Cerrar sesión" ni el menú en móvil.
+          style={{ position: "fixed", bottom: 100, right: 26, zIndex: 30, animation: "peekIn 0.28s cubic-bezier(0.4,0,0.2,1)" }}
         >
           <div className="mrz-peek-head">
             <p className="mrz-peek-msg">{peekMsg}</p>

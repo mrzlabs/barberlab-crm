@@ -13,7 +13,8 @@ import { ClientesFidelizacionPanel } from "@/components/admin/ClientesFidelizaci
 import { WhatsAppTemplatesPanel } from "@/components/admin/WhatsAppTemplatesPanel";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { negocios } from "@/lib/db/schema";
+import { negocios, type ConfigVisual } from "@/lib/db/schema";
+import { isDemoMode } from "@/lib/demo";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,9 @@ export default async function ConfiguracionPage() {
   if (!profile.negocioId) notFound();
   const [negocio, configRow] = await Promise.all([
     getNegocioById(profile.negocioId),
-    getDb().select({ configVisual: negocios.configVisual }).from(negocios).where(eq(negocios.id, profile.negocioId)).limit(1),
+    isDemoMode()
+      ? Promise.resolve([{ configVisual: {} as ConfigVisual }])
+      : getDb().select({ configVisual: negocios.configVisual }).from(negocios).where(eq(negocios.id, profile.negocioId)).limit(1),
   ]);
   if (!negocio) notFound();
   const configVisual = configRow[0]?.configVisual ?? {};

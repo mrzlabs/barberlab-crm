@@ -494,10 +494,10 @@ export function AppChrome({
         {/* header */}
         <div className={`flex items-center border-b ${open ? "justify-between gap-3 p-4" : "justify-center py-3"} ${isDark ? "border-white/10" : "border-slate-200"}`}>
           {open && (
-            <div className="flex min-w-0 items-center gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               <LogoMark brand={brand} onExpand={setExpandedPhoto} />
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.22em]" style={{ color: secondaryColor }}>
+              <div className="min-w-0">
+                <p className="truncate text-[11px] font-black uppercase tracking-[0.22em]" style={{ color: secondaryColor }}>
                   {role === "cliente" ? "" : (brand?.plan ? `Plan ${brand.plan}` : "BarberLab")}
                 </p>
                 <h1 className="truncate text-sm font-black crm-text-primary">{title}</h1>
@@ -525,7 +525,9 @@ export function AppChrome({
         </div>
 
         {/* nav body */}
-        <div className={`flex-1 px-2 py-2 ${open ? "overflow-y-auto scrollbar-soft" : "overflow-hidden"}`}>
+        {/* min-h-0: sin esto el flex-1 no se encoge y empuja el bloque de
+            perfil/cerrar-sesión fuera del viewport cuando el nav es largo */}
+        <div className={`min-h-0 flex-1 px-2 py-2 ${open ? "overflow-y-auto scrollbar-soft" : "overflow-hidden"}`}>
           {open && (
             <div className="mb-3 flex flex-wrap gap-2 justify-start px-1">
               <span className={`rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-wide ${isDark ? "border-white/15 bg-white/8 text-white/60" : "border-slate-200 bg-slate-100 text-slate-500"}`}>
@@ -779,7 +781,7 @@ export function AppChrome({
                 {brand?.email && <p className="mt-0.5 text-xs text-slate-400">{brand.email}</p>}
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto px-5 pb-4">
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
               <div className="grid gap-2">
                 {/* super_admin: nombre, email, rol */}
                 {role === "super_admin" && <>
@@ -827,7 +829,8 @@ export function AppChrome({
 
       {/* ── Footer — mismo offset que el main ──────────────────── */}
       <footer className={`relative transition-all duration-300 ${open ? "lg:ml-[200px]" : "lg:ml-[64px]"}`}>
-        <MrzSignature bot={<MrzHelpBot topics={topics} />} />
+        {/* El bot se desmonta con menú móvil o perfil abiertos: nunca debe tapar sus controles */}
+        <MrzSignature bot={mobileOpen || profileOpen ? undefined : <MrzHelpBot topics={topics} />} />
       </footer>
       {expandedPhoto && (
         <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/72 p-4 backdrop-blur-xl" onClick={() => setExpandedPhoto(null)}>

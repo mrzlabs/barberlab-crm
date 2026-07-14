@@ -115,50 +115,25 @@ export function MrzSignature({ bot }: { bot?: ReactNode }) {
         </div>
       )}
 
-      {/* Contenido del footer */}
-      <div
-        style={{
-          position: "relative",
-          zIndex: 4,
-          height: "100%",
-          display: "grid",
-          gridTemplateColumns: "1fr auto 1fr",
-          alignItems: "center",
-          padding: "0 80px 0 20px", // dejar espacio para el bot
-          gap: 12,
-        }}
-      >
-        {/* Eslogan arriba */}
-      </div>
-
-      {/* Fila inferior: copyright | BARBERLABS | Built by */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 10,
-          left: 20,
-          right: 80,
-          zIndex: 4,
-          display: "grid",
-          gridTemplateColumns: "1fr auto 1fr",
-          alignItems: "center",
-          gap: 12,
-        }}
-      >
-        <span style={{ fontSize: "0.68rem", fontWeight: 600, letterSpacing: "0.07em", color: "rgba(255,255,255,0.42)", whiteSpace: "nowrap" }}>
+      {/* Fila del footer — flex responsive: nunca se solapa consigo misma.
+          En móvil queda una sola línea (OPERUX · Built by); el copyright
+          aparece desde sm. pr-20 reserva el espacio del bot. */}
+      <div className="relative z-[4] flex h-full items-center justify-center gap-x-4 px-5 pr-20 sm:justify-between">
+        <span className="hidden whitespace-nowrap text-[0.68rem] font-semibold tracking-[0.07em] text-white/40 sm:block">
           © 2026 Todos los derechos reservados
         </span>
         <button
           type="button"
           onClick={() => setOpen(true)}
-          style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#00cec9", textShadow: "0 0 10px rgba(0,206,201,0.55)", padding: "2px 8px" }}
+          className="shrink-0 cursor-pointer border-0 bg-transparent px-2 py-0.5 text-[0.82rem] font-bold uppercase tracking-[0.14em]"
+          style={{ color: "#00cec9", textShadow: "0 0 10px rgba(0,206,201,0.55)" }}
         >
           OPERUX
         </button>
         <button
           type="button"
           onClick={() => setOpen(true)}
-          style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase", color: "rgba(255,255,255,0.42)", textAlign: "right", whiteSpace: "nowrap" }}
+          className="shrink-0 cursor-pointer whitespace-nowrap border-0 bg-transparent text-[0.68rem] font-bold uppercase tracking-[0.09em] text-white/40 sm:text-right"
         >
           Built by MRZLABS
         </button>
