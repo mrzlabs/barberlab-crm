@@ -21,29 +21,25 @@ export function SelectableKpiGrid({ kpis }: { kpis: KpiItem[] }) {
         return (
           <article
             key={k.id}
-            className={`report-kpi relative cursor-pointer overflow-hidden rounded-2xl border p-5 shadow-sm transition-all duration-150 ${k.accentClass} ${
-              active
-                ? "border-cyan-400 ring-2 ring-cyan-400/40 bg-slate-800"
-                : "border-white/8 bg-slate-900 hover:bg-slate-800"
+            className={`relative cursor-pointer overflow-hidden rounded-card border bg-ds-surface p-4 shadow-ds-sm transition-colors ${k.accentClass} ${
+              active ? "border-ds-primary ring-2 ring-ds-ring/50" : "border-ds-border hover:border-ds-border-strong"
             }`}
             onClick={() => setSelected(active ? null : k.id)}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => e.key === "Enter" && setSelected(active ? null : k.id)}
           >
-            <span className="absolute right-4 top-4 text-2xl opacity-20 select-none">{k.icon}</span>
             {active && (
-              <span className="absolute left-2 top-2 rounded-full bg-cyan-400/20 px-2 py-0.5 text-[9px] font-black text-cyan-300 uppercase tracking-wider">
+              <span className="absolute right-2 top-2 rounded-full bg-ds-primary-tint px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider text-ds-primary">
                 Seleccionado
               </span>
             )}
-            <p className="report-kpi-label report-truncate mt-1 text-xs font-semibold tracking-widest text-white/70">{k.label}</p>
-            <strong className="report-kpi-value mt-2 block truncate text-2xl font-black text-white">{k.value}</strong>
-            <p className="report-kpi-detail report-truncate mt-1 text-xs text-white/60">{k.detail}</p>
+            <p className="truncate text-[12px] font-medium uppercase tracking-wide text-ds-fg-muted">{k.label}</p>
+            <strong className="ds-nums mt-1.5 block truncate text-2xl font-semibold tracking-tight text-ds-fg">{k.value}</strong>
+            <p className="mt-1 truncate text-[12px] text-ds-fg-muted">{k.detail}</p>
           </article>
         );
       })}
     </section>
   );
 }
-
