@@ -29,7 +29,7 @@ export function Modal({ open, onClose, title, children, footer }: Props) {
           {/* Backdrop */}
           <motion.div
             key="backdrop"
-            className="absolute inset-0 bg-black/40 backdrop-blur-[8px]"
+            className="absolute inset-0 bg-ds-fg/40"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -41,17 +41,17 @@ export function Modal({ open, onClose, title, children, footer }: Props) {
           <motion.div
             ref={panelRef}
             key="panel"
-            className="relative z-10 flex max-h-[90dvh] w-full flex-col overflow-hidden rounded-t-[2rem] bg-slate-900/95 border border-white/10 shadow-2xl sm:max-w-[560px] sm:rounded-[2rem]"
+            className="ds-root relative z-10 flex max-h-[90dvh] w-full flex-col overflow-hidden rounded-t-card border border-ds-border bg-ds-surface text-ds-fg shadow-ds-lg sm:max-w-[560px] sm:rounded-card"
             initial={{ opacity: 0, scale: 0.96, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Header */}
-            <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-6 py-4">
-              <h2 className="text-lg font-black text-auto">{title}</h2>
+            <div className="flex shrink-0 items-center justify-between border-b border-ds-border px-6 py-4">
+              <h2 className="text-base font-semibold text-ds-fg">{title}</h2>
               <button
-                className="grid size-8 place-items-center rounded-xl border border-white/10 text-white/40 transition hover:border-white/20 hover:text-white"
+                className="grid size-8 place-items-center rounded-control text-ds-fg-subtle transition-colors hover:bg-ds-surface-2 hover:text-ds-fg-muted"
                 onClick={onClose}
                 type="button"
                 aria-label="Cerrar"
@@ -65,7 +65,7 @@ export function Modal({ open, onClose, title, children, footer }: Props) {
 
             {/* Footer */}
             {footer && (
-              <div className="flex shrink-0 justify-end gap-3 border-t border-white/10 px-6 py-4">
+              <div className="flex shrink-0 justify-end gap-3 border-t border-ds-border px-6 py-4">
                 {footer}
               </div>
             )}

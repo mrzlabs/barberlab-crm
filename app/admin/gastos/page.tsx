@@ -1,13 +1,18 @@
+import { Receipt } from "lucide-react";
 import { fmtDate, fmtMoney } from "@/lib/admin/format";
 import { getGastos } from "@/lib/admin/queries";
 import { requireRole } from "@/lib/auth/session";
 import { GastoCreateButton, GastoEditButton } from "@/components/admin/GastoModal";
 import { createGasto, updateGasto } from "./actions";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export const dynamic = "force-dynamic";
 
 type PageProps = { searchParams?: Record<string, string | string[] | undefined> };
 function param(v: string | string[] | undefined) { return Array.isArray(v) ? v[0] : v; }
+
+const CATS = ["", "arriendo", "servicios_publicos", "nomina", "insumos", "marketing", "otros"];
 
 export default async function GastosPage({ searchParams }: PageProps) {
   const profile = await requireRole(["admin", "super_admin"]).catch(() => null);
@@ -17,71 +22,69 @@ export default async function GastosPage({ searchParams }: PageProps) {
   const total = gastos.reduce((sum, gasto) => sum + Number(gasto.monto), 0);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-primary">Registro contable</p>
-          <h2 className="text-2xl font-black">Gastos</h2>
-        </div>
-        <GastoCreateButton createAction={createGasto} negocioId={negocioId} />
-      </div>
+    <div className="space-y-5">
+      <PageHeader
+        title="Gastos"
+        description="Registro contable de egresos del negocio."
+        actions={<GastoCreateButton createAction={createGasto} negocioId={negocioId} />}
+      />
 
-      <section className="crm-card shadow-black/20">
-        <div className="border-b border-white/10 p-5">
-          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-            <div>
-              <h2 className="text-2xl font-black">Gastos registrados</h2>
-              <p className="mt-1 text-sm crm-text-muted">Últimos 40 movimientos operativos.</p>
-            </div>
-            <strong className="rounded-xl bg-cyan-500/20 px-4 py-2 text-white border border-cyan-500/30">{fmtMoney(total)}</strong>
-          </div>
-          <form className="mt-3 flex flex-wrap gap-2" method="get">
-            {["", "arriendo", "servicios_publicos", "nomina", "insumos", "marketing", "otros"].map((c) => (
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <form className="flex flex-wrap gap-2" method="get">
+          {CATS.map((c) => {
+            const active = cat === c || (!cat && !c);
+            return (
               <button
                 key={c || "todas"}
                 name="cat"
                 value={c}
                 type="submit"
-                className={`rounded-xl px-3 py-1.5 text-xs font-bold capitalize transition ${cat === c || (!cat && !c) ? "bg-slate-950 text-white" : "border border-white/10 bg-white/8 text-slate-300 hover:border-violet-500/40 hover:text-violet-400"}`}
+                className={`rounded-control px-3 py-1.5 text-[12px] font-medium capitalize transition-colors ${
+                  active
+                    ? "bg-ds-primary text-white"
+                    : "border border-ds-border bg-ds-surface text-ds-fg-muted hover:border-ds-border-strong hover:text-ds-fg"
+                }`}
               >
                 {c ? c.replace("_", " ") : "Todas"}
               </button>
-            ))}
-          </form>
-        </div>
-        <div className="divide-y divide-white/10">
-          {gastos.map((gasto) => (
-            <div className="p-5" key={gasto.id}>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="flex items-start gap-3 min-w-0">
+            );
+          })}
+        </form>
+        <span className="ds-nums rounded-control border border-ds-border bg-ds-surface px-3 py-1.5 text-sm font-semibold text-ds-fg">
+          Total: {fmtMoney(total)}
+        </span>
+      </div>
+
+      {gastos.length === 0 ? (
+        <EmptyState icon={Receipt} title="Sin gastos registrados" description={cat ? "No hay gastos en esta categoría." : "Registra el primer gasto operativo."} />
+      ) : (
+        <div className="overflow-hidden rounded-card border border-ds-border bg-ds-surface shadow-ds-sm">
+          <div className="divide-y divide-ds-border">
+            {gastos.map((gasto) => (
+              <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4" key={gasto.id}>
+                <div className="flex min-w-0 items-start gap-3">
                   {gasto.comprobanteUrl && (
                     <a href={gasto.comprobanteUrl} target="_blank" rel="noreferrer" title="Ver comprobante">
                       {/\.(jpg|jpeg|png|webp|gif)/i.test(gasto.comprobanteUrl) ? (
-                        <img
-                          src={gasto.comprobanteUrl}
-                          alt="comprobante"
-                          className="h-12 w-12 flex-shrink-0 rounded-xl object-cover border border-white/10 hover:opacity-80 transition"
-                        />
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={gasto.comprobanteUrl} alt="comprobante" className="size-11 shrink-0 rounded-control border border-ds-border object-cover transition hover:opacity-80" />
                       ) : (
-                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-red-500/20 border border-red-500/20 text-xl hover:opacity-80 transition">
-                          📄
-                        </div>
+                        <div className="grid size-11 shrink-0 place-items-center rounded-control border border-ds-border bg-ds-surface-2 text-xl transition hover:opacity-80">📄</div>
                       )}
                     </a>
                   )}
                   <div className="min-w-0">
-                    <p className="font-semibold capitalize crm-text-primary">{gasto.categoria.replace("_", " ")}</p>
-                    <p className="mt-0.5 text-xs text-slate-400">{fmtDate(gasto.fecha)} · {gasto.descripcion || "Sin detalle"}</p>
+                    <p className="font-medium capitalize text-ds-fg">{gasto.categoria.replace("_", " ")}</p>
+                    <p className="mt-0.5 text-[12px] text-ds-fg-muted">{fmtDate(gasto.fecha)} · {gasto.descripcion || "Sin detalle"}</p>
                     {gasto.comprobanteUrl && (
-                      <a href={gasto.comprobanteUrl} target="_blank" rel="noreferrer"
-                        className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-400 hover:underline">
+                      <a href={gasto.comprobanteUrl} target="_blank" rel="noreferrer" className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-medium text-ds-primary hover:text-ds-primary-hover">
                         Ver comprobante →
                       </a>
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <strong className="text-sm font-black crm-text-primary">{fmtMoney(gasto.monto)}</strong>
+                <div className="flex shrink-0 items-center gap-4">
+                  <strong className="ds-nums text-sm font-semibold text-ds-fg">{fmtMoney(gasto.monto)}</strong>
                   <GastoEditButton
                     item={{ id: gasto.id, categoria: gasto.categoria, monto: gasto.monto, fecha: gasto.fecha, descripcion: gasto.descripcion, comprobanteUrl: gasto.comprobanteUrl }}
                     updateAction={updateGasto}
@@ -89,13 +92,10 @@ export default async function GastosPage({ searchParams }: PageProps) {
                   />
                 </div>
               </div>
-            </div>
-          ))}
-          {gastos.length === 0 && (
-            <p className="p-8 text-center text-sm text-slate-400">Sin gastos registrados.</p>
-          )}
+            ))}
+          </div>
         </div>
-      </section>
+      )}
     </div>
   );
 }

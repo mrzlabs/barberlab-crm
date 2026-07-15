@@ -144,7 +144,7 @@ export function GastoEditButton({
   return (
     <>
       <button
-        className="inline-flex items-center gap-1.5 rounded-xl border border-violet-500/30 bg-violet-500/20 px-3 py-1.5 text-xs font-bold text-white hover:bg-violet-500/30 transition"
+        className="inline-flex items-center gap-1.5 rounded-control border border-ds-border px-2.5 py-1 text-[12px] font-medium text-ds-fg-muted transition-colors hover:border-ds-border-strong hover:text-ds-fg"
         onClick={() => setOpen(true)}
         type="button"
       >
