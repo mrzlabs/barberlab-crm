@@ -1,7 +1,12 @@
 import Link from "next/link";
+import { Search, Users } from "lucide-react";
 import { getClientesAdmin } from "@/lib/admin/catalog";
 import { ClienteCreateButton, ClienteEditButton } from "@/components/admin/ClienteModal";
 import { createCliente, updateCliente } from "./actions";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Input } from "@/components/ui/Input";
+import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -32,19 +37,11 @@ function computeEstado(total: number, recientes: number, ultima: string | null |
   return "Nuevo";
 }
 
-const ESTADO_STYLES: Record<string, { avatarBg: string; avatarColor: string; pillBg: string; pillColor: string; pillBorder: string }> = {
-  VIP:          { avatarBg: "#F5C40020", avatarColor: "#F5C400", pillBg: "#F5C40015", pillColor: "#F5C400", pillBorder: "#F5C40030" },
-  Frecuente:    { avatarBg: "#7F77DD20", avatarColor: "#7F77DD", pillBg: "#7F77DD15", pillColor: "#7F77DD", pillBorder: "#7F77DD30" },
-  "En riesgo":  { avatarBg: "#f9731620", avatarColor: "#f97316", pillBg: "#f9731615", pillColor: "#f97316", pillBorder: "#f9731630" },
-  Nuevo:        { avatarBg: "#27C3D820", avatarColor: "#27C3D8", pillBg: "#27C3D815", pillColor: "#27C3D8", pillBorder: "#27C3D830" },
-};
-
-const GRID = "1.8fr 1.2fr 0.8fr 0.8fr 1fr 1.2fr 156px";
-
-const btnStyle: React.CSSProperties = {
-  fontSize: 12, fontWeight: 600, padding: "5px 12px", borderRadius: 8,
-  border: "1px solid #23232f", background: "transparent", color: "#8a8a9c",
-  cursor: "pointer", textDecoration: "none", display: "inline-block",
+const ESTADO_TONE: Record<string, "neutral" | "primary" | "success" | "warning" | "danger"> = {
+  VIP: "warning",
+  Frecuente: "primary",
+  "En riesgo": "danger",
+  Nuevo: "neutral",
 };
 
 export default async function AdminClientesPage({ searchParams }: PageProps) {
@@ -52,128 +49,99 @@ export default async function AdminClientesPage({ searchParams }: PageProps) {
   const clientes = await getClientesAdmin(q);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-primary">CRM clientes</p>
-          <h2 className="text-2xl font-black">Clientes</h2>
-        </div>
-        <ClienteCreateButton createAction={createCliente} />
-      </div>
+    <div className="space-y-5">
+      <PageHeader
+        title="Clientes"
+        description="Historial, visitas y puntos de cada cliente."
+        actions={<ClienteCreateButton createAction={createCliente} />}
+      />
 
       <form className="flex gap-2" method="get">
-        <input
-          className="flex-1 rounded-xl crm-input placeholder:text-slate-500 px-3 py-2 text-sm outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20"
-          defaultValue={q ?? ""}
-          name="q"
-          placeholder="Buscar por nombre o teléfono…"
-          type="search"
-        />
-        <button className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-black text-white" type="submit">Buscar</button>
-        {q && <a className="rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-slate-400 hover:bg-white/8" href="/admin/clientes">Limpiar</a>}
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ds-fg-subtle" />
+          <Input className="pl-9" defaultValue={q ?? ""} name="q" placeholder="Buscar por nombre o teléfono…" type="search" />
+        </div>
+        <button className="h-control rounded-control bg-ds-primary px-4 text-sm font-medium text-white transition-colors hover:bg-ds-primary-hover" type="submit">
+          Buscar
+        </button>
+        {q && (
+          <Link className="inline-flex h-control items-center rounded-control border border-ds-border-strong bg-ds-surface px-4 text-sm font-medium text-ds-fg-muted hover:bg-ds-surface-2" href="/admin/clientes">
+            Limpiar
+          </Link>
+        )}
       </form>
-      <p className="text-xs text-slate-400">
+
+      <p className="text-[13px] text-ds-fg-muted">
         {clientes.length} cliente{clientes.length !== 1 ? "s" : ""}{q ? ` para "${q}"` : ""}
       </p>
 
-      {/* Tabla */}
-      <div style={{ background: "#13131c", border: "1px solid #23232f", borderRadius: 18, overflow: "hidden" }}>
+      {clientes.length === 0 ? (
+        <EmptyState icon={Users} title="Sin clientes registrados" description={q ? "Prueba con otra búsqueda." : "Crea el primer cliente para empezar."} />
+      ) : (
+        <div className="overflow-hidden rounded-card border border-ds-border bg-ds-surface shadow-ds-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[820px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-ds-border text-[12px] uppercase tracking-wide text-ds-fg-muted">
+                  <th className="px-5 py-2.5 font-medium">Cliente</th>
+                  <th className="px-5 py-2.5 text-center font-medium">Última visita</th>
+                  <th className="px-5 py-2.5 text-center font-medium">Visitas</th>
+                  <th className="px-5 py-2.5 text-center font-medium">Puntos</th>
+                  <th className="px-5 py-2.5 text-center font-medium">Estado</th>
+                  <th className="px-5 py-2.5 text-center font-medium">Teléfono</th>
+                  <th className="px-5 py-2.5 text-right font-medium">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {clientes.map((item) => {
+                  const total     = (item as any).totalVisitas     ?? 0;
+                  const recientes = (item as any).visitasRecientes ?? 0;
+                  const ultima    = (item as any).ultimaVisita     ?? null;
+                  const estado    = (item as any).estadoCrm        ?? computeEstado(total, recientes, ultima);
+                  const puntos    = (item as any).puntos ?? 0;
 
-        {/* Header */}
-        <div style={{
-          display: "grid", gridTemplateColumns: GRID,
-          padding: "12px 24px", borderBottom: "1px solid #23232f",
-          fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em",
-          color: "#6a6a7c", fontWeight: 700, alignItems: "center",
-        }}>
-          <span>Cliente</span>
-          <span style={{ textAlign: "center" }}>Última visita</span>
-          <span style={{ textAlign: "center" }}>Visitas</span>
-          <span style={{ textAlign: "center" }}>Puntos</span>
-          <span style={{ textAlign: "center" }}>Estado</span>
-          <span style={{ textAlign: "center" }}>Teléfono</span>
-          <span />
+                  return (
+                    <tr className="border-b border-ds-border last:border-0 hover:bg-ds-surface-2" key={item.id}>
+                      <td className="px-5 py-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-ds-surface-2 text-[12px] font-semibold text-ds-fg-muted">
+                            {initials(item.nombre)}
+                          </span>
+                          <div className="min-w-0">
+                            <div className="truncate font-medium text-ds-fg">{item.nombre}</div>
+                            {item.email && <div className="truncate text-[12px] text-ds-fg-muted">{item.email}</div>}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 text-center text-ds-fg-muted">{relativeTime(ultima)}</td>
+                      <td className="ds-nums px-5 py-3 text-center text-ds-fg-muted">{total}</td>
+                      <td className="ds-nums px-5 py-3 text-center font-medium text-ds-fg">{puntos.toLocaleString("es-CO")}</td>
+                      <td className="px-5 py-3 text-center">
+                        <Badge tone={ESTADO_TONE[estado] ?? "neutral"}>{estado}</Badge>
+                      </td>
+                      <td className="ds-nums px-5 py-3 text-center text-ds-fg">{item.telefono}</td>
+                      <td className="px-5 py-3">
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/admin/clientes/${item.id}`}
+                            className="rounded-control border border-ds-border px-2.5 py-1 text-[12px] font-medium text-ds-fg-muted transition-colors hover:border-ds-border-strong hover:text-ds-fg"
+                          >
+                            Historial
+                          </Link>
+                          <ClienteEditButton
+                            item={{ id: item.id, nombre: item.nombre, telefono: item.telefono, email: item.email, notas: item.notas }}
+                            updateAction={updateCliente}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-
-        {/* Rows */}
-        {clientes.map((item, idx) => {
-          const total     = (item as any).totalVisitas     ?? 0;
-          const recientes = (item as any).visitasRecientes ?? 0;
-          const ultima    = (item as any).ultimaVisita     ?? null;
-          const estado    = (item as any).estadoCrm        ?? computeEstado(total, recientes, ultima);
-          const st        = ESTADO_STYLES[estado] ?? ESTADO_STYLES.Nuevo;
-          const isLast    = idx === clientes.length - 1;
-
-          return (
-            <div
-              key={item.id}
-              className="hover:bg-[#15151f] transition-colors"
-              style={{
-                display: "grid", gridTemplateColumns: GRID,
-                padding: "16px 24px", alignItems: "center",
-                borderBottom: isLast ? "none" : "1px solid #1b1b27",
-              }}
-            >
-              {/* Cliente */}
-              <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0, overflow: "hidden" }}>
-                <span style={{
-                  width: 36, height: 36, borderRadius: "50%",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 12, fontWeight: 800, flexShrink: 0,
-                  background: st.avatarBg, color: st.avatarColor,
-                }}>
-                  {initials(item.nombre)}
-                </span>
-                <div style={{ minWidth: 0, overflow: "hidden" }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#ECECF4", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.nombre}</div>
-                  {item.email && <div style={{ fontSize: 12, color: "#8a8a9c", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.email}</div>}
-                </div>
-              </div>
-
-              {/* Última visita */}
-              <span style={{ fontSize: 14, color: "#8a8a9c", textAlign: "center", display: "block" }}>{relativeTime(ultima)}</span>
-
-              {/* Visitas */}
-              <span style={{ fontSize: 14, color: "#8a8a9c", textAlign: "center", display: "block" }}>{total}</span>
-
-              {/* Puntos */}
-              <span style={{ fontSize: 13, fontWeight: 800, color: "#F5C400", textAlign: "center", display: "block" }}>
-                {((item as any).puntos ?? 0).toLocaleString("es-CO")}
-              </span>
-
-              {/* Estado */}
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <span style={{
-                  fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 999,
-                  background: st.pillBg, color: st.pillColor, border: `1px solid ${st.pillBorder}`,
-                }}>
-                  {estado}
-                </span>
-              </div>
-
-              {/* Teléfono */}
-              <span style={{ fontSize: 14, color: "#ECECF4", textAlign: "center", display: "block" }}>{item.telefono}</span>
-
-              {/* Acciones */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Link href={`/admin/clientes/${item.id}`} style={btnStyle}>
-                  Historial
-                </Link>
-                <ClienteEditButton
-                  item={{ id: item.id, nombre: item.nombre, telefono: item.telefono, email: item.email, notas: item.notas }}
-                  updateAction={updateCliente}
-                />
-              </div>
-            </div>
-          );
-        })}
-
-        {clientes.length === 0 && (
-          <p style={{ padding: "32px", textAlign: "center", fontSize: 14, color: "#8a8a9c" }}>
-            Sin clientes registrados.
-          </p>
-        )}
-      </div>
+      )}
     </div>
   );
 }

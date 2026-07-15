@@ -1,8 +1,11 @@
+import { Scissors } from "lucide-react";
 import { fmtMoney } from "@/lib/admin/format";
 import { getServiciosAdmin } from "@/lib/admin/catalog";
 import { SubmitButton } from "@/components/layout/SubmitButton";
 import { ServicioCreateButton, ServicioEditButton } from "@/components/admin/ServicioModal";
 import { createServicio, toggleServicio, updateServicio } from "./actions";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -10,37 +13,42 @@ export default async function AdminServiciosPage() {
   const servicios = await getServiciosAdmin();
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-primary">Catálogo comercial</p>
-          <h2 className="text-2xl font-black">Servicios</h2>
-        </div>
-        <ServicioCreateButton createAction={createServicio} />
-      </div>
+    <div className="space-y-5">
+      <PageHeader
+        title="Servicios"
+        description="Precios, duración y costo base para calcular rentabilidad."
+        actions={<ServicioCreateButton createAction={createServicio} />}
+      />
 
-      <section className="crm-card shadow-black/20">
-        <div className="border-b border-white/10 p-5">
-          <p className="mt-1 text-sm crm-text-muted">Precios, duración y costo base para rentabilidad.</p>
-        </div>
-        <div className="divide-y divide-white/10">
-          {servicios.map((item) => (
-            <div className="p-5" key={item.id}>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-black">{item.nombre}</p>
-                  <p className="mt-0.5 text-sm capitalize crm-text-muted">{item.categoria.replace("_", " ")} · {item.duracionMin} min</p>
+      {servicios.length === 0 ? (
+        <EmptyState icon={Scissors} title="Sin servicios registrados" description="Crea el primer servicio del catálogo." />
+      ) : (
+        <div className="overflow-hidden rounded-card border border-ds-border bg-ds-surface shadow-ds-sm">
+          <div className="divide-y divide-ds-border">
+            {servicios.map((item) => (
+              <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4" key={item.id}>
+                <div className="min-w-0">
+                  <p className="font-medium text-ds-fg">{item.nombre}</p>
+                  <p className="mt-0.5 text-[13px] capitalize text-ds-fg-muted">
+                    {item.categoria.replace("_", " ")} · {item.duracionMin} min
+                  </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-black">{fmtMoney(item.precio)}</span>
-                  <span className="text-xs crm-text-muted">Costo {fmtMoney(item.costoInsumo)}</span>
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="text-right">
+                    <span className="ds-nums block text-sm font-semibold text-ds-fg">{fmtMoney(item.precio)}</span>
+                    <span className="ds-nums text-[12px] text-ds-fg-muted">Costo {fmtMoney(item.costoInsumo)}</span>
+                  </div>
                   <form action={toggleServicio}>
                     <input name="servicioId" type="hidden" value={item.id} />
                     <input name="activo" type="hidden" value={String(!item.activo)} />
                     <SubmitButton
                       label={item.activo ? "Activo" : "Inactivo"}
                       pendingLabel="…"
-                      className={`rounded-full px-3 py-1 text-xs font-black text-auto transition hover:opacity-60 ${item.activo ? "bg-emerald-500/20 border border-emerald-500/30" : "bg-white/8 border border-white/10"}`}
+                      className={`cursor-pointer rounded-full px-2.5 py-0.5 text-[11px] font-medium transition hover:opacity-70 ${
+                        item.activo
+                          ? "border border-ds-success/30 bg-ds-success-tint text-ds-success"
+                          : "border border-ds-border bg-ds-surface-2 text-ds-fg-muted"
+                      }`}
                     />
                   </form>
                   <ServicioEditButton
@@ -49,13 +57,10 @@ export default async function AdminServiciosPage() {
                   />
                 </div>
               </div>
-            </div>
-          ))}
-          {servicios.length === 0 && (
-            <p className="p-8 text-center text-sm text-slate-400">Sin servicios registrados.</p>
-          )}
+            ))}
+          </div>
         </div>
-      </section>
+      )}
     </div>
   );
 }
