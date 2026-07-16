@@ -40,13 +40,11 @@ export default function SuperAdminPlanesPage() {
 
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-5 text-white shadow-2xl sm:p-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(34,211,238,.28),transparent_16rem),radial-gradient(circle_at_85%_70%,rgba(168,85,247,.28),transparent_18rem)]" />
+      <section className="relative overflow-hidden rounded-card bg-ds-surface p-5 shadow-ds-sm sm:p-8">
         <div className="relative">
-          <div className="mac-dots" />
-          <p className="mt-6 text-[11px] font-bold uppercase tracking-[0.22em] text-cyan-300 sm:mt-8">MRZLABS · Monetización</p>
-          <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-4xl">Planes SaaS</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+          <p className="mt-6 text-[11px] font-bold uppercase tracking-[0.22em] text-ds-primary sm:mt-8">MRZLABS · Monetización</p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-4xl">Planes SaaS</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-ds-fg-muted">
             Configura planes, asigna a negocios y controla la facturación mensual.
           </p>
         </div>
@@ -56,15 +54,15 @@ export default function SuperAdminPlanesPage() {
         {PLANS.map((plan) => (
           <div
             key={plan.id}
-            className={`relative overflow-hidden rounded-[2rem] bg-gradient-to-br ${plan.color} p-6 text-white shadow-xl`}
+            className={`relative overflow-hidden rounded-card border border-ds-border bg-ds-surface p-6 shadow-ds-sm`}
           >
             {"popular" in plan && plan.popular && (
-              <span className="absolute right-4 top-4 rounded-full bg-white/15 px-3 py-0.5 text-[10px] font-black uppercase tracking-wider text-white/90 backdrop-blur">
+              <span className="absolute right-4 top-4 rounded-full bg-white/15 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ds-fg/90 backdrop-blur">
                 Más popular
               </span>
             )}
-            <p className="text-xs font-black uppercase tracking-[0.2em] opacity-60">{plan.nombre}</p>
-            <p className="mt-3 text-4xl font-black">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] opacity-60">{plan.nombre}</p>
+            <p className="mt-3 text-4xl font-semibold">
               ${plan.precio.toLocaleString("es-CO")}
               <span className="ml-1 text-sm font-medium opacity-60">/mes</span>
             </p>
@@ -77,7 +75,7 @@ export default function SuperAdminPlanesPage() {
               ))}
             </ul>
             <button
-              className="mt-6 w-full rounded-2xl border border-white/20 bg-white/10 py-3 text-sm font-black text-white transition hover:bg-white/20"
+              className="mt-6 w-full rounded-2xl border border-ds-border bg-ds-surface-2 py-3 text-sm font-semibold text-ds-fg transition hover:bg-white/20"
               onClick={() => setAssignModal({ plan })}
               type="button"
             >
@@ -117,24 +115,24 @@ function AssignPlanModal({ plan, onClose }: { plan: Plan; onClose: () => void })
   return (
     <>
       <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[8px]" onClick={onClose} />
-      <div className="fixed inset-x-4 top-1/3 z-50 mx-auto max-w-md rounded-[2rem] bg-slate-900 p-6 shadow-2xl border border-white/10">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300">Asignar plan</p>
-        <h3 className="mt-1 text-xl font-black text-white">Plan {plan.nombre}</h3>
+      <div className="fixed inset-x-4 top-1/3 z-50 mx-auto max-w-md rounded-card bg-slate-900 p-6 shadow-2xl border border-ds-border">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ds-primary">Asignar plan</p>
+        <h3 className="mt-1 text-xl font-semibold text-ds-fg">Plan {plan.nombre}</h3>
         <form className="mt-5 space-y-4" onSubmit={submit}>
-          <label className="block text-xs font-bold uppercase tracking-widest text-slate-400">
+          <label className="block text-xs font-bold uppercase tracking-widest text-ds-fg-muted">
             Slug del negocio
             <input
-              className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/8 px-3 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-cyan-400/60"
+              className="mt-1.5 w-full rounded-xl border border-ds-border bg-ds-surface-2 px-3 py-2.5 text-sm text-ds-fg placeholder:text-ds-fg/30 outline-none focus:border-ds-primary/60"
               placeholder="ej. smart-style"
               value={negocioSlug}
               onChange={(e) => setNegocioSlug(e.target.value)}
               required
             />
           </label>
-          {err && <p className="text-xs font-bold text-rose-400">{err}</p>}
+          {err && <p className="text-xs font-bold text-ds-danger">{err}</p>}
           <div className="flex gap-3">
-            <button type="button" className="flex-1 rounded-xl border border-white/10 py-2.5 text-sm font-bold text-white/60 hover:text-white transition" onClick={onClose}>Cancelar</button>
-            <button type="submit" disabled={pending} className="flex-1 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 py-2.5 text-sm font-black text-white disabled:opacity-50 transition">
+            <button type="button" className="flex-1 rounded-xl border border-ds-border py-2.5 text-sm font-bold text-ds-fg-muted hover:text-ds-fg transition" onClick={onClose}>Cancelar</button>
+            <button type="submit" disabled={pending} className="flex-1 rounded-xl bg-ds-primary py-2.5 text-sm font-medium text-white hover:bg-ds-primary-hover disabled:opacity-50 transition">
               {pending ? "Asignando…" : "Asignar plan"}
             </button>
           </div>

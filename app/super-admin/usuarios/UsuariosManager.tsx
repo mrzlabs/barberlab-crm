@@ -21,7 +21,7 @@ type NegocioOption = { id: string; nombre: string };
 
 const rolStyles: Record<string, string> = {
   super_admin: "bg-violet-900/50 text-auto",
-  admin:       "bg-cyan-900/50 text-auto",
+  admin:       "bg-ds-primary-tint text-ds-primary",
   empleado:    "bg-emerald-900/50 text-auto",
   cliente:     "bg-slate-700/60 text-auto",
 };
@@ -43,7 +43,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   }
   return (
     <button
-      className="ml-1 inline-flex items-center rounded-md p-0.5 text-slate-500 transition hover:text-cyan-400"
+      className="ml-1 inline-flex items-center rounded-md p-0.5 text-ds-fg-subtle transition hover:text-ds-primary"
       onClick={handleCopy}
       type="button"
       title={`Copiar ${label}`}
@@ -102,22 +102,22 @@ export function UsuariosManager({
   }
 
   const inputCls =
-    "rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white placeholder:text-slate-400 outline-none focus:border-cyan-400/40 transition";
+    "rounded-control border border-ds-border bg-ds-surface px-3 py-2 text-sm text-ds-fg placeholder:text-ds-fg-subtle outline-none transition-colors focus:border-ds-primary focus:ring-2 focus:ring-ds-ring/60";
 
   return (
     <>
       {/* ── Filters + Table ─────────────────────────────────────── */}
       <div
-        className="overflow-hidden rounded-[2rem] border"
-        style={{ background: "rgba(17,17,24,0.95)", borderColor: "rgba(255,255,255,0.09)" }}
+        className="overflow-hidden rounded-card border"
+        style={{ background: "var(--ds-surface)", borderColor: "var(--ds-border)" }}
       >
         <div
           className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4"
-          style={{ borderColor: "rgba(255,255,255,0.08)" }}
+          style={{ borderColor: "var(--ds-border)" }}
         >
           <div>
-            <h3 className="font-black text-white">Usuarios registrados</h3>
-            <p className="text-xs text-slate-400">{total} usuarios · página {page}/{Math.max(1, totalPages)}</p>
+            <h3 className="font-semibold text-ds-fg">Usuarios registrados</h3>
+            <p className="text-xs text-ds-fg-muted">{total} usuarios · página {page}/{Math.max(1, totalPages)}</p>
           </div>
           <form
             className="flex flex-wrap gap-2"
@@ -139,13 +139,13 @@ export function UsuariosManager({
               <option value="empleado">Empleado</option>
               <option value="cliente">Cliente</option>
             </select>
-            <button className="rounded-xl bg-cyan-500/20 px-3 py-2 text-xs font-black text-cyan-300 hover:bg-cyan-500/30 transition" type="submit">Filtrar</button>
+            <button className="h-control rounded-control bg-ds-primary px-3 text-xs font-medium text-white transition-colors hover:bg-ds-primary-hover" type="submit">Filtrar</button>
           </form>
         </div>
 
         <div className="overflow-x-auto scrollbar-soft">
           <table className="w-full min-w-[1000px] text-left text-sm">
-            <thead className="text-[10px] uppercase tracking-wide" style={{ background: "#0d0d14", color: "#67e8f9" }}>
+            <thead className="text-[10px] uppercase tracking-wide" style={{ background: "var(--ds-surface-2)", color: "var(--ds-fg-muted)" }}>
               <tr>
                 <th className="px-5 py-3">Nombre</th>
                 <th className="px-5 py-3">Email</th>
@@ -171,27 +171,27 @@ export function UsuariosManager({
                   onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = "rgba(124,58,237,0.1)"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = i % 2 !== 0 ? "rgba(255,255,255,0.022)" : "transparent"; }}
                 >
-                  <td className="px-5 py-3.5 font-semibold text-white">{u.nombre}</td>
-                  <td className="px-5 py-3.5 text-xs text-slate-400">{u.email}</td>
+                  <td className="px-5 py-3.5 font-semibold text-ds-fg">{u.nombre}</td>
+                  <td className="px-5 py-3.5 text-xs text-ds-fg-muted">{u.email}</td>
                   <td className="px-4 py-3.5">
-                    <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${rolStyles[u.rol] ?? "bg-slate-700/60 text-slate-300"}`}>{u.rol}</span>
+                    <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${rolStyles[u.rol] ?? "bg-slate-700/60 text-ds-fg-muted"}`}>{u.rol}</span>
                   </td>
-                  <td className="px-4 py-3.5 text-sm text-slate-300">{u.negocioNombre ?? <span className="text-slate-600">—</span>}</td>
+                  <td className="px-4 py-3.5 text-sm text-ds-fg-muted">{u.negocioNombre ?? <span className="text-ds-fg-subtle">—</span>}</td>
                   <td className="px-4 py-3.5">
                     {u.negocioId ? (
-                      <span className="flex items-center font-mono text-[10px] text-slate-500">
+                      <span className="flex items-center font-mono text-[10px] text-ds-fg-subtle">
                         {u.negocioId.slice(0, 8)}…
                         <CopyButton text={u.negocioId} label="negocio_id" />
                       </span>
-                    ) : <span className="text-slate-600">—</span>}
+                    ) : <span className="text-ds-fg-subtle">—</span>}
                   </td>
                   <td className="px-4 py-3.5">
-                    <span className="flex items-center font-mono text-[10px] text-slate-500">
+                    <span className="flex items-center font-mono text-[10px] text-ds-fg-subtle">
                       {u.id.slice(0, 8)}…
                       <CopyButton text={u.id} label="usuario_id" />
                     </span>
                   </td>
-                  <td className="px-4 py-3.5 text-xs text-slate-500">{fmtDate(u.lastSignIn)}</td>
+                  <td className="px-4 py-3.5 text-xs text-ds-fg-subtle">{fmtDate(u.lastSignIn)}</td>
                   <td className="px-4 py-3.5">
                     <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold text-auto ${u.activo ? "bg-emerald-900/50" : "bg-rose-900/50"}`}>
                       {u.activo ? "Activo" : "Inactivo"}
@@ -208,7 +208,7 @@ export function UsuariosManager({
                         {u.activo ? "Inactivar" : "Activar"}
                       </button>
                       <button
-                        className="flex items-center gap-1 rounded-lg bg-violet-900/40 px-2 py-1 text-[11px] font-bold text-violet-300 transition hover:bg-violet-900/70 disabled:opacity-50"
+                        className="flex items-center gap-1 rounded-lg bg-violet-900/40 px-2 py-1 text-[11px] font-bold text-ds-primary transition hover:bg-violet-900/70 disabled:opacity-50"
                         disabled={pending || resetting}
                         onClick={() => handleResetPassword(u.id, u.nombre)}
                         type="button"
@@ -217,7 +217,7 @@ export function UsuariosManager({
                         <KeyRound className="size-3" /> Resetear clave
                       </button>
                       <button
-                        className="rounded-lg bg-rose-900/40 px-2 py-1 text-[11px] font-bold text-rose-300 transition hover:bg-rose-900/70"
+                        className="rounded-lg bg-rose-900/40 px-2 py-1 text-[11px] font-bold text-ds-danger transition hover:bg-rose-900/70"
                         disabled={pending}
                         onClick={() => { if (window.confirm(`¿Eliminar a ${u.nombre}?`)) startTransition(async () => { await deleteUsuario(u.id); router.refresh(); }); }}
                         type="button"
@@ -229,19 +229,19 @@ export function UsuariosManager({
                 </tr>
               ))}
               {usuarios.length === 0 && (
-                <tr><td className="px-5 py-8 text-center text-slate-500" colSpan={9}>Sin usuarios con ese filtro.</td></tr>
+                <tr><td className="px-5 py-8 text-center text-ds-fg-subtle" colSpan={9}>Sin usuarios con ese filtro.</td></tr>
               )}
             </tbody>
           </table>
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t px-5 py-3" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-            <button className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-white/60 transition hover:text-white disabled:opacity-30" disabled={page <= 1} onClick={() => router.push(buildUrl({ page: page - 1 }))} type="button">
+          <div className="flex items-center justify-between border-t px-5 py-3" style={{ borderColor: "var(--ds-border)" }}>
+            <button className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-ds-fg-muted transition hover:text-ds-fg disabled:opacity-30" disabled={page <= 1} onClick={() => router.push(buildUrl({ page: page - 1 }))} type="button">
               <ChevronLeft className="size-4" /> Anterior
             </button>
-            <span className="text-xs text-slate-500">Página {page} de {totalPages}</span>
-            <button className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-white/60 transition hover:text-white disabled:opacity-30" disabled={page >= totalPages} onClick={() => router.push(buildUrl({ page: page + 1 }))} type="button">
+            <span className="text-xs text-ds-fg-subtle">Página {page} de {totalPages}</span>
+            <button className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-ds-fg-muted transition hover:text-ds-fg disabled:opacity-30" disabled={page >= totalPages} onClick={() => router.push(buildUrl({ page: page + 1 }))} type="button">
               Siguiente <ChevronRight className="size-4" />
             </button>
           </div>
@@ -252,17 +252,17 @@ export function UsuariosManager({
       {resetModal && (
         <>
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setResetModal(null)} />
-          <div className="fixed left-1/2 top-1/2 z-[60] w-[min(92vw,420px)] -translate-x-1/2 -translate-y-1/2 rounded-[2rem] border border-white/15 bg-[#111118] p-6 shadow-2xl">
+          <div className="fixed left-1/2 top-1/2 z-[60] w-[min(92vw,420px)] -translate-x-1/2 -translate-y-1/2 rounded-card border border-ds-border bg-[#111118] p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-400">Clave reseteada</p>
-              <button className="rounded-xl border border-white/10 p-1.5 text-white/50 hover:text-white" onClick={() => setResetModal(null)} type="button" aria-label="Cerrar"><X className="size-4" /></button>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ds-primary">Clave reseteada</p>
+              <button className="rounded-xl border border-ds-border p-1.5 text-ds-fg-muted hover:text-ds-fg" onClick={() => setResetModal(null)} type="button" aria-label="Cerrar"><X className="size-4" /></button>
             </div>
-            <p className="text-sm text-slate-300 mb-4">Nueva clave generada para <strong className="text-white">{resetModal.nombre}</strong>. Cópiala y comunícala al usuario.</p>
+            <p className="text-sm text-ds-fg-muted mb-4">Nueva clave generada para <strong className="text-ds-fg">{resetModal.nombre}</strong>. Cópiala y comunícala al usuario.</p>
             {resetModal.newPassword ? (
-              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                <code className="flex-1 font-mono text-lg font-black tracking-widest text-cyan-300">{resetModal.newPassword}</code>
+              <div className="flex items-center gap-3 rounded-2xl border border-ds-border bg-ds-surface-2 px-4 py-3">
+                <code className="flex-1 font-mono text-lg font-semibold tracking-widest text-ds-primary">{resetModal.newPassword}</code>
                 <button
-                  className="rounded-xl bg-cyan-500/20 px-3 py-2 text-xs font-black text-cyan-300 hover:bg-cyan-500/30 transition"
+                  className="h-control rounded-control bg-ds-primary px-3 text-xs font-medium text-white transition-colors hover:bg-ds-primary-hover"
                   onClick={() => navigator.clipboard.writeText(resetModal.newPassword!)}
                   type="button"
                 >
@@ -270,9 +270,9 @@ export function UsuariosManager({
                 </button>
               </div>
             ) : (
-              <p className="text-sm text-rose-400">Error al generar la clave.</p>
+              <p className="text-sm text-ds-danger">Error al generar la clave.</p>
             )}
-            <p className="mt-3 text-xs text-slate-500">El usuario deberá cambiar su contraseña en el próximo inicio de sesión.</p>
+            <p className="mt-3 text-xs text-ds-fg-subtle">El usuario deberá cambiar su contraseña en el próximo inicio de sesión.</p>
           </div>
         </>
       )}
@@ -281,13 +281,13 @@ export function UsuariosManager({
       {selected && (
         <>
           <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={() => setSelected(null)} />
-          <div className="fixed inset-y-0 right-0 z-50 flex w-[min(90vw,400px)] flex-col border-l shadow-2xl" style={{ background: "#111118", borderColor: "rgba(255,255,255,0.09)" }}>
-            <div className="flex items-center justify-between border-b px-5 py-4" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+          <div className="fixed inset-y-0 right-0 z-50 flex w-[min(90vw,400px)] flex-col border-l shadow-2xl" style={{ background: "var(--ds-surface)", borderColor: "var(--ds-border)" }}>
+            <div className="flex items-center justify-between border-b px-5 py-4" style={{ borderColor: "var(--ds-border)" }}>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: "#22d3ee" }}>Detalle usuario</p>
-                <h3 className="mt-0.5 text-lg font-black text-white">{selected.nombre}</h3>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: "#22d3ee" }}>Detalle usuario</p>
+                <h3 className="mt-0.5 text-lg font-semibold text-ds-fg">{selected.nombre}</h3>
               </div>
-              <button className="rounded-xl border p-2 text-white/50 transition hover:text-white" onClick={() => setSelected(null)} style={{ borderColor: "rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)" }} type="button" aria-label="Cerrar"><X className="size-4" /></button>
+              <button className="rounded-xl border p-2 text-ds-fg-muted transition hover:text-ds-fg" onClick={() => setSelected(null)} style={{ borderColor: "var(--ds-border)", background: "var(--ds-surface-2)" }} type="button" aria-label="Cerrar"><X className="size-4" /></button>
             </div>
             <div className="flex-1 overflow-y-auto p-5">
               <div className="grid gap-3">
@@ -301,10 +301,10 @@ export function UsuariosManager({
                   ["Registro", fmtDate(selected.createdAt)],
                   ["Último acceso", fmtDate(selected.lastSignIn)],
                 ] as [string, string][]).map(([label, value]) => (
-                  <div key={label} className="rounded-2xl border p-4" style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}>
-                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{label}</p>
+                  <div key={label} className="rounded-2xl border p-4" style={{ background: "var(--ds-surface-2)", borderColor: "var(--ds-border)" }}>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-ds-fg-muted">{label}</p>
                     <div className="mt-1 flex items-center gap-2">
-                      <p className="break-all text-sm font-semibold text-white">{value}</p>
+                      <p className="break-all text-sm font-semibold text-ds-fg">{value}</p>
                       {(label === "Usuario ID" || label === "Negocio ID") && value !== "Sin negocio" && (
                         <CopyButton text={value} label={label} />
                       )}

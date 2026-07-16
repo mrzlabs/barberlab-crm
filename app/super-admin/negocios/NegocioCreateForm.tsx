@@ -5,8 +5,8 @@ import { useFormState, useFormStatus } from "react-dom";
 import { createNegocio, type CreateNegocioState } from "./actions";
 
 const input =
-  "w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-400/40 transition";
-const inputError = "border-rose-500/60 focus:border-rose-400";
+  "w-full rounded-control border border-ds-border bg-ds-surface px-3 py-2 text-sm text-ds-fg placeholder:text-ds-fg-subtle outline-none transition-colors focus:border-ds-primary focus:ring-2 focus:ring-ds-ring/60";
+const inputError = "border-ds-danger focus:border-ds-danger focus:ring-ds-danger/30";
 
 function slugify(value: string) {
   return value
@@ -20,15 +20,14 @@ function slugify(value: string) {
 
 function FieldError({ error }: { error?: string }) {
   if (!error) return null;
-  return <p className="mt-1 text-[11px] font-semibold text-rose-400">{error}</p>;
+  return <p className="mt-1 text-[11px] font-medium text-ds-danger">{error}</p>;
 }
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <button
-      className="rounded-xl px-4 py-3 text-sm font-black text-white transition hover:opacity-90 disabled:opacity-60"
-      style={{ background: "linear-gradient(135deg,#22d3ee,#7c3aed)" }}
+      className="h-control rounded-control bg-ds-primary px-4 text-sm font-medium text-white transition-colors hover:bg-ds-primary-hover disabled:opacity-60"
       type="submit"
       disabled={pending}
     >
@@ -59,18 +58,17 @@ export function NegocioCreateForm() {
     <form
       ref={formRef}
       action={formAction}
-      className="rounded-[2rem] border p-5"
-      style={{ background: "#111118", borderColor: "rgba(255,255,255,0.09)" }}
+      className="rounded-card border border-ds-border bg-ds-surface p-5 shadow-ds-sm"
     >
-      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-400">Nuevo cliente SaaS</p>
-      <h3 className="mt-1 text-xl font-black text-white">Registrar barbería</h3>
+      <p className="text-[12px] font-medium uppercase tracking-wide text-ds-fg-muted">Nuevo cliente SaaS</p>
+      <h3 className="text-base font-semibold text-ds-fg">Registrar barbería</h3>
 
       {state && state.message && (
         <div
           className={`mt-3 rounded-xl border px-3 py-2.5 text-xs font-semibold ${
             state.ok
-              ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-              : "border-rose-500/40 bg-rose-500/10 text-rose-300"
+              ? "border-ds-success/30 bg-ds-success-tint text-ds-success"
+              : "border-ds-danger/30 bg-ds-danger-tint text-ds-danger"
           }`}
           role="alert"
         >
@@ -142,18 +140,18 @@ export function NegocioCreateForm() {
         {/* colores */}
         <div
           className="rounded-xl border p-3"
-          style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}
+          style={{ background: "var(--ds-surface-2)", borderColor: "var(--ds-border)" }}
         >
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">Identidad visual</p>
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-ds-fg-muted">Identidad visual</p>
           <div className="grid grid-cols-3 gap-2">
-            <label className="grid gap-1 text-[10px] font-semibold text-slate-400">
-              Principal<input className="h-9 w-full rounded-lg border border-white/10 bg-transparent" defaultValue="#111827" name="colorPrimario" type="color" />
+            <label className="grid gap-1 text-[11px] font-medium text-ds-fg-muted">
+              Principal<input className="h-9 w-full rounded-control border border-ds-border bg-ds-surface" defaultValue="#111827" name="colorPrimario" type="color" />
             </label>
-            <label className="grid gap-1 text-[10px] font-semibold text-slate-400">
-              Secundario<input className="h-9 w-full rounded-lg border border-white/10 bg-transparent" defaultValue="#22d3ee" name="colorSecundario" type="color" />
+            <label className="grid gap-1 text-[11px] font-medium text-ds-fg-muted">
+              Secundario<input className="h-9 w-full rounded-control border border-ds-border bg-ds-surface" defaultValue="#22d3ee" name="colorSecundario" type="color" />
             </label>
-            <label className="grid gap-1 text-[10px] font-semibold text-slate-400">
-              Acento<input className="h-9 w-full rounded-lg border border-white/10 bg-transparent" defaultValue="#7c3aed" name="colorAcento" type="color" />
+            <label className="grid gap-1 text-[11px] font-medium text-ds-fg-muted">
+              Acento<input className="h-9 w-full rounded-control border border-ds-border bg-ds-surface" defaultValue="#7c3aed" name="colorAcento" type="color" />
             </label>
           </div>
           <input className={`${input} mt-2`} defaultValue="Outfit" name="fuente" placeholder="Fuente" />
@@ -179,17 +177,17 @@ export function NegocioCreateForm() {
 
         <div
           className="rounded-xl border p-3"
-          style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}
+          style={{ background: "var(--ds-surface-2)", borderColor: "var(--ds-border)" }}
         >
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">Regla contable</p>
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-ds-fg-muted">Regla contable</p>
           <select className={input} name="comisionBase" defaultValue="precio_final">
             <option value="precio_final">Comisión sobre precio final</option>
             <option value="precio_menos_descuento">Comisión sobre precio menos descuento</option>
             <option value="precio_menos_insumo">Comisión sobre precio menos insumo</option>
           </select>
-          <label className="mt-2 flex items-center gap-2 text-xs font-bold text-slate-400">
+          <label className="mt-2 flex items-center gap-2 text-xs font-medium text-ds-fg-muted">
             <input name="propinaEnComision" type="hidden" value="false" />
-            <input className="size-4 accent-violet-500" name="propinaEnComision" type="checkbox" value="true" />
+            <input className="size-4 accent-ds-primary" name="propinaEnComision" type="checkbox" value="true" />
             Incluir propina en comisión
           </label>
         </div>
@@ -199,9 +197,9 @@ export function NegocioCreateForm() {
         {/* admin */}
         <div
           className="rounded-xl border p-3"
-          style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}
+          style={{ background: "var(--ds-surface-2)", borderColor: "var(--ds-border)" }}
         >
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">Admin del negocio</p>
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-ds-fg-muted">Admin del negocio</p>
           <div className="grid gap-2">
             <div>
               <input className={`${input} ${errors.adminNombre ? inputError : ""}`} name="adminNombre" placeholder="Nombre admin" required />

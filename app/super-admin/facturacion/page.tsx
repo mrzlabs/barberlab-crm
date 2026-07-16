@@ -7,13 +7,11 @@ export default async function FacturacionPage() {
   const negocios = await getFacturacion();
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-5 text-white shadow-2xl sm:p-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(34,211,238,.28),transparent_16rem),radial-gradient(circle_at_85%_70%,rgba(168,85,247,.28),transparent_18rem)]" />
+      <section className="relative overflow-hidden rounded-card bg-ds-surface p-5 shadow-ds-sm sm:p-8">
         <div className="relative">
-          <div className="mac-dots" />
-          <p className="mt-6 text-[11px] font-bold uppercase tracking-[0.22em] text-cyan-300 sm:mt-8">MRZLABS · Costos</p>
-          <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-4xl">Facturación y mantenimiento</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+          <p className="mt-6 text-[11px] font-bold uppercase tracking-[0.22em] text-ds-primary sm:mt-8">MRZLABS · Costos</p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-4xl">Facturación y mantenimiento</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-ds-fg-muted">
             Plan, costo mensual y fecha de renovación por comercio. Edita plan y fecha directamente.
           </p>
         </div>

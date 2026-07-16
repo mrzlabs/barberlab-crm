@@ -9,7 +9,7 @@ import { fmtMoney } from "@/lib/admin/format";
 
 export const dynamic = "force-dynamic";
 
-const input = "w-full rounded-md border border-[#334155] bg-[#0f172a] px-3 py-2 text-sm text-slate-100 outline-none focus:border-cyan-500 placeholder:text-[#64748b]";
+const input = "w-full rounded-control border border-ds-border bg-ds-surface px-3 py-2 text-sm text-ds-fg outline-none transition-colors focus:border-ds-primary focus:ring-2 focus:ring-ds-ring/60 placeholder:text-ds-fg-subtle";
 
 export default async function NegocioDetallePage({ params }: { params: { id: string } }) {
   const negocio = await getNegocioById(params.id);
@@ -30,20 +30,18 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
 
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-6 text-white shadow-2xl shadow-violet-950/20 sm:p-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(34,211,238,.32),transparent_18rem),radial-gradient(circle_at_86%_62%,rgba(168,85,247,.38),transparent_20rem)]" />
+      <section className="relative overflow-hidden rounded-card bg-ds-surface p-6 shadow-ds-sm shadow-violet-950/20 sm:p-8">
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="mac-dots" />
-            <p className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Cliente SaaS</p>
-            <h2 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">{negocio.nombre}</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300">
+            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-ds-primary">Cliente SaaS</p>
+            <h2 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">{negocio.nombre}</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-ds-fg-muted">
               Gestiona identidad visual, suscripcion y aislamiento. Los datos operativos se mantienen separados por negocio_id.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <OperarButton negocioId={negocio.id} nombre={negocio.nombre} />
-            <Link className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-black text-white backdrop-blur hover:bg-white/15" href="/super-admin/negocios">
+            <Link className="rounded-2xl border border-ds-border bg-ds-surface-2 px-4 py-3 text-sm font-semibold text-ds-fg backdrop-blur hover:bg-white/15" href="/super-admin/negocios">
               Volver
             </Link>
           </div>
@@ -52,23 +50,23 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {statItems.map(([label, value]) => (
-          <article className="glass-panel rounded-[1.4rem] p-5" key={label}>
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">{label}</p>
-            <strong className="mt-2 block text-3xl font-black">{value}</strong>
+          <article className="rounded-card border border-ds-border bg-ds-surface p-5 shadow-ds-sm" key={label}>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ds-fg-subtle">{label}</p>
+            <strong className="mt-2 block text-3xl font-semibold">{value}</strong>
           </article>
         ))}
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2">
-        <article className="glass-panel rounded-[1.4rem] p-5">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-600">Este mes</p>
-          <strong className="mt-2 block text-3xl font-black">{monthly.turnos}</strong>
-          <p className="mt-1 text-sm text-slate-500">Turnos cerrados</p>
+        <article className="rounded-card border border-ds-border bg-ds-surface p-5 shadow-ds-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-600">Este mes</p>
+          <strong className="mt-2 block text-3xl font-semibold">{monthly.turnos}</strong>
+          <p className="mt-1 text-sm text-ds-fg-subtle">Turnos cerrados</p>
         </article>
-        <article className="glass-panel rounded-[1.4rem] p-5">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-600">Ingresos mes</p>
-          <strong className="mt-2 block text-3xl font-black">{fmtMoney(monthly.ingresos)}</strong>
-          <p className="mt-1 text-sm text-slate-500">Precio final + propinas</p>
+        <article className="rounded-card border border-ds-border bg-ds-surface p-5 shadow-ds-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600">Ingresos mes</p>
+          <strong className="mt-2 block text-3xl font-semibold">{fmtMoney(monthly.ingresos)}</strong>
+          <p className="mt-1 text-sm text-ds-fg-subtle">Precio final + propinas</p>
         </article>
       </section>
 
@@ -79,19 +77,18 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
           ["Personalizar marca", "Ajusta logo, colores y fuente para que el CRM parezca propio del comercio."],
           ["Escalar plan", "Starter, Pro o Enterprise segun volumen, soporte y nivel de aislamiento."],
         ].map(([title, body]) => (
-          <article className="glass-panel rounded-[1.4rem] p-5" key={title}>
-            <div className="mac-dots" />
-            <h3 className="mt-5 text-lg font-black" style={{ color: "#ffffff" }}>{title}</h3>
+          <article className="rounded-card border border-ds-border bg-ds-surface p-5 shadow-ds-sm" key={title}>
+            <h3 className="mt-5 text-lg font-semibold" style={{ color: "#ffffff" }}>{title}</h3>
             <p className="mt-2 text-sm leading-6" style={{ color: "#94a3b8" }}>{body}</p>
           </article>
         ))}
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_390px]">
-        <form action={updateNegocio} className="glass-panel rounded-[2rem] p-5" data-brand-form>
+        <form action={updateNegocio} className="rounded-card border border-ds-border bg-ds-surface p-5 shadow-ds-sm" data-brand-form>
           <input name="id" type="hidden" value={negocio.id} />
-          <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Personalizacion</p>
-          <h3 className="mt-1 text-2xl font-black" style={{ color: "#ffffff" }}>Marca y suscripcion</h3>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Personalizacion</p>
+          <h3 className="mt-1 text-2xl font-semibold" style={{ color: "#ffffff" }}>Marca y suscripcion</h3>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <label className="grid gap-2 text-sm font-bold">
               Nombre
@@ -210,7 +207,7 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
               Propina comisionable
             </label>
           </div>
-          <button className="mt-5 rounded-2xl px-5 py-3 text-sm font-black" style={{ background: "#1e293b", color: "#f1f5f9", border: "1px solid #334155" }} type="submit">
+          <button className="mt-5 h-control rounded-control px-5 text-sm font-medium hover:brightness-95" style={{ background: "var(--ds-primary)", color: "#fff" }} type="submit">
             Guardar cambios
           </button>
         </form>
@@ -226,9 +223,9 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[430px_1fr]">
-        <section className="glass-panel rounded-[2rem] p-5">
-          <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Control comercial</p>
-          <h3 className="mt-1 text-2xl font-black" style={{ color: "#ffffff" }}>Encender o apagar tienda</h3>
+        <section className="rounded-card border border-ds-border bg-ds-surface p-5 shadow-ds-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Control comercial</p>
+          <h3 className="mt-1 text-2xl font-semibold" style={{ color: "#ffffff" }}>Encender o apagar tienda</h3>
           <p className="mt-2 text-sm leading-6" style={{ color: "#94a3b8" }}>
             Al suspender o cancelar, los usuarios relacionados quedan inactivos. Al activar, se rehabilitan para operar.
           </p>
@@ -241,7 +238,7 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
               <form action={toggleNegocio} key={estado}>
                 <input name="id" type="hidden" value={negocio.id} />
                 <input name="estado" type="hidden" value={estado} />
-                <button className="w-full rounded-2xl border px-4 py-3 text-sm font-black" style={{ background: "#1e293b", color: "#f1f5f9", borderColor: "#334155" }} type="submit">
+                <button className="h-control w-full rounded-control px-4 text-sm font-medium hover:brightness-95" style={{ background: "var(--ds-primary)", color: "#fff" }} type="submit">
                   {label}
                 </button>
               </form>
@@ -249,14 +246,14 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
           </div>
         </section>
 
-        <section className="glass-panel overflow-hidden rounded-[2rem]">
+        <section className="overflow-hidden rounded-card border border-ds-border bg-ds-surface shadow-ds-sm">
           <div className="border-b p-5" style={{ borderColor: "rgba(51,65,85,0.5)" }}>
-            <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Roles y accesos</p>
-            <h3 className="mt-1 text-2xl font-black" style={{ color: "#ffffff" }}>Usuarios registrados</h3>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Roles y accesos</p>
+            <h3 className="mt-1 text-2xl font-semibold" style={{ color: "#ffffff" }}>Usuarios registrados</h3>
           </div>
           <div className="overflow-x-auto scrollbar-soft">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="text-xs uppercase tracking-wide" style={{ background: "#0f172a", color: "#00cec9" }}>
+              <thead className="text-xs uppercase tracking-wide" style={{ color: "var(--ds-fg-muted)" }}>
                 <tr>
                   <th className="px-5 py-3">Usuario</th>
                   <th className="px-5 py-3">Rol</th>
@@ -275,7 +272,7 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
                     <td className="px-5 py-4 capitalize" style={{ color: "#e2e8f0" }}>{user.rol}</td>
                     <td className="px-5 py-4" style={{ color: "#e2e8f0" }}>{user.telefono || "Sin telefono"}</td>
                     <td className="px-5 py-4">
-                      <span className="rounded-full px-2.5 py-1 text-xs font-black" style={user.activo
+                      <span className="rounded-full px-2.5 py-1 text-xs font-semibold" style={user.activo
                         ? { background: "rgba(16,185,129,0.2)", color: "#34d399", border: "1px solid rgba(16,185,129,0.3)" }
                         : { background: "rgba(239,68,68,0.2)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)" }}>
                         {user.activo ? "Activo" : "Inactivo"}
@@ -300,10 +297,10 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[430px_1fr]">
-        <form action={createNegocioUser} className="glass-panel rounded-[2rem] p-5">
+        <form action={createNegocioUser} className="rounded-card border border-ds-border bg-ds-surface p-5 shadow-ds-sm">
           <input name="negocioId" type="hidden" value={negocio.id} />
-          <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Usuarios del negocio</p>
-          <h3 className="mt-1 text-2xl font-black" style={{ color: "#ffffff" }}>Crear acceso</h3>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Usuarios del negocio</p>
+          <h3 className="mt-1 text-2xl font-semibold" style={{ color: "#ffffff" }}>Crear acceso</h3>
           <p className="mt-2 text-sm leading-6" style={{ color: "#94a3b8" }}>
             Crea usuarios dentro de esta barberia. El rol define su vista, permisos y datos visibles.
           </p>
@@ -326,15 +323,15 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
               </select>
               <input className={input} name="comisionPct" placeholder="Comision %" type="number" min="0" max="100" step="0.01" defaultValue="0" />
             </div>
-            <button className="rounded-2xl px-4 py-3 text-sm font-black" style={{ background: "#1e293b", color: "#f1f5f9", border: "1px solid #334155" }} type="submit">
+            <button className="h-control rounded-control px-4 text-sm font-medium hover:brightness-95" style={{ background: "var(--ds-primary)", color: "#fff" }} type="submit">
               Crear usuario
             </button>
           </div>
         </form>
 
-        <section className="glass-panel rounded-[2rem] p-5">
-          <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Operación MRZLABS</p>
-          <h3 className="mt-1 text-2xl font-black" style={{ color: "#ffffff" }}>Flujo comercial por barberia</h3>
+        <section className="rounded-card border border-ds-border bg-ds-surface p-5 shadow-ds-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: "#00cec9" }}>Operación MRZLABS</p>
+          <h3 className="mt-1 text-2xl font-semibold" style={{ color: "#ffffff" }}>Flujo comercial por barberia</h3>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {[
               ["Onboarding", "Crear negocio, cargar marca, crear admin y validar acceso."],
@@ -344,7 +341,7 @@ export default async function NegocioDetallePage({ params }: { params: { id: str
               ["Mercado LATAM", "Soportar monedas, planes y operaciones por pais desde el modelo SaaS."],
               ["Decision", "Cruzar agenda, caja, inventario, no asistencia y rentabilidad."],
             ].map(([title, body]) => (
-              <article className="rounded-2xl border p-4" style={{ background: "#0f172a", borderColor: "#1e293b" }} key={title}>
+              <article className="rounded-2xl border p-4" style={{ background: "var(--ds-surface-2)", borderColor: "var(--ds-border)" }} key={title}>
                 <strong className="block" style={{ color: "#00cec9", fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</strong>
                 <p className="mt-1 text-sm leading-6" style={{ color: "#94a3b8" }}>{body}</p>
               </article>

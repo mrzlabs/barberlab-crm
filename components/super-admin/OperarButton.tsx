@@ -28,17 +28,16 @@ export function OperarButton({ negocioId, nombre }: { negocioId: string; nombre:
   return (
     <div className="flex flex-col gap-1">
       <button
-        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-black text-white transition hover:opacity-90 disabled:opacity-50"
+        className="flex flex-1 items-center justify-center gap-1.5 rounded-control bg-ds-primary px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-ds-primary-hover disabled:opacity-50"
         disabled={loading}
         onClick={handleOperar}
-        style={{ background: "linear-gradient(135deg,#22d3ee,#7c3aed)" }}
         title={`Operar ${nombre}`}
         type="button"
       >
         {loading ? <Loader2 className="size-3 animate-spin" /> : null}
         Operar
       </button>
-      {error && <p className="text-[10px] font-bold text-rose-400">{error}</p>}
+      {error && <p className="text-[11px] font-medium text-ds-danger">{error}</p>}
     </div>
   );
 }
