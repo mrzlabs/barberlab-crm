@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 
-const PALETTE = ["#27C3D8", "#7F77DD", "#F5C400", "#B57BE0", "#5A82EE", "#5fb98a"];
+const PALETTE = ["#2563eb", "#16a34a", "#d97706", "#7c3aed", "#0891b2", "#db2777"];
 
 type Cita = {
   id: string;
@@ -14,173 +14,79 @@ type Cita = {
   servicio: string;
 };
 
-type Empleado = {
-  id: string;
-  nombre: string;
-  activo: boolean;
-};
-
-type Props = {
-  citas: Cita[];
-  empleados: Empleado[];
-  fecha: string;
-};
+type Empleado = { id: string; nombre: string; activo: boolean };
+type Props = { citas: Cita[]; empleados: Empleado[]; fecha: string };
 
 function fmtHour(date: Date | string): string {
-  return new Date(date).toLocaleTimeString("es-CO", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
+  return new Date(date).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", hour12: true });
 }
+
+const badge = "absolute right-2.5 top-2.5 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-medium";
 
 export function AgendaBoardView({ citas, empleados, fecha }: Props) {
   const now = new Date();
   const activeEmpleados = empleados.filter((e) => e.activo);
-
   const fechaRef = new Date(`${fecha}T12:00:00`).toDateString();
-  const citasDia = citas.filter(
-    (c) => new Date(c.inicio).toDateString() === fechaRef,
-  );
-
-  function isEnCurso(c: Cita): boolean {
-    return now >= new Date(c.inicio) && now <= new Date(c.fin);
-  }
+  const citasDia = citas.filter((c) => new Date(c.inicio).toDateString() === fechaRef);
+  const isEnCurso = (c: Cita) => now >= new Date(c.inicio) && now <= new Date(c.fin);
 
   return (
-    <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 16, alignItems: "flex-start" }}>
+    <div className="flex items-start gap-3.5 overflow-x-auto pb-4">
       {activeEmpleados.map((emp, colIdx) => {
         const color = PALETTE[colIdx % PALETTE.length];
         const empCitas = citasDia
           .filter((c) => c.empleadoId === emp.id)
           .sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime());
 
-        type Item =
-          | { type: "cita"; cita: Cita; key: string }
-          | { type: "gap"; key: string };
-
+        type Item = { type: "cita"; cita: Cita; key: string } | { type: "gap"; key: string };
         const items: Item[] = [];
         for (let i = 0; i < empCitas.length; i++) {
           if (i > 0) {
-            const gapMs =
-              new Date(empCitas[i].inicio).getTime() -
-              new Date(empCitas[i - 1].fin).getTime();
-            if (gapMs > 30 * 60 * 1000) {
-              items.push({ type: "gap", key: `gap-${i}` });
-            }
+            const gapMs = new Date(empCitas[i].inicio).getTime() - new Date(empCitas[i - 1].fin).getTime();
+            if (gapMs > 30 * 60 * 1000) items.push({ type: "gap", key: `gap-${i}` });
           }
           items.push({ type: "cita", cita: empCitas[i], key: empCitas[i].id });
         }
         items.push({ type: "gap", key: "gap-end" });
 
         return (
-          <div
-            key={emp.id}
-            style={{ flexShrink: 0, width: 220, display: "flex", flexDirection: "column", gap: 8 }}
-          >
-            {/* Column header */}
-            <div style={{
-              display: "flex", alignItems: "center", gap: 8,
-              fontSize: 13.5, fontWeight: 700, padding: "4px 2px 10px",
-              borderBottom: "1px solid rgba(255,255,255,.06)", color: "#ECECF4",
-            }}>
-              <span style={{
-                width: 10, height: 10, borderRadius: "50%",
-                background: color, flexShrink: 0,
-              }} />
-              <span style={{ flex: 1 }}>{emp.nombre}</span>
-              <span style={{
-                fontSize: 10.5, fontWeight: 800,
-                background: "rgba(255,255,255,.07)", borderRadius: 999,
-                padding: "2px 8px", color: "rgba(255,255,255,.5)",
-              }}>
-                {empCitas.length}
-              </span>
+          <div key={emp.id} className="flex w-[220px] shrink-0 flex-col gap-2">
+            <div className="flex items-center gap-2 border-b border-ds-border px-0.5 pb-2.5 pt-1 text-[13px] font-semibold text-ds-fg">
+              <span className="size-2.5 shrink-0 rounded-full" style={{ background: color }} />
+              <span className="flex-1">{emp.nombre}</span>
+              <span className="ds-nums rounded-full bg-ds-surface-2 px-2 py-0.5 text-[11px] font-medium text-ds-fg-muted">{empCitas.length}</span>
             </div>
 
-            {/* Items */}
             {items.map((item) => {
               if (item.type === "gap") {
                 return (
                   <a
                     key={item.key}
                     href={`/admin/agenda?vista=lista&empleadoId=${emp.id}&fecha=${fecha}#nueva-cita`}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 7,
-                      border: "1.5px dashed rgba(255,255,255,.10)", borderRadius: 13,
-                      padding: "9px 13px", fontSize: 12, fontWeight: 700,
-                      color: "rgba(255,255,255,.28)", background: "transparent",
-                      textDecoration: "none",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = color + "70";
-                      e.currentTarget.style.color = color;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(255,255,255,.10)";
-                      e.currentTarget.style.color = "rgba(255,255,255,.28)";
-                    }}
+                    className="flex items-center gap-1.5 rounded-control border border-dashed border-ds-border px-3 py-2 text-[12px] font-medium text-ds-fg-subtle transition-colors hover:border-ds-primary hover:text-ds-primary"
                   >
                     <Plus size={12} /> Agendar
                   </a>
                 );
               }
-
               const { cita } = item;
-              const enCurso  = isEnCurso(cita);
+              const enCurso = isEnCurso(cita);
               const realizada = cita.estado === "realizada";
               const cancelada = cita.estado === "cancelada" || cita.estado === "no_asistio";
-
               return (
                 <div
                   key={item.key}
-                  style={{
-                    position: "relative", borderRadius: 13, padding: "11px 13px",
-                    display: "flex", flexDirection: "column", gap: 3,
-                    border: enCurso ? "1px solid #27C3D8" : "1px solid rgba(255,255,255,.07)",
-                    background: enCurso ? "rgba(39,195,216,.06)" : "rgba(255,255,255,.04)",
-                    boxShadow: enCurso ? "0 0 0 1px #27C3D8, 0 0 22px -8px #27C3D8" : "none",
-                    opacity: (realizada || cancelada) ? 0.58 : 1,
-                  }}
+                  className={`relative flex flex-col gap-0.5 rounded-control border px-3 py-2.5 ${
+                    enCurso ? "border-ds-primary bg-ds-primary-tint" : "border-ds-border bg-ds-surface"
+                  } ${realizada || cancelada ? "opacity-60" : ""}`}
                 >
-                  <span style={{ fontSize: 10.5, fontWeight: 800, color: "rgba(255,255,255,.38)" }}>
-                    {fmtHour(cita.inicio)}
-                  </span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,.9)", paddingRight: 52 }}>
-                    {cita.cliente}
-                  </span>
-                  <span style={{ fontSize: 11, color: "rgba(255,255,255,.45)" }}>
-                    {cita.servicio}
-                  </span>
-
-                  {enCurso && (
-                    <span style={{
-                      position: "absolute", top: 10, right: 10,
-                      fontSize: 9.5, fontWeight: 800, padding: "2px 7px", borderRadius: 999,
-                      background: "#06303a", color: "#27C3D8", whiteSpace: "nowrap",
-                    }}>En curso</span>
-                  )}
-                  {!enCurso && realizada && (
-                    <span style={{
-                      position: "absolute", top: 10, right: 10,
-                      fontSize: 9.5, fontWeight: 800, padding: "2px 7px", borderRadius: 999,
-                      background: "#1f2a22", color: "#5fb98a", whiteSpace: "nowrap",
-                    }}>Atendido</span>
-                  )}
-                  {!enCurso && !realizada && !cancelada && (
-                    <span style={{
-                      position: "absolute", top: 10, right: 10,
-                      fontSize: 9.5, fontWeight: 800, padding: "2px 7px", borderRadius: 999,
-                      background: "#241f47", color: "#a79df0", whiteSpace: "nowrap",
-                    }}>Próxima</span>
-                  )}
-                  {cancelada && (
-                    <span style={{
-                      position: "absolute", top: 10, right: 10,
-                      fontSize: 9.5, fontWeight: 800, padding: "2px 7px", borderRadius: 999,
-                      background: "#3a0f0f", color: "#f87171", whiteSpace: "nowrap",
-                    }}>Cancelada</span>
-                  )}
+                  <span className="ds-nums text-[11px] font-medium text-ds-fg-subtle">{fmtHour(cita.inicio)}</span>
+                  <span className="pr-14 text-[13px] font-semibold text-ds-fg">{cita.cliente}</span>
+                  <span className="text-[11px] text-ds-fg-muted">{cita.servicio}</span>
+                  {enCurso && <span className={`${badge} bg-ds-primary-tint text-ds-primary`}>En curso</span>}
+                  {!enCurso && realizada && <span className={`${badge} bg-ds-success-tint text-ds-success`}>Atendido</span>}
+                  {!enCurso && !realizada && !cancelada && <span className={`${badge} bg-ds-surface-2 text-ds-fg-muted`}>Próxima</span>}
+                  {cancelada && <span className={`${badge} bg-ds-danger-tint text-ds-danger`}>Cancelada</span>}
                 </div>
               );
             })}
@@ -189,9 +95,7 @@ export function AgendaBoardView({ citas, empleados, fecha }: Props) {
       })}
 
       {activeEmpleados.length === 0 && (
-        <p style={{ fontSize: 14, color: "#8a8a9c", padding: 32 }}>
-          Sin especialistas activos configurados.
-        </p>
+        <p className="p-8 text-sm text-ds-fg-subtle">Sin especialistas activos configurados.</p>
       )}
     </div>
   );
