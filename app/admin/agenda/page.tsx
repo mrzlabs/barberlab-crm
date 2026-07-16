@@ -100,6 +100,10 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
         <section className="grid gap-5 xl:grid-cols-[410px_1fr]">
           <div className="space-y-4">
             <form className={cardCls} id="nueva-cita">
+              {/* Conserva la vista Lista al consultar horarios (si no, el GET
+                  borra vista=lista y la página cae a Board, ocultando los slots
+                  y el botón de crear cita). */}
+              <input type="hidden" name="vista" value="lista" />
               <p className="text-[12px] font-medium uppercase tracking-wide text-ds-fg-muted">Crear cita admin</p>
               <h3 className="text-base font-semibold text-ds-fg">Nueva cita</h3>
               <div className="mt-4 grid gap-3">
