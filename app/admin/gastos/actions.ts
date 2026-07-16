@@ -7,11 +7,13 @@ import { requireRole } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { gastos } from "@/lib/db/schema";
 import { gastoSchema } from "@/lib/validations/admin";
+import { isDemoMode } from "@/lib/demo-server";
 
 export async function createGasto(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
+  if (await isDemoMode()) redirect("/admin/gastos?demo=1");
   const payload = gastoSchema.parse(Object.fromEntries(formData));
 
   await getDb().insert(gastos).values({
@@ -31,6 +33,7 @@ export async function updateGasto(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
+  if (await isDemoMode()) return;
   const gastoId = formData.get("gastoId") as string;
   const payload = gastoSchema.parse(Object.fromEntries(formData));
 

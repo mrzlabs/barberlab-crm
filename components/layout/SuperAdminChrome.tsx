@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CreditCard,
+  FlaskConical,
   LayoutDashboard,
   Menu,
   Receipt,
@@ -31,9 +32,11 @@ const NAV = [
 
 export function SuperAdminChrome({
   children,
+  demoMode = false,
   profile,
 }: {
   children: React.ReactNode;
+  demoMode?: boolean;
   profile?: CurrentProfile;
 }) {
   const [open, setOpen] = useState(true);
@@ -41,7 +44,7 @@ export function SuperAdminChrome({
   const pathname = usePathname();
 
   return (
-    <div className="sa-shell ds-root min-h-dvh overflow-x-hidden bg-ds-canvas text-ds-fg" data-theme="light">
+    <div className="sa-shell ds-root min-h-dvh overflow-x-hidden bg-ds-canvas text-ds-fg" data-mode={demoMode ? "demo" : "produccion"} data-theme="light">
 
       {/* Mobile overlay */}
       {mobileOpen && (
@@ -149,7 +152,18 @@ export function SuperAdminChrome({
           </div>
         </header>
 
-        <main className="mx-auto max-w-[1480px] px-4 py-6 sm:px-6">{children}</main>
+        <main className="mx-auto max-w-[1480px] px-4 py-6 sm:px-6">
+          {demoMode && (
+            <div className="mb-4 flex items-start gap-3 rounded-control border border-ds-warning/40 bg-ds-warning/10 px-4 py-3 text-ds-fg" role="status">
+              <FlaskConical className="mt-0.5 size-4 shrink-0 text-ds-warning" />
+              <div>
+                <p className="text-[13px] font-semibold">Modo demostración</p>
+                <p className="text-[12px] text-ds-fg-muted">Los datos son simulados y los cambios no se almacenan.</p>
+              </div>
+            </div>
+          )}
+          {children}
+        </main>
       </div>
     </div>
   );

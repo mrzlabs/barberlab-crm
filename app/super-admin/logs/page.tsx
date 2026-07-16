@@ -1,11 +1,13 @@
 import { getActivityLogs } from "@/lib/super-admin/queries";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo-server";
 
 export const dynamic = "force-dynamic";
 
 type PageProps = { searchParams?: Record<string, string | string[] | undefined> };
 
 async function getRecentAccesses() {
+  if (await isDemoMode()) return [];
   try {
     const supabase = createSupabaseAdminClient();
     const { data } = await supabase.auth.admin.listUsers({ perPage: 20, page: 1 });

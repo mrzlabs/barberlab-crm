@@ -10,11 +10,13 @@ import { citas, depositos, negocios, turnos } from "@/lib/db/schema";
 import { getPuntosConfig, moverPuntos, puntosPorConsumo } from "@/lib/puntos";
 import { turnoSchema } from "@/lib/validations/admin";
 import { and, eq } from "drizzle-orm";
+import { isDemoMode } from "@/lib/demo-server";
 
 export async function closeTurno(formData: FormData) {
   const profile = await requireRole(["admin", "super_admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
+  if (await isDemoMode()) redirect("/admin/turnos?demo=1");
   const payload = turnoSchema.parse(Object.fromEntries(formData));
   const db = getDb();
 

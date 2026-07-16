@@ -1,4 +1,4 @@
-import { isDemoMode } from "@/lib/demo";
+import { isDemoDeployment } from "@/lib/demo";
 
 // Variables requeridas cuando la app corre contra Supabase real.
 // SUPABASE_SERVICE_ROLE_KEY solo la usan las actions de super-admin
@@ -7,7 +7,7 @@ const REQUIRED = ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "
 const RECOMMENDED = ["SUPABASE_SERVICE_ROLE_KEY"] as const;
 
 export function getMissingEnv() {
-  if (isDemoMode()) return { required: [] as string[], recommended: [] as string[] };
+  if (isDemoDeployment()) return { required: [] as string[], recommended: [] as string[] };
   return {
     required: REQUIRED.filter((name) => !process.env[name]),
     recommended: RECOMMENDED.filter((name) => !process.env[name]),

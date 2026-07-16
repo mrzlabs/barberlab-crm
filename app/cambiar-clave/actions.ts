@@ -8,6 +8,7 @@ import { usuarios } from "@/lib/db/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth/session";
 import { roleHome } from "@/lib/auth/roles";
+import { isDemoMode } from "@/lib/demo-server";
 
 const schema = z.object({
   password:        z.string().min(8, "Mínimo 8 caracteres"),
@@ -28,11 +29,12 @@ export async function cambiarClaveAction(formData: FormData) {
     redirect(`/cambiar-clave?error=${encodeURIComponent(msg)}`);
   }
 
+  const profile = await requireRole(["admin", "empleado", "cliente", "super_admin"]);
+  if (await isDemoMode()) redirect(roleHome[profile.rol]);
+
   const supabase = createSupabaseServerClient();
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
   if (error) redirect(`/cambiar-clave?error=${encodeURIComponent(error.message)}`);
-
-  const profile = await requireRole(["admin", "empleado", "cliente", "super_admin"]);
 
   await getDb()
     .update(usuarios)

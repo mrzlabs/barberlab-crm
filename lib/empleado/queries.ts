@@ -2,7 +2,7 @@ import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { citas, clientes, empleados, servicios, turnos } from "@/lib/db/schema";
 import { serializeDates } from "@/lib/utils";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { mockEmpleado, mockEmpleadoCitas, mockTurnos } from "@/lib/mock";
 
 function dayBounds(date = new Date()) {
@@ -14,7 +14,7 @@ function dayBounds(date = new Date()) {
 }
 
 export async function getEmpleadoByUsr(userId: string) {
-  if (isDemoMode()) return serializeDates(mockEmpleado);
+  if (await isDemoMode()) return serializeDates(mockEmpleado);
   const db = getDb();
   const [row] = await db.select().from(empleados).where(eq(empleados.usuarioId, userId)).limit(1);
   return row ? serializeDates(row) : null;
@@ -24,7 +24,7 @@ export async function getMiAgenda(userId: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return serializeDates({ empleado: null, citas: [], stats: { hoy: 0, pendientes: 0, realizadas: 0 } });
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return serializeDates({
       empleado,
       citas: mockEmpleadoCitas,
@@ -79,7 +79,7 @@ export async function getCitasParaCerrar(userId: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return [];
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return serializeDates(mockEmpleadoCitas.map(({ id, inicio, estado, cliente, telefono, servicio, precio }) => ({
       id, inicio, estado, cliente, telefono, servicio, precio,
     })));
@@ -109,7 +109,7 @@ export async function getMisTurnos(userId: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return [];
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return serializeDates(mockTurnos.map(({ id, createdAt, precioFinal, propina, metodoPago, cliente, servicio }) => ({
       id, createdAt, precioFinal, propina, metodoPago, cliente, servicio,
     })));
@@ -140,7 +140,7 @@ export async function getStatsEmpleado(userId: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return null;
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return serializeDates({
       comisionPct: Number(empleado.comisionPct),
       especialidad: empleado.especialidad,
@@ -200,7 +200,7 @@ export async function citaPerteneceEmpleado(userId: string, citaId: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return false;
 
-  if (isDemoMode()) return mockEmpleadoCitas.some((c) => c.id === citaId);
+  if (await isDemoMode()) return mockEmpleadoCitas.some((c) => c.id === citaId);
 
   const [cita] = await getDb()
     .select({ id: citas.id })
@@ -212,7 +212,7 @@ export async function citaPerteneceEmpleado(userId: string, citaId: string) {
 }
 
 export async function getReportesEmpleado(empleadoId: string, desde: string, hasta: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const comisionPct = Number(mockEmpleado.comisionPct);
     const serviciosRealizados = mockTurnos.map((t) => {
       const ingreso = Number(t.precioFinal) + Number(t.propina);

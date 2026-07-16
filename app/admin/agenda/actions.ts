@@ -5,7 +5,7 @@ import { and, eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
 import { slotDisponible } from "@/lib/cliente/queries";
 import { addCitaHistory } from "@/lib/citas/history";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import { bloqueosEmpleado, citas, depositos, horariosEmpleado } from "@/lib/db/schema";
 import { bloqueoEmpleadoSchema, citaAdminSchema, depositoSchema, estadoCitaSchema, horarioEmpleadoSchema } from "@/lib/validations/admin";
@@ -14,7 +14,7 @@ export async function createCitaAdmin(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
   }
@@ -67,7 +67,7 @@ export async function createHorarioEmpleado(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
   }
@@ -90,7 +90,7 @@ export async function createBloqueoEmpleado(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
   }
@@ -113,7 +113,7 @@ export async function reagendarCita(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) { revalidatePath("/admin/agenda"); return; }
+  if (await isDemoMode()) { revalidatePath("/admin/agenda"); return; }
 
   const citaId = formData.get("citaId") as string;
   const empleadoId = formData.get("empleadoId") as string;
@@ -160,7 +160,7 @@ export async function deleteHorario(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) { revalidatePath("/admin/agenda"); return; }
+  if (await isDemoMode()) { revalidatePath("/admin/agenda"); return; }
 
   const horarioId = formData.get("horarioId") as string;
   await getDb()
@@ -175,7 +175,7 @@ export async function deleteBloqueo(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) { revalidatePath("/admin/agenda"); return; }
+  if (await isDemoMode()) { revalidatePath("/admin/agenda"); return; }
 
   const bloqueoId = formData.get("bloqueoId") as string;
   await getDb()
@@ -190,7 +190,7 @@ export async function createDeposito(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/admin/agenda");
     revalidatePath("/admin/turnos");
     return;
@@ -217,7 +217,7 @@ export async function updateCitaAdmin(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/admin/agenda");
     return;
   }

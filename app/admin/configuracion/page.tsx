@@ -14,7 +14,7 @@ import { WhatsAppTemplatesPanel } from "@/components/admin/WhatsAppTemplatesPane
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { negocios, type ConfigVisual } from "@/lib/db/schema";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Input, Select, Textarea } from "@/components/ui/Input";
@@ -30,7 +30,7 @@ export default async function ConfiguracionPage() {
   if (!profile.negocioId) notFound();
   const [negocio, configRow] = await Promise.all([
     getNegocioById(profile.negocioId),
-    isDemoMode()
+    await isDemoMode()
       ? Promise.resolve([{ configVisual: {} as ConfigVisual }])
       : getDb().select({ configVisual: negocios.configVisual }).from(negocios).where(eq(negocios.id, profile.negocioId)).limit(1),
   ]);

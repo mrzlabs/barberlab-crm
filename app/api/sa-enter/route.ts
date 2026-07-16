@@ -3,8 +3,13 @@ import { getDb } from "@/lib/db";
 import { impersonationTokens } from "@/lib/db/schema";
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { logActivity } from "@/lib/activity/log";
+import { isDemoMode } from "@/lib/demo-server";
 
 export async function GET(request: NextRequest) {
+  if (await isDemoMode()) {
+    return NextResponse.redirect(new URL("/super-admin/negocios", request.url));
+  }
+
   const tok = request.nextUrl.searchParams.get("tok");
   if (!tok) {
     return NextResponse.redirect(new URL("/login?error=token_missing", request.url));

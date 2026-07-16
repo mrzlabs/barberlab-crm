@@ -8,6 +8,7 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { getAlerts } from "@/lib/admin/queries";
 import { getDb } from "@/lib/db";
 import { negocios } from "@/lib/db/schema";
+import { isDemoMode } from "@/lib/demo-server";
 
 const nav = [
   { href: "/admin/dashboard",      label: "Dashboard"      },
@@ -35,11 +36,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/login?error=negocio_inactivo");
   }
 
-  const isImpersonating = !!cookies().get("barberlab_sa_imp")?.value;
+  const demoMode = await isDemoMode();
+  const isImpersonating = !demoMode && !!cookies().get("barberlab_sa_imp")?.value;
 
   const [alerts, configRow] = await Promise.all([
     profile.negocioId ? getAlerts(profile.negocioId).catch(() => []) : Promise.resolve([]),
-    profile.negocioId
+    profile.negocioId && !demoMode
       ? getDb()
           .select({ configVisual: negocios.configVisual })
           .from(negocios)

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import { clienteArchivos, depositos } from "@/lib/db/schema";
 import { clienteArchivoSchema, depositoEstadoSchema } from "@/lib/validations/admin";
@@ -15,7 +15,7 @@ export async function addClienteArchivo(formData: FormData) {
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
   const clienteId = formData.get("clienteId") as string;
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath(`/admin/clientes/${clienteId}`);
     return;
   }
@@ -43,7 +43,7 @@ export async function deleteClienteArchivo(formData: FormData) {
   if (!negocioId) throw new Error("Sin negocio asignado");
   const archivoId = formData.get("archivoId") as string;
   const clienteId = formData.get("clienteId") as string;
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath(`/admin/clientes/${clienteId}`);
     return;
   }
@@ -62,7 +62,7 @@ export async function updateDepositoEstado(formData: FormData) {
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
   const clienteId = formData.get("clienteId") as string;
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath(`/admin/clientes/${clienteId}`);
     revalidatePath("/admin/turnos");
     return;

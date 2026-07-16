@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { addCitaHistory } from "@/lib/citas/history";
 import { getDb } from "@/lib/db";
 import { citas, turnos } from "@/lib/db/schema";
@@ -21,7 +21,7 @@ export async function closeMiTurno(formData: FormData) {
     throw new Error("La cita no pertenece al empleado autenticado");
   }
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/empleado/cerrar-turno");
     revalidatePath("/empleado/mi-agenda");
     return;

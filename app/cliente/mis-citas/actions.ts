@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import { citas } from "@/lib/db/schema";
 import { addCitaHistory } from "@/lib/citas/history";
@@ -19,7 +19,7 @@ export async function cancelarCita(formData: FormData) {
     throw new Error("La cita no se puede cancelar");
   }
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/cliente/mis-citas");
     return;
   }
@@ -44,7 +44,7 @@ export async function confirmarCita(formData: FormData) {
   const payload = citaIdSchema.parse(Object.fromEntries(formData));
   const cita = await citaPerteneceCliente(profile.id, payload.citaId);
   if (!cita || cita.estado !== "reservada") throw new Error("La cita no se puede confirmar");
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/cliente/mis-citas");
     return;
   }
@@ -67,7 +67,7 @@ export async function saveComentarioCita(formData: FormData) {
   const payload = comentarioCitaSchema.parse(Object.fromEntries(formData));
   const cita = await citaPerteneceCliente(profile.id, payload.citaId);
   if (!cita) throw new Error("Cita no encontrada");
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/cliente/mis-citas");
     return;
   }
@@ -90,7 +90,7 @@ export async function reprogramarCita(formData: FormData) {
     throw new Error("La cita no se puede reprogramar");
   }
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/cliente/mis-citas");
     return;
   }

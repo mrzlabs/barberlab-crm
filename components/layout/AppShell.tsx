@@ -1,5 +1,5 @@
 import type { UserRole } from "@/lib/auth/roles";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { AppChrome } from "@/components/layout/AppChrome";
 import type { CurrentProfile } from "@/lib/auth/session";
 import type { AppAlert } from "@/lib/admin/queries";
@@ -7,7 +7,7 @@ import type { ConfigVisual } from "@/lib/db/schema";
 
 type NavItem = { href: string; label: string };
 
-export function AppShell({
+export async function AppShell({
   role,
   title,
   nav,
@@ -28,7 +28,7 @@ export function AppShell({
   theme?: "light" | "dark";
   isImpersonating?: boolean;
 }) {
-  const mode = isDemoMode() ? "DEMO" : "PRODUCCION";
+  const mode = await isDemoMode() ? "DEMO" : "PRODUCCION";
 
   return (
     <AppChrome

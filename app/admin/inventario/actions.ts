@@ -7,6 +7,7 @@ import { getDb } from "@/lib/db";
 import { inventario, movInventario } from "@/lib/db/schema";
 import { inventarioSchema, movInventarioSchema } from "@/lib/validations/admin";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo-server";
 
 async function uploadInventarioFoto(file: File | null, negocioId: string, itemId?: string) {
   if (!file || file.size === 0) return null;
@@ -30,6 +31,7 @@ export async function createItem(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
+  if (await isDemoMode()) return;
   const raw = Object.fromEntries(formData);
   const payload = inventarioSchema.parse({
     ...raw,
@@ -62,6 +64,7 @@ export async function createMov(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
+  if (await isDemoMode()) return;
   const payload = movInventarioSchema.parse(Object.fromEntries(formData));
   const db = getDb();
 
@@ -100,6 +103,7 @@ export async function updateInventario(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
+  if (await isDemoMode()) return;
   const inventarioId = formData.get("inventarioId") as string;
 
   const nombre = ((formData.get("nombre") as string) ?? "").trim();

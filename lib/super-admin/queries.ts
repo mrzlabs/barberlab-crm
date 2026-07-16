@@ -11,11 +11,11 @@ import {
   usuarios,
 } from "@/lib/db/schema";
 import { serializeDates } from "@/lib/utils";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { mockNegocios, mockNegocioUsers } from "@/lib/mock";
 
 export async function getNegocios() {
-  if (isDemoMode()) return serializeDates(mockNegocios);
+  if (await isDemoMode()) return serializeDates(mockNegocios);
   const rows = await getDb()
     .select({
       id: negocios.id,
@@ -55,7 +55,7 @@ export async function getNegocios() {
 }
 
 export async function getNegocioById(id: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const demoNegocio = mockNegocios.find((n) => n.id === id) ?? mockNegocios[0];
     return serializeDates(demoNegocio);
   }
@@ -64,7 +64,7 @@ export async function getNegocioById(id: string) {
 }
 
 export async function getNegocioStats(negocioId: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return { empleados: 3, clientes: 4, citas: 24, turnos: 18, inventario: 2 };
   }
   const [[empleadosRow], [clientesRow], [citasRow], [turnosRow], [inventarioRow]] = await Promise.all([
@@ -84,7 +84,7 @@ export async function getNegocioStats(negocioId: string) {
 }
 
 export async function getNegocioMonthlySummary(negocioId: string) {
-  if (isDemoMode()) return { turnos: 286, ingresos: 36500000 };
+  if (await isDemoMode()) return { turnos: 286, ingresos: 36500000 };
   const monthStartDate = new Date();
   monthStartDate.setDate(1);
   monthStartDate.setHours(0, 0, 0, 0);
@@ -105,7 +105,7 @@ export async function getNegocioMonthlySummary(negocioId: string) {
 }
 
 export async function getNegocioUsers(negocioId: string) {
-  if (isDemoMode()) return serializeDates(mockNegocioUsers);
+  if (await isDemoMode()) return serializeDates(mockNegocioUsers);
   const rows = await getDb().select({
     id: usuarios.id,
     nombre: usuarios.nombre,
@@ -121,7 +121,7 @@ export async function getNegocioUsers(negocioId: string) {
 export async function getAllUsuarios(
   opts: { negocioId?: string; rol?: string; q?: string; page?: number; limit?: number } = {},
 ) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const rows = mockNegocioUsers.map((u) => ({
       ...u,
       negocioId: mockNegocios[0].id,
@@ -171,7 +171,7 @@ export async function getAllUsuarios(
 }
 
 export async function getActivityLogs(page = 1, limit = 50) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return serializeDates({
       rows: [
         {
@@ -218,7 +218,7 @@ export async function getActivityLogs(page = 1, limit = 50) {
 }
 
 export async function getRenewalRequests(limit = 8) {
-  if (isDemoMode()) return serializeDates([] as Array<never>);
+  if (await isDemoMode()) return serializeDates([] as Array<never>);
   const rows = await getDb()
     .select({
       id: activityLogs.id,
@@ -279,7 +279,7 @@ export function getPlanPermisos(plan: string): PlanPermiso[] {
 }
 
 export async function getFacturacion() {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return serializeDates(mockNegocios.map((n) => ({
       id: n.id,
       nombre: n.nombre,

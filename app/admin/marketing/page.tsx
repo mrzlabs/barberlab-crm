@@ -4,7 +4,7 @@ import { Award, Check, Clock3, Globe, Megaphone, MessageCircle, Target, X } from
 import { getCurrentProfile } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { negocios, type IntegracionEstado } from "@/lib/db/schema";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { solicitarIntegracion } from "@/app/admin/configuracion/actions";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge } from "@/components/ui/Badge";
@@ -23,7 +23,7 @@ const CATALOGO = [
 ];
 
 async function getIntegraciones(): Promise<Record<string, IntegracionEstado>> {
-  if (isDemoMode()) return {};
+  if (await isDemoMode()) return {};
   const profile = await getCurrentProfile();
   if (!profile?.negocioId) return {};
   const [negocio] = await getDb()

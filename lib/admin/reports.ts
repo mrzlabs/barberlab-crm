@@ -1,5 +1,5 @@
 import { and, asc, desc, eq, gte, lte, sql } from "drizzle-orm";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import {
   citas,
@@ -45,7 +45,7 @@ function rangeDates(range: ReportRange) {
 }
 
 export async function getReportes(range: ReportRange) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return {
       settings: {
         comisionBase: "precio_final" as const,
@@ -240,7 +240,7 @@ export async function getReportes(range: ReportRange) {
 export type TrendPoint = { fecha: string; ingresos: number; turnos: number };
 
 export async function getTrendDiaria(range: ReportRange): Promise<TrendPoint[]> {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const seed = [1200000, 980000, 1450000, 890000, 1320000, 1100000, 760000, 1500000, 1280000, 920000, 1380000, 1050000, 1600000, 870000, 1250000, 1420000, 990000, 1180000, 1340000, 800000, 1470000, 1020000, 1300000, 1150000, 1390000, 940000, 1230000, 1480000, 1060000, 1420000];
     const result: TrendPoint[] = [];
     const cursor = new Date(`${range.from}T12:00:00`);

@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import { empleados, usuarios } from "@/lib/db/schema";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
@@ -14,7 +14,7 @@ export async function createEmpleado(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/admin/empleados");
     return;
   }
@@ -76,7 +76,7 @@ export async function toggleEmpleado(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) { revalidatePath("/admin/empleados"); return; }
+  if (await isDemoMode()) { revalidatePath("/admin/empleados"); return; }
 
   const empleadoId = formData.get("empleadoId") as string;
   const usuarioId = formData.get("usuarioId") as string;
@@ -99,7 +99,7 @@ export async function updateEmpleado(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) { revalidatePath("/admin/empleados"); return; }
+  if (await isDemoMode()) { revalidatePath("/admin/empleados"); return; }
 
   const empleadoId = formData.get("empleadoId") as string;
   const usuarioId = formData.get("usuarioId") as string;

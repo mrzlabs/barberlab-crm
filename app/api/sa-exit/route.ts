@@ -3,8 +3,13 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getDb } from "@/lib/db";
 import { usuarios } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { isDemoMode } from "@/lib/demo-server";
 
 export async function GET(request: NextRequest) {
+  if (await isDemoMode()) {
+    return NextResponse.redirect(new URL("/super-admin/negocios", request.url));
+  }
+
   const supabase = createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 

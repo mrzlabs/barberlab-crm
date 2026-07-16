@@ -33,6 +33,12 @@ export function ComprobanteUpload({
   const isPdf   = (u: string) => /\.pdf$/i.test(u);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    if (document.querySelector("[data-mode=\"demo\"]")) {
+      setError("Modo demostración. Los cambios no se almacenan.");
+      e.target.value = "";
+      return;
+    }
+
     const file = e.target.files?.[0];
     if (!file) return;
 

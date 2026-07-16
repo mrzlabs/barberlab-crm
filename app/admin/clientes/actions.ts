@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import { clientes, usuarios } from "@/lib/db/schema";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
@@ -14,7 +14,7 @@ export async function createCliente(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/admin/clientes");
     return;
   }
@@ -85,7 +85,7 @@ export async function updateCliente(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) { revalidatePath("/admin/clientes"); return; }
+  if (await isDemoMode()) { revalidatePath("/admin/clientes"); return; }
 
   const clienteId = formData.get("clienteId") as string;
   const nombre = ((formData.get("nombre") as string) ?? "").trim();

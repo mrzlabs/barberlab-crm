@@ -4,7 +4,8 @@ import { cache } from "react";
 import { and, eq } from "drizzle-orm";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleFromClaims, type UserRole } from "@/lib/auth/roles";
-import { getDemoUserByRole, isDemoMode } from "@/lib/demo";
+import { getDemoUserByRole } from "@/lib/demo";
+import { getDemoRole } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import { negocios, usuarios } from "@/lib/db/schema";
 import { serializeDates } from "@/lib/utils";
@@ -39,9 +40,9 @@ export type CurrentProfile = {
 };
 
 async function loadCurrentProfile(): Promise<CurrentProfile | null> {
-  const demoRole = cookies().get("barberlab_demo_role")?.value;
+  const demoRole = await getDemoRole();
   const demoUser = getDemoUserByRole(demoRole);
-  if (isDemoMode() && demoUser) {
+  if (demoUser) {
     return {
       id: demoUser.role === "super_admin" ? "00000000-0000-0000-0000-000000000099" : demoUser.role === "empleado" ? "00000000-0000-0000-0000-000000000002" : demoUser.role === "cliente" ? "00000000-0000-0000-0000-000000000003" : "00000000-0000-0000-0000-000000000001",
       email: demoUser.email,

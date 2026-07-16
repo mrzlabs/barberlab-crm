@@ -1,7 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -10,6 +9,7 @@ import { logActivity } from "@/lib/activity/log";
 import { getDb } from "@/lib/db";
 import { usuarios } from "@/lib/db/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { clearDemoSession, isDemoMode } from "@/lib/demo-server";
 
 const profileBasicSchema = z.object({
   nombre: z.string().trim().min(2).max(120),
@@ -17,14 +17,18 @@ const profileBasicSchema = z.object({
 });
 
 export async function logoutAction() {
-  const supabase = createSupabaseServerClient();
-  await supabase.auth.signOut();
-  cookies().delete("barberlab_demo_role");
+  const demoMode = await isDemoMode();
+  if (!demoMode) {
+    const supabase = createSupabaseServerClient();
+    await supabase.auth.signOut();
+  }
+  clearDemoSession();
   redirect("/login");
 }
 
 export async function resetPasswordAction() {
   const profile = await requireRole(["super_admin", "admin", "empleado", "cliente"]);
+  if (await isDemoMode()) redirect("/perfil?demo=1");
   const supabase = createSupabaseServerClient();
   const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL}/login`;
   await supabase.auth.resetPasswordForEmail(profile.email, { redirectTo });
@@ -33,6 +37,7 @@ export async function resetPasswordAction() {
 
 export async function updateProfileAction(formData: FormData) {
   const profile = await requireRole(["super_admin", "admin", "empleado", "cliente"]);
+  if (await isDemoMode()) redirect("/perfil?demo=1");
   const payload = profileBasicSchema.parse(Object.fromEntries(formData));
 
   await getDb()
@@ -51,6 +56,7 @@ export async function updateProfileAction(formData: FormData) {
 
 export async function requestRenewalAction() {
   const profile = await requireRole(["admin", "super_admin"]);
+  if (await isDemoMode()) redirect("/perfil?demo=1");
 
   await logActivity({
     usuarioId: profile.id,

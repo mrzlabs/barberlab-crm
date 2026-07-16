@@ -59,6 +59,10 @@ export function ClienteBookUpload({ clienteId, negocioId, citaId }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (document.querySelector("[data-mode=\"demo\"]")) {
+      setError("Modo demostración. Los cambios no se almacenan.");
+      return;
+    }
     const file = fileRef.current?.files?.[0];
     if (!file) { setError("Selecciona una imagen primero."); return; }
     if (!nombre.trim()) { setError("Escribe un nombre para la imagen."); return; }

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import { usuarios } from "@/lib/db/schema";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
@@ -21,7 +21,7 @@ function generatePassword(len = 10): string {
 export async function resetPassword(userId: string): Promise<{ newPassword: string; error?: string }> {
   await requireRole(["super_admin"]);
   const newPassword = generatePassword(10);
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/super-admin/usuarios");
     return { newPassword };
   }
@@ -35,7 +35,7 @@ export async function resetPassword(userId: string): Promise<{ newPassword: stri
 
 export async function toggleUsuarioActivo(id: string, activo: boolean) {
   await requireRole(["super_admin"]);
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/super-admin/usuarios");
     return;
   }
@@ -45,7 +45,7 @@ export async function toggleUsuarioActivo(id: string, activo: boolean) {
 
 export async function deleteUsuario(id: string) {
   await requireRole(["super_admin"]);
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/super-admin/usuarios");
     return;
   }

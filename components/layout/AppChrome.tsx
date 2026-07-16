@@ -21,6 +21,7 @@ import {
   Bell,
   ChevronLeft,
   ChevronRight,
+  FlaskConical,
   Menu,
   Search,
   X,
@@ -415,6 +416,7 @@ export function AppChrome({
   return (
     <div
       className={`crm-shell min-h-dvh overflow-x-hidden ${isDark ? "text-white" : "ds-root text-ds-fg"}`}
+      data-mode={mode.toLowerCase()}
       data-theme={isDark ? "dark" : "light"}
       style={{
         // Brand vars — used ONLY in card accents (left border + subtle tint)
@@ -759,6 +761,15 @@ export function AppChrome({
 
         {/* page content */}
         <main className="mx-auto max-w-[1280px] px-4 pb-8 pt-5 sm:px-5 lg:pb-8">
+          {mode === "DEMO" && (
+            <div className="mb-4 flex items-start gap-3 rounded-control border border-ds-warning/40 bg-ds-warning/10 px-4 py-3 text-ds-fg" role="status">
+              <FlaskConical className="mt-0.5 size-4 shrink-0 text-ds-warning" />
+              <div>
+                <p className="text-[13px] font-semibold">Modo demostración</p>
+                <p className="text-[12px] text-ds-fg-muted">Los datos son simulados y los cambios no se almacenan.</p>
+              </div>
+            </div>
+          )}
           <PageTransition>{children}</PageTransition>
         </main>
 

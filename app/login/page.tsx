@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff, X } from "lucide-react";
+import { Building2, Eye, EyeOff, Scissors, ShieldCheck, UserRound, Users, X } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { loginAction } from "./actions";
+import { loginAction, startDemoAction } from "./actions";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Field } from "@/components/ui/Field";
@@ -15,8 +15,16 @@ const errorMsg: Record<string, string> = {
   profile: "La cuenta existe pero no tiene perfil interno vinculado.",
   inactive: "La cuenta o el comercio están inactivos.",
   rate: "Demasiados intentos fallidos. Intenta nuevamente en 5 minutos.",
+  demo_config: "El acceso demo no está configurado correctamente.",
   negocio_inactivo: "El comercio está suspendido. Contacta a soporte.",
 };
+
+const demoProfiles = [
+  { role: "super_admin", label: "Super Admin", icon: ShieldCheck },
+  { role: "admin", label: "Administrador", icon: Building2 },
+  { role: "empleado", label: "Empleado", icon: Scissors },
+  { role: "cliente", label: "Cliente", icon: UserRound },
+] as const;
 
 function Wordmark() {
   return (
@@ -29,11 +37,13 @@ function Wordmark() {
 
 export default function LoginPage({ searchParams }: { searchParams: { next?: string; error?: string } }) {
   const [showPassword, setShowPassword] = useState(false);
+  const [demoOpen, setDemoOpen] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [recoveryEmail, setRecoveryEmail] = useState("");
   const [recoveryMsg, setRecoveryMsg] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const demoEnabled = process.env.NEXT_PUBLIC_DEMO_ENABLED === "true";
 
   async function sendRecovery(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -127,6 +137,47 @@ export default function LoginPage({ searchParams }: { searchParams: { next?: str
               Entrar al sistema
             </Button>
           </form>
+
+          {demoEnabled && (
+            <div className="mt-6 border-t border-ds-border pt-5">
+              <p className="text-center text-[13px] text-ds-fg-muted">¿Solo quieres explorar?</p>
+              {!demoOpen ? (
+                <Button
+                  type="button"
+                  size="lg"
+                  variant="secondary"
+                  className="mt-3 w-full"
+                  onClick={() => setDemoOpen(true)}
+                  disabled={!termsAccepted}
+                >
+                  <Users className="size-4" />
+                  Entrar al demo
+                </Button>
+              ) : (
+                <div className="mt-3">
+                  <p className="mb-3 text-center text-sm font-medium text-ds-fg">Selecciona un perfil</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {demoProfiles.map((profile) => {
+                      const Icon = profile.icon;
+                      return (
+                        <form action={startDemoAction} key={profile.role}>
+                          <input name="role" type="hidden" value={profile.role} />
+                          <input name="terms" type="hidden" value={termsAccepted ? "accepted" : ""} />
+                          <Button type="submit" variant="secondary" className="w-full px-2" disabled={!termsAccepted}>
+                            <Icon className="size-4" />
+                            {profile.label}
+                          </Button>
+                        </form>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-3 text-center text-[11px] leading-4 text-ds-fg-subtle">
+                    Los datos son simulados y los cambios no se almacenan.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <p className="mt-5 text-center text-[12px] text-ds-fg-subtle">

@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { citaHistorial, citas, clientes, empleados, inventario, servicios, usuarios } from "@/lib/db/schema";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { serializeDates } from "@/lib/utils";
 
@@ -11,7 +11,7 @@ export type Slot = {
 };
 
 export async function getClienteByUsr(userId: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return {
       id: "cliente-demo-1",
       negocioId: "00000000-0000-0000-0000-000000000010",
@@ -59,7 +59,7 @@ export async function ensureCliente(
 }
 
 export async function getReservaCatalog() {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return {
       servicios: [
         { id: "11111111-1111-1111-1111-111111111111", categoria: "barberia", nombre: "Corte + barba", duracionMin: 45, precio: "65000" },
@@ -105,7 +105,7 @@ export async function getReservaCatalog() {
 }
 
 export async function getProductosCliente() {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return [
       { id: "prod-1", nombre: "Pomada premium", categoria: "Styling", stock: "12", unidad: "unidad", precioVenta: "32000", descripcion: "Fijación media con acabado natural.", fotoUrl: null },
       { id: "prod-2", nombre: "Aceite barba", categoria: "Cuidado", stock: "8", unidad: "unidad", precioVenta: "38000", descripcion: "Hidratación y brillo para barba.", fotoUrl: null },
@@ -134,7 +134,7 @@ export async function getProductosCliente() {
 
 export async function getSlots(empleadoId?: string, fecha?: string, servicioId?: string) {
   if (!empleadoId || !fecha || !servicioId) return [];
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const base = new Date(`${fecha}T09:00:00-05:00`);
     return [0, 1, 2, 4, 6].map((offset) => {
       const inicio = new Date(base.getTime() + offset * 60 * 60000);
@@ -162,7 +162,7 @@ export async function slotDisponible(params: { empleadoId: string; fecha: string
 }
 
 export async function getMisCitas(userId: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const now = new Date();
     return {
       cliente: await getClienteByUsr(userId),
@@ -223,7 +223,7 @@ export async function getMisCitas(userId: string) {
 }
 
 export async function getHistorialCliente(userId: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const now = new Date();
     return [
       {
@@ -279,7 +279,7 @@ export async function getHistorialCliente(userId: string) {
 }
 
 export async function getComentariosParaCitas(citaIds: string[]) {
-  if (isDemoMode() || citaIds.length === 0) return [] as { citaId: string; detalle: string | null; createdAt: string }[];
+  if (await isDemoMode() || citaIds.length === 0) return [] as { citaId: string; detalle: string | null; createdAt: string }[];
   const rows = await getDb()
     .select({ citaId: citaHistorial.citaId, detalle: citaHistorial.detalle, createdAt: citaHistorial.createdAt })
     .from(citaHistorial)
@@ -307,7 +307,7 @@ export async function citaPerteneceCliente(userId: string, citaId: string) {
 
 /* ── Sistema de puntos: saldo del cliente y política del negocio ── */
 export async function getMisPuntos(usuarioId: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return { puntos: 120, habilitado: true, valorPunto: 30, minCanje: 100, pesosPorPunto: 1000 };
   }
   const { negocios } = await import("@/lib/db/schema");

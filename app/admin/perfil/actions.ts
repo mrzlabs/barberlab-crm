@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo-server";
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(8),
@@ -13,6 +14,7 @@ const changePasswordSchema = z.object({
 
 export async function changePasswordAction(formData: FormData) {
   const profile = await requireRole(["admin", "super_admin"]);
+  if (await isDemoMode()) redirect("/admin/perfil?demo=1");
 
   const parsed = changePasswordSchema.safeParse({
     currentPassword: formData.get("currentPassword"),

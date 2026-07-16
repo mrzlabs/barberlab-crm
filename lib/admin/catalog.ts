@@ -1,5 +1,5 @@
 import { and, asc, desc, eq, gte, ilike, lte, or, sql } from "drizzle-orm";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import { bloqueosEmpleado, citas, clienteArchivos, clientes, depositos, empleados, horariosEmpleado, servicios, turnos, usuarios } from "@/lib/db/schema";
 import { getCurrentProfile } from "@/lib/auth/session";
@@ -7,7 +7,7 @@ import { getCurrentProfile } from "@/lib/auth/session";
 const now = new Date();
 
 export async function getAgendaAdmin() {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return [
       { id: "cita-demo-1", inicio: now, fin: new Date(now.getTime() + 45 * 60000), estado: "confirmada", empleadoId: "emp-1", servicioId: "serv-2", cliente: "Paula Gomez", telefono: "3104567890", servicio: "Corte y barba", empleado: "Mateo Barber", categoria: "barberia" },
       { id: "cita-demo-2", inicio: new Date(now.getTime() + 90 * 60000), fin: new Date(now.getTime() + 150 * 60000), estado: "reservada", empleadoId: "emp-2", servicioId: "serv-3", cliente: "Daniel Ruiz", telefono: "3209876543", servicio: "Spa de unas", empleado: "Sofia Nails", categoria: "spa_unas" },
@@ -42,7 +42,7 @@ export async function getAgendaAdmin() {
 }
 
 export async function getServiciosAdmin() {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return [
       { id: "serv-1", categoria: "barberia", nombre: "Corte premium", duracionMin: 45, precio: "45000", costoInsumo: "5000", activo: true, createdAt: now, updatedAt: now },
       { id: "serv-2", categoria: "barberia", nombre: "Corte y barba", duracionMin: 60, precio: "65000", costoInsumo: "7000", activo: true, createdAt: now, updatedAt: now },
@@ -56,7 +56,7 @@ export async function getServiciosAdmin() {
 }
 
 export async function getEmpleadosAdmin(search?: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const all = [
       { id: "emp-1", usuarioId: "usr-1", nombre: "Mateo Barber", email: "mateo@operux.local", telefono: "3101112233", especialidad: "barberia", comisionPct: "40", activo: true,  turnosMes: 18, produccionMes: "1440000" },
       { id: "emp-2", usuarioId: "usr-2", nombre: "Sofia Nails",  email: "sofia@operux.local",  telefono: "3105556677", especialidad: "spa_unas", comisionPct: "35", activo: true,  turnosMes: 12, produccionMes: "960000" },
@@ -108,7 +108,7 @@ function computeEstadoCrm(total: number, recientes: number, ultima: string | nul
 }
 
 export async function getClientesAdmin(search?: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const all = [
       { id: "cli-1", usuarioId: null, nombre: "Carlos Rojas", telefono: "3001234567", email: "carlos@mail.com", notas: "Prefiere corte bajo", puntos: 320, cumpleanos: "1990-07-15",       createdAt: now, updatedAt: now, totalVisitas: 14, ultimaVisita: new Date(Date.now() - 14 * 86400000).toISOString(), estadoCrm: "VIP" },
       { id: "cli-2", usuarioId: null, nombre: "Laura Vega",   telefono: "3019876543", email: "laura@mail.com",  notas: "Cliente frecuente de unas", puntos: 85, cumpleanos: null, createdAt: now, updatedAt: now, totalVisitas: 3,  ultimaVisita: new Date(Date.now() -  5 * 86400000).toISOString(), estadoCrm: "Frecuente" },
@@ -159,7 +159,7 @@ export async function getClientesAdmin(search?: string) {
 }
 
 export async function getAgendaDia(fecha: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const base = new Date(`${fecha}T09:00:00`);
     return [
       { id: "d1", inicio: base.toISOString(), fin: new Date(base.getTime() + 45 * 60000).toISOString(), estado: "confirmada", empleadoId: "emp-1", cliente: "Paula Gomez", servicio: "Corte y barba", empleado: "Mateo Barber" },
@@ -198,7 +198,7 @@ export async function getAgendaDia(fecha: string) {
 }
 
 export async function getClienteDetalle(clienteId: string, negocioId: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const { mockClienteArchivos, mockDepositos } = await import("@/lib/mock");
     const now = new Date();
     return {
@@ -262,7 +262,7 @@ export async function getClienteDetalle(clienteId: string, negocioId: string) {
 }
 
 export async function getHorariosAdmin() {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return [
       { id: "hor-1", empleadoId: "emp-1", empleado: "Mateo Barber", diaSemana: 1, horaInicio: "09:00:00", horaFin: "18:00:00" },
       { id: "hor-2", empleadoId: "emp-1", empleado: "Mateo Barber", diaSemana: 2, horaInicio: "09:00:00", horaFin: "18:00:00" },
@@ -289,7 +289,7 @@ export async function getHorariosAdmin() {
 }
 
 export async function getDepositosPorCita(citaId: string, negocioId: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const { mockDepositos } = await import("@/lib/mock");
     return mockDepositos.filter((d) => d.citaId === citaId);
   }
@@ -301,7 +301,7 @@ export async function getDepositosPorCita(citaId: string, negocioId: string) {
 }
 
 export async function getDepositosActivosPorCita(negocioId: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const { mockDepositos } = await import("@/lib/mock");
     return mockDepositos;
   }
@@ -323,7 +323,7 @@ export async function getDepositosActivosPorCita(negocioId: string) {
 }
 
 export async function getClienteArchivosQuery(clienteId: string, negocioId: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     const { mockClienteArchivos } = await import("@/lib/mock");
     return mockClienteArchivos.filter((a) => a.clienteId === clienteId);
   }
@@ -335,7 +335,7 @@ export async function getClienteArchivosQuery(clienteId: string, negocioId: stri
 }
 
 export async function getBloqueosAdmin() {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return [
       { id: "bloq-1", empleadoId: "emp-2", empleado: "Sofia Nails", fechaInicio: new Date(now.getTime() + 24 * 60 * 60000), fechaFin: new Date(now.getTime() + 28 * 60 * 60000), motivo: "Capacitacion" },
     ];

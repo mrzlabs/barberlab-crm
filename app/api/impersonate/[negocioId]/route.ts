@@ -4,11 +4,16 @@ import { getDb } from "@/lib/db";
 import { impersonationTokens, usuarios } from "@/lib/db/schema";
 import { and, eq } from "drizzle-orm";
 import { randomBytes } from "crypto";
+import { isDemoMode } from "@/lib/demo-server";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { negocioId: string } },
 ) {
+  if (await isDemoMode()) {
+    return NextResponse.json({ error: "Acción deshabilitada en modo demo" }, { status: 403 });
+  }
+
   // 1. Verify requester is super_admin via active session
   const supabase = createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
 import { getEmpleadoByUsr } from "@/lib/empleado/queries";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import { citas } from "@/lib/db/schema";
 import { addCitaHistory } from "@/lib/citas/history";
@@ -12,7 +12,7 @@ import { estadoCitaSchema } from "@/lib/validations/admin";
 
 export async function updateMiCita(formData: FormData) {
   const profile = await requireRole(["empleado"]);
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/empleado/mi-agenda");
     return;
   }

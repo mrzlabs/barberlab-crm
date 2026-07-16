@@ -1,14 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { getDemoUser, isDemoMode } from "@/lib/demo";
+import { getDemoUser, isDemoDeployment, isDemoEnabled } from "@/lib/demo";
+import { clearDemoSession, setDemoSession } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import { negocios, usuarios } from "@/lib/db/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getRoleFromClaims, roleHome } from "@/lib/auth/roles";
+import { getRoleFromClaims, isRole, roleHome } from "@/lib/auth/roles";
 
 // WARNING: This rate limiter uses an in-process Map. In serverless/Vercel deployments
 // each function instance has its own Map, so a distributed attacker can bypass limits
@@ -84,21 +85,18 @@ export async function loginAction(formData: FormData) {
     ? parsed.data.next
     : undefined;
 
-  if (isDemoMode()) {
+  if (isDemoDeployment()) {
     const demoUser = getDemoUser(parsed.data.email, parsed.data.password);
     if (demoUser) {
       clearFailures(ip);
-      cookies().set("barberlab_demo_role", demoUser.role, {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-      });
+      await setDemoSession(demoUser.role);
       redirect(safeNext || roleHome[demoUser.role]);
     }
     recordFailure(ip);
     redirect("/login?error=auth");
   }
 
+  clearDemoSession();
   const supabase = createSupabaseServerClient();
   const { error } = await supabase.auth.signInWithPassword({
     email: parsed.data.email,
@@ -146,4 +144,21 @@ export async function loginAction(formData: FormData) {
   if (profile.mustChangePassword) redirect("/cambiar-clave");
 
   redirect(safeNext || roleHome[role]);
+}
+
+export async function startDemoAction(formData: FormData) {
+  const role = formData.get("role");
+  const terms = formData.get("terms");
+
+  if (!isDemoEnabled() || !isRole(role) || terms !== "accepted") {
+    redirect("/login?error=invalid");
+  }
+
+  try {
+    await setDemoSession(role);
+  } catch {
+    redirect("/login?error=demo_config");
+  }
+
+  redirect(roleHome[role]);
 }

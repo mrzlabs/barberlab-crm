@@ -7,7 +7,7 @@ import { getDb } from "@/lib/db";
 import { negocios } from "@/lib/db/schema";
 import { getPuntosConfig } from "@/lib/puntos";
 import { getVertical } from "@/lib/verticales";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { NeuralCanvas } from "@/components/layout/NeuralCanvas";
 import { registrarClientePublico } from "./actions";
 
@@ -23,7 +23,7 @@ type PageProps = {
 };
 
 async function getNegocioPublico(slug: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return {
       id: "demo",
       nombre: "Smart Style",

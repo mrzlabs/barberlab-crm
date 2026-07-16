@@ -7,9 +7,11 @@ import { getDb } from "@/lib/db";
 import { negocios } from "@/lib/db/schema";
 import { configVisualSchema, negocioSelfSchema } from "@/lib/validations/admin";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { isDemoMode } from "@/lib/demo-server";
 
 export async function updateMiNegocio(formData: FormData) {
   const profile = await requireRole(["admin", "super_admin"]);
+  if (await isDemoMode()) return;
   const payload = negocioSelfSchema.parse(Object.fromEntries(formData));
 
   if (profile.rol !== "super_admin" && profile.negocioId !== payload.negocioId) {
@@ -57,6 +59,7 @@ export async function updateConfigVisual(formData: FormData) {
   const profile = await requireRole(["admin", "super_admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
+  if (await isDemoMode()) return;
 
   const payload = configVisualSchema.parse({
     darkMode: formData.get("darkMode") === "true" || formData.get("darkMode") === "on",
@@ -92,6 +95,7 @@ export async function uploadNegocioBgPhoto(formData: FormData) {
   const profile = await requireRole(["admin", "super_admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
+  if (await isDemoMode()) return { error: "Modo demostración. Los cambios no se almacenan." };
 
   const file = formData.get("bgPhoto") as File | null;
   if (!file || file.size === 0) return { error: "No se seleccionó archivo" };
@@ -143,6 +147,7 @@ export async function updateWhatsAppConfig(formData: FormData) {
   const negocioId = String(formData.get("negocioId") ?? profile.negocioId ?? "");
   if (!negocioId) throw new Error("Sin negocio asignado");
   if (profile.rol !== "super_admin" && profile.negocioId !== negocioId) throw new Error("No autorizado");
+  if (await isDemoMode()) return;
 
   const phone = String(formData.get("whatsappPhone") ?? "").trim();
   const enabled = formData.get("whatsappEnabled") === "true";
@@ -170,6 +175,7 @@ export async function resetConfigVisual() {
   const profile = await requireRole(["admin", "super_admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
+  if (await isDemoMode()) return;
 
   const defaults = {
     colorPrimario: "#00cec9",
@@ -215,6 +221,7 @@ export async function removeNegocioBgPhoto() {
   const profile = await requireRole(["admin", "super_admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
+  if (await isDemoMode()) return;
 
   const [current] = await getDb()
     .select({ configVisual: negocios.configVisual, logoUrl: negocios.logoUrl })
@@ -261,6 +268,7 @@ export async function updateClientesFidelizacion(formData: FormData) {
   const profile = await requireRole(["admin", "super_admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
+  if (await isDemoMode()) return;
 
   const num = (name: string, fallback: number) => {
     const v = Number(formData.get(name));
@@ -308,6 +316,7 @@ export async function solicitarIntegracion(formData: FormData) {
   const profile = await requireRole(["admin", "super_admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
+  if (await isDemoMode()) return;
 
   const integracionId = String(formData.get("integracionId") || "").slice(0, 40);
   const accion = String(formData.get("accion") || "solicitar");

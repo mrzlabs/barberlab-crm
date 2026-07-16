@@ -3,6 +3,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { requireRole } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { negocios } from "@/lib/db/schema";
+import { isDemoMode } from "@/lib/demo-server";
 
 const nav = [
   { href: "/empleado/mi-agenda", label: "Mi agenda" },
@@ -12,7 +13,8 @@ const nav = [
 
 export default async function EmpleadoLayout({ children }: { children: React.ReactNode }) {
   const profile = await requireRole(["empleado"]);
-  const configRow = profile.negocioId
+  const demoMode = await isDemoMode();
+  const configRow = profile.negocioId && !demoMode
     ? await getDb()
         .select({ configVisual: negocios.configVisual })
         .from(negocios)

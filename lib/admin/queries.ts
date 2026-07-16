@@ -1,5 +1,5 @@
 import { and, desc, eq, gte, ilike, isNull, lte, or, sql } from "drizzle-orm";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import { mockCitas, mockDepositos, mockGastos, mockInventario, mockTurnos } from "@/lib/mock";
 import {
@@ -39,7 +39,7 @@ function calcDelta(current: number, previous: number): number | null {
 }
 
 export async function getDashboard(negocioId: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return {
       today: { turnos: 18, citas: 24, ingresos: 2450000, gastos: 420000, costoInsumo: 180000, margen: 1850000, propinas: 85000, ticket: 72000 },
       month: { turnos: 286, ingresos: 36500000, gastos: 9400000, costoInsumo: 4200000, margen: 22900000, ticket: 76500 },
@@ -179,7 +179,7 @@ export async function getDashboard(negocioId: string) {
 }
 
 export async function getRecentTurnos(negocioId: string) {
-  if (isDemoMode()) return mockTurnos;
+  if (await isDemoMode()) return mockTurnos;
 
   const rows = await getDb()
     .select({
@@ -205,7 +205,7 @@ export async function getRecentTurnos(negocioId: string) {
 }
 
 export async function getPendingCitas(negocioId: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return mockCitas.map((c) => ({
       ...c,
       clienteId: "cli-1",
@@ -251,7 +251,7 @@ export async function getPendingCitas(negocioId: string) {
 }
 
 export async function getGastos(negocioId: string, categoria?: string) {
-  if (isDemoMode()) return mockGastos;
+  if (await isDemoMode()) return mockGastos;
 
   const db = getDb();
   const conditions = [eq(gastos.negocioId, negocioId)];
@@ -262,7 +262,7 @@ export async function getGastos(negocioId: string, categoria?: string) {
 }
 
 export async function getInventario(negocioId: string, search?: string, soloAlertas?: boolean) {
-  if (isDemoMode()) return mockInventario;
+  if (await isDemoMode()) return mockInventario;
 
   const db = getDb();
   const conditions = [eq(inventario.negocioId, negocioId)];
@@ -278,7 +278,7 @@ export async function getInventario(negocioId: string, search?: string, soloAler
 }
 
 export async function getCategoriasInventario(negocioId: string): Promise<string[]> {
-  if (isDemoMode()) return ["Styling", "Cuidado", "Barbería", "Herramientas"];
+  if (await isDemoMode()) return ["Styling", "Cuidado", "Barbería", "Herramientas"];
   const rows = await getDb()
     .selectDistinct({ categoria: inventario.categoria })
     .from(inventario)
@@ -288,7 +288,7 @@ export async function getCategoriasInventario(negocioId: string): Promise<string
 }
 
 export async function getArqueoCaja(negocioId: string) {
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     return {
       porMetodo: [
         { metodoPago: "efectivo" as const, turnos: 7, ingresos: 490000, propinas: 30000 },
@@ -338,7 +338,7 @@ export type AppAlert = {
 };
 
 export async function getAlerts(negocioId: string): Promise<AppAlert[]> {
-  if (isDemoMode()) return [];
+  if (await isDemoMode()) return [];
 
   const db = getDb();
   const todayStart = startOfDay();

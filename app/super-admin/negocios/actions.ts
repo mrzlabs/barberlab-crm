@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { clientes, empleados, negocios, usuarios } from "@/lib/db/schema";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { negocioSchema, negocioSuperAdminSchema, negocioUpdateSchema, negocioUserSchema } from "@/lib/validations/admin";
 
@@ -30,7 +30,7 @@ export async function createNegocio(_prev: CreateNegocioState, formData: FormDat
   const payload = parsed.data;
   const slug = payload.slug.trim().toLowerCase();
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/super-admin/negocios");
     return { ok: true, message: "Modo demo: el negocio se validó pero no se persiste." };
   }
@@ -132,7 +132,7 @@ export async function updateNegocio(formData: FormData) {
   await requireRole(["super_admin"]);
   const payload = negocioUpdateSchema.parse(Object.fromEntries(formData));
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/super-admin/negocios");
     revalidatePath(`/super-admin/negocios/${payload.id}`);
     return;
@@ -173,7 +173,7 @@ export async function updateNegocioSuperAdmin(formData: FormData) {
   await requireRole(["super_admin"]);
   const payload = negocioSuperAdminSchema.parse(Object.fromEntries(formData));
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/super-admin/negocios");
     revalidatePath(`/super-admin/negocios/${payload.id}`);
     return;
@@ -209,7 +209,7 @@ export async function toggleNegocio(formData: FormData) {
     throw new Error("Estado invalido");
   }
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/super-admin/negocios");
     revalidatePath(`/super-admin/negocios/${id}`);
     return;
@@ -240,7 +240,7 @@ export async function resetUserPassword(formData: FormData) {
     throw new Error("Datos inválidos");
   }
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath(`/super-admin/negocios/${negocioId}`);
     return;
   }
@@ -256,7 +256,7 @@ export async function createNegocioUser(formData: FormData) {
   await requireRole(["super_admin"]);
   const payload = negocioUserSchema.parse(Object.fromEntries(formData));
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/super-admin/negocios");
     revalidatePath(`/super-admin/negocios/${payload.negocioId}`);
     return;

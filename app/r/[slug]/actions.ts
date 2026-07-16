@@ -6,7 +6,7 @@ import { z } from "zod";
 import { getDb } from "@/lib/db";
 import { clientes, negocios } from "@/lib/db/schema";
 import { getPuntosConfig, moverPuntos } from "@/lib/puntos";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 
 const registroSchema = z.object({
   slug: z.string().min(2).max(80),
@@ -22,7 +22,7 @@ export async function registrarClientePublico(formData: FormData) {
   if (!parsed.success) redirect(`/r/${formData.get("slug")}?error=datos`);
   const data = parsed.data;
 
-  if (isDemoMode()) redirect(`/r/${data.slug}?ok=1`);
+  if (await isDemoMode()) redirect(`/r/${data.slug}?ok=1`);
 
   const db = getDb();
   const [negocio] = await db

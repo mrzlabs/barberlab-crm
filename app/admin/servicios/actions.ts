@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import { servicios } from "@/lib/db/schema";
 import { servicioAdminSchema } from "@/lib/validations/catalog";
@@ -13,7 +13,7 @@ export async function createServicio(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/admin/servicios");
     return;
   }
@@ -41,7 +41,7 @@ export async function toggleServicio(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) { revalidatePath("/admin/servicios"); return; }
+  if (await isDemoMode()) { revalidatePath("/admin/servicios"); return; }
 
   const servicioId = formData.get("servicioId") as string;
   const activo = formData.get("activo") === "true";
@@ -59,7 +59,7 @@ export async function updateServicio(formData: FormData) {
   const profile = await requireRole(["admin"]);
   const negocioId = profile.negocioId;
   if (!negocioId) throw new Error("Sin negocio asignado");
-  if (isDemoMode()) { revalidatePath("/admin/servicios"); return; }
+  if (await isDemoMode()) { revalidatePath("/admin/servicios"); return; }
 
   const servicioId = formData.get("servicioId") as string;
   const payload = servicioAdminSchema.parse({

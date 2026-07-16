@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
-import { isDemoMode } from "@/lib/demo";
+import { isDemoMode } from "@/lib/demo-server";
 import { getDb } from "@/lib/db";
 import { negocios } from "@/lib/db/schema";
 
@@ -19,7 +19,7 @@ export async function updateBilling(formData: FormData) {
   await requireRole(["super_admin"]);
   const payload = schema.parse(Object.fromEntries(formData));
 
-  if (isDemoMode()) {
+  if (await isDemoMode()) {
     revalidatePath("/super-admin/facturacion");
     revalidatePath("/super-admin/negocios");
     return;
