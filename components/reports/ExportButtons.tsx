@@ -78,7 +78,7 @@ export function ExportButtons({
   return (
     <>
       <button
-        className="flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-white/18 no-print"
+        className="flex items-center justify-center gap-2 rounded-xl border border-ds-border-strong bg-ds-surface px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-ds-fg transition hover:bg-ds-surface-2 no-print"
         onClick={handleCSV}
         type="button"
       >

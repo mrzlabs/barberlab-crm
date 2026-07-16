@@ -34,7 +34,7 @@ function getPresets() {
 }
 
 const inputCls =
-  "w-full rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/50 outline-none focus:border-cyan-400";
+  "w-full rounded-xl border border-ds-border bg-ds-surface px-3 py-2 text-sm text-ds-fg placeholder:text-ds-fg-subtle outline-none focus:border-ds-primary";
 
 export function DateRangePicker({ from, to }: Props) {
   const router = useRouter();
@@ -69,7 +69,7 @@ export function DateRangePicker({ from, to }: Props) {
               className={`rounded-xl px-3 py-1.5 text-xs font-black transition ${
                 active
                   ? "bg-cyan-400 text-slate-950"
-                  : "border border-white/20 bg-white/8 text-white/70 hover:bg-white/15 hover:text-white"
+                  : "border border-ds-border bg-ds-surface text-ds-fg-muted hover:border-ds-border-strong hover:bg-ds-surface-2 hover:text-ds-fg"
               }`}
             >
               {preset.label}
@@ -86,7 +86,7 @@ export function DateRangePicker({ from, to }: Props) {
           navigate(customFrom, customTo);
         }}
       >
-        <label className="grid gap-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+        <label className="grid gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ds-fg-muted">
           Desde
           <input
             className={inputCls}
@@ -95,7 +95,7 @@ export function DateRangePicker({ from, to }: Props) {
             onChange={(e) => setCustomFrom(e.target.value)}
           />
         </label>
-        <label className="grid gap-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+        <label className="grid gap-1.5 text-[11px] font-bold uppercase tracking-wide text-ds-fg-muted">
           Hasta
           <input
             className={inputCls}
