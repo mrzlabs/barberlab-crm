@@ -1,20 +1,17 @@
 import Image from "next/image";
+import { MessageCircle } from "lucide-react";
 import { fmtDateTime, fmtMoney, toDateInput } from "@/lib/admin/format";
 import { getProductosCliente, getReservaCatalog, getSlots } from "@/lib/cliente/queries";
 import { buscarSlotsSchema } from "@/lib/validations/cliente";
 import { reservarCita } from "./actions";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Select, Input } from "@/components/ui/Input";
+import { Badge } from "@/components/ui/Badge";
 
 export const dynamic = "force-dynamic";
 
-const input = "w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none focus:border-cyan-500";
-
-type PageProps = {
-  searchParams?: Record<string, string | string[] | undefined>;
-};
-
-function getParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
+type PageProps = { searchParams?: Record<string, string | string[] | undefined> };
+function getParam(value: string | string[] | undefined) { return Array.isArray(value) ? value[0] : value; }
 
 export default async function ReservarPage({ searchParams }: PageProps) {
   const [catalog, products] = await Promise.all([getReservaCatalog(), getProductosCliente()]);
@@ -28,119 +25,89 @@ export default async function ReservarPage({ searchParams }: PageProps) {
   const selectedEmployee = catalog.empleados.find((employee) => employee.id === params.empleadoId);
 
   return (
-    <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-6 text-white shadow-2xl shadow-violet-950/20 sm:p-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_20%,rgba(34,211,238,.35),transparent_18rem),radial-gradient(circle_at_80%_40%,rgba(168,85,247,.38),transparent_22rem)]" />
-        <div className="relative grid gap-6 lg:grid-cols-[1fr_360px] lg:items-end">
-          <div>
-            <div className="mac-dots" />
-            <p className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Agenda cliente</p>
-            <h2 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Reserva, revisa disponibilidad y separa tu cita.</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300">
-              El cliente consulta horarios libres por servicio y especialista. La cita queda reservada para aprobacion operativa del comercio.
-            </p>
-          </div>
-          <div className="rounded-[1.7rem] border border-white/10 bg-white/10 p-4 backdrop-blur">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">Estado</p>
-            <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs font-black">
-              <span className="rounded-2xl bg-cyan-300 p-3 text-slate-950">Buscar</span>
-              <span className="rounded-2xl bg-white/10 p-3">Reservar</span>
-              <span className="rounded-2xl bg-white/10 p-3">Aprobar</span>
-            </div>
-          </div>
-        </div>
-      </section>
+    <div className="space-y-5">
+      <PageHeader
+        title="Reservar cita"
+        description="Consulta horarios libres por servicio y especialista, y separa tu cita."
+      />
 
-      <section className="grid gap-6 xl:grid-cols-[390px_1fr]">
-        <form className="glass-panel h-fit rounded-[2rem] p-5">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Disponibilidad</p>
-          <h3 className="mt-1 text-2xl font-black">Buscar horario</h3>
-          <div className="mt-5 grid gap-4">
-            <label className="text-xs font-bold uppercase text-muted-foreground">
-              Servicio
-              <select className={input} defaultValue={params.servicioId} name="servicioId" required>
+      <section className="grid gap-5 xl:grid-cols-[380px_1fr]">
+        <form className="h-fit rounded-card border border-ds-border bg-ds-surface p-5 shadow-ds-sm">
+          <p className="text-[12px] font-medium uppercase tracking-wide text-ds-fg-muted">Disponibilidad</p>
+          <h3 className="text-base font-semibold text-ds-fg">Buscar horario</h3>
+          <div className="mt-4 grid gap-4">
+            <label className="grid gap-1.5 text-[13px] font-medium text-ds-fg">Servicio
+              <Select defaultValue={params.servicioId} name="servicioId" required>
                 {catalog.servicios.map((service) => (
-                  <option key={service.id} value={service.id}>
-                    {service.nombre} · {fmtMoney(service.precio)}
-                  </option>
+                  <option key={service.id} value={service.id}>{service.nombre} · {fmtMoney(service.precio)}</option>
                 ))}
-              </select>
+              </Select>
             </label>
-            <label className="text-xs font-bold uppercase text-muted-foreground">
-              Especialista
-              <select className={input} defaultValue={params.empleadoId} name="empleadoId" required>
+            <label className="grid gap-1.5 text-[13px] font-medium text-ds-fg">Especialista
+              <Select defaultValue={params.empleadoId} name="empleadoId" required>
                 {catalog.empleados.map((employee) => (
-                  <option key={employee.id} value={employee.id}>
-                    {employee.nombre} · {employee.especialidad.replace("_", " ")}
-                  </option>
+                  <option key={employee.id} value={employee.id}>{employee.nombre} · {employee.especialidad.replace("_", " ")}</option>
                 ))}
-              </select>
+              </Select>
             </label>
-            <label className="text-xs font-bold uppercase text-muted-foreground">
-              Fecha
-              <input className={input} defaultValue={params.fecha} min={toDateInput()} name="fecha" required type="date" />
+            <label className="grid gap-1.5 text-[13px] font-medium text-ds-fg">Fecha
+              <Input defaultValue={params.fecha} min={toDateInput()} name="fecha" required type="date" />
             </label>
-            <button className="rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white" type="submit">
-              Consultar slots
-            </button>
+            <button className="h-control rounded-control bg-ds-primary px-4 text-sm font-medium text-white transition-colors hover:bg-ds-primary-hover" type="submit">Consultar horarios</button>
           </div>
         </form>
 
-        <section className="glass-panel overflow-hidden rounded-[2rem]">
-          <div className="border-b border-slate-200/70 p-5">
-            <h3 className="text-2xl font-black">Horarios disponibles</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {selectedService?.nombre || "Servicio"} con {selectedEmployee?.nombre || "especialista"}.
-            </p>
+        <section className="overflow-hidden rounded-card border border-ds-border bg-ds-surface shadow-ds-sm">
+          <div className="border-b border-ds-border p-5">
+            <h3 className="text-base font-semibold text-ds-fg">Horarios disponibles</h3>
+            <p className="mt-1 text-[13px] text-ds-fg-muted">{selectedService?.nombre || "Servicio"} con {selectedEmployee?.nombre || "especialista"}.</p>
           </div>
           <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3">
             {slots.map((slot) => (
-              <form action={reservarCita} className="rounded-[1.4rem] border border-white/10 bg-white/8 backdrop-blur-md p-4 shadow-sm transition hover:-translate-y-1 hover:border-violet-300 hover:shadow-xl" key={slot.inicio}>
+              <form action={reservarCita} className="rounded-control border border-ds-border bg-ds-surface p-4 shadow-ds-sm transition-colors hover:border-ds-border-strong" key={slot.inicio}>
                 <input name="servicioId" type="hidden" value={params.servicioId} />
                 <input name="empleadoId" type="hidden" value={params.empleadoId} />
                 <input name="inicio" type="hidden" value={slot.inicio} />
                 <input name="fin" type="hidden" value={slot.fin} />
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Slot</p>
-                <strong className="mt-2 block text-lg">{fmtDateTime(slot.inicio)}</strong>
-                <p className="mt-1 text-sm text-muted-foreground">Finaliza {fmtDateTime(slot.fin)}</p>
-                <button className="mt-4 w-full rounded-2xl bg-cyan-500 px-4 py-3 text-sm font-black text-white" type="submit">
-                  Reservar
-                </button>
+                <p className="text-[11px] font-medium uppercase tracking-wide text-ds-fg-muted">Slot</p>
+                <strong className="mt-1.5 block text-[15px] font-semibold text-ds-fg">{fmtDateTime(slot.inicio)}</strong>
+                <p className="mt-1 text-[12px] text-ds-fg-muted">Finaliza {fmtDateTime(slot.fin)}</p>
+                <button className="mt-3 h-control w-full rounded-control bg-ds-primary px-4 text-sm font-medium text-white transition-colors hover:bg-ds-primary-hover" type="submit">Reservar</button>
               </form>
             ))}
-            {slots.length === 0 ? (
-              <p className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground sm:col-span-2 lg:col-span-3">
-                Sin horarios disponibles para la seleccion actual.
+            {slots.length === 0 && (
+              <p className="rounded-control border border-dashed border-ds-border p-8 text-center text-sm text-ds-fg-subtle sm:col-span-2 lg:col-span-3">
+                Sin horarios disponibles para la selección actual.
               </p>
-            ) : null}
+            )}
           </div>
         </section>
       </section>
 
-      <section className="glass-panel rounded-[2rem] p-5">
-        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+      <section className="rounded-card border border-ds-border bg-ds-surface p-5 shadow-ds-sm">
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-700">Productos disponibles</p>
-            <h3 className="mt-1 text-2xl font-black">Compra manual en sede o por WhatsApp</h3>
+            <p className="text-[12px] font-medium uppercase tracking-wide text-ds-fg-muted">Productos disponibles</p>
+            <h3 className="text-base font-semibold text-ds-fg">Compra en sede o por WhatsApp</h3>
           </div>
-          <a className="rounded-2xl bg-slate-950 px-4 py-3 text-center text-sm font-black text-white" href="https://wa.me/573503803010" target="_blank">
-            Consultar por WhatsApp
+          <a className="inline-flex h-control items-center justify-center gap-2 rounded-control border border-ds-border-strong bg-ds-surface px-4 text-sm font-medium text-ds-fg transition-colors hover:bg-ds-surface-2" href="https://wa.me/573503803010" target="_blank">
+            <MessageCircle className="size-4" /> Consultar por WhatsApp
           </a>
         </div>
-        <div className="mt-5 flex gap-3 overflow-x-auto pb-2 scrollbar-soft">
+        <div className="mt-5 flex gap-3 overflow-x-auto pb-2">
           {products.map((item) => (
-            <article className="min-w-[250px] rounded-[1.4rem] border border-white/10 bg-white/8 backdrop-blur-md p-4 shadow-sm" key={item.id}>
+            <article className="min-w-[220px] rounded-control border border-ds-border bg-ds-surface p-4 shadow-ds-sm" key={item.id}>
               {item.fotoUrl ? (
-                <span className="relative block size-20 overflow-hidden rounded-xl">
-                  <Image src={item.fotoUrl} alt={item.nombre} className="object-cover" fill sizes="80px" unoptimized />
+                <span className="relative block size-16 overflow-hidden rounded-control">
+                  <Image src={item.fotoUrl} alt={item.nombre} className="object-cover" fill sizes="64px" unoptimized />
                 </span>
               ) : (
-                <div className="size-20 rounded-xl bg-[radial-gradient(circle_at_24%_28%,rgba(34,211,238,.35),transparent_5rem),linear-gradient(135deg,#0f172a,#312e81)]" />
+                <div className="grid size-16 place-items-center rounded-control bg-ds-surface-2 text-[10px] font-semibold text-ds-fg-subtle">IMG</div>
               )}
-              <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-cyan-700">{item.categoria}</p>
-              <h4 className="mt-1 text-lg font-black">{item.nombre}</h4>
-              {item.descripcion && <p className="mt-2 line-clamp-3 text-xs leading-5 text-slate-500">{item.descripcion}</p>}
-              <p className="mt-2 text-sm font-black text-slate-600">{fmtMoney(item.precioVenta)} · stock {item.stock} {item.unidad}</p>
+              <p className="mt-3"><Badge tone="neutral">{item.categoria}</Badge></p>
+              <h4 className="mt-1.5 text-[15px] font-semibold text-ds-fg">{item.nombre}</h4>
+              {item.descripcion && <p className="mt-1.5 line-clamp-3 text-[12px] leading-5 text-ds-fg-muted">{item.descripcion}</p>}
+              <p className="ds-nums mt-2 text-[13px] font-semibold text-ds-fg">{fmtMoney(item.precioVenta)} · stock {item.stock} {item.unidad}</p>
             </article>
           ))}
         </div>

@@ -10,7 +10,7 @@ const nav = [
 export default async function ClienteLayout({ children }: { children: React.ReactNode }) {
   try {
     const profile = await requireRole(["cliente"]);
-    return <AppShell profile={profile} role="cliente" title={profile.nombre || "Cliente"} nav={nav}>{children}</AppShell>;
+    return <AppShell profile={profile} role="cliente" theme="light" title={profile.nombre || "Cliente"} nav={nav}>{children}</AppShell>;
   } catch {
     redirect("/login");
   }
