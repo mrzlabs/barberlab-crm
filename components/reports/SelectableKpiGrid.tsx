@@ -21,7 +21,7 @@ export function SelectableKpiGrid({ kpis }: { kpis: KpiItem[] }) {
         return (
           <article
             key={k.id}
-            className={`relative cursor-pointer overflow-hidden rounded-card border bg-ds-surface p-4 shadow-ds-sm transition-colors ${k.accentClass} ${
+            className={`report-kpi relative cursor-pointer overflow-hidden rounded-card border bg-ds-surface p-4 shadow-ds-sm transition-colors ${k.accentClass} ${
               active ? "border-ds-primary ring-2 ring-ds-ring/50" : "border-ds-border hover:border-ds-border-strong"
             }`}
             onClick={() => setSelected(active ? null : k.id)}
