@@ -26,6 +26,7 @@ export default async function EmpleadoLayout({ children }: { children: React.Rea
       configVisual={configRow[0]?.configVisual ?? null}
       profile={profile}
       role="empleado"
+      theme="light"
       title={profile.negocioNombre || "Empleado"}
       nav={nav}
     >
