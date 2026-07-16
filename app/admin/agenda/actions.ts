@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/session";
 import { slotDisponible } from "@/lib/cliente/queries";
@@ -19,45 +20,65 @@ export async function createCitaAdmin(formData: FormData) {
     return;
   }
 
-  const payload = citaAdminSchema.parse(Object.fromEntries(formData));
-  const inicioDate = new Date(payload.inicio);
-  // Si hay duracionOverride (tatuajes/sesiones largas), recalcular fin
-  const finDate = payload.duracionOverride
-    ? new Date(inicioDate.getTime() + payload.duracionOverride * 60000)
-    : new Date(payload.fin);
-  const inicio = inicioDate.toISOString();
-  const fin = finDate.toISOString();
-  const fecha = payload.inicio.slice(0, 10);
-  const disponible = await slotDisponible({
-    empleadoId: payload.empleadoId,
-    servicioId: payload.servicioId,
-    fecha,
-    inicio: inicioDate,
-    fin: finDate,
-  });
+  // El formulario de la agenda es un server-action plano: un throw crashea la
+  // página. Capturamos los fallos esperados y redirigimos con ?err= para
+  // mostrar un banner legible en vez del "Application error".
+  const fechaParam = String(formData.get("inicio") || "").slice(0, 10);
+  const back = (err: string) =>
+    redirect(`/admin/agenda?vista=lista${fechaParam ? `&fecha=${fechaParam}` : ""}&err=${encodeURIComponent(err)}`);
 
-  if (!disponible) {
-    throw new Error("El horario seleccionado no esta disponible");
+  let errMsg: string | null = null;
+  try {
+    const parsed = citaAdminSchema.safeParse(Object.fromEntries(formData));
+    if (!parsed.success) {
+      back("Faltan datos de la cita. Verifica cliente, servicio, especialista y horario.");
+      return;
+    }
+    const payload = parsed.data;
+
+    const inicioDate = new Date(payload.inicio);
+    const finDate = payload.duracionOverride
+      ? new Date(inicioDate.getTime() + payload.duracionOverride * 60000)
+      : new Date(payload.fin);
+    const fecha = payload.inicio.slice(0, 10);
+
+    const disponible = await slotDisponible({
+      empleadoId: payload.empleadoId,
+      servicioId: payload.servicioId,
+      fecha,
+      inicio: inicioDate,
+      fin: finDate,
+    });
+    if (!disponible) {
+      back("El horario seleccionado ya no está disponible. Elige otro slot.");
+      return;
+    }
+
+    const [created] = await getDb().insert(citas).values({
+      negocioId,
+      clienteId: payload.clienteId,
+      empleadoId: payload.empleadoId,
+      servicioId: payload.servicioId,
+      inicio: inicioDate.toISOString(),
+      fin: finDate.toISOString(),
+      estado: payload.estado,
+    }).returning({ id: citas.id });
+
+    await addCitaHistory({
+      citaId: created.id,
+      actorId: profile.id,
+      actorRol: "admin",
+      estadoNuevo: payload.estado,
+      accion: "cita_admin_creada",
+      detalle: "Cita creada desde agenda admin",
+    });
+  } catch (e) {
+    // redirect() lanza un error especial NEXT_REDIRECT: hay que re-lanzarlo.
+    if ((e as { digest?: string })?.digest?.startsWith?.("NEXT_REDIRECT")) throw e;
+    errMsg = (e as Error).message || "No se pudo crear la cita.";
   }
 
-  const [created] = await getDb().insert(citas).values({
-    negocioId,
-    clienteId: payload.clienteId,
-    empleadoId: payload.empleadoId,
-    servicioId: payload.servicioId,
-    inicio,
-    fin,
-    estado: payload.estado,
-  }).returning({ id: citas.id });
-
-  await addCitaHistory({
-    citaId: created.id,
-    actorId: profile.id,
-    actorRol: "admin",
-    estadoNuevo: payload.estado,
-    accion: "cita_admin_creada",
-    detalle: "Cita creada desde agenda admin",
-  });
+  if (errMsg) back(errMsg);
 
   revalidatePath("/admin/agenda");
   revalidatePath("/admin/turnos");

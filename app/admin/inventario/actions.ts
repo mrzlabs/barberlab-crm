@@ -38,11 +38,23 @@ export async function createItem(formData: FormData) {
     activo: formData.get("activo") === "on",
     visibleCliente: formData.get("visibleCliente") === "on",
   });
+  const sku = payload.sku.trim().toUpperCase();
+
+  // Evita el 500 por "duplicate key ... inventario_sku_key": valida antes.
+  const [dup] = await getDb()
+    .select({ id: inventario.id })
+    .from(inventario)
+    .where(and(eq(inventario.negocioId, negocioId), sql`upper(${inventario.sku}) = ${sku}`))
+    .limit(1);
+  if (dup) {
+    throw new Error(`Ya existe un producto con el SKU "${sku}". Usa un código distinto.`);
+  }
+
   const fotoUrl = await uploadInventarioFoto(formData.get("foto") as File | null, negocioId);
 
   await getDb().insert(inventario).values({
     negocioId,
-    sku: payload.sku.trim().toUpperCase(),
+    sku,
     nombre: payload.nombre.trim(),
     categoria: payload.categoria.trim(),
     unidad: payload.unidad.trim(),

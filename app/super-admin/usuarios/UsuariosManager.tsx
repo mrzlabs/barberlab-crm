@@ -217,9 +217,20 @@ export function UsuariosManager({
                         <KeyRound className="size-3" /> Resetear clave
                       </button>
                       <button
-                        className="rounded-lg bg-rose-900/40 px-2 py-1 text-[11px] font-bold text-ds-danger transition hover:bg-rose-900/70"
+                        className="rounded-lg bg-ds-danger-tint px-2 py-1 text-[11px] font-bold text-ds-danger transition hover:brightness-95"
                         disabled={pending}
-                        onClick={() => { if (window.confirm(`¿Eliminar a ${u.nombre}?`)) startTransition(async () => { await deleteUsuario(u.id); router.refresh(); }); }}
+                        onClick={() => {
+                          if (!window.confirm(`¿Eliminar a ${u.nombre}? Esta acción no se puede deshacer.`)) return;
+                          startTransition(async () => {
+                            try {
+                              const res = await deleteUsuario(u.id);
+                              if (res && !res.ok) { alert(`No se pudo eliminar: ${res.error}`); return; }
+                              router.refresh();
+                            } catch (ex) {
+                              alert(`Error al eliminar: ${(ex as Error).message ?? "desconocido"}`);
+                            }
+                          });
+                        }}
                         type="button"
                       >
                         Eliminar

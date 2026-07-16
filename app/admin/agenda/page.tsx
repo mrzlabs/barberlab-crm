@@ -10,6 +10,7 @@ import { SubmitButton } from "@/components/layout/SubmitButton";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Input, Select } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
+import { Alert } from "@/components/ui/Alert";
 import { createBloqueoEmpleado, createCitaAdmin, createHorarioEmpleado, deleteBloqueo, deleteHorario, reagendarCita, updateCitaAdmin } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -55,8 +56,11 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
       active ? "bg-ds-primary text-white" : "border border-ds-border bg-ds-surface text-ds-fg-muted hover:border-ds-border-strong hover:text-ds-fg"
     }`;
 
+  const err = getParam(searchParams?.err);
+
   return (
     <div className="space-y-5">
+      {err && <Alert tone="danger">{err}</Alert>}
       <PageHeader
         title="Agenda"
         description="Crea citas, configura disponibilidad y controla toda la operación por especialista."
