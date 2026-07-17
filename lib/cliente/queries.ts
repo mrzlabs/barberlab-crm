@@ -148,9 +148,12 @@ export async function getSlots(empleadoId?: string, fecha?: string, servicioId?:
     from public.disponibilidad_empleado(${empleadoId}::uuid, ${fecha}::date, ${servicioId}::uuid)
   `) as Array<{ inicio: string | Date; fin: string | Date }>;
 
+  // Normaliza SIEMPRE a ISO-8601 UTC ("…Z"). Postgres devuelve el timestamp
+  // como string ("2026-07-16 08:00:00+00"), que NO pasa z.string().datetime()
+  // → la validación de crear cita / reservar fallaba con "Faltan datos".
   return rows.map((slot) => ({
-    inicio: slot.inicio instanceof Date ? slot.inicio.toISOString() : String(slot.inicio),
-    fin: slot.fin instanceof Date ? slot.fin.toISOString() : String(slot.fin),
+    inicio: new Date(slot.inicio).toISOString(),
+    fin: new Date(slot.fin).toISOString(),
   }));
 }
 
