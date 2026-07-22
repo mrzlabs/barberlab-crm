@@ -285,6 +285,14 @@ const helpTopics: Record<UserRole, HelpTopic[]> = {
   ],
 };
 
+// ─── Accesos rápidos del cliente (el bot solo muestra acciones, no ayuda) ─────
+
+const clienteQuickActions = [
+  { emoji: "📅", label: "Reservar cita",  href: "/cliente/reservar",  color: "#2563eb", bg: "rgba(37,99,235,0.12)" },
+  { emoji: "🗓️", label: "Mis citas",     href: "/cliente/mis-citas", color: "#0891b2", bg: "rgba(8,145,178,0.12)" },
+  { emoji: "🛍️", label: "Productos",     href: "/cliente/reservar",  color: "#7c3aed", bg: "rgba(124,58,237,0.12)" },
+];
+
 // ─── Alert type ──────────────────────────────────────────────────────────────
 
 type AppAlert = { label: string; tone: string; href: string; detail: string };
@@ -857,7 +865,7 @@ export function AppChrome({
       {/* ── Footer — mismo offset que el main ──────────────────── */}
       <footer className={`relative transition-all duration-300 ${open ? "lg:ml-[200px]" : "lg:ml-[64px]"}`}>
         {/* El bot se desmonta con menú móvil o perfil abiertos: nunca debe tapar sus controles */}
-        <MrzSignature light={!isDark} bot={mobileOpen || profileOpen ? undefined : <MrzHelpBot topics={topics} />} />
+        <MrzSignature light={!isDark} bot={mobileOpen || profileOpen ? undefined : <MrzHelpBot topics={topics} actions={role === "cliente" ? clienteQuickActions : undefined} />} />
       </footer>
       {expandedPhoto && (
         <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/72 p-4 backdrop-blur-xl" onClick={() => setExpandedPhoto(null)}>

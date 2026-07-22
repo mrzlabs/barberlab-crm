@@ -218,7 +218,9 @@ function BotRobot() {
 type HelpTopic = { title: string; body: string; steps: string[]; tips?: string[]; cta?: string; href?: string };
 
 // ── Component ─────────────────────────────────────────────
-export function MrzHelpBot({ topics }: { topics?: HelpTopic[] }) {
+type QuickAction = { emoji: string; label: string; href: string; color: string; bg: string };
+
+export function MrzHelpBot({ topics, actions }: { topics?: HelpTopic[]; actions?: QuickAction[] }) {
   const [open, setOpen]                     = useState(false);
   const [peekVisible, setPeekVisible]       = useState(false);
   const [botX, setBotX]                     = useState(0);
@@ -321,13 +323,31 @@ export function MrzHelpBot({ topics }: { topics?: HelpTopic[] }) {
               </div>
               <div className="mrz-drawer-id">
                 <strong>Maylo</strong>
-                <span>Asistente Operativo · Operux CRM</span>
+                <span>{actions ? "¿Qué quieres hacer?" : "Asistente Operativo · Operux CRM"}</span>
               </div>
               <button type="button" className="mrz-drawer-close" onClick={() => setOpen(false)} aria-label="Cerrar ayuda">
                 <X className="size-4" />
               </button>
             </div>
 
+            {actions ? (
+              <div className="mrz-drawer-modules">
+                {actions.map((a) => (
+                  <div key={a.href + a.label} className="mrz-drawer-module">
+                    <button
+                      type="button"
+                      className="mrz-drawer-module-head"
+                      onClick={() => { router.push(a.href); setOpen(false); }}
+                    >
+                      <span className="mrz-drawer-module-icon" style={{ background: a.bg, color: a.color }} aria-hidden="true">{a.emoji}</span>
+                      <span className="mrz-drawer-module-label">{a.label}</span>
+                      <ArrowRight className="size-3.5" style={{ color: "#6a6a7c" }} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <>
             {/* Buscador */}
             <div className="mrz-drawer-search">
               <Search className="size-3.5" />
@@ -438,10 +458,12 @@ export function MrzHelpBot({ topics }: { topics?: HelpTopic[] }) {
                 </p>
               )}
             </div>
+              </>
+            )}
 
             {/* CTA */}
             <button type="button" className="mrz-drawer-cta" onClick={() => setOpen(false)}>
-              <Zap className="size-4" /> ¡Listo, a trabajar!
+              <Zap className="size-4" /> {actions ? "Cerrar" : "¡Listo, a trabajar!"}
             </button>
           </div>
         </>,
@@ -468,7 +490,7 @@ export function MrzHelpBot({ topics }: { topics?: HelpTopic[] }) {
             </button>
           </div>
           <button type="button" className="mrz-peek-cta" onClick={() => { dismissPeek(); setOpen(true); }}>
-            Abrir ayuda <ArrowRight className="size-3" />
+            {actions ? "Ver opciones" : "Abrir ayuda"} <ArrowRight className="size-3" />
           </button>
         </div>
       )}

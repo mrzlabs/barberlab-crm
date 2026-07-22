@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { MessageCircle } from "lucide-react";
 import { fmtDateTime, fmtMoney, toDateInput } from "@/lib/admin/format";
-import { getProductosCliente, getReservaCatalog, getSlots } from "@/lib/cliente/queries";
+import { getProductosCliente, getReservaCatalog, getSlots, getWhatsAppNegocio } from "@/lib/cliente/queries";
 import { buscarSlotsSchema } from "@/lib/validations/cliente";
 import { reservarCita } from "./actions";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -14,7 +14,10 @@ type PageProps = { searchParams?: Record<string, string | string[] | undefined> 
 function getParam(value: string | string[] | undefined) { return Array.isArray(value) ? value[0] : value; }
 
 export default async function ReservarPage({ searchParams }: PageProps) {
-  const [catalog, products] = await Promise.all([getReservaCatalog(), getProductosCliente()]);
+  const [catalog, products, whatsapp] = await Promise.all([getReservaCatalog(), getProductosCliente(), getWhatsAppNegocio()]);
+  const whatsappHref = whatsapp.enabled
+    ? `https://wa.me/${whatsapp.phone}?text=${encodeURIComponent(`Hola ${whatsapp.nombre}, quiero hacer una consulta.`)}`
+    : null;
   const params = buscarSlotsSchema.parse({
     servicioId: getParam(searchParams?.servicioId) || catalog.servicios[0]?.id,
     empleadoId: getParam(searchParams?.empleadoId) || catalog.empleados[0]?.id,
@@ -88,11 +91,13 @@ export default async function ReservarPage({ searchParams }: PageProps) {
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div>
             <p className="text-[12px] font-medium uppercase tracking-wide text-ds-fg-muted">Productos disponibles</p>
-            <h3 className="text-base font-semibold text-ds-fg">Compra en sede o por WhatsApp</h3>
+            <h3 className="text-base font-semibold text-ds-fg">Compra en sede{whatsappHref ? " o por WhatsApp" : ""}</h3>
           </div>
-          <a className="inline-flex h-control items-center justify-center gap-2 rounded-control border border-ds-border-strong bg-ds-surface px-4 text-sm font-medium text-ds-fg transition-colors hover:bg-ds-surface-2" href="https://wa.me/573503803010" target="_blank">
-            <MessageCircle className="size-4" /> Consultar por WhatsApp
-          </a>
+          {whatsappHref && (
+            <a className="inline-flex h-control items-center justify-center gap-2 rounded-control border border-ds-border-strong bg-ds-surface px-4 text-sm font-medium text-ds-fg transition-colors hover:bg-ds-surface-2" href={whatsappHref} target="_blank" rel="noreferrer">
+              <MessageCircle className="size-4" /> Consultar por WhatsApp
+            </a>
+          )}
         </div>
         <div className="mt-5 flex gap-3 overflow-x-auto pb-2">
           {products.map((item) => (

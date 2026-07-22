@@ -16,6 +16,8 @@ type Templates = { confirmacion: string; recordatorio: string; seguimiento: stri
 
 const MAX = 500;
 
+const fieldInput = "w-full rounded-control border border-ds-border bg-ds-surface px-3 py-2.5 text-sm text-ds-fg placeholder:text-ds-fg-subtle outline-none transition-colors focus:border-ds-primary focus:ring-1 focus:ring-ds-primary/20";
+
 function TemplateField({
   id, label, description, value, onChange,
 }: {
@@ -35,19 +37,19 @@ function TemplateField({
   }
 
   return (
-    <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-4">
+    <div className="rounded-control border border-ds-border bg-ds-surface-2 p-4">
       <div className="mb-2 flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-300">{label}</p>
-          <p className="mt-0.5 text-xs text-slate-500">{description}</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-ds-fg">{label}</p>
+          <p className="mt-0.5 text-xs text-ds-fg-muted">{description}</p>
         </div>
-        <span className={`text-[10px] font-medium tabular-nums ${value.length > MAX * 0.9 ? "text-amber-400" : "text-slate-500"}`}>
+        <span className={`text-[10px] font-medium tabular-nums ${value.length > MAX * 0.9 ? "text-ds-warning" : "text-ds-fg-subtle"}`}>
           {value.length}/{MAX}
         </span>
       </div>
       <textarea
         id={`tpl-${id}`}
-        className="w-full resize-none rounded-lg border border-slate-600/50 bg-slate-900/60 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30"
+        className={`${fieldInput} resize-none`}
         rows={3}
         maxLength={MAX}
         value={value}
@@ -101,23 +103,23 @@ export function WhatsAppTemplatesPanel({
   }
 
   return (
-    <section id="whatsapp" className="rounded-xl border border-slate-700/50 bg-slate-900/80 p-5 shadow-lg">
+    <section id="whatsapp" className="rounded-card border border-ds-border bg-ds-surface p-5 shadow-ds-sm">
       <div className="mb-5 flex items-center gap-3">
-        <span className="grid size-9 place-items-center rounded-lg bg-emerald-500/15 text-emerald-400">
+        <span className="grid size-9 place-items-center rounded-lg bg-ds-success-tint text-ds-success">
           <MessageSquare className="size-4.5" />
         </span>
         <div>
-          <h3 className="text-sm font-semibold text-white">Notificaciones WhatsApp</h3>
-          <p className="text-xs text-slate-400">Plantillas de mensajes automáticos para confirmaciones y recordatorios.</p>
+          <h3 className="text-sm font-semibold text-ds-fg">Notificaciones WhatsApp</h3>
+          <p className="text-xs text-ds-fg-muted">Plantillas de mensajes automáticos para confirmaciones y recordatorios.</p>
         </div>
         <label className="ml-auto flex cursor-pointer items-center gap-2">
-          <span className="text-xs text-slate-400">{enabled ? "Activo" : "Inactivo"}</span>
+          <span className="text-xs text-ds-fg-muted">{enabled ? "Activo" : "Inactivo"}</span>
           <button
             type="button"
             role="switch"
             aria-checked={enabled}
             onClick={() => setEnabled((v) => !v)}
-            className={`relative h-5 w-9 rounded-full transition-colors ${enabled ? "bg-emerald-500" : "bg-slate-600"}`}
+            className={`relative h-5 w-9 rounded-full transition-colors ${enabled ? "bg-ds-success" : "bg-ds-border-strong"}`}
           >
             <span className={`absolute top-0.5 left-0.5 size-4 rounded-full bg-white shadow transition-transform ${enabled ? "translate-x-4" : "translate-x-0"}`} />
           </button>
@@ -128,11 +130,11 @@ export function WhatsAppTemplatesPanel({
         <input type="hidden" name="negocioId" value={negocioId} />
 
         <div>
-          <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-slate-400">
+          <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-ds-fg-muted">
             Número WhatsApp del negocio
           </label>
           <input
-            className="w-full rounded-lg border border-slate-600/50 bg-slate-800/60 px-3 py-2 text-sm text-white placeholder:text-slate-500 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30"
+            className={fieldInput}
             type="tel"
             placeholder="+57 300 000 0000"
             value={phone}
@@ -166,14 +168,14 @@ export function WhatsAppTemplatesPanel({
           <button
             type="button"
             onClick={() => setTemplates({ ...DEFAULTS })}
-            className="rounded-lg bg-slate-700 px-3 py-2 text-xs font-medium text-slate-300 transition hover:bg-slate-600 hover:text-white"
+            className="rounded-control border border-ds-border bg-ds-surface-2 px-3 py-2 text-xs font-medium text-ds-fg-muted transition hover:bg-ds-surface hover:text-ds-fg"
           >
             Restaurar por defecto
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-cyan-500 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-cyan-400 disabled:opacity-60"
+            className="rounded-control bg-ds-primary px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-ds-primary-hover disabled:opacity-60"
           >
             {saving ? "Guardando…" : saved ? "✓ Guardado" : "Guardar"}
           </button>

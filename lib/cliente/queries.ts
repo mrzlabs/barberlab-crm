@@ -308,6 +308,29 @@ export async function citaPerteneceCliente(userId: string, citaId: string) {
   return cita ?? null;
 }
 
+/* ── WhatsApp del negocio configurado por el admin (para el enlace del cliente) ── */
+export async function getWhatsAppNegocio() {
+  if (await isDemoMode()) {
+    return { phone: "573001234567", enabled: true, nombre: "Smart Style" };
+  }
+  const { negocios } = await import("@/lib/db/schema");
+  const profile = await getCurrentProfile();
+  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
+  const [row] = await getDb()
+    .select({ nombre: negocios.nombre, configVisual: negocios.configVisual })
+    .from(negocios)
+    .where(eq(negocios.id, negocioId))
+    .limit(1);
+  const cfg = row?.configVisual ?? {};
+  const raw = (cfg.whatsapp_phone ?? "").replace(/\D/g, "");
+  const phone = raw ? (raw.startsWith("57") ? raw : `57${raw}`) : "";
+  return {
+    phone,
+    enabled: Boolean(cfg.whatsapp_enabled) && phone.length >= 10,
+    nombre: row?.nombre ?? "",
+  };
+}
+
 /* ── Sistema de puntos: saldo del cliente y política del negocio ── */
 export async function getMisPuntos(usuarioId: string) {
   if (await isDemoMode()) {
