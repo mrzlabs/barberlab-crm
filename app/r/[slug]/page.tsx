@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Award, CheckCircle2, Gift } from "lucide-react";
+import { Award, CheckCircle2, Gift, KeyRound, LogIn } from "lucide-react";
 import { getDb } from "@/lib/db";
 import { negocios } from "@/lib/db/schema";
 import { getPuntosConfig } from "@/lib/puntos";
@@ -106,15 +106,23 @@ export default async function RegistroPublicoPage({ params, searchParams }: Page
             <div className="flex items-center gap-3">
               <CheckCircle2 className="size-8 shrink-0 text-emerald-400" />
               <div>
-                <p className="text-lg font-black">{ok === "existente" ? "¡Ya estabas registrado!" : "¡Registro completo!"}</p>
+                <p className="text-lg font-black">{ok === "cuenta" ? "Ya tienes una cuenta" : "Registro completo"}</p>
                 <p className="mt-0.5 text-sm text-white/70">
-                  {ok === "existente"
-                    ? "Actualizamos tus datos. Te esperamos pronto."
-                    : puntos.habilitado && puntos.bonoRegistro > 0
-                      ? `Bienvenido. Ya tienes ${puntos.bonoRegistro} puntos de regalo para tu próxima visita.`
-                      : "Bienvenido. Te esperamos pronto."}
+                  {ok === "cuenta"
+                    ? "Actualizamos tus datos. Inicia sesión para entrar al panel cliente."
+                    : "Enviamos un enlace a tu correo. Ábrelo para crear tu clave y entrar al panel cliente."}
                 </p>
               </div>
+            </div>
+            <div className="mt-5 grid gap-2 sm:grid-cols-2">
+              {ok !== "cuenta" && (
+                <a className="flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-black text-slate-950" href="mailto:">
+                  <KeyRound className="size-4" /> Crear clave
+                </a>
+              )}
+              <a className="flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-black text-white" href="/login?next=/cliente/reservar">
+                <LogIn className="size-4" /> Iniciar sesión
+              </a>
             </div>
           </div>
         ) : (
@@ -138,7 +146,13 @@ export default async function RegistroPublicoPage({ params, searchParams }: Page
               <p className="mt-3 rounded-xl border border-red-400/30 bg-red-500/10 px-3.5 py-2.5 text-xs font-bold text-red-200">
                 {error === "consentimiento"
                   ? "Debes aceptar la política de tratamiento de datos."
-                  : "Revisa tus datos e intenta de nuevo."}
+                  : error === "correo"
+                    ? "Ese correo ya tiene una cuenta o no pudo recibir la invitación. Inicia sesión o recupera tu clave."
+                    : error === "config"
+                      ? "El acceso de clientes no está configurado."
+                      : error === "cuenta"
+                        ? "No fue posible crear la cuenta. Intenta de nuevo."
+                        : "Revisa tus datos e intenta de nuevo."}
               </p>
             )}
 
@@ -153,8 +167,8 @@ export default async function RegistroPublicoPage({ params, searchParams }: Page
                 <input className={input} name="telefono" type="tel" required minLength={7} maxLength={20} placeholder="300 000 0000" />
               </label>
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wider text-white/60">
-                Correo (opcional)
-                <input className={input} name="email" type="email" maxLength={160} placeholder="tucorreo@ejemplo.com" />
+                Correo
+                <input className={input} name="email" type="email" required maxLength={160} autoComplete="email" placeholder="tucorreo@ejemplo.com" />
               </label>
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wider text-white/60">
                 Cumpleaños (opcional)
