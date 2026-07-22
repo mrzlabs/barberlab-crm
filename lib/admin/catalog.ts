@@ -136,6 +136,7 @@ export async function getClientesAdmin(search?: string) {
       telefono:         clientes.telefono,
       email:            clientes.email,
       notas:            clientes.notas,
+      puntos:           clientes.puntos,
       createdAt:        clientes.createdAt,
       totalVisitas:     sql<number>`count(${turnos.id})::int`,
       ultimaVisita:     sql<string | null>`max(${turnos.createdAt})::text`,

@@ -35,7 +35,7 @@ function Wordmark() {
   );
 }
 
-export default function LoginPage({ searchParams }: { searchParams: { next?: string; error?: string } }) {
+export default function LoginPage({ searchParams }: { searchParams: { next?: string; error?: string; email?: string } }) {
   const [showPassword, setShowPassword] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -77,7 +77,7 @@ export default function LoginPage({ searchParams }: { searchParams: { next?: str
             <input type="hidden" name="next" value={searchParams.next || ""} />
 
             <Field label="Correo" htmlFor="email">
-              <Input id="email" name="email" type="email" required placeholder="tu@correo.com" autoComplete="email" />
+              <Input id="email" name="email" type="email" required placeholder="tu@correo.com" autoComplete="email" defaultValue={searchParams.email || ""} />
             </Field>
 
             <Field label="Contraseña" htmlFor="password">

@@ -67,6 +67,11 @@ export default async function RegistroPublicoPage({ params, searchParams }: Page
   const politicas = negocio.settings?.politicas ?? {};
   const ok = typeof searchParams?.ok === "string" ? searchParams.ok : null;
   const error = typeof searchParams?.error === "string" ? searchParams.error : null;
+  const modo = typeof searchParams?.modo === "string" ? searchParams.modo : null;
+  const emailPre = typeof searchParams?.email === "string" ? searchParams.email : "";
+  const loginUrl = `/login?next=/cliente/reservar${emailPre ? `&email=${encodeURIComponent(emailPre)}` : ""}`;
+  // Mostramos el formulario solo cuando el cliente eligió "Registrarme" o hubo un error al registrarse.
+  const mostrarFormulario = modo === "registro" || (!!error && !ok);
 
   return (
     <main className="relative min-h-dvh overflow-hidden bg-slate-950 text-white">
@@ -101,27 +106,49 @@ export default async function RegistroPublicoPage({ params, searchParams }: Page
           </div>
         </div>
 
-        {ok ? (
+        {ok === "cuenta" ? (
           <div className="rounded-[1.6rem] border border-emerald-400/30 bg-emerald-500/10 p-6 backdrop-blur-xl">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="size-8 shrink-0 text-emerald-400" />
               <div>
-                <p className="text-lg font-black">{ok === "cuenta" ? "Ya tienes una cuenta" : "Registro completo"}</p>
+                <p className="text-lg font-black">Ya tienes una cuenta</p>
                 <p className="mt-0.5 text-sm text-white/70">
-                  {ok === "cuenta"
-                    ? "Actualizamos tus datos. Inicia sesión para entrar al panel cliente."
-                    : "Enviamos un enlace a tu correo. Ábrelo para crear tu clave y entrar al panel cliente."}
+                  Actualizamos tus datos. Inicia sesión para entrar a tu panel.
                 </p>
               </div>
             </div>
-            <div className="mt-5 grid gap-2 sm:grid-cols-2">
-              {ok !== "cuenta" && (
-                <a className="flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-black text-slate-950" href="mailto:">
-                  <KeyRound className="size-4" /> Crear clave
-                </a>
-              )}
-              <a className="flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-black text-white" href="/login?next=/cliente/reservar">
-                <LogIn className="size-4" /> Iniciar sesión
+            <a className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-black text-slate-950" href={loginUrl}>
+              <LogIn className="size-4" /> Iniciar sesión
+            </a>
+          </div>
+        ) : !mostrarFormulario ? (
+          <div className="rounded-[1.6rem] border border-white/12 bg-white/6 p-6 backdrop-blur-xl">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: negocio.colorSecundario }}>
+              {vertical.vocab.clientes}
+            </p>
+            <h2 className="mt-1 text-xl font-black tracking-tight">Bienvenido</h2>
+            <p className="mt-1 text-sm text-white/60">Entra a tu cuenta o regístrate para agendar y acumular beneficios.</p>
+
+            {puntos.habilitado && puntos.bonoRegistro > 0 && (
+              <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-amber-300/25 bg-amber-400/10 px-3.5 py-2.5 text-xs leading-5 text-amber-100">
+                <Gift className="mt-0.5 size-4 shrink-0 text-amber-300" />
+                <span><b>{puntos.bonoRegistro} puntos de bienvenida</b> al registrarte por primera vez.</span>
+              </div>
+            )}
+
+            <div className="mt-5 grid gap-2.5">
+              <a
+                className="flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-black text-slate-950 transition hover:brightness-110 active:scale-[0.98]"
+                style={{ backgroundColor: negocio.colorSecundario }}
+                href={`/r/${negocio.slug}?modo=registro`}
+              >
+                <Award className="size-4" /> Registrarme
+              </a>
+              <a
+                className="flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3.5 text-sm font-black text-white transition hover:bg-white/15 active:scale-[0.98]"
+                href={loginUrl}
+              >
+                <LogIn className="size-4" /> Ya tengo cuenta · Iniciar sesión
               </a>
             </div>
           </div>
@@ -168,7 +195,11 @@ export default async function RegistroPublicoPage({ params, searchParams }: Page
               </label>
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wider text-white/60">
                 Correo
-                <input className={input} name="email" type="email" required maxLength={160} autoComplete="email" placeholder="tucorreo@ejemplo.com" />
+                <input className={input} name="email" type="email" required maxLength={160} autoComplete="email" defaultValue={emailPre} placeholder="tucorreo@ejemplo.com" />
+              </label>
+              <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wider text-white/60">
+                <span className="flex items-center gap-1.5"><KeyRound className="size-3.5" /> Crea tu clave</span>
+                <input className={input} name="password" type="password" required minLength={8} maxLength={72} autoComplete="new-password" placeholder="Mínimo 8 caracteres" />
               </label>
               <label className="grid gap-1.5 text-xs font-bold uppercase tracking-wider text-white/60">
                 Cumpleaños (opcional)

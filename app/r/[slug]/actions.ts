@@ -7,13 +7,14 @@ import { getDb } from "@/lib/db";
 import { clientes, negocios, usuarios } from "@/lib/db/schema";
 import { getPuntosConfig, moverPuntos } from "@/lib/puntos";
 import { isDemoMode } from "@/lib/demo-server";
-import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabase/server";
 
 const registroSchema = z.object({
   slug: z.string().min(2).max(80),
   nombre: z.string().min(2).max(120),
   telefono: z.string().min(7).max(20),
   email: z.string().trim().email().max(160),
+  password: z.string().min(8, "Mínimo 8 caracteres").max(72),
   cumpleanos: z.string().max(10).optional().or(z.literal("")),
   consentimiento: z.string().optional(),
 });
@@ -52,6 +53,7 @@ export async function registrarClientePublico(formData: FormData) {
     .limit(1);
 
   if (existente?.usuarioId) {
+    // Ya tiene cuenta en este negocio: actualizamos datos y lo enviamos a iniciar sesión.
     await db
       .update(clientes)
       .set({
@@ -62,33 +64,28 @@ export async function registrarClientePublico(formData: FormData) {
         updatedAt: new Date().toISOString(),
       })
       .where(eq(clientes.id, existente.id));
-    redirect(`/r/${data.slug}?ok=cuenta`);
+    redirect(`/r/${data.slug}?ok=cuenta&email=${encodeURIComponent(email)}`);
   }
 
   const supabase = createSupabaseAdminClient();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
-  if (!appUrl) redirect(`/r/${data.slug}?error=config`);
 
-  const { data: invitacion, error: authError } = await supabase.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${appUrl}/auth/callback?next=/cambiar-clave`,
-    data: {
-      rol: "cliente",
-      negocio_id: negocio.id,
-      nombre: data.nombre.trim(),
-      telefono,
-    },
-  });
-
-  if (authError || !invitacion.user) redirect(`/r/${data.slug}?error=correo`);
-
-  const userId = invitacion.user.id;
-  const { error: metadataError } = await supabase.auth.admin.updateUserById(userId, {
+  // Modelo híbrido: el cliente define su clave aquí y entra directo; el correo queda para recuperación.
+  const { data: creado, error: authError } = await supabase.auth.admin.createUser({
+    email,
+    password: data.password,
+    email_confirm: true,
+    user_metadata: { rol: "cliente", negocio_id: negocio.id, nombre: data.nombre.trim(), telefono },
     app_metadata: { rol: "cliente", role: "cliente", negocio_id: negocio.id },
   });
-  if (metadataError) {
-    await supabase.auth.admin.deleteUser(userId).catch(() => {});
+
+  if (authError || !creado.user) {
+    // Correo ya registrado en Auth: lo mandamos a iniciar sesión con el correo prellenado.
+    const yaExiste = authError?.code === "email_exists" || /already|registered|exist/i.test(authError?.message ?? "");
+    if (yaExiste) redirect(`/login?email=${encodeURIComponent(email)}&next=/cliente/reservar`);
     redirect(`/r/${data.slug}?error=cuenta`);
   }
+
+  const userId = creado.user.id;
 
   let clienteId: string;
   try {
@@ -101,7 +98,7 @@ export async function registrarClientePublico(formData: FormData) {
         nombre: data.nombre.trim(),
         telefono,
         activo: true,
-        mustChangePassword: true,
+        mustChangePassword: false,
       });
 
       if (existente) {
@@ -146,5 +143,13 @@ export async function registrarClientePublico(formData: FormData) {
     });
   }
 
-  redirect(`/r/${data.slug}?ok=invitado`);
+  // Sesión automática: el cliente entra directo a su panel sin pasar por /login.
+  const serverSupabase = createSupabaseServerClient();
+  const { error: signInError } = await serverSupabase.auth.signInWithPassword({
+    email,
+    password: data.password,
+  });
+  if (signInError) redirect(`/login?email=${encodeURIComponent(email)}&next=/cliente/reservar`);
+
+  redirect("/cliente/reservar");
 }
