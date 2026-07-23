@@ -252,6 +252,17 @@ export function MrzHelpBot({ topics, actions }: { topics?: HelpTopic[]; actions?
     return () => window.clearTimeout(id);
   }, [pathname]);
 
+  // Auto-cierre: si el usuario no lo cierra ni abre el drawer, el peek
+  // desaparece solo tras unos segundos (y no reaparece en esta ruta).
+  useEffect(() => {
+    if (!peekVisible) return;
+    const id = window.setTimeout(() => {
+      setPeekVisible(false);
+      sessionStorage.setItem(peekKey(pathname), "1");
+    }, 6000);
+    return () => window.clearTimeout(id);
+  }, [peekVisible, pathname]);
+
   // Ocultar peek cuando el drawer abre
   useEffect(() => { if (open) setPeekVisible(false); }, [open]);
 
