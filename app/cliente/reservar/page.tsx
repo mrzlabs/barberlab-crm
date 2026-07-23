@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { MessageCircle } from "lucide-react";
-import { fmtDateTime, fmtMoney, toDateInput } from "@/lib/admin/format";
+import { fmtDateTime, fmtMoney, fmtTime, franjaDia, toDateInput } from "@/lib/admin/format";
 import { getProductosCliente, getReservaCatalog, getSlots, getWhatsAppNegocio } from "@/lib/cliente/queries";
 import { buscarSlotsSchema } from "@/lib/validations/cliente";
 import { reservarCita } from "./actions";
@@ -22,10 +22,18 @@ export default async function ReservarPage({ searchParams }: PageProps) {
     servicioId: getParam(searchParams?.servicioId) || catalog.servicios[0]?.id,
     empleadoId: getParam(searchParams?.empleadoId) || catalog.empleados[0]?.id,
     fecha: getParam(searchParams?.fecha) || toDateInput(),
+    desde: getParam(searchParams?.desde) || "",
+    hasta: getParam(searchParams?.hasta) || "",
   });
-  const slots = await getSlots(params.empleadoId, params.fecha, params.servicioId);
+  const slots = await getSlots(params.empleadoId, params.fecha, params.servicioId, { desde: params.desde || undefined, hasta: params.hasta || undefined });
   const selectedService = catalog.servicios.find((service) => service.id === params.servicioId);
   const selectedEmployee = catalog.empleados.find((employee) => employee.id === params.empleadoId);
+
+  // Agrupa los horarios por franja para que el cliente los escanee rápido.
+  const franjas = ["Mañana", "Tarde", "Noche"] as const;
+  const porFranja = franjas
+    .map((nombre) => ({ nombre, items: slots.filter((s) => franjaDia(s.inicio) === nombre) }))
+    .filter((g) => g.items.length > 0);
 
   return (
     <div className="space-y-5">
@@ -56,30 +64,51 @@ export default async function ReservarPage({ searchParams }: PageProps) {
             <label className="grid gap-1.5 text-[13px] font-medium text-ds-fg">Fecha
               <Input defaultValue={params.fecha} min={toDateInput()} name="fecha" required type="date" />
             </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="grid gap-1.5 text-[13px] font-medium text-ds-fg">Desde
+                <Input defaultValue={params.desde} name="desde" type="time" />
+              </label>
+              <label className="grid gap-1.5 text-[13px] font-medium text-ds-fg">Hasta
+                <Input defaultValue={params.hasta} name="hasta" type="time" />
+              </label>
+            </div>
             <button className="h-control rounded-control bg-ds-primary px-4 text-sm font-medium text-white transition-colors hover:bg-ds-primary-hover" type="submit">Consultar horarios</button>
           </div>
         </form>
 
         <section className="overflow-hidden rounded-card border border-ds-border bg-ds-surface shadow-ds-sm">
-          <div className="border-b border-ds-border p-5">
-            <h3 className="text-base font-semibold text-ds-fg">Horarios disponibles</h3>
-            <p className="mt-1 text-[13px] text-ds-fg-muted">{selectedService?.nombre || "Servicio"} con {selectedEmployee?.nombre || "especialista"}.</p>
+          <div className="flex items-center justify-between gap-3 border-b border-ds-border p-5">
+            <div>
+              <h3 className="text-base font-semibold text-ds-fg">Horarios disponibles</h3>
+              <p className="mt-1 text-[13px] text-ds-fg-muted">{selectedService?.nombre || "Servicio"} con {selectedEmployee?.nombre || "especialista"}. Toca una hora para reservar.</p>
+            </div>
+            <Badge tone="neutral">{slots.length}</Badge>
           </div>
-          <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3">
-            {slots.map((slot) => (
-              <form action={reservarCita} className="rounded-control border border-ds-border bg-ds-surface p-4 shadow-ds-sm transition-colors hover:border-ds-border-strong" key={slot.inicio}>
-                <input name="servicioId" type="hidden" value={params.servicioId} />
-                <input name="empleadoId" type="hidden" value={params.empleadoId} />
-                <input name="inicio" type="hidden" value={slot.inicio} />
-                <input name="fin" type="hidden" value={slot.fin} />
-                <p className="text-[11px] font-medium uppercase tracking-wide text-ds-fg-muted">Slot</p>
-                <strong className="mt-1.5 block text-[15px] font-semibold text-ds-fg">{fmtDateTime(slot.inicio)}</strong>
-                <p className="mt-1 text-[12px] text-ds-fg-muted">Finaliza {fmtDateTime(slot.fin)}</p>
-                <button className="mt-3 h-control w-full rounded-control bg-ds-primary px-4 text-sm font-medium text-white transition-colors hover:bg-ds-primary-hover" type="submit">Reservar</button>
-              </form>
+          <div className="space-y-5 p-5">
+            {porFranja.map((grupo) => (
+              <div key={grupo.nombre}>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-ds-fg-muted">{grupo.nombre}</p>
+                <div className="flex flex-wrap gap-2">
+                  {grupo.items.map((slot) => (
+                    <form action={reservarCita} key={slot.inicio}>
+                      <input name="servicioId" type="hidden" value={params.servicioId} />
+                      <input name="empleadoId" type="hidden" value={params.empleadoId} />
+                      <input name="inicio" type="hidden" value={slot.inicio} />
+                      <input name="fin" type="hidden" value={slot.fin} />
+                      <button
+                        type="submit"
+                        title={`Reservar ${fmtDateTime(slot.inicio)}`}
+                        className="ds-nums h-control rounded-control border border-ds-border bg-ds-surface px-3.5 text-sm font-semibold text-ds-fg transition-colors hover:border-ds-primary hover:bg-ds-primary hover:text-white"
+                      >
+                        {fmtTime(slot.inicio)}
+                      </button>
+                    </form>
+                  ))}
+                </div>
+              </div>
             ))}
             {slots.length === 0 && (
-              <p className="rounded-control border border-dashed border-ds-border p-8 text-center text-sm text-ds-fg-subtle sm:col-span-2 lg:col-span-3">
+              <p className="rounded-control border border-dashed border-ds-border p-8 text-center text-sm text-ds-fg-subtle">
                 Sin horarios disponibles para la selección actual.
               </p>
             )}

@@ -27,3 +27,29 @@ export function toDateInput(value = new Date()) {
     timeZone: "America/Bogota",
   }).format(value);
 }
+
+/** Hora legible en zona del negocio, ej. "9:00 a. m." */
+export function fmtTime(value: Date | string) {
+  return new Intl.DateTimeFormat("es-CO", {
+    timeStyle: "short",
+    timeZone: "America/Bogota",
+  }).format(new Date(value));
+}
+
+/** Hora en 24h "HH:MM" (zona del negocio) — para comparar rangos y agrupar franjas. */
+export function horaBogota(value: Date | string) {
+  return new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "America/Bogota",
+  }).format(new Date(value));
+}
+
+/** Franja del día a partir de la hora del negocio. */
+export function franjaDia(value: Date | string): "Mañana" | "Tarde" | "Noche" {
+  const hhmm = horaBogota(value);
+  if (hhmm < "12:00") return "Mañana";
+  if (hhmm < "18:00") return "Tarde";
+  return "Noche";
+}

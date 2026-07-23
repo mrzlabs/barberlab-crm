@@ -4,6 +4,7 @@ import { citaHistorial, citas, clientes, empleados, inventario, servicios, usuar
 import { isDemoMode } from "@/lib/demo-server";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { serializeDates } from "@/lib/utils";
+import { horaBogota } from "@/lib/admin/format";
 
 export type Slot = {
   inicio: string;
@@ -132,33 +133,50 @@ export async function getProductosCliente() {
     .limit(24);
 }
 
-export async function getSlots(empleadoId?: string, fecha?: string, servicioId?: string) {
+type SlotsOpts = { desde?: string; hasta?: string; incluirVencidos?: boolean };
+
+export async function getSlots(empleadoId?: string, fecha?: string, servicioId?: string, opts?: SlotsOpts) {
   if (!empleadoId || !fecha || !servicioId) return [];
+
+  let slots: Array<{ inicio: string; fin: string }>;
   if (await isDemoMode()) {
     const base = new Date(`${fecha}T09:00:00-05:00`);
-    return [0, 1, 2, 4, 6].map((offset) => {
+    slots = [0, 1, 2, 4, 6].map((offset) => {
       const inicio = new Date(base.getTime() + offset * 60 * 60000);
       const fin = new Date(inicio.getTime() + 45 * 60000);
       return { inicio: inicio.toISOString(), fin: fin.toISOString() };
     });
+  } else {
+    const rows = await getDb().execute(sql`
+      select inicio, fin
+      from public.disponibilidad_empleado(${empleadoId}::uuid, ${fecha}::date, ${servicioId}::uuid)
+    `) as Array<{ inicio: string | Date; fin: string | Date }>;
+
+    // Normaliza SIEMPRE a ISO-8601 UTC ("…Z"). Postgres devuelve el timestamp
+    // como string ("2026-07-16 08:00:00+00"), que NO pasa z.string().datetime()
+    // → la validación de crear cita / reservar fallaba con "Faltan datos".
+    slots = rows.map((slot) => ({
+      inicio: new Date(slot.inicio).toISOString(),
+      fin: new Date(slot.fin).toISOString(),
+    }));
   }
 
-  const rows = await getDb().execute(sql`
-    select inicio, fin
-    from public.disponibilidad_empleado(${empleadoId}::uuid, ${fecha}::date, ${servicioId}::uuid)
-  `) as Array<{ inicio: string | Date; fin: string | Date }>;
-
-  // Normaliza SIEMPRE a ISO-8601 UTC ("…Z"). Postgres devuelve el timestamp
-  // como string ("2026-07-16 08:00:00+00"), que NO pasa z.string().datetime()
-  // → la validación de crear cita / reservar fallaba con "Faltan datos".
-  return rows.map((slot) => ({
-    inicio: new Date(slot.inicio).toISOString(),
-    fin: new Date(slot.fin).toISOString(),
-  }));
+  // Vista: oculta horas ya vencidas y aplica el rango de horas solicitado.
+  // La validación de reserva pasa incluirVencidos para no depender de este filtro.
+  const ahora = Date.now();
+  return slots.filter((slot) => {
+    if (!opts?.incluirVencidos && new Date(slot.inicio).getTime() <= ahora) return false;
+    if (opts?.desde || opts?.hasta) {
+      const hh = horaBogota(slot.inicio);
+      if (opts.desde && hh < opts.desde) return false;
+      if (opts.hasta && hh > opts.hasta) return false;
+    }
+    return true;
+  });
 }
 
 export async function slotDisponible(params: { empleadoId: string; fecha: string; servicioId: string; inicio: Date; fin: Date }) {
-  const slots = await getSlots(params.empleadoId, params.fecha, params.servicioId);
+  const slots = await getSlots(params.empleadoId, params.fecha, params.servicioId, { incluirVencidos: true });
   const inicioIso = params.inicio instanceof Date ? params.inicio.toISOString() : String(params.inicio);
   const finIso = params.fin instanceof Date ? params.fin.toISOString() : String(params.fin);
   return slots.some((slot) => slot.inicio === inicioIso && slot.fin === finIso);

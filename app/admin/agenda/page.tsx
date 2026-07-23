@@ -49,7 +49,11 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
   const servicioId = citaMover?.servicioId ?? getParam(searchParams?.servicioId) ?? servicios[0]?.id;
   const empleadoId = citaMover?.empleadoId ?? getParam(searchParams?.empleadoId) ?? empleados[0]?.id;
   const clienteId = getParam(searchParams?.clienteId) || clientes[0]?.id;
-  const slots = isUuid(servicioId) && isUuid(empleadoId) ? await getSlots(empleadoId, fecha, servicioId) : [];
+  const desde = getParam(searchParams?.desde) || "";
+  const hasta = getParam(searchParams?.hasta) || "";
+  const slots = isUuid(servicioId) && isUuid(empleadoId)
+    ? await getSlots(empleadoId, fecha, servicioId, { desde: desde || undefined, hasta: hasta || undefined })
+    : [];
 
   const tabCls = (active: boolean) =>
     `inline-flex h-control items-center rounded-control px-3.5 text-[13px] font-medium transition-colors ${
@@ -123,6 +127,10 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
                   </Select>
                 </label>
                 <label className={lbl}>Fecha<Input defaultValue={fecha} min={toDateInput()} name="fecha" required type="date" /></label>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className={lbl}>Desde<Input defaultValue={desde} name="desde" type="time" /></label>
+                  <label className={lbl}>Hasta<Input defaultValue={hasta} name="hasta" type="time" /></label>
+                </div>
                 <SubmitButton label="Consultar horarios" pendingLabel="Buscando…" className="h-control rounded-control bg-ds-primary px-4 text-sm font-medium text-white transition-colors hover:bg-ds-primary-hover" />
               </div>
             </form>
@@ -169,7 +177,7 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
                 </div>
                 <Badge tone="neutral">{slots.length} disponibles</Badge>
               </div>
-              <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
+              <div className="mt-4 flex flex-wrap gap-3">
                 {slots.map((slot) => (
                   citaMover ? (
                     <form action={reagendarCita} className="min-w-[240px] rounded-control border border-ds-warning/30 bg-ds-warning-tint p-4" key={slot.inicio}>

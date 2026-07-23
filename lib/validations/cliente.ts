@@ -4,6 +4,8 @@ export const buscarSlotsSchema = z.object({
   servicioId: z.string().trim().uuid().optional(),
   empleadoId: z.string().trim().uuid().optional(),
   fecha: z.string().trim().min(10).optional(),
+  desde: z.string().trim().regex(/^\d{2}:\d{2}$/).optional().or(z.literal("")),
+  hasta: z.string().trim().regex(/^\d{2}:\d{2}$/).optional().or(z.literal("")),
 });
 
 export const reservarSchema = z.object({
