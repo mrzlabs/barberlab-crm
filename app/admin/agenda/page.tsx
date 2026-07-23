@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { fmtDateTime, toDateInput } from "@/lib/admin/format";
-import { getAgendaAdmin, getAgendaDia, getBloqueosAdmin, getClientesAdmin, getEmpleadosAdmin, getHorariosAdmin, getServiciosAdmin } from "@/lib/admin/catalog";
+import { ChevronDown } from "lucide-react";
+import { fmtDate, fmtDateTime, toDateInput } from "@/lib/admin/format";
+import { getAgendaRango, getBloqueosAdmin, getClientesAdmin, getEmpleadosAdmin, getHorariosAdmin, getServiciosAdmin } from "@/lib/admin/catalog";
 import { getSlots } from "@/lib/cliente/queries";
 import { AgendaCalendar } from "@/components/admin/AgendaCalendar";
 import { AgendaBoardView } from "@/components/admin/AgendaBoardView";
@@ -18,6 +18,7 @@ export const dynamic = "force-dynamic";
 const days = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
 const lbl = "grid gap-1 text-[12px] font-medium text-ds-fg-muted";
 const cardCls = "rounded-card border border-ds-border bg-ds-surface p-5 shadow-ds-sm";
+const summaryCls = "flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden";
 
 type PageProps = { searchParams?: Record<string, string | string[] | undefined> };
 function getParam(value: string | string[] | undefined) { return Array.isArray(value) ? value[0] : value; }
@@ -32,18 +33,29 @@ function estadoTone(estado: string): "neutral" | "primary" | "success" | "danger
 function isUuid(value?: string) {
   return Boolean(value && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value));
 }
-function prevDay(fecha: string) { const d = new Date(`${fecha}T12:00:00`); d.setDate(d.getDate() - 1); return toDateInput(d); }
-function nextDay(fecha: string) { const d = new Date(`${fecha}T12:00:00`); d.setDate(d.getDate() + 1); return toDateInput(d); }
+function addDays(fecha: string, dias: number) { const d = new Date(`${fecha}T12:00:00`); d.setDate(d.getDate() + dias); return toDateInput(d); }
+/** Días (YYYY-MM-DD) cubiertos por el rango, con tope para no reventar el calendario. */
+function diasDelRango(desde: string, hasta: string, max = 14) {
+  const dias: string[] = [];
+  let cursor = desde;
+  while (cursor <= hasta && dias.length < max) { dias.push(cursor); cursor = addDays(cursor, 1); }
+  return dias.length ? dias : [desde];
+}
 
 export default async function AdminAgendaPage({ searchParams }: PageProps) {
   const vista = getParam(searchParams?.vista) ?? "board";
-  const fecha = getParam(searchParams?.fecha) || toDateInput();
+  const hoy = toDateInput();
+  // Rango de FECHAS de la agenda (distinto de desde/hasta, que filtran HORAS de los slots).
+  const fdesde = getParam(searchParams?.fdesde) || hoy;
+  const fhasta = getParam(searchParams?.fhasta) || "";
+  const fecha = getParam(searchParams?.fecha) || fdesde;
 
   const [citas, servicios, empleados, clientes, horarios, bloqueos] = await Promise.all([
-    getAgendaAdmin(), getServiciosAdmin(), getEmpleadosAdmin(), getClientesAdmin(), getHorariosAdmin(), getBloqueosAdmin(),
+    getAgendaRango(fdesde, fhasta || undefined), getServiciosAdmin(), getEmpleadosAdmin(), getClientesAdmin(), getHorariosAdmin(), getBloqueosAdmin(),
   ]);
 
-  const citasCalendario = vista === "calendario" ? await getAgendaDia(fecha) : [];
+  // Calendario: una rejilla por cada día del rango (si no hay tope, muestra una semana).
+  const diasCalendario = vista === "calendario" ? diasDelRango(fdesde, fhasta || addDays(fdesde, 6)) : [];
   const mover = getParam(searchParams?.mover);
   const citaMover = mover ? citas.find((c) => c.id === mover) : null;
   const servicioId = citaMover?.servicioId ?? getParam(searchParams?.servicioId) ?? servicios[0]?.id;
@@ -75,41 +87,86 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
         }
       />
 
-      {/* Toggle vista + navegación fecha */}
+      {/* Toggle vista */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2">
-          <Link className={tabCls(vista === "board")} href={`/admin/agenda?vista=board&fecha=${fecha}`}>Board</Link>
-          <Link className={tabCls(vista === "lista")} href={`/admin/agenda?vista=lista&fecha=${fecha}`}>Lista</Link>
-          <Link className={tabCls(vista === "calendario")} href={`/admin/agenda?vista=calendario&fecha=${fecha}`}>Calendario</Link>
+          <Link className={tabCls(vista === "board")} href={`/admin/agenda?vista=board&fdesde=${fdesde}&fhasta=${fhasta}`}>Board</Link>
+          <Link className={tabCls(vista === "lista")} href={`/admin/agenda?vista=lista&fdesde=${fdesde}&fhasta=${fhasta}`}>Lista</Link>
+          <Link className={tabCls(vista === "calendario")} href={`/admin/agenda?vista=calendario&fdesde=${fdesde}&fhasta=${fhasta}`}>Calendario</Link>
         </div>
-        {(vista === "calendario" || vista === "board") && (
-          <div className="flex items-center gap-2">
-            <Link className="grid size-9 place-items-center rounded-control border border-ds-border bg-ds-surface text-ds-fg-muted hover:bg-ds-surface-2" href={`/admin/agenda?vista=${vista}&fecha=${prevDay(fecha)}`}><ChevronLeft className="size-4" /></Link>
-            <span className="ds-nums text-sm font-medium text-ds-fg">{fecha}</span>
-            <Link className="grid size-9 place-items-center rounded-control border border-ds-border bg-ds-surface text-ds-fg-muted hover:bg-ds-surface-2" href={`/admin/agenda?vista=${vista}&fecha=${nextDay(fecha)}`}><ChevronRight className="size-4" /></Link>
-            <Link className="inline-flex h-control items-center rounded-control bg-ds-primary px-3 text-[13px] font-medium text-white hover:bg-ds-primary-hover" href={`/admin/agenda?vista=${vista}&fecha=${toDateInput()}`}>Hoy</Link>
-          </div>
-        )}
+        <span className="ds-nums text-[13px] text-ds-fg-muted">
+          {citas.length} reserva{citas.length !== 1 ? "s" : ""} {fhasta ? `· ${fmtDate(`${fdesde}T12:00:00`)} a ${fmtDate(`${fhasta}T12:00:00`)}` : `· desde ${fmtDate(`${fdesde}T12:00:00`)} en adelante`}
+        </span>
       </div>
+
+      {/* Filtro por rango de fechas */}
+      <form className={`${cardCls} flex flex-wrap items-end gap-3`} method="get">
+        <input type="hidden" name="vista" value={vista} />
+        <label className={lbl}>Desde<Input className="w-[165px]" defaultValue={fdesde} name="fdesde" type="date" /></label>
+        <label className={lbl}>Hasta<Input className="w-[165px]" defaultValue={fhasta} name="fhasta" type="date" /></label>
+        <button className="h-control rounded-control bg-ds-primary px-4 text-sm font-medium text-white transition-colors hover:bg-ds-primary-hover" type="submit">Aplicar</button>
+        <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+          {[
+            { label: "Hoy", d: hoy, h: hoy },
+            { label: "7 días", d: hoy, h: addDays(hoy, 7) },
+            { label: "30 días", d: hoy, h: addDays(hoy, 30) },
+            { label: "Todo lo futuro", d: hoy, h: "" },
+          ].map((a) => {
+            const activo = fdesde === a.d && fhasta === a.h;
+            return (
+              <Link
+                key={a.label}
+                href={`/admin/agenda?vista=${vista}&fdesde=${a.d}&fhasta=${a.h}`}
+                className={`inline-flex h-control items-center rounded-control px-3 text-[13px] font-medium transition-colors ${
+                  activo ? "bg-ds-primary text-white" : "border border-ds-border bg-ds-surface text-ds-fg-muted hover:border-ds-border-strong hover:text-ds-fg"
+                }`}
+              >
+                {a.label}
+              </Link>
+            );
+          })}
+        </div>
+      </form>
 
       {vista === "board" && (
         <AgendaBoardView citas={citas} empleados={empleados.map((e) => ({ id: e.id, nombre: e.nombre, activo: e.activo }))} fecha={fecha} />
       )}
 
       {vista === "calendario" && (
-        <AgendaCalendar citas={citasCalendario} empleados={empleados.map((e) => ({ id: e.id, nombre: e.nombre }))} />
+        <div className="space-y-4">
+          {diasCalendario.map((dia) => {
+            const delDia = citas.filter((c) => toDateInput(new Date(c.inicio)) === dia);
+            return (
+              <div key={dia}>
+                <div className="mb-2 flex items-center gap-2">
+                  <h3 className="text-[13px] font-semibold capitalize text-ds-fg">{fmtDate(`${dia}T12:00:00`)}</h3>
+                  <span className="ds-nums rounded-full bg-ds-surface-2 px-2 py-0.5 text-[11px] font-medium text-ds-fg-muted">{delDia.length}</span>
+                </div>
+                <AgendaCalendar citas={delDia} empleados={empleados.map((e) => ({ id: e.id, nombre: e.nombre }))} />
+              </div>
+            );
+          })}
+        </div>
       )}
 
       {vista === "lista" && (
         <section className="grid gap-5 xl:grid-cols-[410px_1fr]">
           <div className="space-y-4">
-            <form className={cardCls} id="nueva-cita">
+            <details className={`group ${cardCls}`} id="nueva-cita" open>
+              <summary className={summaryCls}>
+                <span>
+                  <span className="block text-[12px] font-medium uppercase tracking-wide text-ds-fg-muted">Crear cita admin</span>
+                  <span className="text-base font-semibold text-ds-fg">Nueva cita</span>
+                </span>
+                <ChevronDown className="size-4 shrink-0 text-ds-fg-muted transition-transform group-open:rotate-180" />
+              </summary>
+              <form>
               {/* Conserva la vista Lista al consultar horarios (si no, el GET
                   borra vista=lista y la página cae a Board, ocultando los slots
                   y el botón de crear cita). */}
               <input type="hidden" name="vista" value="lista" />
-              <p className="text-[12px] font-medium uppercase tracking-wide text-ds-fg-muted">Crear cita admin</p>
-              <h3 className="text-base font-semibold text-ds-fg">Nueva cita</h3>
+              <input type="hidden" name="fdesde" value={fdesde} />
+              <input type="hidden" name="fhasta" value={fhasta} />
               <div className="mt-4 grid gap-3">
                 <label className={lbl}>Cliente
                   <Select defaultValue={clienteId} name="clienteId" required>
@@ -133,11 +190,18 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
                 </div>
                 <SubmitButton label="Consultar horarios" pendingLabel="Buscando…" className="h-control rounded-control bg-ds-primary px-4 text-sm font-medium text-white transition-colors hover:bg-ds-primary-hover" />
               </div>
-            </form>
+              </form>
+            </details>
 
-            <form action={createHorarioEmpleado} className={cardCls}>
-              <p className="text-[12px] font-medium uppercase tracking-wide text-ds-fg-muted">Disponibilidad</p>
-              <h3 className="text-base font-semibold text-ds-fg">Agregar horario</h3>
+            <details className={`group ${cardCls}`}>
+              <summary className={summaryCls}>
+                <span>
+                  <span className="block text-[12px] font-medium uppercase tracking-wide text-ds-fg-muted">Disponibilidad</span>
+                  <span className="text-base font-semibold text-ds-fg">Agregar horario</span>
+                </span>
+                <ChevronDown className="size-4 shrink-0 text-ds-fg-muted transition-transform group-open:rotate-180" />
+              </summary>
+              <form action={createHorarioEmpleado}>
               <div className="mt-4 grid gap-3">
                 <Select name="empleadoId" required>{empleados.map((e) => <option key={e.id} value={e.id}>{e.nombre}</option>)}</Select>
                 <Select name="diaSemana" required>{days.map((day, index) => <option key={day} value={index}>{day}</option>)}</Select>
@@ -147,11 +211,18 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
                 </div>
                 <SubmitButton label="Guardar horario" pendingLabel="Guardando…" className="h-control rounded-control bg-ds-primary px-4 text-sm font-medium text-white transition-colors hover:bg-ds-primary-hover" />
               </div>
-            </form>
+              </form>
+            </details>
 
-            <form action={createBloqueoEmpleado} className={cardCls}>
-              <p className="text-[12px] font-medium uppercase tracking-wide text-ds-fg-muted">Bloqueos</p>
-              <h3 className="text-base font-semibold text-ds-fg">Bloquear agenda</h3>
+            <details className={`group ${cardCls}`}>
+              <summary className={summaryCls}>
+                <span>
+                  <span className="block text-[12px] font-medium uppercase tracking-wide text-ds-fg-muted">Bloqueos</span>
+                  <span className="text-base font-semibold text-ds-fg">Bloquear agenda</span>
+                </span>
+                <ChevronDown className="size-4 shrink-0 text-ds-fg-muted transition-transform group-open:rotate-180" />
+              </summary>
+              <form action={createBloqueoEmpleado}>
               <div className="mt-4 grid gap-3">
                 <Select name="empleadoId" required>{empleados.map((e) => <option key={e.id} value={e.id}>{e.nombre}</option>)}</Select>
                 <Input name="fechaInicio" required type="datetime-local" />
@@ -159,7 +230,8 @@ export default async function AdminAgendaPage({ searchParams }: PageProps) {
                 <Input name="motivo" placeholder="Motivo" />
                 <SubmitButton label="Guardar bloqueo" pendingLabel="Guardando…" className="h-control rounded-control border border-ds-border-strong bg-ds-surface px-4 text-sm font-medium text-ds-fg transition-colors hover:bg-ds-surface-2" />
               </div>
-            </form>
+              </form>
+            </details>
           </div>
 
           <div className="space-y-4 overflow-hidden">

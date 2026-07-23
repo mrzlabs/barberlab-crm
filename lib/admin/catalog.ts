@@ -198,6 +198,74 @@ export async function getAgendaDia(fecha: string) {
   return rows.map((r) => ({ ...r, inicio: String(r.inicio), fin: String(r.fin) }));
 }
 
+/**
+ * Agenda por rango de fechas (zona del negocio). Alimenta Board, Lista y Calendario.
+ * Sin `desde` arranca hoy; sin `hasta` no pone tope (muestra todo lo futuro).
+ */
+export async function getAgendaRango(desde?: string, hasta?: string) {
+  const hoy = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota" }).format(new Date());
+  const desdeFecha = desde || hoy;
+
+  if (await isDemoMode()) {
+    const base = new Date(`${desdeFecha}T09:00:00-05:00`);
+    const dia = 86400000;
+    const demo = [
+      { offset: 0,        empleadoId: "emp-1", cliente: "Paula Gomez",  servicio: "Corte y barba",           empleado: "Mateo Barber", estado: "confirmada", categoria: "barberia", telefono: "3104567890", servicioId: "serv-2", dur: 45 },
+      { offset: 2 * 3600000, empleadoId: "emp-2", cliente: "Laura Vega",   servicio: "Manicure semipermanente", empleado: "Sofia Nails",  estado: "reservada",  categoria: "spa_unas", telefono: "3209876543", servicioId: "serv-3", dur: 75 },
+      { offset: dia,      empleadoId: "emp-1", cliente: "Carlos Ruiz",  servicio: "Corte premium",           empleado: "Mateo Barber", estado: "reservada",  categoria: "barberia", telefono: "3001234567", servicioId: "serv-1", dur: 45 },
+      { offset: 3 * dia,  empleadoId: "emp-2", cliente: "Andres Mora",  servicio: "Spa de unas",             empleado: "Sofia Nails",  estado: "confirmada", categoria: "spa_unas", telefono: "3152223344", servicioId: "serv-3", dur: 60 },
+      { offset: 30 * dia, empleadoId: "emp-1", cliente: "Marly Perez",  servicio: "Corte y barba",           empleado: "Mateo Barber", estado: "reservada",  categoria: "barberia", telefono: "3173821279", servicioId: "serv-2", dur: 45 },
+    ];
+    return demo.map((d, i) => {
+      const inicio = new Date(base.getTime() + d.offset);
+      return {
+        id: `rango-demo-${i}`,
+        inicio: inicio.toISOString(),
+        fin: new Date(inicio.getTime() + d.dur * 60000).toISOString(),
+        estado: d.estado,
+        empleadoId: d.empleadoId,
+        servicioId: d.servicioId,
+        cliente: d.cliente,
+        telefono: d.telefono,
+        servicio: d.servicio,
+        empleado: d.empleado,
+        categoria: d.categoria,
+      };
+    }).filter((c) => !hasta || c.inicio <= new Date(`${hasta}T23:59:59-05:00`).toISOString());
+  }
+
+  const profile = await getCurrentProfile();
+  const negocioId = profile?.negocioId || "00000000-0000-0000-0000-000000000000";
+  const desdeIso = new Date(`${desdeFecha}T00:00:00-05:00`).toISOString();
+  const conditions = [eq(citas.negocioId, negocioId), gte(citas.inicio, desdeIso)];
+  if (hasta) conditions.push(lte(citas.inicio, new Date(`${hasta}T23:59:59-05:00`).toISOString()));
+
+  const rows = await getDb()
+    .select({
+      id: citas.id,
+      inicio: citas.inicio,
+      fin: citas.fin,
+      estado: citas.estado,
+      empleadoId: citas.empleadoId,
+      servicioId: citas.servicioId,
+      cliente: clientes.nombre,
+      telefono: clientes.telefono,
+      servicio: servicios.nombre,
+      empleado: usuarios.nombre,
+      categoria: servicios.categoria,
+    })
+    .from(citas)
+    .innerJoin(clientes, eq(citas.clienteId, clientes.id))
+    .innerJoin(servicios, eq(citas.servicioId, servicios.id))
+    .innerJoin(empleados, eq(citas.empleadoId, empleados.id))
+    .innerJoin(usuarios, eq(empleados.usuarioId, usuarios.id))
+    .where(and(...conditions))
+    .orderBy(asc(citas.inicio))
+    .limit(200);
+
+  return rows.map((r) => ({ ...r, inicio: String(r.inicio), fin: String(r.fin) }));
+}
+
 export async function getClienteDetalle(clienteId: string, negocioId: string) {
   if (await isDemoMode()) {
     const { mockClienteArchivos, mockDepositos } = await import("@/lib/mock");

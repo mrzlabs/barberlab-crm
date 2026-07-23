@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { citas, clientes, empleados, servicios, turnos } from "@/lib/db/schema";
 import { serializeDates } from "@/lib/utils";
@@ -20,7 +20,7 @@ export async function getEmpleadoByUsr(userId: string) {
   return row ? serializeDates(row) : null;
 }
 
-export async function getMiAgenda(userId: string) {
+export async function getMiAgenda(userId: string, fdesde?: string, fhasta?: string) {
   const empleado = await getEmpleadoByUsr(userId);
   if (!empleado) return serializeDates({ empleado: null, citas: [], stats: { hoy: 0, pendientes: 0, realizadas: 0 } });
 
@@ -34,6 +34,12 @@ export async function getMiAgenda(userId: string) {
 
   const db = getDb();
   const { start, end } = dayBounds();
+
+  // Rango de fechas: por defecto de hoy en adelante (activas y futuras).
+  const hoyStr = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota" }).format(new Date());
+  const desdeIso = new Date(`${fdesde || hoyStr}T00:00:00-05:00`).toISOString();
+  const rango = [eq(citas.empleadoId, empleado.id), gte(citas.inicio, desdeIso)];
+  if (fhasta) rango.push(lte(citas.inicio, new Date(`${fhasta}T23:59:59-05:00`).toISOString()));
 
   const [items, stats] = await Promise.all([
     db
@@ -51,9 +57,9 @@ export async function getMiAgenda(userId: string) {
       .from(citas)
       .innerJoin(clientes, eq(citas.clienteId, clientes.id))
       .innerJoin(servicios, eq(citas.servicioId, servicios.id))
-      .where(eq(citas.empleadoId, empleado.id))
-      .orderBy(desc(citas.inicio))
-      .limit(30),
+      .where(and(...rango))
+      .orderBy(asc(citas.inicio))
+      .limit(60),
     db
       .select({
         hoy: sql<number>`count(*) filter (where ${citas.inicio} between ${start} and ${end})::int`,

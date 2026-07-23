@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Wallet } from "lucide-react";
-import { fmtDateTime, fmtMoney } from "@/lib/admin/format";
+import { fmtDateTime, fmtMoney, toDateInput } from "@/lib/admin/format";
+import { Input } from "@/components/ui/Input";
 import { requireRole } from "@/lib/auth/session";
 import { getMiAgenda, getStatsEmpleado } from "@/lib/empleado/queries";
 import { getComentariosParaCitas } from "@/lib/cliente/queries";
@@ -17,9 +18,15 @@ function estadoTone(estado: string): "neutral" | "primary" | "success" | "danger
   return "primary";
 }
 
-export default async function MiAgendaPage() {
+type PageProps = { searchParams?: Record<string, string | string[] | undefined> };
+function getParam(v: string | string[] | undefined) { return Array.isArray(v) ? v[0] : v; }
+
+export default async function MiAgendaPage({ searchParams }: PageProps) {
   const profile = await requireRole(["empleado"]);
-  const [agendaRaw, statsRaw] = await Promise.all([getMiAgenda(profile.id), getStatsEmpleado(profile.id)]);
+  const hoy = toDateInput();
+  const fdesde = getParam(searchParams?.fdesde) || hoy;
+  const fhasta = getParam(searchParams?.fhasta) || "";
+  const [agendaRaw, statsRaw] = await Promise.all([getMiAgenda(profile.id, fdesde, fhasta || undefined), getStatsEmpleado(profile.id)]);
   const agenda = JSON.parse(JSON.stringify(agendaRaw)) as typeof agendaRaw;
   const stats  = JSON.parse(JSON.stringify(statsRaw))  as typeof statsRaw;
   const comentariosRaw = await getComentariosParaCitas(agendaRaw.citas.map(c => c.id));
@@ -63,6 +70,20 @@ export default async function MiAgendaPage() {
           </div>
         </div>
       )}
+
+      {/* Filtro por rango de fechas */}
+      <form className="flex flex-wrap items-end gap-3 rounded-card border border-ds-border bg-ds-surface p-4 shadow-ds-sm" method="get">
+        <label className="grid gap-1 text-[12px] font-medium text-ds-fg-muted">Desde
+          <Input className="w-[165px]" defaultValue={fdesde} name="fdesde" type="date" />
+        </label>
+        <label className="grid gap-1 text-[12px] font-medium text-ds-fg-muted">Hasta
+          <Input className="w-[165px]" defaultValue={fhasta} name="fhasta" type="date" />
+        </label>
+        <button className="h-control rounded-control bg-ds-primary px-4 text-sm font-medium text-white transition-colors hover:bg-ds-primary-hover" type="submit">Aplicar</button>
+        <span className="ds-nums text-[13px] text-ds-fg-muted sm:ml-auto">
+          {agenda.citas.length} cita{agenda.citas.length !== 1 ? "s" : ""} {fhasta ? "en el rango" : "de hoy en adelante"}
+        </span>
+      </form>
 
       {/* Stats del día */}
       <section className="grid gap-3 sm:grid-cols-3 sm:gap-4">
